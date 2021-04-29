@@ -1,16 +1,23 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
+using Debug = System.Diagnostics.Debug;
+using Object = System.Object;
 
 namespace Unity.UIWidgets.widgets {
-    public class FadeInImage : StatefulWidget {
+    public class FadeInImage : StatelessWidget {
         public FadeInImage(
             ImageProvider placeholder,
+            ImageErrorWidgetBuilder placeholderErrorBuilder,
             ImageProvider image,
+            ImageErrorWidgetBuilder imageErrorBuilder = null,
             TimeSpan? fadeOutDuration = null,
             Curve fadeOutCurve = null,
             TimeSpan? fadeInDuration = null,
@@ -18,11 +25,12 @@ namespace Unity.UIWidgets.widgets {
             float? width = null,
             float? height = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
-            Key key = null
+            Key key = null,
+            bool matchTextDirection = false
         ) : base(key) {
-            D.assert(placeholder != null);
+           
             D.assert(image != null);
             D.assert(fadeOutDuration != null);
             D.assert(fadeOutCurve != null);
@@ -30,7 +38,9 @@ namespace Unity.UIWidgets.widgets {
             D.assert(fadeInCurve != null);
             D.assert(alignment != null);
             this.placeholder = placeholder;
+            this.placeholderErrorBuilder = placeholderErrorBuilder;
             this.image = image;
+            this.imageErrorBuilder = imageErrorBuilder;
             this.width = width;
             this.height = height;
             this.fit = fit;
@@ -40,11 +50,15 @@ namespace Unity.UIWidgets.widgets {
             this.fadeInCurve = fadeInCurve ?? Curves.easeIn;
             this.alignment = alignment ?? Alignment.center;
             this.repeat = repeat;
+            this.matchTextDirection = matchTextDirection;
         }
 
         public static FadeInImage memoryNetwork(
-            byte[] placeholder,
-            string image,
+            byte[] placeholder ,
+            string image ,
+            Key key = null,
+            ImageErrorWidgetBuilder placeholderErrorBuilder = null,
+            ImageErrorWidgetBuilder imageErrorBuilder = null,
             float placeholderScale = 1.0f,
             float imageScale = 1.0f,
             TimeSpan? fadeOutDuration = null,
@@ -54,37 +68,47 @@ namespace Unity.UIWidgets.widgets {
             float? width = null,
             float? height = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
-            Key key = null
+            bool matchTextDirection = false,
+            int? placeholderCacheWidth = null,
+            int? placeholderCacheHeight = null,
+            int? imageCacheWidth = null,
+            int? imageCacheHeight = null
         ) {
-            D.assert(placeholder != null);
-            D.assert(image != null);
-            D.assert(fadeOutDuration != null);
-            D.assert(fadeOutCurve != null);
-            D.assert(fadeInDuration != null);
-            D.assert(fadeInCurve != null);
-            D.assert(alignment != null);
-            var memoryImage = new MemoryImage(placeholder, placeholderScale);
-            var networkImage = new NetworkImage(image, imageScale);
+            alignment = alignment ?? Alignment.center;
+            fadeOutDuration = fadeOutDuration  ?? TimeSpan.FromMilliseconds( 300 );
+            fadeOutCurve = fadeOutCurve ?? Curves.easeOut;
+            fadeInDuration = fadeInDuration ?? TimeSpan.FromMilliseconds( 700 );
+            fadeInCurve = fadeInCurve ?? Curves.easeIn;
+            ImageProvider memoryImage = new MemoryImage(placeholder, placeholderScale);
+            ImageProvider networkImage = new NetworkImage(image, imageScale);
+            
+            //placeholder = ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight, memoryImage);
+            //image = ResizeImage.resizeIfNeeded(imageCacheWidth, imageCacheHeight, networkImage);
             return new FadeInImage(
-                memoryImage,
-                networkImage,
-                fadeOutDuration,
-                fadeOutCurve,
-                fadeInDuration,
-                fadeInCurve,
-                width, height,
-                fit,
-                alignment,
-                repeat,
-                key
+                placeholder: ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight, memoryImage),
+                placeholderErrorBuilder: placeholderErrorBuilder,
+                image: ResizeImage.resizeIfNeeded(imageCacheWidth, imageCacheHeight, networkImage),
+                imageErrorBuilder: imageErrorBuilder,
+                fadeOutDuration: fadeOutDuration,
+                fadeOutCurve: fadeOutCurve,
+                fadeInDuration: fadeInDuration,
+                fadeInCurve: fadeInCurve,
+                width: width, height: height,
+                fit: fit,
+                alignment: alignment,
+                repeat: repeat,
+                matchTextDirection: matchTextDirection,
+                key: key
             );
         }
 
         public static FadeInImage assetNetwork(
             string placeholder,
             string image,
+            ImageErrorWidgetBuilder placeholderErrorBuilder = null,
+            ImageErrorWidgetBuilder imageErrorBuilder = null,
             AssetBundle bundle = null,
             float? placeholderScale = null,
             float imageScale = 1.0f,
@@ -95,39 +119,49 @@ namespace Unity.UIWidgets.widgets {
             float? width = null,
             float? height = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
-            Key key = null
+            bool matchTextDirection = false,
+            Key key = null,
+            int? placeholderCacheWidth = null,
+            int? placeholderCacheHeight = null,
+            int? imageCacheWidth = null,
+            int? imageCacheHeight = null
         ) {
-            D.assert(placeholder != null);
-            D.assert(image != null);
+           
             fadeOutDuration = fadeOutDuration ?? new TimeSpan(0, 0, 0, 0, 300);
             fadeOutCurve = fadeOutCurve ?? Curves.easeOut;
             fadeInDuration = fadeInDuration ?? new TimeSpan(0, 0, 0, 0, 700);
             fadeInCurve = Curves.easeIn;
             alignment = alignment ?? Alignment.center;
-            var imageProvider = placeholderScale != null
-                ? new ExactAssetImage(placeholder, bundle: bundle, scale: placeholderScale ?? 1.0f)
-                : (ImageProvider) new AssetImage(placeholder, bundle: bundle);
-
-            var networkImage = new NetworkImage(image, imageScale);
+            var holder = placeholderScale ?? 1.0f;
+            var _placeholder = placeholderScale != null
+                ? ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight,
+                    new ExactAssetImage(placeholder, bundle: bundle, scale: holder))
+                : ResizeImage.resizeIfNeeded(placeholderCacheWidth, placeholderCacheHeight,
+                    new AssetImage(placeholder, bundle: bundle));
             return new FadeInImage(
-                imageProvider,
-                networkImage,
-                fadeOutDuration,
-                fadeOutCurve,
-                fadeInDuration,
-                fadeInCurve,
-                width, height,
-                fit,
-                alignment,
-                repeat,
-                key
+                placeholder: _placeholder,
+                placeholderErrorBuilder: placeholderErrorBuilder,
+                image: ResizeImage.resizeIfNeeded(imageCacheWidth, imageCacheHeight, new NetworkImage(image, scale: imageScale)),
+                imageErrorBuilder: imageErrorBuilder,
+                fadeOutDuration: fadeOutDuration,
+                fadeOutCurve: fadeOutCurve,
+                fadeInDuration: fadeInDuration,
+                fadeInCurve: fadeInCurve,
+                width: width, height: height,
+                fit: fit,
+                alignment: alignment,
+                repeat: repeat,
+                matchTextDirection: matchTextDirection,
+                key: key
             );
         }
 
         public readonly ImageProvider placeholder;
+        public readonly ImageErrorWidgetBuilder placeholderErrorBuilder;
         public readonly ImageProvider image;
+        public readonly ImageErrorWidgetBuilder imageErrorBuilder;
         public readonly TimeSpan fadeOutDuration;
         public readonly Curve fadeOutCurve;
         public readonly TimeSpan fadeInDuration;
@@ -135,230 +169,182 @@ namespace Unity.UIWidgets.widgets {
         public readonly float? width;
         public readonly float? height;
         public readonly BoxFit? fit;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly ImageRepeat repeat;
+        public readonly bool matchTextDirection;
 
-        public override State createState() {
-            return new _FadeInImageState();
-        }
-    }
-
-    enum FadeInImagePhase {
-        start,
-        waiting,
-        fadeOut,
-        fadeIn,
-        completed
-    }
-
-    delegate void _ImageProviderResolverListener();
-
-    class _ImageProviderResolver {
-        public _ImageProviderResolver(
-            _FadeInImageState state,
-            _ImageProviderResolverListener listener
+        public Image _image(
+            ImageProvider image = null,
+            ImageErrorWidgetBuilder errorBuilder = null,
+            ImageFrameBuilder frameBuilder = null
         ) {
-            this.state = state;
-            this.listener = listener;
-        }
-
-        readonly _FadeInImageState state;
-        readonly _ImageProviderResolverListener listener;
-
-        FadeInImage widget {
-            get { return this.state.widget; }
-        }
-
-        public ImageStream _imageStream;
-        public ImageInfo _imageInfo;
-
-        public void resolve(ImageProvider provider) {
-            ImageStream oldImageStream = this._imageStream;
-            Size size = null;
-            if (this.widget.width != null && this.widget.height != null) {
-                size = new Size((int) this.widget.width, (int) this.widget.height);
-            }
-
-            this._imageStream = provider.resolve(ImageUtils.createLocalImageConfiguration(this.state.context, size));
-            D.assert(this._imageStream != null);
-
-            if (this._imageStream.key != oldImageStream?.key) {
-                oldImageStream?.removeListener(this._handleImageChanged);
-                this._imageStream.addListener(this._handleImageChanged);
-            }
-        }
-
-        void _handleImageChanged(ImageInfo imageInfo, bool synchronousCall) {
-            this._imageInfo = imageInfo;
-            this.listener();
-        }
-
-        public void stopListening() {
-            this._imageStream?.removeListener(this._handleImageChanged);
-        }
-    }
-
-
-    class _FadeInImageState : TickerProviderStateMixin<FadeInImage> {
-        _ImageProviderResolver _imageResolver;
-        _ImageProviderResolver _placeholderResolver;
-
-        AnimationController _controller;
-        Animation<float> _animation;
-
-        FadeInImagePhase _phase = FadeInImagePhase.start;
-
-        public override void initState() {
-            this._imageResolver = new _ImageProviderResolver(state: this, this._updatePhase);
-            this._placeholderResolver = new _ImageProviderResolver(state: this, listener: () => {
-                this.setState(() => {
-                    // Trigger rebuild to display the placeholder image
-                });
-            });
-            this._controller = new AnimationController(
-                value: 1.0f,
-                vsync: this
+            D.assert(image != null);
+            return new Image(
+                image: image,
+                errorBuilder: errorBuilder,
+                frameBuilder: frameBuilder,
+                width: width,
+                height: height,
+                fit: fit,
+                alignment: alignment,
+                repeat: repeat,
+                matchTextDirection: matchTextDirection,
+                gaplessPlayback: true
+                
             );
-            this._controller.addListener(() => {
-                this.setState(() => {
-                    // Trigger rebuild to update opacity value.
-                });
-            });
-            this._controller.addStatusListener(status => { this._updatePhase(); });
-            base.initState();
-        }
-
-        public override void didChangeDependencies() {
-            this._resolveImage();
-            base.didChangeDependencies();
-        }
-
-        public override void didUpdateWidget(StatefulWidget oldWidget) {
-            base.didUpdateWidget(oldWidget);
-            FadeInImage fadeInImage = oldWidget as FadeInImage;
-            if (this.widget.image != fadeInImage.image || this.widget.placeholder != fadeInImage.placeholder) {
-                this._resolveImage();
-            }
-        }
-
-        void _resolveImage() {
-            this._imageResolver.resolve(this.widget.image);
-
-            if (this._isShowingPlaceholder) {
-                this._placeholderResolver.resolve(this.widget.placeholder);
-            }
-
-            if (this._phase == FadeInImagePhase.start) {
-                this._updatePhase();
-            }
-        }
-
-        void _updatePhase() {
-            this.setState(() => {
-                switch (this._phase) {
-                    case FadeInImagePhase.start:
-                        if (this._imageResolver._imageInfo != null) {
-                            this._phase = FadeInImagePhase.completed;
-                        }
-                        else {
-                            this._phase = FadeInImagePhase.waiting;
-                        }
-
-                        break;
-                    case FadeInImagePhase.waiting:
-                        if (this._imageResolver._imageInfo != null) {
-                            this._controller.duration = this.widget.fadeOutDuration;
-                            this._animation = new CurvedAnimation(
-                                parent: this._controller,
-                                curve: this.widget.fadeOutCurve
-                            );
-                            this._phase = FadeInImagePhase.fadeOut;
-                            this._controller.reverse(1.0f);
-                        }
-
-                        break;
-                    case FadeInImagePhase.fadeOut:
-                        if (this._controller.status == AnimationStatus.dismissed) {
-                            // Done fading out placeholder. Begin target image fade-in.
-                            this._controller.duration = this.widget.fadeInDuration;
-                            this._animation = new CurvedAnimation(
-                                parent: this._controller,
-                                curve: this.widget.fadeInCurve
-                            );
-                            this._phase = FadeInImagePhase.fadeIn;
-                            this._placeholderResolver.stopListening();
-                            this._controller.forward(0.0f);
-                        }
-
-                        break;
-                    case FadeInImagePhase.fadeIn:
-                        if (this._controller.status == AnimationStatus.completed) {
-                            // Done finding in new image.
-                            this._phase = FadeInImagePhase.completed;
-                        }
-
-                        break;
-                    case FadeInImagePhase.completed:
-                        // Nothing to do.
-                        break;
-                }
-            });
-        }
-
-        public override void dispose() {
-            this._imageResolver.stopListening();
-            this._placeholderResolver.stopListening();
-            this._controller.dispose();
-            base.dispose();
-        }
-
-        bool _isShowingPlaceholder {
-            get {
-                switch (this._phase) {
-                    case FadeInImagePhase.start:
-                    case FadeInImagePhase.waiting:
-                    case FadeInImagePhase.fadeOut:
-                        return true;
-                    case FadeInImagePhase.fadeIn:
-                    case FadeInImagePhase.completed:
-                        return false;
-                }
-
-                return true;
-            }
-        }
-
-        ImageInfo _imageInfo {
-            get {
-                return this._isShowingPlaceholder
-                    ? this._placeholderResolver._imageInfo
-                    : this._imageResolver._imageInfo;
-            }
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(this._phase != FadeInImagePhase.start);
-            ImageInfo imageInfo = this._imageInfo;
-            return new RawImage(
-                image: imageInfo?.image,
-                width: this.widget.width,
-                height: this.widget.height,
-                scale: imageInfo?.scale ?? 1.0f,
-                color: Color.fromRGBO(255, 255, 255, this._animation?.value ?? 1.0f),
-                colorBlendMode: BlendMode.modulate,
-                fit: this.widget.fit,
-                alignment: this.widget.alignment,
-                repeat: this.widget.repeat
+            Widget result = _image(
+                image: image,
+                errorBuilder: imageErrorBuilder,
+                frameBuilder: (BuildContext context1, Widget child, int frame, bool wasSynchronouslyLoaded)=> {
+                if (wasSynchronouslyLoaded)
+                    return child;
+                return new _AnimatedFadeOutFadeIn(
+                    target: child,
+                    placeholder: _image(image: placeholder, errorBuilder: placeholderErrorBuilder),
+                    isTargetLoaded: frame != null,
+                    fadeInDuration: fadeInDuration,
+                    fadeOutDuration: fadeOutDuration,
+                    fadeInCurve: fadeInCurve,
+                    fadeOutCurve: fadeOutCurve
+                );
+            }
             );
+            return result;
+        }
+    }
+
+    public class _AnimatedFadeOutFadeIn : ImplicitlyAnimatedWidget {
+        public _AnimatedFadeOutFadeIn(
+            Widget target ,
+            Widget placeholder ,
+            bool isTargetLoaded ,
+            TimeSpan fadeOutDuration,
+            TimeSpan fadeInDuration,
+            Curve fadeOutCurve,
+            Curve fadeInCurve,
+            Key key = null
+        ) : base(key: key, duration: fadeInDuration + fadeOutDuration) {
+            
+            this.target = target;
+            this.placeholder = placeholder;
+            this.isTargetLoaded = isTargetLoaded;
+            this.fadeInDuration = fadeInDuration;
+            this.fadeOutDuration = fadeOutDuration;
+            this.fadeInCurve = fadeInCurve;
+            this.fadeOutCurve = fadeOutCurve;
         }
 
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new EnumProperty<FadeInImagePhase>("phase", this._phase));
-            properties.add(new DiagnosticsProperty<ImageInfo>("pixels", this._imageInfo));
-            properties.add(new DiagnosticsProperty<ImageStream>("image stream", this._imageResolver._imageStream));
-            properties.add(new DiagnosticsProperty<ImageStream>("placeholder stream",
-                this._placeholderResolver._imageStream));
+        public readonly Widget target;
+        public readonly Widget placeholder;
+        public readonly bool isTargetLoaded;
+        public readonly TimeSpan? fadeInDuration;
+        public readonly TimeSpan? fadeOutDuration;
+        public readonly Curve fadeInCurve;
+        public readonly Curve fadeOutCurve;
+
+
+        public override State createState() => new _AnimatedFadeOutFadeInState();
+
+
+        public class _AnimatedFadeOutFadeInState : ImplicitlyAnimatedWidgetState<_AnimatedFadeOutFadeIn> {
+            FloatTween _targetOpacity;
+            FloatTween _placeholderOpacity;
+            Animation<float> _targetOpacityAnimation;
+            Animation<float> _placeholderOpacityAnimation;
+
+            protected override void forEachTween(TweenVisitor visitor) {
+                _targetOpacity = (FloatTween) visitor.visit(
+                    state: this,
+                    tween: _targetOpacity,
+                    targetValue: widget.isTargetLoaded ? 1.0f : 0.0f,
+                    constructor: (float value) => new FloatTween(begin: value, 0));
+
+                _placeholderOpacity = (FloatTween) visitor.visit(
+                    state: this,
+                    tween: _placeholderOpacity,
+                    targetValue: widget.isTargetLoaded ? 0.0f : 1.0f,
+                    constructor: (float value) => new FloatTween(begin: value, 0));
+            }
+
+            protected override void didUpdateTweens() {
+                List<TweenSequenceItem<float>> list = new List<TweenSequenceItem<float>>();
+
+                Debug.Assert(widget.fadeOutDuration?.Milliseconds != null,
+                    "widget.fadeOutDuration?.Milliseconds != null");
+                list.Add(new TweenSequenceItem<float>(
+                    tween: _placeholderOpacity.chain(new CurveTween(curve: widget.fadeOutCurve)),
+                    weight: (float) widget.fadeOutDuration?.Milliseconds
+                ));
+
+                Debug.Assert(widget.fadeInDuration?.Milliseconds != null,
+                    "widget.fadeInDuration?.Milliseconds != null");
+                list.Add(new TweenSequenceItem<float>(
+                    tween: new ConstantTween<float>(0),
+                    weight: (float) widget.fadeInDuration?.Milliseconds
+                ));
+
+                
+                _placeholderOpacityAnimation = animation.drive(new TweenSequence<float>(list));
+                _placeholderOpacityAnimation.addStatusListener((AnimationStatus status) =>{
+                    if (_placeholderOpacityAnimation.isCompleted) {
+                        setState(() => {});
+                    }
+                });
+
+                List<TweenSequenceItem<float>> list2 = new List<TweenSequenceItem<float>>();
+                list2.Add(new TweenSequenceItem<float>(
+                    tween: new ConstantTween<float>(0),
+                    weight: (float) widget.fadeOutDuration?.Milliseconds
+                ));
+                list2.Add(new TweenSequenceItem<float>(
+                    tween: _targetOpacity.chain(new CurveTween(curve: widget.fadeInCurve)),
+                    weight: (float) widget.fadeInDuration?.Milliseconds
+                ));
+                _targetOpacityAnimation = animation.drive(new TweenSequence<float>(list2));
+                if (!widget.isTargetLoaded && _isValid(_placeholderOpacity) && _isValid(_targetOpacity)) {
+                    controller.setValue(controller.upperBound);
+                }
+            }
+
+            bool _isValid(Tween<float> tween) {
+                return tween.begin != null && tween.end != null;
+            }
+
+
+            public override Widget build(BuildContext context) {
+                Widget target = new FadeTransition(
+                    opacity: _targetOpacityAnimation,
+                    child: widget.target
+                );
+
+                if (_placeholderOpacityAnimation.isCompleted) {
+                    return target;
+                }
+
+                return new Stack(
+                    fit: StackFit.passthrough,
+                    alignment: AlignmentDirectional.center,
+                    textDirection: TextDirection.ltr,
+                    children: new List<Widget>() {
+                        target,
+                        new FadeTransition(
+                            opacity: _placeholderOpacityAnimation,
+                            child: widget.placeholder
+                        )
+                    }
+                );
+            }
+
+            public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+                base.debugFillProperties(properties);
+                properties.add(new DiagnosticsProperty<Animation<float>>("targetOpacity", _targetOpacityAnimation));
+                properties.add(
+                    new DiagnosticsProperty<Animation<float>>("placeholderOpacity", _placeholderOpacityAnimation));
+            }
         }
+        
     }
 }

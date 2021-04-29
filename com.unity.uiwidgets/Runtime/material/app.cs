@@ -1,16 +1,18 @@
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Brightness = Unity.UIWidgets.ui.Brightness;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    static class AppUtils {
+    public partial class material_ {
         public static readonly TextStyle _errorTextStyle = new TextStyle(
             color: new Color(0xD0FF0000),
             fontFamily: "monospace",
@@ -22,6 +24,13 @@ namespace Unity.UIWidgets.material {
         );
     }
 
+    public enum ThemeMode {
+        system,
+
+        light,
+
+        dark,
+    }
 
     public class MaterialApp : StatefulWidget {
         public MaterialApp(
@@ -31,39 +40,55 @@ namespace Unity.UIWidgets.material {
             Dictionary<string, WidgetBuilder> routes = null,
             string initialRoute = null,
             RouteFactory onGenerateRoute = null,
+            InitialRouteListFactory onGenerateInitialRoutes = null,
             RouteFactory onUnknownRoute = null,
             List<NavigatorObserver> navigatorObservers = null,
             TransitionBuilder builder = null,
             string title = "",
+            GenerateAppTitle onGenerateTitle = null,
             Color color = null,
             ThemeData theme = null,
             ThemeData darkTheme = null,
+            ThemeMode themeMode = ThemeMode.system,
             Locale locale = null,
             List<LocalizationsDelegate> localizationsDelegates = null,
             LocaleListResolutionCallback localeListResolutionCallback = null,
             LocaleResolutionCallback localeResolutionCallback = null,
             List<Locale> supportedLocales = null,
-            bool showPerformanceOverlay = false
+            bool showPerformanceOverlay = false,
+            bool checkerboardRasterCacheImages = false,
+            bool checkerboardOffscreenLayers = false,
+            bool debugShowCheckedModeBanner = true,
+            Dictionary<LogicalKeySet, Intent> shortcuts = null,
+            Dictionary<LocalKey, ActionFactory> actions = null
         ) : base(key: key) {
             supportedLocales = supportedLocales ?? new List<Locale> {new Locale("en", "US")};
             this.navigatorKey = navigatorKey;
             this.home = home;
             this.routes = routes ?? new Dictionary<string, WidgetBuilder>();
+            this.onGenerateInitialRoutes = onGenerateInitialRoutes;
             this.initialRoute = initialRoute;
             this.onGenerateRoute = onGenerateRoute;
             this.onUnknownRoute = onUnknownRoute;
             this.navigatorObservers = navigatorObservers ?? new List<NavigatorObserver>();
             this.builder = builder;
             this.title = title;
+            this.onGenerateTitle = onGenerateTitle;
             this.color = color;
             this.theme = theme;
             this.darkTheme = darkTheme;
+            this.themeMode = themeMode;
             this.locale = locale;
             this.localizationsDelegates = localizationsDelegates;
             this.localeListResolutionCallback = localeListResolutionCallback;
             this.localeResolutionCallback = localeResolutionCallback;
             this.supportedLocales = supportedLocales;
             this.showPerformanceOverlay = showPerformanceOverlay;
+            this.checkerboardRasterCacheImages = checkerboardRasterCacheImages;
+            this.checkerboardOffscreenLayers = checkerboardOffscreenLayers;
+            this.debugShowCheckedModeBanner = debugShowCheckedModeBanner;
+            this.shortcuts = shortcuts;
+            this.actions = actions;
         }
 
         public readonly GlobalKey<NavigatorState> navigatorKey;
@@ -76,6 +101,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly RouteFactory onGenerateRoute;
 
+        public readonly InitialRouteListFactory onGenerateInitialRoutes;
+
         public readonly RouteFactory onUnknownRoute;
 
         public readonly List<NavigatorObserver> navigatorObservers;
@@ -84,9 +111,13 @@ namespace Unity.UIWidgets.material {
 
         public readonly string title;
 
+        public readonly GenerateAppTitle onGenerateTitle;
+        
         public readonly ThemeData theme;
 
         public readonly ThemeData darkTheme;
+
+        public readonly ThemeMode themeMode;
 
         public readonly Color color;
 
@@ -102,41 +133,51 @@ namespace Unity.UIWidgets.material {
 
         public readonly bool showPerformanceOverlay;
 
+        public readonly bool checkerboardRasterCacheImages;
+
+        public readonly bool checkerboardOffscreenLayers;
+
+        public readonly bool debugShowCheckedModeBanner;
+
+        public readonly Dictionary<LogicalKeySet, Intent> shortcuts;
+
+        public readonly Dictionary<LocalKey, ActionFactory> actions;
+
         public override State createState() {
             return new _MaterialAppState();
         }
     }
 
-
     class _MaterialAppState : State<MaterialApp> {
         HeroController _heroController;
-        
+
         public override void initState() {
             base.initState();
-            this._heroController = new HeroController(createRectTween: this._createRectTween);
-            this._updateNavigator();
+            _heroController = new HeroController(createRectTween: _createRectTween);
+            _updateNavigator();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.navigatorKey != (oldWidget as MaterialApp).navigatorKey) {
-                this._heroController = new HeroController(createRectTween: this._createRectTween);
+            if (widget.navigatorKey != (oldWidget as MaterialApp).navigatorKey) {
+                _heroController = new HeroController(createRectTween: _createRectTween);
             }
-            this._updateNavigator();
+
+            _updateNavigator();
         }
 
         List<NavigatorObserver> _navigatorObservers;
 
         void _updateNavigator() {
-            if (this.widget.home != null ||
-                this.widget.routes.isNotEmpty() ||
-                this.widget.onGenerateRoute != null ||
-                this.widget.onUnknownRoute != null) {
-                this._navigatorObservers = new List<NavigatorObserver>(this.widget.navigatorObservers);
-                this._navigatorObservers.Add(this._heroController);
+            if (widget.home != null ||
+                widget.routes.isNotEmpty() ||
+                widget.onGenerateRoute != null ||
+                widget.onUnknownRoute != null) {
+                _navigatorObservers = new List<NavigatorObserver>(widget.navigatorObservers);
+                _navigatorObservers.Add(_heroController);
             }
             else {
-                this._navigatorObservers = new List<NavigatorObserver>();
+                _navigatorObservers = new List<NavigatorObserver>();
             }
         }
 
@@ -147,10 +188,10 @@ namespace Unity.UIWidgets.material {
         List<LocalizationsDelegate> _localizationsDelegates {
             get {
                 var _delegates = new List<LocalizationsDelegate>();
-                if (this.widget.localizationsDelegates != null) {
-                    _delegates.AddRange(this.widget.localizationsDelegates);
+                if (widget.localizationsDelegates != null) {
+                    _delegates.AddRange(widget.localizationsDelegates);
                 }
-                
+
                 _delegates.Add(DefaultCupertinoLocalizations.del);
                 _delegates.Add(DefaultMaterialLocalizations.del);
                 return new List<LocalizationsDelegate>(_delegates);
@@ -160,45 +201,61 @@ namespace Unity.UIWidgets.material {
         public override Widget build(BuildContext context) {
             Widget result = new WidgetsApp(
                 key: new GlobalObjectKey<State>(this),
-                navigatorKey: this.widget.navigatorKey,
-                navigatorObservers: this._navigatorObservers,
+                navigatorKey: widget.navigatorKey,
+                navigatorObservers: _navigatorObservers,
                 pageRouteBuilder: (RouteSettings settings, WidgetBuilder builder) =>
                     new MaterialPageRoute(settings: settings, builder: builder),
-                home: this.widget.home,
-                routes: this.widget.routes,
-                initialRoute: this.widget.initialRoute,
-                onGenerateRoute: this.widget.onGenerateRoute,
-                onUnknownRoute: this.widget.onUnknownRoute,
+                home: widget.home,
+                routes: widget.routes,
+                initialRoute: widget.initialRoute,
+                onGenerateRoute: widget.onGenerateRoute,
+                onGenerateInitialRoutes: widget.onGenerateInitialRoutes,
+                onUnknownRoute: widget.onUnknownRoute,
                 builder: (BuildContext _context, Widget child) => {
-                    ThemeData theme;
-                    Brightness platformBrightness = MediaQuery.platformBrightnessOf(_context);
-                    if (platformBrightness == Brightness.dark && this.widget.darkTheme != null) {
-                        theme = this.widget.darkTheme;
+                    ThemeMode mode = widget.themeMode;
+                    ThemeData theme = null;
+                    if (widget.darkTheme != null) {
+                        ui.Brightness platformBrightness = MediaQuery.platformBrightnessOf(context);
+                        if (mode == ThemeMode.dark ||
+                            (mode == ThemeMode.system && platformBrightness == ui.Brightness.dark)) {
+                            theme = widget.darkTheme;
+                        }
                     }
-                    else if (this.widget.theme != null) {
-                        theme = this.widget.theme;
-                    }
-                    else {
-                        theme = ThemeData.fallback();
-                    }
+
+                    theme = theme ?? widget.theme ?? ThemeData.fallback();
 
                     return new AnimatedTheme(
                         data: theme,
                         isMaterialAppTheme: true,
-                        child: this.widget.builder != null
+                        child: widget.builder != null
                             ? new Builder(
-                                builder: (__context) => { return this.widget.builder(__context, child); }
+                                builder: (__context) => { return widget.builder(__context, child); }
                             )
                             : child
                     );
                 },
-                textStyle: AppUtils._errorTextStyle,
-                locale: this.widget.locale,
-                localizationsDelegates: this._localizationsDelegates,
-                localeResolutionCallback: this.widget.localeResolutionCallback,
-                localeListResolutionCallback: this.widget.localeListResolutionCallback,
-                supportedLocales: this.widget.supportedLocales,
-                showPerformanceOverlay: this.widget.showPerformanceOverlay
+                textStyle: material_._errorTextStyle,
+                title: widget.title,
+                onGenerateTitle: widget.onGenerateTitle,
+                color: widget.color ?? widget.theme?.primaryColor ?? Colors.blue,
+                locale: widget.locale,
+                localizationsDelegates: _localizationsDelegates,
+                localeResolutionCallback: widget.localeResolutionCallback,
+                localeListResolutionCallback: widget.localeListResolutionCallback,
+                supportedLocales: widget.supportedLocales,
+                showPerformanceOverlay: widget.showPerformanceOverlay,
+                checkerboardRasterCacheImages: widget.checkerboardRasterCacheImages,
+                checkerboardOffscreenLayers: widget.checkerboardOffscreenLayers,
+                debugShowCheckedModeBanner: widget.debugShowCheckedModeBanner,
+                inspectorSelectButtonBuilder: (BuildContext contextIn, VoidCallback onPressed) => {
+                    return new FloatingActionButton(
+                        child: new Icon(Icons.search),
+                        onPressed: onPressed,
+                        mini: true
+                    );
+                },
+                shortcuts: widget.shortcuts,
+                actions: widget.actions
             );
 
             return result;

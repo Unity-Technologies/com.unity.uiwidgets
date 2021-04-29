@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using DialogUtils = Unity.UIWidgets.material.DialogUtils;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace UIWidgetsGallery.gallery {
     public class PersistentBottomSheetDemo : StatefulWidget {
@@ -47,7 +48,7 @@ namespace UIWidgetsGallery.gallery {
                         )
                     );
                 })
-                .closed.Then((value) => {
+                .closed.then((value) => {
                     if (this.mounted) {
                         this.setState(() => {
                             // re-enable the button
@@ -58,9 +59,9 @@ namespace UIWidgetsGallery.gallery {
         }
 
         void _showMessage() {
-            DialogUtils.showDialog(
+            DialogUtils.showGeneralDialog<object>(
                 context: this.context,
-                builder: (BuildContext context) => {
+                pageBuilder: ( context, _, __) => {
                     return new AlertDialog(
                         content: new Text("You tapped the floating action button."),
                         actions: new List<Widget> {

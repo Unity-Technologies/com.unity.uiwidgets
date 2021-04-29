@@ -4,7 +4,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.painting {
-    public static class Geometry {
+    public class Geometry {
         public static Offset positionDependentBox(
             Size size = null,
             Size childSize = null,

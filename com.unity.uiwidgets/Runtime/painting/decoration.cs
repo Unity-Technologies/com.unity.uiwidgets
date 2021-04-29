@@ -8,14 +8,14 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string toStringShort() {
-            return this.GetType().ToString();
+            return foundation_.objectRuntimeType(this, "Decoration");
         }
 
         public virtual bool debugAssertIsValid() {
             return true;
         }
 
-        public virtual EdgeInsets padding {
+        public virtual EdgeInsetsGeometry padding {
             get { return EdgeInsets.zero; }
         }
 
@@ -57,11 +57,13 @@ namespace Unity.UIWidgets.painting {
                    ?? (t < 0.5 ? (a.lerpTo(null, t * 2.0f) ?? a) : (b.lerpFrom(null, (t - 0.5f) * 2.0f) ?? b));
         }
 
-        public virtual bool hitTest(Size size, Offset position) {
+        public virtual bool hitTest(Size size, Offset position, TextDirection textDirection) {
             return true;
         }
 
         public abstract BoxPainter createBoxPainter(VoidCallback onChanged = null);
+        
+        public virtual Path getClipPath(Rect rect, TextDirection textDirection) => null;
     }
 
     public abstract class BoxPainter : IDisposable {

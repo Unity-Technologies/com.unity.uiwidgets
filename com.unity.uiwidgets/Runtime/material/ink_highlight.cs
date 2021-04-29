@@ -7,7 +7,7 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.material {
     static class InkHighlightUtils {
-        public static readonly TimeSpan _kHighlightFadeDuration = new TimeSpan(0, 0, 0, 0, 200);
+        public static readonly TimeSpan _kDefaultHighlightFadeDuration = new TimeSpan(0, 0, 0, 0, 200);
     }
 
     public class InkHighlight : InteractiveInkFeature {
@@ -15,11 +15,13 @@ namespace Unity.UIWidgets.material {
             MaterialInkController controller = null,
             RenderBox referenceBox = null,
             Color color = null,
+            TextDirection? textDirection = null,
             BoxShape shape = BoxShape.rectangle,
             BorderRadius borderRadius = null,
             ShapeBorder customBorder = null,
             RectCallback rectCallback = null,
-            VoidCallback onRemoved = null) : base(
+            VoidCallback onRemoved = null,
+            TimeSpan? fadeDuration = null) : base(
             controller: controller,
             referenceBox: referenceBox,
             color: color,
@@ -27,19 +29,23 @@ namespace Unity.UIWidgets.material {
             D.assert(color != null);
             D.assert(controller != null);
             D.assert(referenceBox != null);
-            this._shape = shape;
-            this._borderRadius = borderRadius ?? BorderRadius.zero;
-            this._customBorder = customBorder;
-            this._rectCallback = rectCallback;
+            D.assert(textDirection != null);
 
-            this._alphaController = new AnimationController(
-                duration: InkHighlightUtils._kHighlightFadeDuration,
+            fadeDuration = fadeDuration ?? InkHighlightUtils._kDefaultHighlightFadeDuration;
+            _shape = shape;
+            _borderRadius = borderRadius ?? BorderRadius.zero;
+            _customBorder = customBorder;
+            _rectCallback = rectCallback;
+            _textDirection = textDirection.Value;
+
+            _alphaController = new AnimationController(
+                duration: fadeDuration,
                 vsync: controller.vsync);
-            this._alphaController.addListener(controller.markNeedsPaint);
-            this._alphaController.addStatusListener(this._handleAlphaStatusChanged);
-            this._alphaController.forward();
+            _alphaController.addListener(controller.markNeedsPaint);
+            _alphaController.addStatusListener(_handleAlphaStatusChanged);
+            _alphaController.forward();
 
-            this._alpha = this._alphaController.drive(new IntTween(
+            _alpha = _alphaController.drive(new IntTween(
                 begin: 0, end: color.alpha));
 
             this.controller.addInkFeature(this);
@@ -53,55 +59,57 @@ namespace Unity.UIWidgets.material {
 
         readonly RectCallback _rectCallback;
 
+        readonly TextDirection _textDirection;
+
         Animation<int> _alpha;
         AnimationController _alphaController;
 
         public bool active {
-            get { return this._active; }
+            get { return _active; }
         }
 
         bool _active = true;
 
         public void activate() {
-            this._active = true;
-            this._alphaController.forward();
+            _active = true;
+            _alphaController.forward();
         }
 
         public void deactivate() {
-            this._active = false;
-            this._alphaController.reverse();
+            _active = false;
+            _alphaController.reverse();
         }
 
         void _handleAlphaStatusChanged(AnimationStatus status) {
-            if (status == AnimationStatus.dismissed && !this._active) {
-                this.dispose();
+            if (status == AnimationStatus.dismissed && !_active) {
+                dispose();
             }
         }
 
         public override void dispose() {
-            this._alphaController.dispose();
+            _alphaController.dispose();
             base.dispose();
         }
 
         void _paintHighlight(Canvas canvas, Rect rect, Paint paint) {
             canvas.save();
-            if (this._customBorder != null) {
-                canvas.clipPath(this._customBorder.getOuterPath(rect));
+            if (_customBorder != null) {
+                canvas.clipPath(_customBorder.getOuterPath(rect, textDirection: _textDirection));
             }
 
-            switch (this._shape) {
+            switch (_shape) {
                 case BoxShape.circle: {
                     canvas.drawCircle(rect.center, Material.defaultSplashRadius, paint);
                     break;
                 }
                 case BoxShape.rectangle: {
-                    if (this._borderRadius != BorderRadius.zero) {
+                    if (_borderRadius != BorderRadius.zero) {
                         RRect clipRRect = RRect.fromRectAndCorners(
                             rect,
-                            topLeft: this._borderRadius.topLeft,
-                            topRight: this._borderRadius.topRight,
-                            bottomLeft: this._borderRadius.bottomLeft,
-                            bottomRight: this._borderRadius.bottomRight);
+                            topLeft: _borderRadius.topLeft,
+                            topRight: _borderRadius.topRight,
+                            bottomLeft: _borderRadius.bottomLeft,
+                            bottomRight: _borderRadius.bottomRight);
                         canvas.drawRRect(clipRRect, paint);
                     }
                     else {
@@ -116,17 +124,17 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override void paintFeature(Canvas canvas, Matrix4 transform) {
-            Paint paint = new Paint {color = this.color.withAlpha(this._alpha.value)};
+            Paint paint = new Paint {color = color.withAlpha(_alpha.value)};
             Offset originOffset = transform.getAsTranslation();
-            Rect rect = this._rectCallback != null ? this._rectCallback() : Offset.zero & this.referenceBox.size;
+            Rect rect = _rectCallback != null ? _rectCallback() : Offset.zero & referenceBox.size;
             if (originOffset == null) {
                 canvas.save();
-                canvas.concat(transform.toMatrix3());
-                this._paintHighlight(canvas, rect, paint);
+                canvas.transform(transform.storage);
+                _paintHighlight(canvas, rect, paint);
                 canvas.restore();
             }
             else {
-                this._paintHighlight(canvas, rect.shift(originOffset), paint);
+                _paintHighlight(canvas, rect.shift(originOffset), paint);
             }
         }
     }

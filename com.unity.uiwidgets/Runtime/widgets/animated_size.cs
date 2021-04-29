@@ -10,40 +10,58 @@ namespace Unity.UIWidgets.widgets {
         public AnimatedSize(
             Key key = null,
             Widget child = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Curve curve = null,
             TimeSpan? duration = null,
+            TimeSpan? reverseDuration = null,
             TickerProvider vsync = null) : base(key: key, child: child) {
             D.assert(duration != null);
             D.assert(vsync != null);
             this.alignment = alignment ?? Alignment.center;
             this.curve = curve ?? Curves.linear;
-            this.duration = duration ?? TimeSpan.Zero;
+            this.duration = duration;
+            this.reverseDuration = reverseDuration;
             this.vsync = vsync;
         }
 
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
 
         public readonly Curve curve;
 
-        public readonly TimeSpan duration;
+        public readonly TimeSpan? duration;
 
+        public readonly TimeSpan? reverseDuration;
+        
         public readonly TickerProvider vsync;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderAnimatedSize(
-                alignment: this.alignment,
-                duration: this.duration,
-                curve: this.curve,
-                vsync: this.vsync);
+                alignment: alignment,
+                duration: duration,
+                reverseDuration: reverseDuration,
+                curve: curve,
+                vsync: vsync,
+                textDirection: Directionality.of(context)
+                );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderAnimatedSize _renderObject = (RenderAnimatedSize) renderObject;
-            _renderObject.alignment = this.alignment;
-            _renderObject.duration = this.duration;
-            _renderObject.curve = this.curve;
-            _renderObject.vsync = this.vsync;
+            _renderObject.alignment = alignment;
+            _renderObject.duration = duration;
+            _renderObject.reverseDuration = reverseDuration;
+            _renderObject.curve = curve;
+            _renderObject.vsync = vsync;
+            _renderObject.textDirection = Directionality.of(context);
+        }
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment, defaultValue: Alignment.topCenter));
+            
+            properties.add(new IntProperty("duration", duration?.Milliseconds, unit: "ms"));
+            properties.add(new IntProperty("reverseDuration", reverseDuration?.Milliseconds, unit: "ms", defaultValue: null));
         }
     }
 }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
@@ -11,23 +13,34 @@ namespace Unity.UIWidgets.material {
         public const float _kInnerRadius = 4.5f;
     }
 
-    public class Radio<T> : StatefulWidget where T : class {
+    public class Radio<T> : StatefulWidget {
         public Radio(
             Key key = null,
-            T value = null,
-            T groupValue = null,
+            T value = default,
+            T groupValue = default,
             ValueChanged<T> onChanged = null,
+            bool toggleable = false,
             Color activeColor = null,
-            MaterialTapTargetSize? materialTapTargetSize = null
+            Color focusColor = null,
+            Color hoverColor = null,
+            MaterialTapTargetSize? materialTapTargetSize = null,
+            VisualDensity visualDensity = null,
+            FocusNode focusNode = null,
+            bool autofocus = false
         ) : base(key: key) {
             D.assert(value != null);
             D.assert(groupValue != null);
-            D.assert(onChanged != null);
             this.value = value;
             this.groupValue = groupValue;
             this.onChanged = onChanged;
+            this.toggleable = toggleable;
             this.activeColor = activeColor;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.materialTapTargetSize = materialTapTargetSize;
+            this.visualDensity = visualDensity;
+            this.focusNode = focusNode;
+            this.autofocus = autofocus;
         }
 
         public readonly T value;
@@ -35,55 +48,124 @@ namespace Unity.UIWidgets.material {
         public readonly T groupValue;
 
         public readonly ValueChanged<T> onChanged;
+        
+        public readonly  bool toggleable;
 
         public readonly Color activeColor;
 
         public readonly MaterialTapTargetSize? materialTapTargetSize;
+        
+        public readonly VisualDensity visualDensity;
+
+        public readonly Color focusColor;
+        
+        public readonly Color hoverColor;
+
+        public readonly FocusNode focusNode;
+
+        public readonly bool autofocus;
 
         public override State createState() {
             return new _RadioState<T>();
         }
     }
 
-    class _RadioState<T> : TickerProviderStateMixin<Radio<T>> where T : class {
-        bool _enabled {
-            get { return this.widget.onChanged != null; }
+    class _RadioState<T> : TickerProviderStateMixin<Radio<T>> {
+        bool enabled {
+            get { return widget.onChanged != null; }
+        }
+        
+        Dictionary<LocalKey, ActionFactory> _actionMap;
+
+        public override void initState() {
+            base.initState();
+            _actionMap = new Dictionary<LocalKey, ActionFactory>();
+            _actionMap[ActivateAction.key] = _createAction;
+        }
+
+        void _actionHandler(FocusNode node, Intent intent) {
+            if (widget.onChanged != null) {
+                widget.onChanged(widget.value);
+            }
+            RenderObject renderObject = node.context.findRenderObject();
+        }
+
+        UiWidgetAction _createAction() {
+            return new CallbackAction(
+                ActivateAction.key,
+                onInvoke: _actionHandler
+            );
+        }
+
+        bool _focused = false;
+        void _handleHighlightChanged(bool focused) {
+            if (_focused != focused) {
+                setState(() =>{ _focused = focused; });
+            }
+        }
+
+        bool _hovering = false;
+        void _handleHoverChanged(bool hovering) {
+            if (_hovering != hovering) {
+                setState(() => { _hovering = hovering; });
+            }
         }
 
         Color _getInactiveColor(ThemeData themeData) {
-            return this._enabled ? themeData.unselectedWidgetColor : themeData.disabledColor;
+            return enabled ? themeData.unselectedWidgetColor : themeData.disabledColor;
         }
 
         void _handleChanged(bool? selected) {
+            if (selected == null) {
+                widget.onChanged(default);
+                return;
+            }
             if (selected == true) {
-                this.widget.onChanged(this.widget.value);
+                widget.onChanged(widget.value);
             }
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             ThemeData themeData = Theme.of(context);
             Size size;
-            switch (this.widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {
+            switch (widget.materialTapTargetSize ?? themeData.materialTapTargetSize) {
                 case MaterialTapTargetSize.padded:
-                    size = new Size(2 * Constants.kRadialReactionRadius + 8.0f,
-                        2 * Constants.kRadialReactionRadius + 8.0f);
+                    size = new Size(2 * material_.kRadialReactionRadius + 8.0f,
+                        2 * material_.kRadialReactionRadius + 8.0f);
                     break;
                 case MaterialTapTargetSize.shrinkWrap:
-                    size = new Size(2 * Constants.kRadialReactionRadius, 2 * Constants.kRadialReactionRadius);
+                    size = new Size(2 * material_.kRadialReactionRadius, 2 * material_.kRadialReactionRadius);
                     break;
                 default:
                     throw new Exception("Unknown material tap target size");
             }
-
+            size += (widget.visualDensity ?? themeData.visualDensity).baseSizeAdjustment;
             BoxConstraints additionalConstraints = BoxConstraints.tight(size);
-            return new _RadioRenderObjectWidget(
-                selected: this.widget.value == this.widget.groupValue,
-                activeColor: this.widget.activeColor ?? themeData.toggleableActiveColor,
-                inactiveColor: this._getInactiveColor(themeData),
-                onChanged: this._enabled ? this._handleChanged : (ValueChanged<bool?>) null,
-                additionalConstraints: additionalConstraints,
-                vsync: this
+            return new FocusableActionDetector(
+                actions: _actionMap,
+                focusNode: widget.focusNode,
+                autofocus: widget.autofocus,
+                enabled: enabled,
+                onShowFocusHighlight: _handleHighlightChanged,
+                onShowHoverHighlight: _handleHoverChanged,
+                child: new Builder(
+                    builder: (BuildContext subContext) => {
+                    return new _RadioRenderObjectWidget(
+                    selected: widget.value.Equals(widget.groupValue),
+                    activeColor: widget.activeColor ?? themeData.toggleableActiveColor,
+                    inactiveColor: _getInactiveColor(themeData),
+                    focusColor: widget.focusColor ?? themeData.focusColor,
+                    hoverColor: widget.hoverColor ?? themeData.hoverColor,
+                    onChanged: enabled ? _handleChanged : (ValueChanged<bool?>)null,
+                    toggleable: widget.toggleable,
+                    additionalConstraints: additionalConstraints,
+                    vsync: this,
+                    hasFocus: _focused,
+                    hovering: _hovering
+                );
+            }
+            )
             );
         }
     }
@@ -94,49 +176,75 @@ namespace Unity.UIWidgets.material {
             bool? selected = null,
             Color activeColor = null,
             Color inactiveColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             BoxConstraints additionalConstraints = null,
             ValueChanged<bool?> onChanged = null,
-            TickerProvider vsync = null
+            bool? toggleable = null,
+            TickerProvider vsync = null,
+            bool hasFocus = false,
+            bool hovering = false
         ) : base(key: key) {
             D.assert(selected != null);
             D.assert(activeColor != null);
             D.assert(inactiveColor != null);
             D.assert(additionalConstraints != null);
             D.assert(vsync != null);
-            this.selected = selected;
+            D.assert(toggleable != null);
+            this.selected = selected.Value;
             this.activeColor = activeColor;
             this.inactiveColor = inactiveColor;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.additionalConstraints = additionalConstraints;
             this.onChanged = onChanged;
+            this.toggleable = toggleable.Value;
             this.vsync = vsync;
+            this.hasFocus = hasFocus;
+            this.hovering = hovering;
         }
 
-        public readonly bool? selected;
+        public readonly bool selected;
+        public readonly  bool hasFocus;
+        public readonly  bool hovering;
         public readonly Color activeColor;
         public readonly Color inactiveColor;
-        public readonly BoxConstraints additionalConstraints;
+        public readonly  Color focusColor;
+        public readonly  Color hoverColor;
         public readonly ValueChanged<bool?> onChanged;
+        public readonly  bool toggleable;
         public readonly TickerProvider vsync;
+        public readonly BoxConstraints additionalConstraints;
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderRadio(
-                value: this.selected,
-                activeColor: this.activeColor,
-                inactiveColor: this.inactiveColor,
-                onChanged: this.onChanged,
-                vsync: this.vsync,
-                additionalConstraints: this.additionalConstraints
+                value: selected,
+                activeColor: activeColor,
+                inactiveColor: inactiveColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
+                onChanged: onChanged,
+                tristate: toggleable,
+                vsync: vsync,
+                additionalConstraints: additionalConstraints,
+                hasFocus: hasFocus,
+                hovering: hovering
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             _RenderRadio renderObject = _renderObject as _RenderRadio;
-            renderObject.value = this.selected;
-            renderObject.activeColor = this.activeColor;
-            renderObject.inactiveColor = this.inactiveColor;
-            renderObject.onChanged = this.onChanged;
-            renderObject.additionalConstraints = this.additionalConstraints;
-            renderObject.vsync = this.vsync;
+            renderObject.value = selected;
+            renderObject.activeColor = activeColor;
+            renderObject.inactiveColor = inactiveColor;
+            renderObject.focusColor = focusColor;
+            renderObject.hoverColor = hoverColor;
+            renderObject.onChanged = onChanged;
+            renderObject.tristate = toggleable;
+            renderObject.additionalConstraints = additionalConstraints;
+            renderObject.vsync = vsync;
+            renderObject.hasFocus = hasFocus;
+            renderObject.hovering = hovering;
         }
     }
 
@@ -145,37 +253,46 @@ namespace Unity.UIWidgets.material {
             bool? value,
             Color activeColor,
             Color inactiveColor,
+            Color focusColor,
+            Color hoverColor,
             ValueChanged<bool?> onChanged,
+            bool tristate,
             BoxConstraints additionalConstraints,
-            TickerProvider vsync
+            TickerProvider vsync,
+            bool hasFocus,
+            bool hovering
         ) : base(
             value: value,
-            tristate: false,
             activeColor: activeColor,
             inactiveColor: inactiveColor,
+            focusColor: focusColor,
+            hoverColor: hoverColor,
             onChanged: onChanged,
+            tristate: tristate,
             additionalConstraints: additionalConstraints,
-            vsync: vsync
+            vsync: vsync,
+            hasFocus: hasFocus,
+            hovering: hovering
         ) {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
             Canvas canvas = context.canvas;
 
-            this.paintRadialReaction(canvas, offset, this.size.center(Offset.zero));
+            paintRadialReaction(canvas, offset, size.center(Offset.zero));
 
-            Offset center = (offset & this.size).center;
-            Color radioColor = this.onChanged != null ? this.activeColor : this.inactiveColor;
+            Offset center = (offset & size).center;
+            Color radioColor = onChanged != null ? activeColor : inactiveColor;
 
             Paint paint = new Paint();
-            paint.color = Color.lerp(this.inactiveColor, radioColor, this.position.value);
+            paint.color = Color.lerp(inactiveColor, radioColor, position.value);
             paint.style = PaintingStyle.stroke;
             paint.strokeWidth = 2.0f;
             canvas.drawCircle(center, RadioUtils._kOuterRadius, paint);
 
-            if (!this.position.isDismissed) {
+            if (!position.isDismissed) {
                 paint.style = PaintingStyle.fill;
-                canvas.drawCircle(center, RadioUtils._kInnerRadius * this.position.value, paint);
+                canvas.drawCircle(center, RadioUtils._kInnerRadius * position.value, paint);
             }
         }
     }

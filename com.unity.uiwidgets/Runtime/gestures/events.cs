@@ -5,6 +5,45 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Unity.UIWidgets.gestures {
+    public partial class gesture_ {
+        public const int kPrimaryButton = 0x01;
+
+        public const int kSecondaryButton = 0x02;
+
+        public const int kPrimaryMouseButton = kPrimaryButton;
+
+        public const int kSecondaryMouseButton = kSecondaryButton;
+
+        public const int kStylusContact = kPrimaryButton;
+
+        public const int kPrimaryStylusButton = kSecondaryButton;
+
+        public const int kMiddleMouseButton = 0x04;
+
+        public const int kSecondaryStylusButton = 0x04;
+
+        public const int kBackMouseButton = 0x08;
+
+        public const int kForwardMouseButton = 0x10;
+
+        public const int kTouchContact = kPrimaryButton;
+
+        public static int kMaxUnsignedSMI {
+            get {
+                Debug.LogError("Update this for io and web");
+                return -1;
+            }
+        }
+
+        public int nthMouseButton(int number) => (kPrimaryMouseButton << (number - 1)) & kMaxUnsignedSMI;
+
+        public int nthStylusButton(int number) => (kPrimaryStylusButton << (number - 1)) & kMaxUnsignedSMI;
+
+        public int smallestButton(int buttons) => buttons & (-buttons);
+
+        public bool isSingleButton(int buttons) => buttons != 0 && (smallestButton(buttons) == buttons);
+    }
+
     public abstract class PointerEvent : Diagnosticable {
         public PointerEvent(
             TimeSpan timeStamp,
@@ -126,48 +165,48 @@ namespace Unity.UIWidgets.gestures {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Offset>("position", this.position));
-            properties.add(new DiagnosticsProperty<Offset>("localPosition", this.localPosition));
-            properties.add(new DiagnosticsProperty<Offset>("delta", this.delta, defaultValue: Offset.zero,
+            properties.add(new DiagnosticsProperty<Offset>("position", position));
+            properties.add(new DiagnosticsProperty<Offset>("localPosition", localPosition));
+            properties.add(new DiagnosticsProperty<Offset>("delta", delta, defaultValue: Offset.zero,
                 level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Offset>("localDelta", this.localDelta, defaultValue: Offset.zero,
+            properties.add(new DiagnosticsProperty<Offset>("localDelta", localDelta, defaultValue: Offset.zero,
                 level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<TimeSpan>("timeStamp", this.timeStamp, defaultValue: TimeSpan.Zero,
+            properties.add(new DiagnosticsProperty<TimeSpan>("timeStamp", timeStamp, defaultValue: TimeSpan.Zero,
                 level: DiagnosticLevel.debug));
-            properties.add(new IntProperty("pointer", this.pointer, level: DiagnosticLevel.debug));
-            properties.add(new EnumProperty<PointerDeviceKind>("kind", this.kind, level: DiagnosticLevel.debug));
-            properties.add(new IntProperty("device", this.device, defaultValue: 0, level: DiagnosticLevel.debug));
-            properties.add(new IntProperty("buttons", this.buttons, defaultValue: 0, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<bool>("down", this.down, level: DiagnosticLevel.debug));
+            properties.add(new IntProperty("pointer", pointer, level: DiagnosticLevel.debug));
+            properties.add(new EnumProperty<PointerDeviceKind>("kind", kind, level: DiagnosticLevel.debug));
+            properties.add(new IntProperty("device", device, defaultValue: 0, level: DiagnosticLevel.debug));
+            properties.add(new IntProperty("buttons", buttons, defaultValue: 0, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<bool>("down", down, level: DiagnosticLevel.debug));
             properties.add(
-                new FloatProperty("pressure", this.pressure, defaultValue: 1.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("pressureMin", this.pressureMin, defaultValue: 1.0,
+                new FloatProperty("pressure", pressure, defaultValue: 1.0, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("pressureMin", pressureMin, defaultValue: 1.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("pressureMax", this.pressureMax, defaultValue: 1.0,
+            properties.add(new FloatProperty("pressureMax", pressureMax, defaultValue: 1.0,
                 level: DiagnosticLevel.debug));
             properties.add(
-                new FloatProperty("distance", this.distance, defaultValue: 0.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("distanceMin", this.distanceMin, defaultValue: 0.0,
+                new FloatProperty("distance", distance, defaultValue: 0.0, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("distanceMin", distanceMin, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("distanceMax", this.distanceMax, defaultValue: 0.0,
+            properties.add(new FloatProperty("distanceMax", distanceMax, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("size", this.size, defaultValue: 0.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMajor", this.radiusMajor, defaultValue: 0.0,
+            properties.add(new FloatProperty("size", size, defaultValue: 0.0, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("radiusMajor", radiusMajor, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMinor", this.radiusMinor, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMinor", radiusMinor, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMin", this.radiusMin, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMin", radiusMin, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMax", this.radiusMax, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMax", radiusMax, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("orientation", this.orientation, defaultValue: 0.0,
+            properties.add(new FloatProperty("orientation", orientation, defaultValue: 0.0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("tilt", this.tilt, defaultValue: 0.0, level: DiagnosticLevel.debug));
-            properties.add(new IntProperty("platformData", this.platformData, defaultValue: 0,
+            properties.add(new FloatProperty("tilt", tilt, defaultValue: 0.0, level: DiagnosticLevel.debug));
+            properties.add(new IntProperty("platformData", platformData, defaultValue: 0,
                 level: DiagnosticLevel.debug));
-            properties.add(new FlagProperty("obscured", value: this.obscured, ifTrue: "obscured",
+            properties.add(new FlagProperty("obscured", value: obscured, ifTrue: "obscured",
                 level: DiagnosticLevel.debug));
-            properties.add(new FlagProperty("synthesized", value: this.synthesized, ifTrue: "synthesized",
+            properties.add(new FlagProperty("synthesized", value: synthesized, ifTrue: "synthesized",
                 level: DiagnosticLevel.debug));
         }
 
@@ -214,7 +253,6 @@ namespace Unity.UIWidgets.gestures {
             Offset position = null,
             Offset localPosition = null,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distance = 0.0f,
@@ -232,7 +270,7 @@ namespace Unity.UIWidgets.gestures {
             position: position,
             localPosition: localPosition,
             obscured: obscured,
-            pressure: pressure,
+            pressure: 0,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             distance: distance,
@@ -252,22 +290,22 @@ namespace Unity.UIWidgets.gestures {
             }
 
             return new PointerAddedEvent(
-                timeStamp: this.timeStamp,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
-                obscured: this.obscured,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distance: this.distance,
-                distanceMax: this.distanceMax,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
-                orientation: this.orientation,
-                tilt: this.tilt,
+                timeStamp: timeStamp,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
+                obscured: obscured,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distance: distance,
+                distanceMax: distanceMax,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
+                orientation: orientation,
+                tilt: tilt,
                 transform: this.transform,
-                original: this.original as PointerAddedEvent ?? this
+                original: original as PointerAddedEvent ?? this
             );
         }
     }
@@ -280,7 +318,6 @@ namespace Unity.UIWidgets.gestures {
             Offset position = null,
             Offset localPosition = null,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distanceMax = 0.0f,
@@ -295,7 +332,6 @@ namespace Unity.UIWidgets.gestures {
             localPosition: localPosition,
             device: device,
             obscured: obscured,
-            pressure: pressure,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             distanceMax: distanceMax,
@@ -312,19 +348,19 @@ namespace Unity.UIWidgets.gestures {
             }
 
             return new PointerRemovedEvent(
-                timeStamp: this.timeStamp,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
-                obscured: this.obscured,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distanceMax: this.distanceMax,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
+                timeStamp: timeStamp,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
+                obscured: obscured,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distanceMax: distanceMax,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
                 transform: transform,
-                original: this.original as PointerRemovedEvent ?? this
+                original: original as PointerRemovedEvent ?? this
             );
         }
     }
@@ -340,7 +376,6 @@ namespace Unity.UIWidgets.gestures {
             Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distance = 0.0f,
@@ -364,7 +399,7 @@ namespace Unity.UIWidgets.gestures {
             localDelta: localDelta,
             buttons: buttons,
             obscured: obscured,
-            pressure: pressure,
+            pressure: 0,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             size: size,
@@ -386,36 +421,36 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
 
-            Offset transformedPosition = PointerEvent.transformPosition(transform, this.position);
+            Offset transformedPosition = transformPosition(transform, position);
             return new PointerHoverEvent(
-                timeStamp: this.timeStamp,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
+                timeStamp: timeStamp,
+                kind: kind,
+                device: device,
+                position: position,
                 localPosition: transformedPosition,
-                delta: this.delta,
-                localDelta: PointerEvent.transformDeltaViaPositions(
+                delta: delta,
+                localDelta: transformDeltaViaPositions(
                     transform: transform,
-                    untransformedDelta: this.delta,
-                    untransformedEndPosition: this.position,
+                    untransformedDelta: delta,
+                    untransformedEndPosition: position,
                     transformedEndPosition: transformedPosition
                 ),
-                buttons: this.buttons,
-                obscured: this.obscured,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distance: this.distance,
-                distanceMax: this.distanceMax,
-                size: this.size,
-                radiusMajor: this.radiusMajor,
-                radiusMinor: this.radiusMinor,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
-                orientation: this.orientation,
-                tilt: this.tilt,
-                synthesized: this.synthesized,
+                buttons: buttons,
+                obscured: obscured,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distance: distance,
+                distanceMax: distanceMax,
+                size: size,
+                radiusMajor: radiusMajor,
+                radiusMinor: radiusMinor,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
+                orientation: orientation,
+                tilt: tilt,
+                synthesized: synthesized,
                 transform: transform,
-                original: this.original as PointerHoverEvent ?? this);
+                original: original as PointerHoverEvent ?? this);
         }
     }
 
@@ -430,7 +465,6 @@ namespace Unity.UIWidgets.gestures {
             Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distance = 0.0f,
@@ -456,7 +490,7 @@ namespace Unity.UIWidgets.gestures {
             buttons: buttons,
             down: down,
             obscured: obscured,
-            pressure: pressure,
+            pressure: 0,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             size: size,
@@ -489,7 +523,6 @@ namespace Unity.UIWidgets.gestures {
                 buttons: hover?.buttons ?? 0,
                 down: hover?.down ?? false,
                 obscured: hover?.obscured ?? false,
-                pressure: hover?.pressure ?? 0.0f,
                 pressureMin: hover?.pressureMin ?? 1.0f,
                 pressureMax: hover?.pressureMax ?? 1.0f,
                 distance: hover?.distance ?? 0.0f,
@@ -512,37 +545,37 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
 
-            Offset transformedPosition = PointerEvent.transformPosition(transform, this.position);
+            Offset transformedPosition = transformPosition(transform, position);
             return new PointerEnterEvent(
-                timeStamp: this.timeStamp,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
+                timeStamp: timeStamp,
+                kind: kind,
+                device: device,
+                position: position,
                 localPosition: transformedPosition,
-                delta: this.delta,
-                localDelta: PointerEvent.transformDeltaViaPositions(
+                delta: delta,
+                localDelta: transformDeltaViaPositions(
                     transform: transform,
-                    untransformedDelta: this.delta,
-                    untransformedEndPosition: this.position,
+                    untransformedDelta: delta,
+                    untransformedEndPosition: position,
                     transformedEndPosition: transformedPosition
                 ),
-                buttons: this.buttons,
-                obscured: this.obscured,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distance: this.distance,
-                distanceMax: this.distanceMax,
-                size: this.size,
-                radiusMajor: this.radiusMajor,
-                radiusMinor: this.radiusMinor,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
-                orientation: this.orientation,
-                tilt: this.tilt,
-                down: this.down,
-                synthesized: this.synthesized,
+                buttons: buttons,
+                obscured: obscured,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distance: distance,
+                distanceMax: distanceMax,
+                size: size,
+                radiusMajor: radiusMajor,
+                radiusMinor: radiusMinor,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
+                orientation: orientation,
+                tilt: tilt,
+                down: down,
+                synthesized: synthesized,
                 transform: transform,
-                original: this.original as PointerEnterEvent ?? this
+                original: original as PointerEnterEvent ?? this
             );
         }
     }
@@ -558,7 +591,6 @@ namespace Unity.UIWidgets.gestures {
             Offset localDelta = null,
             int buttons = 0,
             bool obscured = false,
-            float pressure = 0.0f,
             float pressureMin = 1.0f,
             float pressureMax = 1.0f,
             float distance = 0.0f,
@@ -584,7 +616,7 @@ namespace Unity.UIWidgets.gestures {
             buttons: buttons,
             down: down,
             obscured: obscured,
-            pressure: pressure,
+            pressure: 0,
             pressureMin: pressureMin,
             pressureMax: pressureMax,
             size: size,
@@ -618,7 +650,6 @@ namespace Unity.UIWidgets.gestures {
                 buttons: hover?.buttons ?? 0,
                 down: hover?.down ?? false,
                 obscured: hover?.obscured ?? false,
-                pressure: hover?.pressure ?? 0.0f,
                 pressureMin: hover?.pressureMin ?? 1.0f,
                 pressureMax: hover?.pressureMax ?? 1.0f,
                 distance: hover?.distance ?? 0.0f,
@@ -641,37 +672,37 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
 
-            Offset transformedPosition = PointerEvent.transformPosition(transform, this.position);
+            Offset transformedPosition = transformPosition(transform, position);
             return new PointerExitEvent(
-                timeStamp: this.timeStamp,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
+                timeStamp: timeStamp,
+                kind: kind,
+                device: device,
+                position: position,
                 localPosition: transformedPosition,
-                delta: this.delta,
-                localDelta: PointerEvent.transformDeltaViaPositions(
+                delta: delta,
+                localDelta: transformDeltaViaPositions(
                     transform: transform,
-                    untransformedDelta: this.delta,
-                    untransformedEndPosition: this.position,
+                    untransformedDelta: delta,
+                    untransformedEndPosition: position,
                     transformedEndPosition: transformedPosition
                 ),
-                buttons: this.buttons,
-                obscured: this.obscured,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distance: this.distance,
-                distanceMax: this.distanceMax,
-                size: this.size,
-                radiusMajor: this.radiusMajor,
-                radiusMinor: this.radiusMinor,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
-                orientation: this.orientation,
-                tilt: this.tilt,
-                down: this.down,
-                synthesized: this.synthesized,
+                buttons: buttons,
+                obscured: obscured,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distance: distance,
+                distanceMax: distanceMax,
+                size: size,
+                radiusMajor: radiusMajor,
+                radiusMinor: radiusMinor,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
+                orientation: orientation,
+                tilt: tilt,
+                down: down,
+                synthesized: synthesized,
                 transform: transform,
-                original: this.original as PointerExitEvent ?? this
+                original: original as PointerExitEvent ?? this
             );
         }
     }
@@ -684,7 +715,7 @@ namespace Unity.UIWidgets.gestures {
             int device = 0,
             Offset position = null,
             Offset localPosition = null,
-            int buttons = 0,
+            int buttons = gesture_.kPrimaryButton,
             bool obscured = false,
             float pressure = 0.0f,
             float pressureMin = 1.0f,
@@ -732,27 +763,27 @@ namespace Unity.UIWidgets.gestures {
             }
 
             return new PointerDownEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
-                buttons: this.buttons,
-                obscured: this.obscured,
-                pressure: this.pressure,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distanceMax: this.distanceMax,
-                size: this.size,
-                radiusMajor: this.radiusMajor,
-                radiusMinor: this.radiusMinor,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
-                orientation: this.orientation,
-                tilt: this.tilt,
+                timeStamp: timeStamp,
+                pointer: pointer,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
+                buttons: buttons,
+                obscured: obscured,
+                pressure: pressure,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distanceMax: distanceMax,
+                size: size,
+                radiusMajor: radiusMajor,
+                radiusMinor: radiusMinor,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
+                orientation: orientation,
+                tilt: tilt,
                 transform: transform,
-                original: this.original as PointerDownEvent ?? this
+                original: original as PointerDownEvent ?? this
             );
         }
     }
@@ -767,7 +798,7 @@ namespace Unity.UIWidgets.gestures {
             Offset localPosition = null,
             Offset delta = null,
             Offset localDelta = null,
-            int buttons = 0,
+            int buttons = gesture_.kPrimaryButton,
             bool obscured = false,
             float pressure = 0.0f,
             float pressureMin = 1.0f,
@@ -781,7 +812,7 @@ namespace Unity.UIWidgets.gestures {
             float radiusMax = 0.0f,
             float orientation = 0.0f,
             float tilt = 0.0f,
-            int platformdData = 0,
+            int platformData = 0,
             bool synthesized = false,
             Matrix4 transform = null,
             PointerMoveEvent original = null
@@ -809,7 +840,7 @@ namespace Unity.UIWidgets.gestures {
             radiusMax: radiusMax,
             orientation: orientation,
             tilt: tilt,
-            platformData: platformdData,
+            platformData: platformData,
             synthesized: synthesized,
             transform: transform,
             original: original) {
@@ -819,39 +850,39 @@ namespace Unity.UIWidgets.gestures {
             if (transform == null || transform == this.transform) {
                 return this;
             }
-            Offset transformedPosition = PointerEvent.transformPosition(transform, this.position);
+            Offset transformedPosition = transformPosition(transform, position);
 
             return new PointerMoveEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
+                timeStamp: timeStamp,
+                pointer: pointer,
+                kind: kind,
+                device: device,
+                position: position,
                 localPosition: transformedPosition,
-                delta: this.delta,
-                localDelta: PointerEvent.transformDeltaViaPositions(
+                delta: delta,
+                localDelta: transformDeltaViaPositions(
                     transform: transform,
-                    untransformedDelta: this.delta,
-                    untransformedEndPosition: this.position,
+                    untransformedDelta: delta,
+                    untransformedEndPosition: position,
                     transformedEndPosition: transformedPosition
                 ),
-                buttons: this.buttons,
-                obscured: this.obscured,
-                pressure: this.pressure,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distanceMax: this.distanceMax,
-                size: this.size,
-                radiusMajor: this.radiusMajor,
-                radiusMinor: this.radiusMinor,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
-                orientation: this.orientation,
-                tilt: this.tilt,
-                // platformData: platformData,
-                synthesized: this.synthesized,
+                buttons: buttons,
+                obscured: obscured,
+                pressure: pressure,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distanceMax: distanceMax,
+                size: size,
+                radiusMajor: radiusMajor,
+                radiusMinor: radiusMinor,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
+                orientation: orientation,
+                tilt: tilt,
+                platformData: platformData,
+                synthesized: synthesized,
                 transform: transform,
-                original: this.original as PointerMoveEvent ?? this
+                original: original as PointerMoveEvent ?? this
             );
         }
     }
@@ -911,28 +942,28 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
             return new PointerUpEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
-                buttons: this.buttons,
-                obscured: this.obscured,
-                pressure: this.pressure,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distance: this.distance,
-                distanceMax: this.distanceMax,
-                size: this.size,
-                radiusMajor: this.radiusMajor,
-                radiusMinor: this.radiusMinor,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
-                orientation: this.orientation,
-                tilt: this.tilt,
+                timeStamp: timeStamp,
+                pointer: pointer,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
+                buttons: buttons,
+                obscured: obscured,
+                pressure: pressure,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distance: distance,
+                distanceMax: distanceMax,
+                size: size,
+                radiusMajor: radiusMajor,
+                radiusMinor: radiusMinor,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
+                orientation: orientation,
+                tilt: tilt,
                 transform: transform,
-                original: this.original as PointerUpEvent ?? this
+                original: original as PointerUpEvent ?? this
             );
         }
     }
@@ -962,8 +993,7 @@ namespace Unity.UIWidgets.gestures {
 
     public class PointerScrollEvent : PointerSignalEvent {
         public PointerScrollEvent(
-            TimeSpan timeStamp,
-            int pointer,
+            TimeSpan? timeStamp = null,
             PointerDeviceKind kind = PointerDeviceKind.mouse,
             int device = 0,
             Offset position = null,
@@ -972,9 +1002,8 @@ namespace Unity.UIWidgets.gestures {
             Matrix4 transform = null,
             PointerScrollEvent original = null)
             : base(
-                timeStamp,
+                timeStamp ?? TimeSpan.Zero,
                 kind: kind,
-                pointer: pointer,
                 device: device,
                 position: position,
                 localPosition: localPosition,
@@ -991,22 +1020,22 @@ namespace Unity.UIWidgets.gestures {
             if (transform == null || transform == this.transform) {
                 return this;
             }
+
             return new PointerScrollEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
-                scrollDelta: this.scrollDelta,
+                timeStamp: timeStamp,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
+                scrollDelta: scrollDelta,
                 transform: transform,
-                original: this.original as PointerScrollEvent ?? this
+                original: original as PointerScrollEvent ?? this
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Offset>("scrollDelta", this.scrollDelta));
+            properties.add(new DiagnosticsProperty<Offset>("scrollDelta", scrollDelta));
         }
     }
 
@@ -1065,27 +1094,27 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
             return new PointerCancelEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
-                buttons: this.buttons,
-                obscured: this.obscured,
-                pressureMin: this.pressureMin,
-                pressureMax: this.pressureMax,
-                distance: this.distance,
-                distanceMax: this.distanceMax,
-                size: this.size,
-                radiusMajor: this.radiusMajor,
-                radiusMinor: this.radiusMinor,
-                radiusMin: this.radiusMin,
-                radiusMax: this.radiusMax,
-                orientation: this.orientation,
-                tilt: this.tilt,
+                timeStamp: timeStamp,
+                pointer: pointer,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
+                buttons: buttons,
+                obscured: obscured,
+                pressureMin: pressureMin,
+                pressureMax: pressureMax,
+                distance: distance,
+                distanceMax: distanceMax,
+                size: size,
+                radiusMajor: radiusMajor,
+                radiusMinor: radiusMinor,
+                radiusMin: radiusMin,
+                radiusMax: radiusMax,
+                orientation: orientation,
+                tilt: tilt,
                 transform: transform,
-                original: this.original as PointerCancelEvent ?? this
+                original: original as PointerCancelEvent ?? this
             );
         }
     }
@@ -1130,14 +1159,14 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
             return new PointerDragFromEditorEnterEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
+                timeStamp: timeStamp,
+                pointer: pointer,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
                 transform: transform,
-                original: this.original as PointerDragFromEditorEnterEvent ?? this
+                original: original as PointerDragFromEditorEnterEvent ?? this
             );
         }
     }
@@ -1182,14 +1211,14 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
             return new PointerDragFromEditorExitEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
+                timeStamp: timeStamp,
+                pointer: pointer,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
                 transform: transform,
-                original: this.original as PointerDragFromEditorExitEvent ?? this
+                original: original as PointerDragFromEditorExitEvent ?? this
             );
         }
     }
@@ -1234,14 +1263,14 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
             return new PointerDragFromEditorHoverEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
+                timeStamp: timeStamp,
+                pointer: pointer,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
                 transform: this.transform,
-                original: this.original as PointerDragFromEditorHoverEvent ?? this
+                original: original as PointerDragFromEditorHoverEvent ?? this
             );
         }
     }
@@ -1254,7 +1283,7 @@ namespace Unity.UIWidgets.gestures {
             int device = 0,
             Offset position = null,
             Offset localPosition = null,
-            Object[] objectReferences = null, 
+            Object[] objectReferences = null,
             Matrix4 transform = null,
             PointerDragFromEditorReleaseEvent original = null
         ) : base(
@@ -1292,15 +1321,15 @@ namespace Unity.UIWidgets.gestures {
                 return this;
             }
             return new PointerDragFromEditorReleaseEvent(
-                timeStamp: this.timeStamp,
-                pointer: this.pointer,
-                kind: this.kind,
-                device: this.device,
-                position: this.position,
-                localPosition: PointerEvent.transformPosition(transform, this.position),
-                objectReferences: this.objectReferences,
+                timeStamp: timeStamp,
+                pointer: pointer,
+                kind: kind,
+                device: device,
+                position: position,
+                localPosition: transformPosition(transform, position),
+                objectReferences: objectReferences,
                 transform: this.transform,
-                original: this.original as PointerDragFromEditorReleaseEvent ?? this
+                original: original as PointerDragFromEditorReleaseEvent ?? this
             );
         }
     }

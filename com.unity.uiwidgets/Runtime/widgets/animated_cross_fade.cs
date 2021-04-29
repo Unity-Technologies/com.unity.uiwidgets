@@ -11,8 +11,7 @@ namespace Unity.UIWidgets.widgets {
         showSecond
     }
 
-    public delegate Widget AnimatedCrossFadeBuilder(Widget topChild, Key topChildKey, Widget bottomChild,
-        Key bottomChildKey);
+    public delegate Widget AnimatedCrossFadeBuilder(Widget topChild, Key topChildKey, Widget bottomChild, Key bottomChildKey);
 
 
     public class AnimatedCrossFade : StatefulWidget {
@@ -23,9 +22,10 @@ namespace Unity.UIWidgets.widgets {
             Curve firstCurve = null,
             Curve secondCurve = null,
             Curve sizeCurve = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             CrossFadeState? crossFadeState = null,
             TimeSpan? duration = null,
+            TimeSpan? reverseDuration = null,
             AnimatedCrossFadeBuilder layoutBuilder = null
         ) : base(key: key) {
             D.assert(firstChild != null);
@@ -39,7 +39,8 @@ namespace Unity.UIWidgets.widgets {
             this.sizeCurve = sizeCurve ?? Curves.linear;
             this.alignment = alignment ?? Alignment.topCenter;
             this.crossFadeState = crossFadeState ?? CrossFadeState.showFirst;
-            this.duration = duration ?? TimeSpan.Zero;
+            this.duration = duration;
+            this.reverseDuration = reverseDuration;
             this.layoutBuilder = layoutBuilder ?? defaultLayoutBuilder;
         }
 
@@ -49,15 +50,17 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly CrossFadeState crossFadeState;
 
-        public readonly TimeSpan duration;
+        public readonly TimeSpan? duration;
 
+        public readonly TimeSpan? reverseDuration;
+        
         public readonly Curve firstCurve;
 
         public readonly Curve secondCurve;
 
         public readonly Curve sizeCurve;
 
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
 
         public readonly AnimatedCrossFadeBuilder layoutBuilder;
 
@@ -84,33 +87,38 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<CrossFadeState>("crossFadeState", this.crossFadeState));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment,
+            properties.add(new EnumProperty<CrossFadeState>("crossFadeState", crossFadeState));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment,
                 defaultValue: Alignment.topCenter));
+            properties.add(new IntProperty("duration", duration?.Milliseconds, unit: "ms"));
+            properties.add(new IntProperty("reverseDuration", reverseDuration?.Milliseconds, unit: "ms", defaultValue: null));
         }
     }
 
 
     public class _AnimatedCrossFadeState : TickerProviderStateMixin<AnimatedCrossFade> {
+        
         AnimationController _controller;
         Animation<float> _firstAnimation;
         Animation<float> _secondAnimation;
 
-
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(duration: this.widget.duration, vsync: this);
-            if (this.widget.crossFadeState == CrossFadeState.showSecond) {
-                this._controller.setValue(1.0f);
+            _controller = new AnimationController(
+                duration: widget.duration, 
+                reverseDuration: widget.reverseDuration,
+                vsync: this);
+            if (widget.crossFadeState == CrossFadeState.showSecond) {
+                _controller.setValue(1.0f);
             }
 
-            this._firstAnimation = this._initAnimation(this.widget.firstCurve, true);
-            this._secondAnimation = this._initAnimation(this.widget.secondCurve, false);
-            this._controller.addStatusListener((AnimationStatus status) => { this.setState(() => { }); });
+            _firstAnimation = _initAnimation(widget.firstCurve, true);
+            _secondAnimation = _initAnimation(widget.secondCurve, false);
+            _controller.addStatusListener((AnimationStatus status) => { setState(() => { }); });
         }
 
         Animation<float> _initAnimation(Curve curve, bool inverted) {
-            Animation<float> result = this._controller.drive(new CurveTween(curve: curve));
+            Animation<float> result = _controller.drive(new CurveTween(curve: curve));
             if (inverted) {
                 result = result.drive(new FloatTween(begin: 1.0f, end: 0.0f));
             }
@@ -119,32 +127,35 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             AnimatedCrossFade _oldWidget = (AnimatedCrossFade) oldWidget;
-            if (this.widget.duration != _oldWidget.duration) {
-                this._controller.duration = this.widget.duration;
+            if (widget.duration != _oldWidget.duration) {
+                _controller.duration = widget.duration;
             }
 
-            if (this.widget.firstCurve != _oldWidget.firstCurve) {
-                this._firstAnimation = this._initAnimation(this.widget.firstCurve, true);
+            if (widget.reverseDuration != _oldWidget.reverseDuration)
+                _controller.reverseDuration = widget.reverseDuration;
+            
+            if (widget.firstCurve != _oldWidget.firstCurve) {
+                _firstAnimation = _initAnimation(widget.firstCurve, true);
             }
 
-            if (this.widget.secondCurve != _oldWidget.secondCurve) {
-                this._secondAnimation = this._initAnimation(this.widget.secondCurve, false);
+            if (widget.secondCurve != _oldWidget.secondCurve) {
+                _secondAnimation = _initAnimation(widget.secondCurve, false);
             }
 
-            if (this.widget.crossFadeState != _oldWidget.crossFadeState) {
-                switch (this.widget.crossFadeState) {
+            if (widget.crossFadeState != _oldWidget.crossFadeState) {
+                switch (widget.crossFadeState) {
                     case CrossFadeState.showFirst:
-                        this._controller.reverse();
+                        _controller.reverse();
                         break;
                     case CrossFadeState.showSecond:
-                        this._controller.forward();
+                        _controller.forward();
                         break;
                 }
             }
@@ -152,16 +163,15 @@ namespace Unity.UIWidgets.widgets {
 
         bool _isTransitioning {
             get {
-                return this._controller.status == AnimationStatus.forward ||
-                       this._controller.status == AnimationStatus.reverse;
+                return _controller.status == AnimationStatus.forward ||
+                       _controller.status == AnimationStatus.reverse;
             }
         }
 
         public override Widget build(BuildContext context) {
             Key kFirstChildKey = new ValueKey<CrossFadeState>(CrossFadeState.showFirst);
             Key kSecondChildKey = new ValueKey<CrossFadeState>(CrossFadeState.showSecond);
-            bool transitioningForwards = this._controller.status == AnimationStatus.completed ||
-                                         this._controller.status == AnimationStatus.forward;
+            bool transitioningForwards = _controller.status == AnimationStatus.completed || _controller.status == AnimationStatus.forward;
 
             Key topKey;
             Widget topChild;
@@ -169,26 +179,27 @@ namespace Unity.UIWidgets.widgets {
             Key bottomKey;
             Widget bottomChild;
             Animation<float> bottomAnimation;
+            
             if (transitioningForwards) {
                 topKey = kSecondChildKey;
-                topChild = this.widget.secondChild;
-                topAnimation = this._secondAnimation;
+                topChild = widget.secondChild;
+                topAnimation = _secondAnimation;
                 bottomKey = kFirstChildKey;
-                bottomChild = this.widget.firstChild;
-                bottomAnimation = this._firstAnimation;
+                bottomChild = widget.firstChild;
+                bottomAnimation = _firstAnimation;
             }
             else {
                 topKey = kFirstChildKey;
-                topChild = this.widget.firstChild;
-                topAnimation = this._firstAnimation;
+                topChild = widget.firstChild;
+                topAnimation = _firstAnimation;
                 bottomKey = kSecondChildKey;
-                bottomChild = this.widget.secondChild;
-                bottomAnimation = this._secondAnimation;
+                bottomChild = widget.secondChild;
+                bottomAnimation = _secondAnimation;
             }
 
             bottomChild = new TickerMode(
                 key: bottomKey,
-                enabled: this._isTransitioning,
+                enabled: _isTransitioning,
                 child: new FadeTransition(
                     opacity: bottomAnimation,
                     child: bottomChild
@@ -206,11 +217,12 @@ namespace Unity.UIWidgets.widgets {
 
             return new ClipRect(
                 child: new AnimatedSize(
-                    alignment: this.widget.alignment,
-                    duration: this.widget.duration,
-                    curve: this.widget.sizeCurve,
+                    alignment: widget.alignment,
+                    duration: widget.duration,
+                    reverseDuration: widget.reverseDuration,
+                    curve: widget.sizeCurve,
                     vsync: this,
-                    child: this.widget.layoutBuilder(topChild, topKey, bottomChild, bottomKey)
+                    child: widget.layoutBuilder(topChild, topKey, bottomChild, bottomKey)
                 )
             );
         }
@@ -218,10 +230,10 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new EnumProperty<CrossFadeState>("crossFadeState", this.widget.crossFadeState));
+            description.add(new EnumProperty<CrossFadeState>("crossFadeState", widget.crossFadeState));
             description.add(
-                new DiagnosticsProperty<AnimationController>("controller", this._controller, showName: false));
-            description.add(new DiagnosticsProperty<Alignment>("alignment", this.widget.alignment,
+                new DiagnosticsProperty<AnimationController>("controller", _controller, showName: false));
+            description.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", widget.alignment,
                 defaultValue: Alignment.topCenter));
         }
     }

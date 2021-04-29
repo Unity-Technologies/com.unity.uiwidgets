@@ -1,18 +1,20 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class SearchUtils {
-        public static IPromise<object> showSearch(
+        public static Future<T> showSearch<T>(
             BuildContext context,
-            SearchDelegate del,
+            SearchDelegate<T> del,
             string query = ""
         ) {
             D.assert(del != null);
@@ -20,13 +22,22 @@ namespace Unity.UIWidgets.material {
 
             del.query = query ?? del.query;
             del._currentBody = _SearchBody.suggestions;
-            return Navigator.of(context).push(new _SearchPageRoute(
+            return Navigator.of(context).push<T>(new _SearchPageRoute<T>(
                 del: del
             ));
         }
     }
 
-    public abstract class SearchDelegate {
+    public abstract class SearchDelegate<T> {
+        public SearchDelegate(
+            string searchFieldLabel = null,
+            TextInputType keyboardType = null,
+            TextInputAction textInputAction = TextInputAction.search
+        ) {
+            this.searchFieldLabel = searchFieldLabel;
+            this.keyboardType = keyboardType;
+            this.textInputAction = textInputAction;
+        }
         public abstract Widget buildSuggestions(BuildContext context);
         public abstract Widget buildResults(BuildContext context);
         public abstract Widget buildLeading(BuildContext context);
@@ -45,37 +56,43 @@ namespace Unity.UIWidgets.material {
         }
 
         public virtual string query {
-            get { return this._queryTextController.text; }
+            get { return _queryTextController.text; }
             set {
-                D.assert(this.query != null);
-                this._queryTextController.text = value;
+                D.assert(query != null);
+                _queryTextController.text = value;
             }
         }
 
         public virtual void showResults(BuildContext context) {
-            this._focusNode.unfocus();
-            this._currentBody = _SearchBody.results;
+            _focusNode?.unfocus();
+            _currentBody = _SearchBody.results;
         }
 
         public virtual void showSuggestions(BuildContext context) {
-            FocusScope.of(context).requestFocus(this._focusNode);
-            this._currentBody = _SearchBody.suggestions;
+            D.assert(_focusNode != null, () => "_focusNode must be set by route before showSuggestions is called.");
+            _focusNode.requestFocus();
+            _currentBody = _SearchBody.suggestions;
         }
 
         public virtual void close(BuildContext context, object result) {
-            this._currentBody = null;
-            this._focusNode.unfocus();
+            _currentBody = null;
+            _focusNode?.unfocus();
             var state = Navigator.of(context);
-            state.popUntil((Route route) => route == this._route);
+            state.popUntil((Route route) => route == _route);
             state.pop(result);
         }
 
+        public readonly string searchFieldLabel;
 
+        public readonly TextInputType keyboardType;
+
+        public readonly TextInputAction textInputAction;
+        
         public virtual Animation<float> transitionAnimation {
-            get { return this._proxyAnimation; }
+            get { return _proxyAnimation; }
         }
 
-        readonly internal FocusNode _focusNode = new FocusNode();
+        internal FocusNode _focusNode;
 
         readonly internal TextEditingController _queryTextController = new TextEditingController();
 
@@ -84,11 +101,11 @@ namespace Unity.UIWidgets.material {
         readonly internal ValueNotifier<_SearchBody?> _currentBodyNotifier = new ValueNotifier<_SearchBody?>(null);
 
         internal _SearchBody? _currentBody {
-            get { return this._currentBodyNotifier.value; }
-            set { this._currentBodyNotifier.value = value; }
+            get { return _currentBodyNotifier.value; }
+            set { _currentBodyNotifier.value = value; }
         }
 
-        internal _SearchPageRoute _route;
+        internal _SearchPageRoute<T> _route;
     }
 
     enum _SearchBody {
@@ -96,8 +113,8 @@ namespace Unity.UIWidgets.material {
         results
     }
 
-    class _SearchPageRoute : PageRoute {
-        public _SearchPageRoute(SearchDelegate del) {
+    class _SearchPageRoute<T> : PageRoute {
+        public _SearchPageRoute(SearchDelegate<T> del) {
             D.assert(del != null);
             D.assert(del._route == null,
                 () => $"The {this.del.GetType()} instance is currently used by another active " +
@@ -108,11 +125,13 @@ namespace Unity.UIWidgets.material {
             this.del._route = this;
         }
 
-        public readonly SearchDelegate del;
+        public readonly SearchDelegate<T> del;
 
         public override Color barrierColor {
             get { return null; }
         }
+
+        public override string barrierLabel => null;
 
         public override TimeSpan transitionDuration {
             get { return new TimeSpan(0, 0, 0, 0, 300); }
@@ -136,7 +155,7 @@ namespace Unity.UIWidgets.material {
 
         public override Animation<float> createAnimation() {
             Animation<float> animation = base.createAnimation();
-            this.del._proxyAnimation.parent = animation;
+            del._proxyAnimation.parent = animation;
             return animation;
         }
 
@@ -145,53 +164,57 @@ namespace Unity.UIWidgets.material {
             Animation<float> animation,
             Animation<float> secondaryAnimation
         ) {
-            return new _SearchPage(
-                del: this.del,
+            return new _SearchPage<T>(
+                del: del,
                 animation: animation
             );
         }
 
         protected internal override void didComplete(object result) {
             base.didComplete(result);
-            D.assert(this.del._route == this);
-            this.del._route = null;
-            this.del._currentBody = null;
+            D.assert(del._route == this);
+            del._route = null;
+            del._currentBody = null;
         }
     }
 
-    class _SearchPage : StatefulWidget {
+    class _SearchPage<T> : StatefulWidget {
         public _SearchPage(
-            SearchDelegate del,
+            SearchDelegate<T> del,
             Animation<float> animation
         ) {
             this.del = del;
             this.animation = animation;
         }
 
-        public readonly SearchDelegate del;
+        public readonly SearchDelegate<T> del;
 
         public readonly Animation<float> animation;
 
         public override State createState() {
-            return new _SearchPageState();
+            return new _SearchPageState<T>();
         }
     }
 
-    class _SearchPageState : State<_SearchPage> {
+    class _SearchPageState<T> : State<_SearchPage<T>> {
+        
+        FocusNode focusNode = new FocusNode();
         public override void initState() {
             base.initState();
-            this.queryTextController.addListener(this._onQueryChanged);
-            this.widget.animation.addStatusListener(this._onAnimationStatusChanged);
-            this.widget.del._currentBodyNotifier.addListener(this._onSearchBodyChanged);
-            this.widget.del._focusNode.addListener(this._onFocusChanged);
+            widget.del._queryTextController.addListener(_onQueryChanged);
+            widget.animation.addStatusListener(_onAnimationStatusChanged);
+            widget.del._currentBodyNotifier.addListener(_onSearchBodyChanged);
+            focusNode.addListener(_onFocusChanged);
+            widget.del._focusNode = focusNode;
         }
 
         public override void dispose() {
             base.dispose();
-            this.queryTextController.removeListener(this._onQueryChanged);
-            this.widget.animation.removeStatusListener(this._onAnimationStatusChanged);
-            this.widget.del._currentBodyNotifier.removeListener(this._onSearchBodyChanged);
-            this.widget.del._focusNode.removeListener(this._onFocusChanged);
+            widget.del._queryTextController.removeListener(_onQueryChanged);
+            widget.animation.removeStatusListener(_onAnimationStatusChanged);
+            widget.del._currentBodyNotifier.removeListener(_onSearchBodyChanged);
+            widget.del._focusNode = null;
+            focusNode.dispose();
         }
 
         void _onAnimationStatusChanged(AnimationStatus status) {
@@ -199,43 +222,56 @@ namespace Unity.UIWidgets.material {
                 return;
             }
 
-            this.widget.animation.removeStatusListener(this._onAnimationStatusChanged);
-            if (this.widget.del._currentBody == _SearchBody.suggestions) {
-                FocusScope.of(this.context).requestFocus(this.widget.del._focusNode);
+            widget.animation.removeStatusListener(_onAnimationStatusChanged);
+            if (widget.del._currentBody == _SearchBody.suggestions) {
+                focusNode.requestFocus();
+            }
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            var _oldWidget = (_SearchPage<T>) oldWidget;
+            base.didUpdateWidget(oldWidget);
+            if (widget.del != _oldWidget.del) {
+                _oldWidget.del._queryTextController.removeListener(_onQueryChanged);
+                widget.del._queryTextController.addListener(_onQueryChanged);
+                _oldWidget.del._currentBodyNotifier.removeListener(_onSearchBodyChanged);
+                widget.del._currentBodyNotifier.addListener(_onSearchBodyChanged);
+                _oldWidget.del._focusNode = null;
+                widget.del._focusNode = focusNode;
             }
         }
 
         void _onFocusChanged() {
-            if (this.widget.del._focusNode.hasFocus && this.widget.del._currentBody != _SearchBody.suggestions) {
-                this.widget.del.showSuggestions(this.context);
+            if (focusNode.hasFocus && widget.del._currentBody != _SearchBody.suggestions) {
+                widget.del.showSuggestions(context);
             }
         }
 
         void _onQueryChanged() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         void _onSearchBodyChanged() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         public override Widget build(BuildContext context) {
-            MaterialD.debugCheckHasMaterialLocalizations(context);
+            material_.debugCheckHasMaterialLocalizations(context);
 
-            ThemeData theme = this.widget.del.appBarTheme(context);
-            string searchFieldLabel = MaterialLocalizations.of(context).searchFieldLabel;
+            ThemeData theme = widget.del.appBarTheme(context);
+            string searchFieldLabel = widget.del.searchFieldLabel ?? MaterialLocalizations.of(context).searchFieldLabel;
             Widget body = null;
-            switch (this.widget.del._currentBody) {
+            switch (widget.del._currentBody) {
                 case _SearchBody.suggestions:
                     body = new KeyedSubtree(
                         key: new ValueKey<_SearchBody>(_SearchBody.suggestions),
-                        child: this.widget.del.buildSuggestions(context)
+                        child: widget.del.buildSuggestions(context)
                     );
                     break;
                 case _SearchBody.results:
                     body = new KeyedSubtree(
                         key: new ValueKey<_SearchBody>(_SearchBody.results),
-                        child: this.widget.del.buildResults(context)
+                        child: widget.del.buildResults(context)
                     );
                     break;
             }
@@ -243,6 +279,8 @@ namespace Unity.UIWidgets.material {
             string routeName;
             switch (Theme.of(this.context).platform) {
                 case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
                     routeName = "";
                     break;
                 case RuntimePlatform.Android:
@@ -256,19 +294,21 @@ namespace Unity.UIWidgets.material {
                     iconTheme: theme.primaryIconTheme,
                     textTheme: theme.primaryTextTheme,
                     brightness: theme.primaryColorBrightness,
-                    leading: this.widget.del.buildLeading(context),
+                    leading: widget.del.buildLeading(context),
                     title: new TextField(
-                        controller: this.queryTextController,
-                        focusNode: this.widget.del._focusNode,
-                        style: theme.textTheme.title,
-                        textInputAction: TextInputAction.search,
-                        onSubmitted: (string _) => { this.widget.del.showResults(context); },
+                        controller: widget.del._queryTextController,
+                        focusNode: focusNode,
+                        style: theme.textTheme.headline6,
+                        textInputAction: widget.del.textInputAction,
+                        keyboardType: widget.del.keyboardType,
+                        onSubmitted: (string _) => { widget.del.showResults(context); },
                         decoration: new InputDecoration(
                             border: InputBorder.none,
-                            hintText: searchFieldLabel
+                            hintText: searchFieldLabel,
+                            hintStyle: theme.inputDecorationTheme.hintStyle
                         )
                     ),
-                    actions: this.widget.del.buildActions(context)
+                    actions: widget.del.buildActions(context)
                 ),
                 body: new AnimatedSwitcher(
                     duration: new TimeSpan(0, 0, 0, 0, 300),
@@ -278,7 +318,7 @@ namespace Unity.UIWidgets.material {
         }
 
         TextEditingController queryTextController {
-            get { return this.widget.del._queryTextController; }
+            get { return widget.del._queryTextController; }
         }
     }
 }

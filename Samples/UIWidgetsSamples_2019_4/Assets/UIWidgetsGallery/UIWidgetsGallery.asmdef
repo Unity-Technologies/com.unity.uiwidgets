@@ -1,6 +1,14 @@
 {
     "name": "UIWidgetsGallery",
-    "references": ["Unity.UIWidgets"],
+    "references": [
+        "Unity.UIWidgets"
+    ],
+    "optionalUnityReferences": [],
     "includePlatforms": [],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
 }

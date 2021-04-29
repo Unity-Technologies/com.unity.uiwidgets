@@ -18,8 +18,8 @@ namespace Unity.UIWidgets.rendering {
         public RenderListBody(
             List<RenderBox> children = null,
             AxisDirection axisDirection = AxisDirection.down) {
-            this._axisDirection = axisDirection;
-            this.addAll(children);
+            _axisDirection = axisDirection;
+            addAll(children);
         }
 
         public override void setupParentData(RenderObject child) {
@@ -29,85 +29,98 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public AxisDirection axisDirection {
-            get { return this._axisDirection; }
+            get { return _axisDirection; }
             set {
-                if (this._axisDirection == value) {
+                if (_axisDirection == value) {
                     return;
                 }
 
-                this._axisDirection = value;
-                this.markNeedsLayout();
+                _axisDirection = value;
+                markNeedsLayout();
             }
         }
 
         AxisDirection _axisDirection;
 
         public Axis mainAxis {
-            get { return AxisUtils.axisDirectionToAxis(this.axisDirection); }
+            get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
         protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
             D.assert(() => {
-                switch (this.mainAxis) {
+                switch (mainAxis) {
                     case Axis.horizontal:
-                        if (!this.constraints.hasBoundedWidth) {
+                        if (!constraints.hasBoundedWidth) {
                             return true;
                         }
 
                         break;
                     case Axis.vertical:
-                        if (!this.constraints.hasBoundedHeight) {
+                        if (!constraints.hasBoundedHeight) {
                             return true;
                         }
 
                         break;
                 }
 
-                throw new UIWidgetsError(
-                    "RenderListBody must have unlimited space along its main axis.\n" +
-                    "RenderListBody does not clip or resize its children, so it must be " +
-                    "placed in a parent that does not constrain the main " +
-                    "axis. You probably want to put the RenderListBody inside a " +
-                    "RenderViewport with a matching main axis.");
+                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                    new ErrorSummary("RenderListBody must have unlimited space along its main axis."),
+                    new ErrorDescription(
+                        "RenderListBody does not clip or resize its children, so it must be " +
+                        "placed in a parent that does not constrain the main axis."
+                    ),
+                    new ErrorHint(
+                        "You probably want to put the RenderListBody inside a " +
+                        "RenderViewport with a matching main axis."
+                    )
+                });
             });
 
             D.assert(() => {
-                switch (this.mainAxis) {
+                switch (mainAxis) {
                     case Axis.horizontal:
-                        if (this.constraints.hasBoundedHeight) {
+                        if (constraints.hasBoundedHeight) {
                             return true;
                         }
 
                         break;
                     case Axis.vertical:
-                        if (this.constraints.hasBoundedWidth) {
+                        if (constraints.hasBoundedWidth) {
                             return true;
                         }
 
                         break;
                 }
 
-                throw new UIWidgetsError(
-                    "RenderListBody must have a bounded constraint for its cross axis.\n" +
-                    "RenderListBody forces its children to expand to fit the RenderListBody\"s container, " +
-                    "so it must be placed in a parent that constrains the cross " +
-                    "axis to a finite dimension. If you are attempting to nest a RenderListBody with " +
-                    "one direction inside one of another direction, you will want to " +
-                    "wrap the inner one inside a box that fixes the dimension in that direction, " +
-                    "for example, a RenderIntrinsicWidth or RenderIntrinsicHeight object. " +
-                    "This is relatively expensive, however."
-                );
+                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                    new ErrorSummary("RenderListBody must have a bounded constraint for its cross axis."),
+                    new ErrorDescription(
+                        "RenderListBody forces its children to expand to fit the RenderListBody's container, " +
+                        "so it must be placed in a parent that constrains the cross " +
+                        "axis to a finite dimension."
+                    ),
+                    // TODO(jacobr): this hint is a great candidate to promote to being an
+                    // automated quick fix in the future.
+                    new ErrorHint(
+                        "If you are attempting to nest a RenderListBody with " +
+                        "one direction inside one of another direction, you will want to " +
+                        "wrap the inner one inside a box that fixes the dimension in that direction, " +
+                        "for example, a RenderIntrinsicWidth or RenderIntrinsicHeight object. " +
+                        "This is relatively expensive, however." // (that's why we don't do it automatically)
+                    )
+                });
             });
 
             float mainAxisExtent = 0.0f;
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
 
             BoxConstraints innerConstraints;
             float position;
 
-            switch (this.axisDirection) {
+            switch (axisDirection) {
                 case AxisDirection.right:
-                    innerConstraints = BoxConstraints.tightFor(height: this.constraints.maxHeight);
+                    innerConstraints = BoxConstraints.tightFor(height: constraints.maxHeight);
                     while (child != null) {
                         child.layout(innerConstraints, parentUsesSize: true);
                         ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
@@ -117,11 +130,11 @@ namespace Unity.UIWidgets.rendering {
                         child = childParentData.nextSibling;
                     }
 
-                    this.size = this.constraints.constrain(new Size(mainAxisExtent,
-                        this.constraints.maxHeight));
+                    size = constraints.constrain(new Size(mainAxisExtent,
+                        constraints.maxHeight));
                     break;
                 case AxisDirection.left:
-                    innerConstraints = BoxConstraints.tightFor(height: this.constraints.maxHeight);
+                    innerConstraints = BoxConstraints.tightFor(height: constraints.maxHeight);
                     while (child != null) {
                         child.layout(innerConstraints, parentUsesSize: true);
                         ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
@@ -131,7 +144,7 @@ namespace Unity.UIWidgets.rendering {
                     }
 
                     position = 0.0f;
-                    child = this.firstChild;
+                    child = firstChild;
                     while (child != null) {
                         ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
                         position += child.size.width;
@@ -140,11 +153,11 @@ namespace Unity.UIWidgets.rendering {
                         child = childParentData.nextSibling;
                     }
 
-                    this.size = this.constraints.constrain(new Size(mainAxisExtent,
-                        this.constraints.maxHeight));
+                    size = constraints.constrain(new Size(mainAxisExtent,
+                        constraints.maxHeight));
                     break;
                 case AxisDirection.down:
-                    innerConstraints = BoxConstraints.tightFor(width: this.constraints.maxWidth);
+                    innerConstraints = BoxConstraints.tightFor(width: constraints.maxWidth);
                     while (child != null) {
                         child.layout(innerConstraints, parentUsesSize: true);
                         ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
@@ -154,10 +167,10 @@ namespace Unity.UIWidgets.rendering {
                         child = childParentData.nextSibling;
                     }
 
-                    this.size = this.constraints.constrain(new Size(this.constraints.maxWidth, mainAxisExtent));
+                    size = constraints.constrain(new Size(constraints.maxWidth, mainAxisExtent));
                     break;
                 case AxisDirection.up:
-                    innerConstraints = BoxConstraints.tightFor(width: this.constraints.maxWidth);
+                    innerConstraints = BoxConstraints.tightFor(width: constraints.maxWidth);
                     while (child != null) {
                         child.layout(innerConstraints, parentUsesSize: true);
                         ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
@@ -167,7 +180,7 @@ namespace Unity.UIWidgets.rendering {
                     }
 
                     position = 0.0f;
-                    child = this.firstChild;
+                    child = firstChild;
                     while (child != null) {
                         ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
                         position += child.size.height;
@@ -176,22 +189,22 @@ namespace Unity.UIWidgets.rendering {
                         child = childParentData.nextSibling;
                     }
 
-                    this.size = this.constraints.constrain(new Size(this.constraints.maxWidth, mainAxisExtent));
+                    size = constraints.constrain(new Size(constraints.maxWidth, mainAxisExtent));
                     break;
             }
 
-            D.assert(this.size.isFinite);
+            D.assert(size.isFinite);
         }
 
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<AxisDirection>("axisDirection", this.axisDirection));
+            properties.add(new EnumProperty<AxisDirection>("axisDirection", axisDirection));
         }
 
         float _getIntrinsicCrossAxis(__ChildSizingFunction childSize) {
             float extent = 0.0f;
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             while (child != null) {
                 extent = Mathf.Max(extent, childSize(child));
                 ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
@@ -203,7 +216,7 @@ namespace Unity.UIWidgets.rendering {
 
         float _getIntrinsicMainAxis(__ChildSizingFunction childSize) {
             float extent = 0.0f;
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             while (child != null) {
                 extent += childSize(child);
                 ListBodyParentData childParentData = (ListBodyParentData) child.parentData;
@@ -214,12 +227,24 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        protected override float computeMinIntrinsicWidth(float height) {
-            switch (this.mainAxis) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
+            switch (mainAxis) {
                 case Axis.horizontal:
-                    return this._getIntrinsicMainAxis((RenderBox child) => child.getMinIntrinsicWidth(height));
+                    return _getIntrinsicMainAxis((RenderBox child) => child.getMinIntrinsicWidth(height));
                 case Axis.vertical:
-                    return this._getIntrinsicCrossAxis((RenderBox child) => child.getMinIntrinsicWidth(height));
+                    return _getIntrinsicCrossAxis((RenderBox child) => child.getMinIntrinsicWidth(height));
+            }
+            D.assert(false);
+            return 0.0f;
+        }
+
+
+        protected internal override float computeMaxIntrinsicWidth(float height) {
+            switch (mainAxis) {
+                case Axis.horizontal:
+                    return _getIntrinsicMainAxis((RenderBox child) => child.getMaxIntrinsicWidth(height));
+                case Axis.vertical:
+                    return _getIntrinsicCrossAxis((RenderBox child) => child.getMaxIntrinsicWidth(height));
             }
 
             D.assert(false);
@@ -227,25 +252,12 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        protected override float computeMaxIntrinsicWidth(float height) {
-            switch (this.mainAxis) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
+            switch (mainAxis) {
                 case Axis.horizontal:
-                    return this._getIntrinsicMainAxis((RenderBox child) => child.getMaxIntrinsicWidth(height));
+                    return _getIntrinsicMainAxis((RenderBox child) => child.getMinIntrinsicHeight(width));
                 case Axis.vertical:
-                    return this._getIntrinsicCrossAxis((RenderBox child) => child.getMaxIntrinsicWidth(height));
-            }
-
-            D.assert(false);
-            return 0.0f;
-        }
-
-
-        protected override float computeMinIntrinsicHeight(float width) {
-            switch (this.mainAxis) {
-                case Axis.horizontal:
-                    return this._getIntrinsicMainAxis((RenderBox child) => child.getMinIntrinsicHeight(width));
-                case Axis.vertical:
-                    return this._getIntrinsicCrossAxis((RenderBox child) => child.getMinIntrinsicHeight(width));
+                    return _getIntrinsicCrossAxis((RenderBox child) => child.getMinIntrinsicHeight(width));
             }
 
             D.assert(false);
@@ -254,11 +266,11 @@ namespace Unity.UIWidgets.rendering {
 
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            switch (this.mainAxis) {
+            switch (mainAxis) {
                 case Axis.horizontal:
-                    return this._getIntrinsicMainAxis((RenderBox child) => child.getMaxIntrinsicHeight(width));
+                    return _getIntrinsicMainAxis((RenderBox child) => child.getMaxIntrinsicHeight(width));
                 case Axis.vertical:
-                    return this._getIntrinsicCrossAxis((RenderBox child) => child.getMaxIntrinsicHeight(width));
+                    return _getIntrinsicCrossAxis((RenderBox child) => child.getMaxIntrinsicHeight(width));
             }
 
             D.assert(false);
@@ -266,18 +278,18 @@ namespace Unity.UIWidgets.rendering {
         }
 
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            return this.defaultComputeDistanceToFirstActualBaseline(baseline);
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+            return defaultComputeDistanceToFirstActualBaseline(baseline);
         }
 
 
         public override void paint(PaintingContext context, Offset offset) {
-            this.defaultPaint(context, offset);
+            defaultPaint(context, offset);
         }
 
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            return this.defaultHitTestChildren(result, position: position);
+            return defaultHitTestChildren(result, position: position);
         }
     }
 }

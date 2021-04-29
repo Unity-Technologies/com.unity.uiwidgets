@@ -71,6 +71,18 @@ namespace Unity.UIWidgets.animation {
         public void notifyListeners() {
             var localListeners = new List<VoidCallback>(this._listeners);
             foreach (VoidCallback listener in localListeners) {
+                InformationCollector collector = null;
+                D.assert(() => {
+                      IEnumerable<DiagnosticsNode> infoCollector() {
+                          yield return new DiagnosticsProperty<AnimationLocalListenersMixin{{with | safe}}>(
+                              "The " + this.GetType() + " notifying listeners was",
+                              this,
+                              style: DiagnosticsTreeStyle.errorProperty
+                          );
+                      }
+                      collector = infoCollector;
+                      return true;
+                });
                 try {
                     if (this._listeners.Contains(listener)) {
                         listener();
@@ -79,11 +91,8 @@ namespace Unity.UIWidgets.animation {
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "animation library",
-                        context: "while notifying listeners for " + this.GetType(),
-                        informationCollector: information => {
-                            information.AppendLine("The " + this.GetType() + " notifying listeners was:");
-                            information.Append("  " + this);
-                        }
+                        context: new ErrorDescription("while notifying listeners for " + this.GetType()),
+                        informationCollector: collector
                     ));
                 }
             }
@@ -119,14 +128,25 @@ namespace Unity.UIWidgets.animation {
                         listener(status);
                     }
                 } catch (Exception exception) {
+                    InformationCollector collector = null;
+                    D.assert(() => {
+                        IEnumerable<DiagnosticsNode> infoCollector() {
+                            yield return new DiagnosticsProperty<AnimationLocalStatusListenersMixin{{with | safe}}>(
+                                "The " + this.GetType() + " notifying status listeners was",
+                                this,
+                                style: DiagnosticsTreeStyle.errorProperty
+                            );
+                        }
+                        
+                        collector = infoCollector;
+                        return true;
+                    });
+                
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "animation library",
-                        context: "while notifying status listeners for " + this.GetType(),
-                        informationCollector: information => {
-                            information.AppendLine("The " + this.GetType() + " notifying status listeners was:");
-                            information.Append("  " + this);
-                        }
+                        context: new ErrorDescription("while notifying status listeners for " + this.GetType()),
+                        informationCollector: collector
                     ));
                 }
             }

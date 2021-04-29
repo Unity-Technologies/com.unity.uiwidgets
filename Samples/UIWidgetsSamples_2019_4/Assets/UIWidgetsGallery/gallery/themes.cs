@@ -1,40 +1,45 @@
+using uiwidgets;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.ui;
 
-namespace UIWidgetsGallery.gallery {
-    public class GalleryTheme {
-        GalleryTheme(string name, ThemeData data) {
-            this.name = name;
-            this.data = data;
+namespace UIWidgetsGallery.gallery
+{
+    public static class GalleyThemes
+    {
+        public static readonly ThemeData kLightGalleryTheme = _buildLightTheme();
+        public static readonly ThemeData kDarkGalleryTheme = _buildDarkTheme();
+
+        private static string _defaultGalleryFontFamily = "";
+
+        private static TextTheme _buildTextTheme(TextTheme baseTheme)
+        {
+            if (_defaultGalleryFontFamily != "")
+                return baseTheme.copyWith(
+                    headline6: baseTheme.headline6.copyWith(
+                        fontFamily: _defaultGalleryFontFamily
+                    )
+                );
+
+            return baseTheme;
         }
 
-        public readonly string name;
-        public readonly ThemeData data;
-
-        public static readonly GalleryTheme kDarkGalleryTheme = new GalleryTheme("Dark", _buildDarkTheme());
-        
-        public static readonly GalleryTheme kLightGalleryTheme = new GalleryTheme("Light", _buildLightTheme());
-
-        static TextTheme _buildTextTheme(TextTheme baseTheme) {
-            return baseTheme.copyWith(
-                title: baseTheme.title.copyWith(
-                    fontFamily: "GoogleSans"
-                )
-            );
-        }
-
-        static ThemeData _buildDarkTheme() {
+        private static ThemeData _buildDarkTheme()
+        {
             Color primaryColor = new Color(0xFF0175c2);
             Color secondaryColor = new Color(0xFF13B9FD);
-            ThemeData baseTheme = ThemeData.dark();
             ColorScheme colorScheme = ColorScheme.dark().copyWith(
                 primary: primaryColor,
                 secondary: secondaryColor
             );
-            return baseTheme.copyWith(
+            ThemeData baseTheme = new ThemeData(
+                brightness: Brightness.dark,
+                accentColorBrightness: Brightness.dark,
                 primaryColor: primaryColor,
+                primaryColorDark: new Color(0xFF0050a0),
+                primaryColorLight: secondaryColor,
                 buttonColor: primaryColor,
                 indicatorColor: Colors.white,
+                toggleableActiveColor: new Color(0xFF6997DF),
                 accentColor: secondaryColor,
                 canvasColor: new Color(0xFF202124),
                 scaffoldBackgroundColor: new Color(0xFF202124),
@@ -43,26 +48,31 @@ namespace UIWidgetsGallery.gallery {
                 buttonTheme: new ButtonThemeData(
                     colorScheme: colorScheme,
                     textTheme: ButtonTextTheme.primary
-                ),
+                )
+            );
+            return baseTheme.copyWith(
                 textTheme: _buildTextTheme(baseTheme.textTheme),
                 primaryTextTheme: _buildTextTheme(baseTheme.primaryTextTheme),
                 accentTextTheme: _buildTextTheme(baseTheme.accentTextTheme)
             );
         }
 
-        static ThemeData _buildLightTheme() {
+        private static ThemeData _buildLightTheme()
+        {
             Color primaryColor = new Color(0xFF0175c2);
             Color secondaryColor = new Color(0xFF13B9FD);
             ColorScheme colorScheme = ColorScheme.light().copyWith(
                 primary: primaryColor,
                 secondary: secondaryColor
             );
-            ThemeData baseTheme = ThemeData.light();
-            return baseTheme.copyWith(
+            ThemeData baseTheme = new ThemeData(
+                brightness: Brightness.light,
+                accentColorBrightness: Brightness.dark,
                 colorScheme: colorScheme,
                 primaryColor: primaryColor,
                 buttonColor: primaryColor,
                 indicatorColor: Colors.white,
+                toggleableActiveColor: new Color(0xFF1E88E5),
                 splashColor: Colors.white24,
                 splashFactory: InkRipple.splashFactory,
                 accentColor: secondaryColor,
@@ -73,7 +83,9 @@ namespace UIWidgetsGallery.gallery {
                 buttonTheme: new ButtonThemeData(
                     colorScheme: colorScheme,
                     textTheme: ButtonTextTheme.primary
-                ),
+                )
+            );
+            return baseTheme.copyWith(
                 textTheme: _buildTextTheme(baseTheme.textTheme),
                 primaryTextTheme: _buildTextTheme(baseTheme.primaryTextTheme),
                 accentTextTheme: _buildTextTheme(baseTheme.accentTextTheme)

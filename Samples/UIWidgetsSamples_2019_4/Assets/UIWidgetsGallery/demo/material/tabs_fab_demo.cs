@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace UIWidgetsGallery.gallery {
     class TabsFabDemoUtils {

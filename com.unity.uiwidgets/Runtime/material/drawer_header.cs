@@ -1,4 +1,5 @@
 using System;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -14,8 +15,8 @@ namespace Unity.UIWidgets.material {
         public DrawerHeader(
             Key key = null,
             Decoration decoration = null,
-            EdgeInsets margin = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry margin = null,
+            EdgeInsetsGeometry padding = null,
             TimeSpan? duration = null,
             Curve curve = null,
             Widget child = null
@@ -32,9 +33,9 @@ namespace Unity.UIWidgets.material {
 
         public readonly Decoration decoration;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
 
         public readonly TimeSpan duration;
 
@@ -44,30 +45,30 @@ namespace Unity.UIWidgets.material {
 
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             ThemeData theme = Theme.of(context);
             float statusBarHeight = MediaQuery.of(context).padding.top;
             return new Container(
                 height: statusBarHeight + DrawerHeaderUtils._kDrawerHeaderHeight,
-                margin: this.margin,
+                margin: margin,
                 decoration: new BoxDecoration(
                     border: new Border(
                         bottom: Divider.createBorderSide(context)
                     )
                 ),
                 child: new AnimatedContainer(
-                    padding: this.padding.add(EdgeInsets.only(top: statusBarHeight)),
-                    decoration: this.decoration,
-                    duration: this.duration,
-                    curve: this.curve,
-                    child: this.child == null
+                    padding: padding.add(EdgeInsets.only(top: statusBarHeight)),
+                    decoration: decoration,
+                    duration: duration,
+                    curve: curve,
+                    child: child == null
                         ? null
                         : new DefaultTextStyle(
-                            style: theme.textTheme.body2,
+                            style: theme.textTheme.bodyText1,
                             child: MediaQuery.removePadding(
                                 context: context,
                                 removeTop: true,
-                                child: this.child)
+                                child: child)
                         )
                 )
             );

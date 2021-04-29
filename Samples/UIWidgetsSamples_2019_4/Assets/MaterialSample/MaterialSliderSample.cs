@@ -1,22 +1,23 @@
 using System.Collections.Generic;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample {
     
-    public class MaterialSliderSample : UIWidgetsSamplePanel {
+    public class MaterialSliderSample : UIWidgetsPanel {
 
-        protected override Widget createWidget() {
-            return new MaterialApp(
+        protected override void main() {
+            ui_.runApp(new MaterialApp(
                 showPerformanceOverlay: false,
-                home: new MaterialSliderWidget());
+                home: new MaterialSliderWidget()));
         }
 
-        protected override void OnEnable() {
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/MaterialIcons-Regular"), "Material Icons");
+        protected new void OnEnable() {
             base.OnEnable();
         }
     }

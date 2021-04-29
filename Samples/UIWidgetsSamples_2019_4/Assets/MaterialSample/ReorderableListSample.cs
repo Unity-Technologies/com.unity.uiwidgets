@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
+using uiwidgets;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
@@ -11,17 +12,17 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Material = Unity.UIWidgets.material.Material;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
+using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample {
-    public class ReorderableListSample : UIWidgetsSamplePanel {
-        protected override Widget createWidget() {
-            return new MaterialApp(
+    public class ReorderableListSample : UIWidgetsPanel {
+        protected override void main() {
+            ui_.runApp(new MaterialApp(
                 showPerformanceOverlay: false,
-                home: new MaterialReorderableListViewWidget());
+                home: new MaterialReorderableListViewWidget()));
         }
 
-        protected override void OnEnable() {
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/MaterialIcons-Regular"), "Material Icons");
+        protected new void OnEnable() {
             base.OnEnable();
         }
     }
@@ -36,46 +37,42 @@ namespace UIWidgetsSample {
     }
 
     class MaterialReorderableListViewWidgetState : State<MaterialReorderableListViewWidget> {
-        List<string> items = new List<string> {"First", "Second", "Third"};
+        List<string> _list = new List<string> {"Apple", "Ball", "Cat", "Dog", "Elephant"};
 
         public override Widget build(BuildContext context) {
             return new Scaffold(
-                body: new Scrollbar(
-                    child: new ReorderableListView(
-                        header: new Text("Header of list"),
-                        children: this.items.Select<string, Widget>((item) => {
-                            return new Container(
-                                key: Key.key(item),
-                                width: 300.0f,
-                                height: 50.0f,
-                                decoration: new BoxDecoration(
-                                    color: Colors.blue,
-                                    border: Border.all(
-                                        color: Colors.black
-                                    )
-                                ),
-                                child: new Center(
-                                    child: new Text(
-                                        item,
-                                        style: new TextStyle(
-                                            fontSize: 32
-                                        )
-                                    )
-                                )
-                            );
-                        }).ToList(),
-                        onReorder: (int oldIndex, int newIndex) => {
-                            this.setState(() => {
-                                if (newIndex > oldIndex) {
-                                    newIndex -= 1;
-                                }
-                                string item = this.items[oldIndex];
-                                this.items.RemoveAt(oldIndex);
-                                this.items.Insert(newIndex, item);
-                            });
+                body: new ReorderableListView(
+                    children: this._list.Select<string, Widget>((item) =>
+                    {
+                        return new ListTile(
+                            Key.key(item),
+                            title: new Text(item),
+                            trailing: new Icon(Icons.menu));
+                    }).ToList(),
+                    onReorder: (int start, int current) =>
+                    {
+                        if (start < current) {
+                            int end = current - 1;
+                            string startItem = _list[start];
+                            int i = 0;
+                            int local = start;
+                            do {
+                                _list[local] = _list[++local];
+                                i++;
+                            } while (i < end - start);
+                            _list[end] = startItem;
                         }
+                        // dragging from bottom to top
+                        else if (start > current) {
+                            string startItem = _list[start];
+                            for (int i = start; i > current; i--) {
+                                _list[i] = _list[i - 1];
+                            }
+                            _list[current] = startItem;
+                        }
+                        setState(() => {});
+                    }
                     )
-                )
             );
         }
     }

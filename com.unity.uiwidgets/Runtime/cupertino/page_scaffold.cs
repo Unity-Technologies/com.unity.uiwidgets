@@ -10,14 +10,13 @@ namespace Unity.UIWidgets.cupertino {
     public class CupertinoPageScaffold : StatefulWidget {
         /// Creates a layout for pages with a navigation bar at the top.
         public CupertinoPageScaffold(
-            Widget child,
             Key key = null,
             ObstructingPreferredSizeWidget navigationBar = null,
             Color backgroundColor = null,
-            bool resizeToAvoidBottomInset = true
+            bool resizeToAvoidBottomInset = true,
+            Widget child = null
         ) : base(key: key) {
             D.assert(child != null);
-
             this.child = child;
             this.navigationBar = navigationBar;
             this.backgroundColor = backgroundColor;
@@ -39,38 +38,32 @@ namespace Unity.UIWidgets.cupertino {
         public readonly ScrollController _primaryScrollController = new ScrollController();
 
         void _handleStatusBarTap() {
-            // Only act on the scroll controller if it has any attached scroll positions.
-            if (this._primaryScrollController.hasClients) {
-                this._primaryScrollController.animateTo(
+            if (_primaryScrollController.hasClients) {
+                _primaryScrollController.animateTo(
                     0.0f,
-                    duration: new TimeSpan(0, 0, 0, 0, 500),
+                    duration: TimeSpan.FromMilliseconds(500),
                     curve: Curves.linearToEaseOut
                 );
             }
         }
 
         public override Widget build(BuildContext context) {
-            List<Widget> stacked = new List<Widget>();
-
-            Widget paddedContent = this.widget.child;
+            Widget paddedContent = widget.child;
 
             MediaQueryData existingMediaQuery = MediaQuery.of(context);
-            if (this.widget.navigationBar != null) {
-                float topPadding = this.widget.navigationBar.preferredSize.height + existingMediaQuery.padding.top;
+            if (widget.navigationBar != null) {
+                float topPadding = widget.navigationBar.preferredSize.height + existingMediaQuery.padding.top;
 
-                float bottomPadding = this.widget.resizeToAvoidBottomInset
+                float bottomPadding = widget.resizeToAvoidBottomInset
                     ? existingMediaQuery.viewInsets.bottom
                     : 0.0f;
 
-                EdgeInsets newViewInsets = this.widget.resizeToAvoidBottomInset
+                EdgeInsets newViewInsets = widget.resizeToAvoidBottomInset
                     ? existingMediaQuery.viewInsets.copyWith(bottom: 0.0f)
                     : existingMediaQuery.viewInsets;
 
-                bool? fullObstruction =
-                    this.widget.navigationBar.fullObstruction == false
-                        ? CupertinoTheme.of(context).barBackgroundColor.alpha == 0xFF
-                        : this.widget.navigationBar.fullObstruction;
-
+                bool fullObstruction = widget.navigationBar.shouldFullyObstruct(context);
+                 
                 if (fullObstruction == true) {
                     paddedContent = new MediaQuery(
                         data: existingMediaQuery
@@ -99,46 +92,58 @@ namespace Unity.UIWidgets.cupertino {
                     );
                 }
             }
-
-            stacked.Add(new PrimaryScrollController(
-                controller: this._primaryScrollController,
+            else {
+                float bottomPadding = widget.resizeToAvoidBottomInset
+                    ? existingMediaQuery.viewInsets.bottom
+                    : 0.0f;
+                paddedContent = new Padding(
+                    padding: EdgeInsets.only(bottom: bottomPadding),
+                    child: paddedContent
+                );
+            }
+            List<Widget> childrenWigets = new List<Widget>();
+            childrenWigets.Add( new PrimaryScrollController(
+                controller: _primaryScrollController,
                 child: paddedContent
             ));
-
-            if (this.widget.navigationBar != null) {
-                stacked.Add(new Positioned(
+            if (widget.navigationBar != null) {
+                childrenWigets.Add(new Positioned(
                     top: 0.0f,
                     left: 0.0f,
                     right: 0.0f,
-                    child: this.widget.navigationBar
+                    child: new MediaQuery(
+                        data: existingMediaQuery.copyWith(textScaleFactor: 1),
+                        child: widget.navigationBar
+                    )
                 ));
             }
-
-            stacked.Add(new Positioned(
+            childrenWigets.Add(new Positioned(
                     top: 0.0f,
                     left: 0.0f,
                     right: 0.0f,
                     height: existingMediaQuery.padding.top,
                     child: new GestureDetector(
-                        onTap: this._handleStatusBarTap
+                        onTap: _handleStatusBarTap
                     )
-                )
-            );
+                
+            ));
 
             return new DecoratedBox(
                 decoration: new BoxDecoration(
-                    color: this.widget.backgroundColor ?? CupertinoTheme.of(context).scaffoldBackgroundColor
+                    color: CupertinoDynamicColor.resolve(widget.backgroundColor, context)
+                           ?? CupertinoTheme.of(context).scaffoldBackgroundColor
                 ),
                 child: new Stack(
-                    children: stacked
-                )
-            );
+                    children: childrenWigets));
         }
     }
 
-    public abstract class ObstructingPreferredSizeWidget : PreferredSizeWidget {
+    public abstract class ObstructingPreferredSizeStateWidget : StatefulWidget {
+        
+    }
 
-        protected ObstructingPreferredSizeWidget(Key key = null) : base(key: key) {}
-        public virtual bool? fullObstruction { get; }
+    public abstract class ObstructingPreferredSizeWidget : PreferredSizeWidget {
+        protected ObstructingPreferredSizeWidget(Key key = null) : base(key: key) {} 
+        public abstract bool shouldFullyObstruct(BuildContext context);
     }
 }

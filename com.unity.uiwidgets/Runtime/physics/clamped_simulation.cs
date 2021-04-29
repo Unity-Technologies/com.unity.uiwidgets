@@ -30,15 +30,15 @@ namespace Unity.UIWidgets.physics {
         public readonly float dxMax;
 
         public override float x(float time) {
-            return this.simulation.x(time).clamp(this.xMin, this.xMax);
+            return simulation.x(time).clamp(xMin, xMax);
         }
 
         public override float dx(float time) {
-            return this.simulation.dx(time).clamp(this.dxMin, this.dxMax);
+            return simulation.dx(time).clamp(dxMin, dxMax);
         }
 
         public override bool isDone(float time) {
-            return this.simulation.isDone(time);
+            return simulation.isDone(time);
         }
     }
 }

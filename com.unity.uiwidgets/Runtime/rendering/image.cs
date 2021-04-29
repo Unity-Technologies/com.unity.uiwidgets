@@ -15,40 +15,60 @@ namespace Unity.UIWidgets.rendering {
             Color color = null,
             BlendMode colorBlendMode = BlendMode.srcIn,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
             Rect centerSlice = null,
+            bool matchTextDirection = false,
+            TextDirection? textDirection = null,
             bool invertColors = false,
-            FilterMode filterMode = FilterMode.Bilinear
+            FilterQuality filterQuality = FilterQuality.low
         ) {
-            this._image = image;
-            this._width = width;
-            this._height = height;
-            this._scale = scale;
-            this._color = color;
-            this._colorBlendMode = colorBlendMode;
-            this._fit = fit;
-            this._repeat = repeat;
-            this._centerSlice = centerSlice;
-            this._alignment = alignment ?? Alignment.center;
-            this._invertColors = invertColors;
-            this._filterMode = filterMode;
-            this._updateColorFilter();
+            D.assert(alignment != null);
+            _image = image;
+            _width = width;
+            _height = height;
+            _scale = scale;
+            _color = color;
+            _colorBlendMode = colorBlendMode;
+            _fit = fit;
+            _repeat = repeat;
+            _centerSlice = centerSlice;
+            _alignment = alignment ?? Alignment.center;
+            _invertColors = invertColors;
+            _filterQuality = filterQuality;
+            _textDirection = textDirection;
+            _matchTextDirection = matchTextDirection;
+            _updateColorFilter();
+        }
+        Alignment _resolvedAlignment;
+        bool _flipHorizontally;
+        void _resolve() {
+            if (_resolvedAlignment != null)
+                return;
+            _resolvedAlignment = alignment.resolve(textDirection);
+            _flipHorizontally = matchTextDirection && textDirection == TextDirection.rtl;
+        }
+
+        
+        void _markNeedResolution() {
+            _resolvedAlignment = null;
+            _flipHorizontally = false;
+            markNeedsPaint();
         }
 
         Image _image;
 
         public Image image {
-            get { return this._image; }
+            get { return _image; }
             set {
-                if (value == this._image) {
+                if (value == _image) {
                     return;
                 }
 
-                this._image = value;
-                this.markNeedsPaint();
-                if (this._width == null || this._height == null) {
-                    this.markNeedsLayout();
+                _image = value;
+                markNeedsPaint();
+                if (_width == null || _height == null) {
+                    markNeedsLayout();
                 }
             }
         }
@@ -56,42 +76,42 @@ namespace Unity.UIWidgets.rendering {
         float? _width;
 
         public float? width {
-            get { return this._width; }
+            get { return _width; }
             set {
-                if (value == this._width) {
+                if (value == _width) {
                     return;
                 }
 
-                this._width = value;
-                this.markNeedsLayout();
+                _width = value;
+                markNeedsLayout();
             }
         }
 
         float? _height;
 
         public float? height {
-            get { return this._height; }
+            get { return _height; }
             set {
-                if (value == this._height) {
+                if (value == _height) {
                     return;
                 }
 
-                this._height = value;
-                this.markNeedsLayout();
+                _height = value;
+                markNeedsLayout();
             }
         }
 
         float _scale;
 
         public float scale {
-            get { return this._scale; }
+            get { return _scale; }
             set {
-                if (value == this._scale) {
+                if (value == _scale) {
                     return;
                 }
 
-                this._scale = value;
-                this.markNeedsLayout();
+                _scale = value;
+                markNeedsLayout();
             }
         }
         
@@ -99,169 +119,194 @@ namespace Unity.UIWidgets.rendering {
         ColorFilter _colorFilter;
 
         void _updateColorFilter() {
-            if (this._color == null) {
-                this._colorFilter = null;
+            if (_color == null) {
+                _colorFilter = null;
             } else {
-                this._colorFilter = ColorFilter.mode(this._color, this._colorBlendMode);
+                _colorFilter = ColorFilter.mode(_color, _colorBlendMode);
             }
         }
 
         Color _color;
 
         public Color color {
-            get { return this._color; }
+            get { return _color; }
             set {
-                if (value == this._color) {
+                if (value == _color) {
                     return;
                 }
 
-                this._color = value;
-                this._updateColorFilter();
-                this.markNeedsPaint();
+                _color = value;
+                _updateColorFilter();
+                markNeedsPaint();
             }
         }
 
         BlendMode _colorBlendMode;
 
         public BlendMode colorBlendMode {
-            get { return this._colorBlendMode; }
+            get { return _colorBlendMode; }
             set {
-                if (value == this._colorBlendMode) {
+                if (value == _colorBlendMode) {
                     return;
                 }
 
-                this._colorBlendMode = value;
-                this._updateColorFilter();
-                this.markNeedsPaint();
+                _colorBlendMode = value;
+                _updateColorFilter();
+                markNeedsPaint();
             }
         }
 
-        FilterMode _filterMode;
+        FilterQuality _filterQuality;
 
-        public FilterMode filterMode {
-            get { return this._filterMode; }
+        public FilterQuality filterQuality {
+            get { return _filterQuality; }
             set {
-                if (value == this._filterMode) {
+                if (value == _filterQuality) {
                     return;
                 }
 
-                this._filterMode = value;
-                this.markNeedsPaint();
+                _filterQuality = value;
+                markNeedsPaint();
             }
         }
 
         BoxFit? _fit;
 
         public BoxFit? fit {
-            get { return this._fit; }
+            get { return _fit; }
             set {
-                if (value == this._fit) {
+                if (value == _fit) {
                     return;
                 }
 
-                this._fit = value;
-                this.markNeedsPaint();
+                _fit = value;
+                markNeedsPaint();
             }
         }
 
-        Alignment _alignment;
+        AlignmentGeometry _alignment;
 
-        public Alignment alignment {
-            get { return this._alignment; }
+        public AlignmentGeometry alignment {
+            get { return _alignment; }
             set {
-                if (value == this._alignment) {
+                if (value == _alignment) {
                     return;
                 }
 
-                this._alignment = value;
-                this.markNeedsPaint();
+                _alignment = value;
+                markNeedsPaint();
             }
         }
 
         ImageRepeat _repeat;
 
         public ImageRepeat repeat {
-            get { return this._repeat; }
+            get { return _repeat; }
             set {
-                if (value == this._repeat) {
+                if (value == _repeat) {
                     return;
                 }
 
-                this._repeat = value;
-                this.markNeedsPaint();
+                _repeat = value;
+                markNeedsPaint();
             }
         }
 
         Rect _centerSlice;
 
         public Rect centerSlice {
-            get { return this._centerSlice; }
+            get { return _centerSlice; }
             set {
-                if (value == this._centerSlice) {
+                if (value == _centerSlice) {
                     return;
                 }
 
-                this._centerSlice = value;
-                this.markNeedsPaint();
+                _centerSlice = value;
+                markNeedsPaint();
             }
         }
 
         bool _invertColors;
 
         public bool invertColors {
-            get { return this._invertColors; }
+            get { return _invertColors; }
             set {
-                if (value == this._invertColors) {
+                if (value == _invertColors) {
                     return;
                 }
 
-                this._invertColors = value;
-                this.markNeedsPaint();
+                _invertColors = value;
+                markNeedsPaint();
             }
         }
 
+        public bool matchTextDirection {
+            get { return _matchTextDirection; }
+            set {
+                D.assert(value != null);
+                if (value == _matchTextDirection)
+                    return;
+                _matchTextDirection = value;
+                _markNeedResolution();
+            }
+        }
+        bool _matchTextDirection;
+
+        public TextDirection? textDirection {
+            get { return _textDirection; }
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                _markNeedResolution();
+            }
+        }
+        TextDirection? _textDirection;
+       
+       
+
         Size _sizeForConstraints(BoxConstraints constraints) {
             constraints = BoxConstraints.tightFor(
-                this._width,
-                this._height
+                _width,
+                _height
             ).enforce(constraints);
 
-            if (this._image == null) {
+            if (_image == null) {
                 return constraints.smallest;
             }
 
             return constraints.constrainSizeAndAttemptToPreserveAspectRatio(new Size(
-                (this._image.width / this._scale),
-                (this._image.height / this._scale)
+                (_image.width / _scale),
+                (_image.height / _scale)
             ));
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             D.assert(height >= 0.0);
-            if (this._width == null && this._height == null) {
+            if (_width == null && _height == null) {
                 return 0.0f;
             }
 
-            return this._sizeForConstraints(BoxConstraints.tightForFinite(height: height)).width;
+            return _sizeForConstraints(BoxConstraints.tightForFinite(height: height)).width;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             D.assert(height >= 0.0);
-            return this._sizeForConstraints(BoxConstraints.tightForFinite(height: height)).width;
+            return _sizeForConstraints(BoxConstraints.tightForFinite(height: height)).width;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
             D.assert(width >= 0.0);
-            if (this._width == null && this._height == null) {
+            if (_width == null && _height == null) {
                 return 0.0f;
             }
 
-            return this._sizeForConstraints(BoxConstraints.tightForFinite(width: width)).height;
+            return _sizeForConstraints(BoxConstraints.tightForFinite(width: width)).height;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
             D.assert(width >= 0.0);
-            return this._sizeForConstraints(BoxConstraints.tightForFinite(width: width)).height;
+            return _sizeForConstraints(BoxConstraints.tightForFinite(width: width)).height;
         }
 
         protected override bool hitTestSelf(Offset position) {
@@ -269,47 +314,53 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
-            this.size = this._sizeForConstraints(this.constraints);
+            size = _sizeForConstraints(constraints);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this._image == null) {
+            if (_image == null) {
                 return;
             }
-
-            ImageUtils.paintImage(
+            _resolve();
+            D.assert(_resolvedAlignment != null);
+            D.assert(_flipHorizontally != null);
+            painting_.paintImage(
                 canvas: context.canvas,
-                rect: offset & this.size,
-                image: this._image,
-                scale: this._scale,
-                colorFilter: this._colorFilter,
-                fit: this._fit,
-                alignment: this._alignment,
-                centerSlice: this._centerSlice,
-                repeat: this._repeat,
-                invertColors: this._invertColors,
-                filterMode: this._filterMode
+                rect: offset & size,
+                image: _image,
+                scale: _scale,
+                colorFilter: _colorFilter,
+                fit: _fit,
+                alignment: _resolvedAlignment,
+                centerSlice: _centerSlice,
+                repeat: _repeat,
+                flipHorizontally: _flipHorizontally,
+                invertColors: invertColors,
+                filterQuality: _filterQuality
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Image>("image", this.image));
-            properties.add(new FloatProperty("width", this.width, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FloatProperty("height", this.height, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new FloatProperty("scale", this.scale, defaultValue: 1.0f));
-            properties.add(new DiagnosticsProperty<Color>("color", this.color,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<BlendMode>("colorBlendMode", this.colorBlendMode,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<BoxFit?>("fit", this.fit, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Alignment>("alignment", this.alignment,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new EnumProperty<ImageRepeat>("repeat", this.repeat, defaultValue: ImageRepeat.noRepeat));
-            properties.add(new DiagnosticsProperty<Rect>("centerSlice", this.centerSlice,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<bool>("invertColors", this.invertColors));
-            properties.add(new EnumProperty<FilterMode>("filterMode", this.filterMode));
+            properties.add(new DiagnosticsProperty<Image>("image", image));
+            properties.add(new FloatProperty("width", width, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("height", height, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new FloatProperty("scale", scale, defaultValue: 1.0f));
+            properties.add(new ColorProperty("color", color,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<BlendMode>("colorBlendMode", colorBlendMode,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<BoxFit?>("fit", fit, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment", alignment,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new EnumProperty<ImageRepeat>("repeat", repeat, defaultValue: ImageRepeat.noRepeat));
+            properties.add(new DiagnosticsProperty<Rect>("centerSlice", centerSlice,
+                defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<bool>("invertColors", invertColors));
+            properties.add(new EnumProperty<FilterQuality>("filterMode", filterQuality));
+            properties.add(new FlagProperty("matchTextDirection", value: matchTextDirection, ifTrue: "match text direction"));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+
         }
     }
 }

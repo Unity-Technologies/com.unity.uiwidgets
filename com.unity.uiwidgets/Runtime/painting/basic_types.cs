@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -35,11 +36,38 @@ namespace Unity.UIWidgets.painting {
             bool reverse) {
             switch (axis) {
                 case Axis.horizontal:
-                    return reverse ? AxisDirection.left : AxisDirection.right;
+                    D.assert(WidgetsD.debugCheckHasDirectionality(context));
+                    TextDirection textDirection = Directionality.of(context);
+                    AxisDirection axisDirection = (AxisDirection)textDirectionToAxisDirection(textDirection);
+                    return reverse ? flipAxisDirection(axisDirection) : axisDirection;
                 case Axis.vertical:
                     return reverse ? AxisDirection.up : AxisDirection.down;
             }
 
+            return null;
+        }
+        public static AxisDirection? textDirectionToAxisDirection(TextDirection textDirection) {
+            D.assert(textDirection != null);
+            switch (textDirection) {
+                case TextDirection.rtl:
+                    return AxisDirection.left;
+                case TextDirection.ltr:
+                    return AxisDirection.right;
+            }
+            return null;
+        }
+        public static AxisDirection? flipAxisDirection(AxisDirection axisDirection) {
+            D.assert(axisDirection != null);
+            switch (axisDirection) {
+                case AxisDirection.up:
+                    return AxisDirection.down;
+                case AxisDirection.right:
+                    return AxisDirection.left;
+                case AxisDirection.down:
+                    return AxisDirection.up;
+                case AxisDirection.left:
+                    return AxisDirection.right;
+            }
             return null;
         }
     }

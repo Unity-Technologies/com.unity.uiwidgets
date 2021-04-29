@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
-using UnityEngine;
-using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.rendering {
 
@@ -15,7 +13,7 @@ namespace Unity.UIWidgets.rendering {
         where ParentDataType : ContainerParentDataMixinBoxParentData<ChildType> {
         
         public float? defaultComputeDistanceToFirstActualBaseline(TextBaseline baseline) {
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 float? result = child.getDistanceToActualBaseline(baseline);
@@ -31,7 +29,7 @@ namespace Unity.UIWidgets.rendering {
 
         public float? defaultComputeDistanceToHighestActualBaseline(TextBaseline baseline) {
             float? result = null;
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 float? candidate = child.getDistanceToActualBaseline(baseline);
@@ -51,7 +49,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void defaultPaint(PaintingContext context, Offset offset) {
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 context.paintChild(child, childParentData.offset + offset);
@@ -59,29 +57,30 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
+
        public bool defaultHitTestChildren(BoxHitTestResult result, Offset position) {
-            // the x, y parameters have the top left of the node's box as the origin4
-            ChildType child = this.lastChild;
+            ChildType child = lastChild;
             while (child != null) {
                 ParentDataType childParentData = child.parentData as ParentDataType;
                 bool isHit = result.addWithPaintOffset(
                     offset: childParentData.offset,
                     position: position,
-                    hitTest: (BoxHitTestResult boxHitTestResult, Offset transformed) => {
+                    hitTest: (boxHitTestResult, transformed) => {
                     D.assert(transformed == position - childParentData.offset);
                     return child.hitTest(boxHitTestResult, position: transformed);
                 }
                 );
-                if (isHit)
+                if (isHit) 
                     return true;
                 child = childParentData.previousSibling;
+
             }
             return false;
         }
 
         public List<ChildType> getChildrenAsList() {
             var result = new List<ChildType>();
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 result.Add(child);

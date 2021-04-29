@@ -1,22 +1,26 @@
 using System.Collections.Generic;
 using System.Linq;
+using uiwidgets;
+using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace UIWidgetsGallery.gallery {
-    public class NavigationIconView {
-        public NavigationIconView(
+namespace UIWidgetsGallery.demo.material
+{
+    internal class NavigationIconView
+    {
+        internal NavigationIconView(
             Widget icon = null,
             Widget activeIcon = null,
             string title = null,
             Color color = null,
             TickerProvider vsync = null
-        ) {
+        )
+        {
             this._icon = icon;
             this._color = color;
             this._title = title;
@@ -28,26 +32,29 @@ namespace UIWidgetsGallery.gallery {
             );
             this.controller = new AnimationController(
                 duration: ThemeUtils.kThemeAnimationDuration,
-                vsync: vsync
-            );
+                vsync: vsync);
+
             this._animation = this.controller.drive(new CurveTween(
                 curve: new Interval(0.5f, 1.0f, curve: Curves.fastOutSlowIn)
             ));
         }
 
-        readonly Widget _icon;
-        readonly Color _color;
-        readonly string _title;
+        public readonly Widget _icon;
+        public readonly Color _color;
+        public readonly string _title;
         public readonly BottomNavigationBarItem item;
         public readonly AnimationController controller;
-        Animation<float> _animation;
+        private Animation<float> _animation;
 
-        public FadeTransition transition(BottomNavigationBarType type, BuildContext context) {
+        internal FadeTransition transition(BottomNavigationBarType type, BuildContext context)
+        {
             Color iconColor;
-            if (type == BottomNavigationBarType.shifting) {
+            if (type == BottomNavigationBarType.shifting)
+            {
                 iconColor = this._color;
             }
-            else {
+            else
+            {
                 ThemeData themeData = Theme.of(context);
                 iconColor = themeData.brightness == Brightness.light
                     ? themeData.primaryColor
@@ -75,8 +82,10 @@ namespace UIWidgetsGallery.gallery {
         }
     }
 
-    public class CustomIcon : StatelessWidget {
-        public override Widget build(BuildContext context) {
+    internal class CustomIcon : StatelessWidget
+    {
+        public override Widget build(BuildContext context)
+        {
             IconThemeData iconTheme = IconTheme.of(context);
             return new Container(
                 margin: EdgeInsets.all(4.0f),
@@ -87,8 +96,10 @@ namespace UIWidgetsGallery.gallery {
         }
     }
 
-    public class CustomInactiveIcon : StatelessWidget {
-        public override Widget build(BuildContext context) {
+    internal class CustomInactiveIcon : StatelessWidget
+    {
+        public override Widget build(BuildContext context)
+        {
             IconThemeData iconTheme = IconTheme.of(context);
             return new Container(
                 margin: EdgeInsets.all(4.0f),
@@ -101,22 +112,27 @@ namespace UIWidgetsGallery.gallery {
         }
     }
 
-    public class BottomNavigationDemo : StatefulWidget {
-        public const string routeName = "/material/bottom_navigation";
+    internal class BottomNavigationDemo : StatefulWidget
+    {
+        public static readonly string routeName = "/material/bottom_navigation";
 
-        public override State createState() {
+        public override State createState()
+        {
             return new _BottomNavigationDemoState();
         }
     }
 
-    class _BottomNavigationDemoState : TickerProviderStateMixin<BottomNavigationDemo> {
-        int _currentIndex = 0;
-        BottomNavigationBarType _type = BottomNavigationBarType.shifting;
-        List<NavigationIconView> _navigationViews;
+    internal class _BottomNavigationDemoState : TickerProviderStateMixin<BottomNavigationDemo>
+    {
+        private int _currentIndex = 0;
+        private BottomNavigationBarType _type = BottomNavigationBarType.shifting;
+        private List<NavigationIconView> _navigationViews;
 
-        public override void initState() {
+        public override void initState()
+        {
             base.initState();
-            this._navigationViews = new List<NavigationIconView> {
+            this._navigationViews = new List<NavigationIconView>
+            {
                 new NavigationIconView(
                     icon: new Icon(Icons.access_alarm),
                     title: "Alarm",
@@ -155,22 +171,24 @@ namespace UIWidgetsGallery.gallery {
             this._navigationViews[this._currentIndex].controller.setValue(1.0f);
         }
 
-        public override void dispose() {
-            foreach (NavigationIconView view in this._navigationViews) {
-                view.controller.dispose();
-            }
 
+        public override void dispose()
+        {
+            foreach (NavigationIconView view in this._navigationViews)
+                view.controller.dispose();
             base.dispose();
         }
 
-        Widget _buildTransitionsStack() {
-            List<FadeTransition> transitions = new List<FadeTransition> { };
+        private Widget _buildTransitionsStack()
+        {
+            List<FadeTransition> transitions = new List<FadeTransition>();
 
-            foreach (NavigationIconView view in this._navigationViews) {
+            foreach (NavigationIconView view in this._navigationViews)
                 transitions.Add(view.transition(this._type, this.context));
-            }
 
-            transitions.Sort((FadeTransition a, FadeTransition b) => {
+            // We want to have the newly animating (fading in) views on top.
+            transitions.Sort((FadeTransition a, FadeTransition b) =>
+            {
                 Animation<float> aAnimation = a.opacity;
                 Animation<float> bAnimation = b.opacity;
                 float aValue = aAnimation.value;
@@ -178,17 +196,22 @@ namespace UIWidgetsGallery.gallery {
                 return aValue.CompareTo(bValue);
             });
 
-            return new Stack(children: transitions.Select<FadeTransition, Widget>(w => w).ToList());
+            return new Stack(children: new List<Widget>(transitions));
         }
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             BottomNavigationBar botNavBar = new BottomNavigationBar(
-                items: this._navigationViews.Select((NavigationIconView navigationView) => navigationView.item)
+                items: this._navigationViews
+                    .Select<NavigationIconView, BottomNavigationBarItem>((NavigationIconView navigationView) =>
+                        navigationView.item)
                     .ToList(),
                 currentIndex: this._currentIndex,
                 type: this._type,
-                onTap: (int index) => {
-                    this.setState(() => {
+                onTap: (int index) =>
+                {
+                    this.setState(() =>
+                    {
                         this._navigationViews[this._currentIndex].controller.reverse();
                         this._currentIndex = index;
                         this._navigationViews[this._currentIndex].controller.forward();
@@ -199,13 +222,16 @@ namespace UIWidgetsGallery.gallery {
             return new Scaffold(
                 appBar: new AppBar(
                     title: new Text("Bottom navigation"),
-                    actions: new List<Widget> {
+                    actions: new List<Widget>
+                    {
                         new MaterialDemoDocumentationButton(BottomNavigationDemo.routeName),
                         new PopupMenuButton<BottomNavigationBarType>(
-                            onSelected: (BottomNavigationBarType value) => {
+                            onSelected: (BottomNavigationBarType value) =>
+                            {
                                 this.setState(() => { this._type = value; });
                             },
-                            itemBuilder: (BuildContext _context) => new List<PopupMenuEntry<BottomNavigationBarType>> {
+                            itemBuilder: (BuildContext subContext) => new List<PopupMenuEntry<BottomNavigationBarType>>
+                            {
                                 new PopupMenuItem<BottomNavigationBarType>(
                                     value: BottomNavigationBarType.fix,
                                     child: new Text("Fixed")

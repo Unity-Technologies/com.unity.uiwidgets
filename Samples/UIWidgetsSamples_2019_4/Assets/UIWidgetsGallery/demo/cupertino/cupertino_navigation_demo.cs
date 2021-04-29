@@ -1,8 +1,9 @@
 using System.Collections.Generic;
-using RSG;
+//using RSG;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
+//using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
@@ -10,6 +11,8 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
+using Brightness = Unity.UIWidgets.ui.Brightness;
 
 namespace UIWidgetsGallery.gallery {
     class CupertinoNavigationDemoUtils {
@@ -38,7 +41,7 @@ namespace UIWidgetsGallery.gallery {
                 return new Row(
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
-                        new CupertinoDemoDocumentationButton(CupertinoNavigationDemo.routeName),
+                        //new CupertinoDemoDocumentationButton(CupertinoNavigationDemo.routeName),
                         new Padding(padding: EdgeInsets.only(left: 8.0f)),
                         new ExitButton(),
                     }
@@ -87,18 +90,18 @@ namespace UIWidgetsGallery.gallery {
 
     public class CupertinoNavigationDemo : StatelessWidget {
         public CupertinoNavigationDemo() {
-            this.colorItems = new List<Color>();
+            colorItems = new List<Color>();
 
             for (int i = 0; i < CupertinoNavigationDemoUtils._kChildCount; i++) {
-                this.colorItems.Add(CupertinoNavigationDemoUtils.coolColors[
+                colorItems.Add(CupertinoNavigationDemoUtils.coolColors[
                     Random.Range(0, CupertinoNavigationDemoUtils.coolColors.Count)
                 ]);
             }
 
-            this.colorNameItems = new List<string>();
+            colorNameItems = new List<string>();
 
             for (int i = 0; i < CupertinoNavigationDemoUtils._kChildCount; i++) {
-                this.colorNameItems.Add(CupertinoNavigationDemoUtils.coolColorNames[
+                colorNameItems.Add(CupertinoNavigationDemoUtils.coolColorNames[
                     Random.Range(0, CupertinoNavigationDemoUtils.coolColorNames.Count)
                 ]);
             }
@@ -109,8 +112,10 @@ namespace UIWidgetsGallery.gallery {
         public readonly List<string> colorNameItems;
 
         public override Widget build(BuildContext context) {
+            
             return new WillPopScope(
-                onWillPop: () => { return Promise<bool>.Resolved(true); },
+                //onWillPop: () => { return Promise<bool>.Resolved(true); },
+                //onWillPop: this.onWillPop,
                 child: new DefaultTextStyle(
                     style: CupertinoTheme.of(context).textTheme.textStyle,
                     child: new CupertinoTabScaffold(
@@ -129,6 +134,7 @@ namespace UIWidgetsGallery.gallery {
                                     title: new Text("Profile")
                                 )
                             }
+                            
                         ),
                         tabBuilder: (BuildContext _context, int index) => {
                             D.assert(index >= 0 && index <= 2);
@@ -137,8 +143,8 @@ namespace UIWidgetsGallery.gallery {
                                     return new CupertinoTabView(
                                         builder: (BuildContext _context1) => {
                                             return new CupertinoDemoTab1(
-                                                colorItems: this.colorItems,
-                                                colorNameItems: this.colorNameItems
+                                                colorItems: colorItems,
+                                                colorNameItems: colorNameItems
                                             );
                                         },
                                         defaultTitle: "Colors"
@@ -170,10 +176,11 @@ namespace UIWidgetsGallery.gallery {
             return new CupertinoButton(
                 padding: EdgeInsets.zero,
                 child: new Tooltip(
-                    message: "Back",
-                    child: new Text("Exit")
-                ),
-                onPressed: () => { Navigator.of(context, rootNavigator: true).pop(); }
+                message: "Back",
+                child: new Text("Exit"),
+                excludeFromSemantics: true
+            ),
+                onPressed: () => { Navigator.of(context, rootNavigator: true).pop<object>(); }
             );
         }
     }
@@ -193,6 +200,7 @@ namespace UIWidgetsGallery.gallery {
 
         public override Widget build(BuildContext context) {
             return new CupertinoPageScaffold(
+                backgroundColor: CupertinoColors.systemGroupedBackground,
                 child: new CustomScrollView(
                     slivers: new List<Widget> {
                         new CupertinoSliverNavigationBar(
@@ -210,8 +218,8 @@ namespace UIWidgetsGallery.gallery {
                                         return new Tab1RowItem(
                                             index: index,
                                             lastItem: index == CupertinoNavigationDemoUtils._kChildCount - 1,
-                                            color: this.colorItems[index],
-                                            colorName: this.colorNameItems[index]
+                                            color: colorItems[index],
+                                            colorName: colorNameItems[index]
                                         );
                                     },
                                     childCount: CupertinoNavigationDemoUtils._kChildCount
@@ -242,72 +250,81 @@ namespace UIWidgetsGallery.gallery {
         public readonly Color color;
         public readonly string colorName;
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             Widget row = new GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => {
+                onTap: () =>
+                {
                     Navigator.of(context).push(new CupertinoPageRoute(
-                        title: this.colorName,
+                        title: colorName,
                         builder: (BuildContext _context) => new Tab1ItemPage(
-                            color: this.color,
-                            colorName: this.colorName,
-                            index: this.index
+                            color: color,
+                            colorName: colorName,
+                            index: index
                         )
                     ));
                 },
-                child: new SafeArea(
-                    top: false,
-                    bottom: false,
-                    child: new Padding(
-                        padding: EdgeInsets.only(left: 16.0f, top: 8.0f, bottom: 8.0f, right: 8.0f),
-                        child: new Row(
-                            children: new List<Widget> {
-                                new Container(
-                                    height: 60.0f,
-                                    width: 60.0f,
-                                    decoration: new BoxDecoration(
-                                        color: this.color,
-                                        borderRadius: BorderRadius.circular(8.0f)
-                                    )
-                                ),
-                                new Expanded(
-                                    child: new Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 12.0f),
-                                        child: new Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: new List<Widget> {
-                                                new Text(this.colorName),
-                                                new Padding(padding: EdgeInsets.only(top: 8.0f)),
-                                                new Text(
-                                                    "Buy this cool color",
-                                                    style: new TextStyle(
-                                                        color: new Color(0xFF8E8E93),
-                                                        fontSize: 13.0f,
-                                                        fontWeight: FontWeight.w300
-                                                    )
-                                                )
-                                            }
+                child: new Container(
+                    color: CupertinoDynamicColor.resolve(CupertinoColors.systemBackground, context),
+                    child: new SafeArea(
+                        top: false,
+                        bottom: false,
+                        child: new Padding(
+                            padding: EdgeInsets.only(left: 16.0f, top: 8.0f, bottom: 8.0f, right: 8.0f),
+                            child: new Row(
+                                children: new List<Widget>
+                                {
+                                    new Container(
+                                        height: 60.0f,
+                                        width: 60.0f,
+                                        decoration: new BoxDecoration(
+                                            color: color,
+                                            borderRadius: BorderRadius.circular(8.0f)
                                         )
+                                    ),
+                                    new Expanded(
+                                        child: new Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 12.0f),
+                                            child: new Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: new List<Widget>
+                                                {
+                                                    new Text(colorName),
+                                                    new Padding(padding: EdgeInsets.only(top: 8.0f)),
+                                                    new Text(
+                                                        "Buy this cool color",
+                                                        style: new TextStyle(
+                                                            color: CupertinoDynamicColor.resolve(
+                                                                CupertinoColors.secondaryLabel, context),
+                                                            fontSize: 13.0f,
+                                                            fontWeight: FontWeight.w300
+                                                        )
+                                                    )
+                                                }
+                                            )
+                                        )
+                                    ),
+                                    new CupertinoButton(
+                                        padding: EdgeInsets.zero,
+                                        child: new Icon(CupertinoIcons.plus_circled
+                                        ),
+                                        onPressed: () => { }
+                                    ),
+                                    new CupertinoButton(
+                                        padding: EdgeInsets.zero,
+                                        child: new Icon(CupertinoIcons.share
+                                        ),
+                                        onPressed: () => { }
                                     )
-                                ),
-                                new CupertinoButton(
-                                    padding: EdgeInsets.zero,
-                                    child: new Icon(CupertinoIcons.plus_circled
-                                    ),
-                                    onPressed: () => { }
-                                ),
-                                new CupertinoButton(
-                                    padding: EdgeInsets.zero,
-                                    child: new Icon(CupertinoIcons.share
-                                    ),
-                                    onPressed: () => { }
-                                )
-                            }
+                                }
+                            )
                         )
                     )
                 )
-            );
-            if (this.lastItem) {
+        );
+            
+        if (lastItem) {
                 return row;
             }
 
@@ -316,7 +333,7 @@ namespace UIWidgetsGallery.gallery {
                     row,
                     new Container(
                         height: 1.0f,
-                        color: new Color(0xFFD9D9D9)
+                        color: CupertinoDynamicColor.resolve(CupertinoColors.separator, context)
                     )
                 }
             );
@@ -347,13 +364,13 @@ namespace UIWidgetsGallery.gallery {
         public override void initState() {
             base.initState();
 
-            this.relatedColors = new List<Color>();
+            relatedColors = new List<Color>();
             for (int i = 0; i < 10; i++) {
-                this.relatedColors.Add(Color.fromARGB(
+                relatedColors.Add(Color.fromARGB(
                     255,
-                    (this.widget.color.red + Random.Range(-50, 50)).clamp(0, 255),
-                    (this.widget.color.green + Random.Range(-50, 50)).clamp(0, 255),
-                    (this.widget.color.blue + Random.Range(-50, 50)).clamp(0, 255)
+                    (widget.color.red + Random.Range(-50, 50)).clamp(0, 255),
+                    (widget.color.green + Random.Range(-50, 50)).clamp(0, 255),
+                    (widget.color.blue + Random.Range(-50, 50)).clamp(0, 255)
                 ));
             }
         }
@@ -366,6 +383,7 @@ namespace UIWidgetsGallery.gallery {
                     trailing: new ExitButton()
                 ),
                 child: new SafeArea(
+                    top: false,
                     bottom: false,
                     child: new ListView(
                         children: new List<Widget> {
@@ -379,7 +397,7 @@ namespace UIWidgetsGallery.gallery {
                                             height: 128.0f,
                                             width: 128.0f,
                                             decoration: new BoxDecoration(
-                                                color: this.widget.color,
+                                                color: widget.color,
                                                 borderRadius: BorderRadius.circular(24.0f)
                                             )
                                         ),
@@ -389,15 +407,15 @@ namespace UIWidgetsGallery.gallery {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: new List<Widget> {
-                                                    new Text(this.widget.colorName,
+                                                    new Text(widget.colorName,
                                                         style: new TextStyle(fontSize: 24.0f,
                                                             fontWeight: FontWeight.bold)
                                                     ),
                                                     new Padding(padding: EdgeInsets.only(top: 6.0f)),
                                                     new Text(
-                                                        $"Item number {this.widget.index}",
+                                                        $"Item number {widget.index}",
                                                         style: new TextStyle(
-                                                            color: new Color(0xFF8E8E93),
+                                                            color:  CupertinoDynamicColor.resolve(CupertinoColors.secondaryLabel, context),
                                                             fontSize: 16.0f,
                                                             fontWeight: FontWeight.w100
                                                         )
@@ -423,7 +441,7 @@ namespace UIWidgetsGallery.gallery {
                                                             CupertinoButton.filled(
                                                                 minSize: 30.0f,
                                                                 padding: EdgeInsets.zero,
-                                                                borderRadius: BorderRadius.circular(16.0f),
+                                                                borderRadius: BorderRadius.circular(32.0f),
                                                                 child: new Icon(CupertinoIcons.ellipsis),
                                                                 onPressed: () => { }
                                                             )
@@ -459,7 +477,7 @@ namespace UIWidgetsGallery.gallery {
                                             child: new Container(
                                                 decoration: new BoxDecoration(
                                                     borderRadius: BorderRadius.circular(8.0f),
-                                                    color: this.relatedColors[index]
+                                                    color: relatedColors[index]
                                                 ),
                                                 child: new Center(
                                                     child: new CupertinoButton(
@@ -486,7 +504,10 @@ namespace UIWidgetsGallery.gallery {
     class CupertinoDemoTab2 : StatelessWidget {
         public override Widget build(BuildContext context) {
             var listViewList = new List<Widget>();
-            listViewList.Add(new Tab2Header());
+            listViewList.Add(new CupertinoUserInterfaceLevel(
+                data: CupertinoUserInterfaceLevelData.elevatedlayer,
+                child: new Tab2Header()
+                ));
             listViewList.AddRange(CupertinoNavigationDemoUtils.buildTab2Conversation());
 
             return new CupertinoPageScaffold(
@@ -504,117 +525,126 @@ namespace UIWidgetsGallery.gallery {
     }
 
     class Tab2Header : StatelessWidget {
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             return new Padding(
                 padding: EdgeInsets.all(16.0f),
-                child: new ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(16.0f)),
-                    child: new Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: new List<Widget> {
-                            new Container(
-                                decoration: new BoxDecoration(
-                                    color: new Color(0xFFE5E5E5)
-                                ),
-                                child: new Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 18.0f, vertical: 12.0f),
-                                    child: new Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: new List<Widget> {
-                                            new Text(
-                                                "SUPPORT TICKET",
-                                                style: new TextStyle(
-                                                    color: new Color(0xFF646464),
-                                                    letterSpacing: -0.9f,
-                                                    fontSize: 14.0f,
-                                                    fontWeight: FontWeight.w500
-                                                )
-                                            ),
-                                            new Text(
-                                                "Show More",
-                                                style: new TextStyle(
-                                                    color: new Color(0xFF646464),
-                                                    letterSpacing: -0.6f,
-                                                    fontSize: 12.0f,
-                                                    fontWeight: FontWeight.w500
-                                                )
-                                            )
-                                        }
-                                    )
-                                )
-                            ),
-                            new Container(
-                                decoration: new BoxDecoration(
-                                    color: new Color(0xFFF3F3F3)
-                                ),
-                                child: new Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 18.0f, vertical: 12.0f),
-                                    child: new Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Text(
-                                                "Product or product packaging damaged during transit",
-                                                style: new TextStyle(
-                                                    fontSize: 16.0f,
-                                                    fontWeight: FontWeight.w700,
-                                                    letterSpacing: -0.46f
-                                                )
-                                            ),
-                                            new Padding(padding: EdgeInsets.only(top: 16.0f)),
-                                            new Text(
-                                                "REVIEWERS",
-                                                style: new TextStyle(
-                                                    color: new Color(0xFF646464),
-                                                    fontSize: 12.0f,
-                                                    letterSpacing: -0.6f,
-                                                    fontWeight: FontWeight.w500
-                                                )
-                                            ),
-                                            new Padding(padding: EdgeInsets.only(top: 8.0f)),
-                                            new Row(
-                                                children: new List<Widget> {
-                                                    new Container(
-                                                        width: 44.0f,
-                                                        height: 44.0f,
-                                                        decoration: new BoxDecoration(
-                                                            image: new DecorationImage(
-                                                                image: new AssetImage(
-                                                                    "people/square/trevor"
-                                                                )
-                                                            ),
-                                                            shape: BoxShape.circle
-                                                        )
-                                                    ),
-                                                    new Padding(padding: EdgeInsets.only(left: 8.0f)),
-                                                    new Container(
-                                                        width: 44.0f,
-                                                        height: 44.0f,
-                                                        decoration: new BoxDecoration(
-                                                            image: new DecorationImage(
-                                                                image: new AssetImage(
-                                                                    "people/square/sandra"
-                                                                )
-                                                            ),
-                                                            shape: BoxShape.circle
-                                                        )
-                                                    ),
-                                                    new Padding(padding: EdgeInsets.only(left: 2.0f)),
-                                                    new Icon(
-                                                        CupertinoIcons.check_mark_circled,
+                child: new SafeArea(
+                    top: false,
+                    bottom: false,
+                    child: new ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(16.0f)),
+                        child: new Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: new List<Widget>
+                            {
+                                new Container(
+                                    decoration: new BoxDecoration(
+                                        color: CupertinoDynamicColor.resolve(CupertinoColors.systemFill, context)
+                                    ),
+                                    child: new Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 18.0f, vertical: 12.0f),
+                                        child: new Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: new List<Widget>
+                                            {
+                                                new Text(
+                                                    "SUPPORT TICKET",
+                                                    style: new TextStyle(
                                                         color: new Color(0xFF646464),
-                                                        size: 20.0f
+                                                        letterSpacing: -0.9f,
+                                                        fontSize: 14.0f,
+                                                        fontWeight: FontWeight.w500
                                                     )
-                                                }
-                                            )
-                                        }
+                                                ),
+                                                new Text(
+                                                    "Show More",
+                                                    style: new TextStyle(
+                                                        color: CupertinoDynamicColor.resolve(CupertinoColors.secondaryLabel, context),
+                                                        letterSpacing: -0.6f,
+                                                        fontSize: 12.0f,
+                                                        fontWeight: FontWeight.w500
+                                                    )
+                                                )
+                                            }
+                                        )
+                                    )
+                                ),
+                                new Container(
+                                    decoration: new BoxDecoration(
+                                        color: CupertinoDynamicColor.resolve(CupertinoColors.quaternarySystemFill, context)
+                                    ),
+                                    child: new Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 18.0f, vertical: 12.0f),
+                                        child: new Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget>
+                                            {
+                                                new Text(
+                                                    "Product or product packaging damaged during transit",
+                                                    style: new TextStyle(
+                                                        fontSize: 16.0f,
+                                                        fontWeight: FontWeight.w700,
+                                                        letterSpacing: -0.46f
+                                                    )
+                                                ),
+                                                new Padding(padding: EdgeInsets.only(top: 16.0f)),
+                                                new Text(
+                                                    "REVIEWERS",
+                                                    style: new TextStyle(
+                                                        color: new Color(0xFF646464),
+                                                        fontSize: 12.0f,
+                                                        letterSpacing: -0.6f,
+                                                        fontWeight: FontWeight.w500
+                                                    )
+                                                ),
+                                                new Padding(padding: EdgeInsets.only(top: 8.0f)),
+                                                new Row(
+                                                    children: new List<Widget>
+                                                    {
+                                                        new Container(
+                                                            width: 44.0f,
+                                                            height: 44.0f,
+                                                            decoration: new BoxDecoration(
+                                                                image: new DecorationImage(
+                                                                    image: new FileImage(
+                                                                        file: "gallery/people/square/trevor.png"
+                                                                    )
+                                                                ),
+                                                                shape: BoxShape.circle
+                                                            )
+                                                        ),
+                                                        new Padding(padding: EdgeInsets.only(left: 8.0f)),
+                                                        new Container(
+                                                            width: 44.0f,
+                                                            height: 44.0f,
+                                                            decoration: new BoxDecoration(
+                                                                image: new DecorationImage(
+                                                                    image: new FileImage(
+                                                                        "gallery/people/square/sandra.png"
+                                                                    )
+                                                                ),
+                                                                shape: BoxShape.circle
+                                                            )
+                                                        ),
+                                                        new Padding(padding: EdgeInsets.only(left: 2.0f)),
+                                                        new Icon(
+                                                            CupertinoIcons.check_mark_circled,
+                                                            color: new Color(0xFF646464),
+                                                            size: 20.0f
+                                                        )
+                                                    }
+                                                )
+                                            }
+                                        )
                                     )
                                 )
-                            )
-                        }
+                            }
+                        )
                     )
-                )
-            );
-        }
+            )
+        );
+    }
     }
 
     enum Tab2ConversationBubbleColor {
@@ -635,20 +665,31 @@ namespace UIWidgetsGallery.gallery {
         public readonly Tab2ConversationBubbleColor color;
 
         public override Widget build(BuildContext context) {
+            Color backgroundColor = null;
+            Color foregroundColor = null;
+            
+            switch (color) {
+                case Tab2ConversationBubbleColor.gray:
+                    backgroundColor = CupertinoDynamicColor.resolve(CupertinoColors.systemFill, context);
+                    foregroundColor = CupertinoDynamicColor.resolve(CupertinoColors.label, context);
+                    break;
+                case Tab2ConversationBubbleColor.blue:
+                    backgroundColor = CupertinoTheme.of(context).primaryColor;
+                    foregroundColor = CupertinoColors.white;
+                    break;
+            }
+            
             return new Container(
                 decoration: new BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(18.0f)),
-                    color: this.color == Tab2ConversationBubbleColor.blue
-                        ? CupertinoColors.activeBlue
-                        : CupertinoColors.lightBackgroundGray
+                    color: backgroundColor
                 ),
                 margin: EdgeInsets.symmetric(horizontal: 8.0f, vertical: 8.0f),
                 padding: EdgeInsets.symmetric(horizontal: 14.0f, vertical: 10.0f),
-                child: new Text(this.text,
+                child: new Text(
+                    text,
                     style: new TextStyle(
-                        color: this.color == Tab2ConversationBubbleColor.blue
-                            ? CupertinoColors.white
-                            : CupertinoColors.black,
+                        color: foregroundColor,
                         letterSpacing: -0.4f,
                         fontSize: 15.0f,
                         fontWeight: FontWeight.w400
@@ -675,21 +716,23 @@ namespace UIWidgetsGallery.gallery {
                 decoration: new BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: new LinearGradient(
-                        begin: Alignment.topCenter, // FractionalOfset.topCenter,
-                        end: Alignment.bottomCenter, // FractionalOfset.bottomCenter,
+                        begin: FractionalOffset.topCenter,
+                        end: FractionalOffset.bottomCenter,
                         colors: new List<Color> {
-                            this.color,
-                            Color.fromARGB(this.color.alpha,
-                                (this.color.red - 60).clamp(0, 255),
-                                (this.color.green - 60).clamp(0, 255),
-                                (this.color.blue - 60).clamp(0, 255)
+                            color,
+                            Color.fromARGB(
+                                color.alpha,
+                                (color.red - 60).clamp(0, 255),
+                                (color.green - 60).clamp(0, 255),
+                                (color.blue - 60).clamp(0, 255)
                             )
                         }
                     )
                 ),
                 margin: EdgeInsets.only(left: 8.0f, bottom: 8.0f),
                 padding: EdgeInsets.all(12.0f),
-                child: new Text(this.text,
+                child: new Text(
+                    text,
                     style: new TextStyle(
                         color: CupertinoColors.white,
                         fontSize: 13.0f,
@@ -713,26 +756,32 @@ namespace UIWidgetsGallery.gallery {
         public readonly string text;
 
         public override Widget build(BuildContext context) {
+            bool isSelf = avatar == null;
             List<Widget> children = new List<Widget>();
 
-            if (this.avatar != null) {
-                children.Add(this.avatar);
+            if (avatar != null) {
+                children.Add(avatar);
             }
-
-            bool isSelf = this.avatar == null;
+            
             children.Add(
-                new Tab2ConversationBubble(
-                    text: this.text,
-                    color: isSelf
-                        ? Tab2ConversationBubbleColor.blue
-                        : Tab2ConversationBubbleColor.gray
+                    new CupertinoUserInterfaceLevel(
+                        data: CupertinoUserInterfaceLevelData.elevatedlayer,
+                        child: new Tab2ConversationBubble(
+                            text: text,
+                            color: isSelf
+                                ? Tab2ConversationBubbleColor.blue
+                                : Tab2ConversationBubbleColor.gray
+                        )
+                    )
+                );
+            
+            return new SafeArea(
+                child: new Row(
+                    mainAxisAlignment: isSelf ? MainAxisAlignment.end : MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: isSelf ? CrossAxisAlignment.center : CrossAxisAlignment.end,
+                    children: children
                 )
-            );
-            return new Row(
-                mainAxisAlignment: isSelf ? MainAxisAlignment.end : MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: isSelf ? CrossAxisAlignment.center : CrossAxisAlignment.end,
-                children: children
             );
         }
     }
@@ -745,53 +794,46 @@ namespace UIWidgetsGallery.gallery {
                     trailing: CupertinoNavigationDemoUtils.trailingButtons
                 ),
                 child: new SafeArea(
-                    child: new DecoratedBox(
-                        decoration: new BoxDecoration(
-                            color: CupertinoTheme.of(context).brightness == Brightness.light
-                                ? CupertinoColors.extraLightBackgroundGray
-                                : CupertinoColors.darkBackgroundGray
-                        ),
-                        child: new ListView(
-                            children: new List<Widget> {
-                                new Padding(padding: EdgeInsets.only(top: 32.0f)),
-                                new GestureDetector(
-                                    onTap: () => {
-                                        Navigator.of(context, rootNavigator: true).push(
-                                            new CupertinoPageRoute(
-                                                fullscreenDialog: true,
-                                                builder: (BuildContext _context) => new Tab3Dialog()
-                                            )
-                                        );
-                                    },
-                                    child: new Container(
-                                        decoration: new BoxDecoration(
-                                            color: CupertinoTheme.of(context).scaffoldBackgroundColor,
-                                            border: new Border(
-                                                top: new BorderSide(color: new Color(0xFFBCBBC1), width: 0.0f),
-                                                bottom: new BorderSide(color: new Color(0xFFBCBBC1), width: 0.0f)
-                                            )
-                                        ),
-                                        height: 44.0f,
-                                        child: new Padding(
-                                            padding: EdgeInsets.symmetric(horizontal: 16.0f, vertical: 8.0f),
-                                            child: new SafeArea(
-                                                top: false,
-                                                bottom: false,
-                                                child: new Row(
-                                                    children: new List<Widget> {
-                                                        new Text(
-                                                            "Sign in",
-                                                            style: new TextStyle(color: CupertinoTheme.of(context)
-                                                                .primaryColor)
-                                                        ),
-                                                    }
-                                                )
+                    child: new ListView(
+                        children: new List<Widget> {
+                            new Padding(padding: EdgeInsets.only(top: 32.0f)),
+                            new GestureDetector(
+                                onTap: () => {
+                                    Navigator.of(context, rootNavigator: true).push(
+                                        new CupertinoPageRoute(
+                                            fullscreenDialog: true,
+                                            builder: (BuildContext _context) => new Tab3Dialog()
+                                        )
+                                    );
+                                },
+                                child: new Container(
+                                    decoration: new BoxDecoration(
+                                        color: CupertinoTheme.of(context).scaffoldBackgroundColor,
+                                        border: new Border(
+                                            top: new BorderSide(color: new Color(0xFFBCBBC1), width: 0.0f),
+                                            bottom: new BorderSide(color: new Color(0xFFBCBBC1), width: 0.0f)
+                                        )
+                                    ),
+                                    height: 44.0f,
+                                    child: new Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 16.0f, vertical: 8.0f),
+                                        child: new SafeArea(
+                                            top: false,
+                                            bottom: false,
+                                            child: new Row(
+                                                children: new List<Widget> {
+                                                    new Text(
+                                                        "Sign in",
+                                                        style: new TextStyle(color: CupertinoTheme.of(context)
+                                                            .primaryColor)
+                                                    ),
+                                                }
                                             )
                                         )
                                     )
                                 )
-                            }
-                        )
+                            )
+                        }
                     )
                 )
             );
@@ -820,7 +862,7 @@ namespace UIWidgetsGallery.gallery {
                             new Padding(padding: EdgeInsets.only(top: 18.0f)),
                             CupertinoButton.filled(
                                 child: new Text("Sign in"),
-                                onPressed: () => { Navigator.pop(context); }
+                                onPressed: () => { Navigator.pop<object>(context); }
                             ),
                         }
                     )

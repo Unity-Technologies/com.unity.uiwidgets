@@ -17,27 +17,33 @@ namespace Unity.UIWidgets.painting {
     public class DecorationImage : IEquatable<DecorationImage> {
         public DecorationImage(
             ImageProvider image = null,
+            ImageErrorListener onError = null,
             ColorFilter colorFilter = null,
             BoxFit? fit = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
             Rect centerSlice = null,
-            ImageRepeat repeat = ImageRepeat.noRepeat
+            ImageRepeat repeat = ImageRepeat.noRepeat,
+            bool matchTextDirection = false
         ) {
             D.assert(image != null);
             this.image = image;
+            this.onError = onError;
             this.colorFilter = colorFilter;
             this.fit = fit;
             this.alignment = alignment ?? Alignment.center;
             this.centerSlice = centerSlice;
             this.repeat = repeat;
+            this.matchTextDirection = matchTextDirection;
         }
 
         public readonly ImageProvider image;
+        public readonly ImageErrorListener onError;
         public readonly ColorFilter colorFilter;
         public readonly BoxFit? fit;
-        public readonly Alignment alignment;
+        public readonly AlignmentGeometry alignment;
         public readonly Rect centerSlice;
         public readonly ImageRepeat repeat;
+        public readonly bool matchTextDirection;
 
         public DecorationImagePainter createPainter(VoidCallback onChanged) {
             D.assert(onChanged != null);
@@ -53,9 +59,9 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.image, other.image) && Equals(this.colorFilter, other.colorFilter) &&
-                   this.fit == other.fit && Equals(this.alignment, other.alignment) &&
-                   Equals(this.centerSlice, other.centerSlice) && this.repeat == other.repeat;
+            return Equals(image, other.image) && Equals(colorFilter, other.colorFilter) &&
+                   fit == other.fit && Equals(alignment, other.alignment) &&
+                   Equals(centerSlice, other.centerSlice) && repeat == other.repeat;
         }
 
         public override bool Equals(object obj) {
@@ -67,21 +73,21 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((DecorationImage) obj);
+            return Equals((DecorationImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.image != null ? this.image.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.colorFilter != null ? this.colorFilter.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.fit.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.alignment != null ? this.alignment.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.centerSlice != null ? this.centerSlice.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (int) this.repeat;
+                var hashCode = (image != null ? image.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (colorFilter != null ? colorFilter.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ fit.GetHashCode();
+                hashCode = (hashCode * 397) ^ (alignment != null ? alignment.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (centerSlice != null ? centerSlice.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (int) repeat;
                 return hashCode;
             }
         }
@@ -96,37 +102,37 @@ namespace Unity.UIWidgets.painting {
 
         public override string ToString() {
             var properties = new List<string>();
-            properties.Add($"{this.image}");
+            properties.Add($"{image}");
 
-            if (this.colorFilter != null) {
-                properties.Add($"{this.colorFilter}");
+            if (colorFilter != null) {
+                properties.Add($"{colorFilter}");
             }
 
-            if (this.fit != null &&
-                !(this.fit == BoxFit.fill && this.centerSlice != null) &&
-                !(this.fit == BoxFit.scaleDown && this.centerSlice == null)) {
-                properties.Add($"{this.fit}");
+            if (fit != null &&
+                !(fit == BoxFit.fill && centerSlice != null) &&
+                !(fit == BoxFit.scaleDown && centerSlice == null)) {
+                properties.Add($"{fit}");
             }
 
-            properties.Add($"{this.alignment}");
+            properties.Add($"{alignment}");
 
-            if (this.centerSlice != null) {
-                properties.Add($"centerSlice: {this.centerSlice}");
+            if (centerSlice != null) {
+                properties.Add($"centerSlice: {centerSlice}");
             }
 
-            if (this.repeat != ImageRepeat.noRepeat) {
-                properties.Add($"{this.repeat}");
+            if (repeat != ImageRepeat.noRepeat) {
+                properties.Add($"{repeat}");
             }
 
-            return $"{this.GetType()}({string.Join(", ", properties)})";
+            return $"{GetType()}({string.Join(", ", properties)})";
         }
     }
 
     public class DecorationImagePainter : IDisposable {
         internal DecorationImagePainter(DecorationImage details, VoidCallback onChanged) {
             D.assert(details != null);
-            this._details = details;
-            this._onChanged = onChanged;
+            _details = details;
+            _onChanged = onChanged;
         }
 
         readonly DecorationImage _details;
@@ -142,14 +148,44 @@ namespace Unity.UIWidgets.painting {
             D.assert(rect != null);
             D.assert(configuration != null);
 
-            ImageStream newImageStream = this._details.image.resolve(configuration);
-            if (newImageStream.key != this._imageStream?.key) {
-                this._imageStream?.removeListener(this._imageListener);
-                this._imageStream = newImageStream;
-                this._imageStream.addListener(this._imageListener);
+            bool flipHorizontally = false;
+            if (_details.matchTextDirection) {
+                D.assert(() => {
+                    // We check this first so that the assert will fire immediately, not just
+                    // when the image is ready.
+                    if (configuration.textDirection == null) {
+                        throw new UIWidgetsError(new List<DiagnosticsNode>() {
+                            new ErrorSummary(
+                                "DecorationImage.matchTextDirection can only be used when a TextDirection is available."),
+                            new ErrorDescription(
+                                "When DecorationImagePainter.paint() was called, there was no text direction provided " +
+                                "in the ImageConfiguration object to match."
+                            ),
+                            new DiagnosticsProperty<DecorationImage>("The DecorationImage was", _details,
+                                style: DiagnosticsTreeStyle.errorProperty),
+                            new DiagnosticsProperty<ImageConfiguration>("The ImageConfiguration was", configuration,
+                                style: DiagnosticsTreeStyle.errorProperty)
+                        });
+                    }
+
+                    return true;
+                });
+                if (configuration.textDirection == TextDirection.rtl)
+                    flipHorizontally = true;
             }
 
-            if (this._image == null) {
+            ImageStream newImageStream = _details.image.resolve(configuration);
+            if (newImageStream.key != _imageStream?.key) {
+                ImageStreamListener listener = new ImageStreamListener(
+                    _handleImage,
+                    onError: _details.onError
+                );
+                _imageStream?.removeListener(listener);
+                _imageStream = newImageStream;
+                _imageStream.addListener(listener);
+            }
+
+            if (_image == null) {
                 return;
             }
 
@@ -158,16 +194,18 @@ namespace Unity.UIWidgets.painting {
                 canvas.clipPath(clipPath);
             }
 
-            ImageUtils.paintImage(
+            painting_.paintImage(
                 canvas: canvas,
                 rect: rect,
-                image: this._image.image,
-                scale: this._image.scale,
-                colorFilter: this._details.colorFilter,
-                fit: this._details.fit,
-                alignment: this._details.alignment,
-                centerSlice: this._details.centerSlice,
-                repeat: this._details.repeat
+                image: _image.image,
+                scale: _image.scale,
+                colorFilter: _details.colorFilter,
+                fit: _details.fit,
+                alignment: _details.alignment.resolve(configuration.textDirection),
+                centerSlice: _details.centerSlice,
+                repeat: _details.repeat,
+                flipHorizontally: flipHorizontally,
+                filterQuality: FilterQuality.low
             );
 
             if (clipPath != null) {
@@ -175,29 +213,32 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        void _imageListener(ImageInfo value, bool synchronousCall) {
-            if (this._image == value) {
+        void _handleImage(ImageInfo value, bool synchronousCall) {
+            if (_image == value) {
                 return;
             }
 
-            this._image = value;
+            _image = value;
 
-            D.assert(this._onChanged != null);
+            D.assert(_onChanged != null);
             if (!synchronousCall) {
-                this._onChanged();
+                _onChanged();
             }
         }
 
         public void Dispose() {
-            this._imageStream?.removeListener(this._imageListener);
+            _imageStream?.removeListener(new ImageStreamListener(
+                _handleImage,
+                onError: _details.onError
+            ));
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(stream: {this._imageStream}, image: {this._image}) for {this._details}";
+            return $"{GetType()}(stream: {_imageStream}, image: {_image}) for {_details}";
         }
     }
 
-    public static class ImageUtils {
+    public static partial class painting_ {
         public static void paintImage(
             Canvas canvas = null,
             Rect rect = null,
@@ -208,8 +249,9 @@ namespace Unity.UIWidgets.painting {
             Alignment alignment = null,
             Rect centerSlice = null,
             ImageRepeat repeat = ImageRepeat.noRepeat,
+            bool flipHorizontally = false,
             bool invertColors = false,
-            FilterMode filterMode = FilterMode.Bilinear
+            FilterQuality filterQuality = FilterQuality.low
         ) {
             D.assert(canvas != null);
             D.assert(rect != null);
@@ -253,25 +295,30 @@ namespace Unity.UIWidgets.painting {
             Paint paint = new Paint();
             if (colorFilter != null) {
                 paint.colorFilter = colorFilter;
-                paint.color = colorFilter.color;
-                paint.blendMode = colorFilter.blendMode;
             }
 
             if (sourceSize != destinationSize) {
-                paint.filterMode = filterMode;
+                paint.filterQuality = filterQuality;
             }
 
             paint.invertColors = invertColors;
 
             float halfWidthDelta = (outputSize.width - destinationSize.width) / 2.0f;
             float halfHeightDelta = (outputSize.height - destinationSize.height) / 2.0f;
-            float dx = halfWidthDelta + alignment.x * halfWidthDelta;
+            float dx = halfWidthDelta + (flipHorizontally ? -alignment.x : alignment.x) * halfWidthDelta;
             float dy = halfHeightDelta + alignment.y * halfHeightDelta;
             Offset destinationPosition = rect.topLeft.translate(dx, dy);
             Rect destinationRect = destinationPosition & destinationSize;
-            bool needSave = repeat != ImageRepeat.noRepeat;
+            bool needSave = repeat != ImageRepeat.noRepeat || flipHorizontally;
             if (needSave) {
                 canvas.save();
+            }
+
+            if (flipHorizontally) {
+                float dxInside = -(rect.left + rect.width / 2.0f);
+                canvas.translate(-dxInside, 0.0f);
+                canvas.scale(-1.0f, 1.0f);
+                canvas.translate(dxInside, 0.0f);
             }
 
             if (repeat != ImageRepeat.noRepeat) {

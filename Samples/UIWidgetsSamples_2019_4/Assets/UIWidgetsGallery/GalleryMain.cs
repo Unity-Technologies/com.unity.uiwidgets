@@ -1,26 +1,27 @@
+using System.Collections.Generic;
 using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.engine;
-using Unity.UIWidgets.material;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
-namespace UIWidgetsGallery {
-    public class GalleryMain : UIWidgetsPanel {
-        protected override Widget createWidget() {
-            return new GalleryApp();
+namespace UIWidgetsGallery
+{
+    public class GalleryMain : UIWidgetsPanel
+    {
+        protected new void OnEnable()
+        {
+            base.OnEnable();
         }
 
-        protected override void OnEnable() {
-            FontManager.instance.addFont(Resources.Load<Font>("fonts/MaterialIcons-Regular"), "Material Icons");
-            FontManager.instance.addFont(Resources.Load<Font>("fonts/GalleryIcons"), "GalleryIcons");
-            
-            FontManager.instance.addFont(Resources.Load<Font>("fonts/CupertinoIcons"), "CupertinoIcons");
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/SF-Pro-Text-Regular"), ".SF Pro Text", FontWeight.w400);
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/SF-Pro-Text-Semibold"), ".SF Pro Text", FontWeight.w600);
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/SF-Pro-Text-Bold"), ".SF Pro Text", FontWeight.w700);
-            
-            base.OnEnable();
+        protected override void main()
+        {
+            ui_.runApp(new GalleryApp());
+        }
+
+        protected override void onEnable()
+        {
+            AddFont("Material Icons", new List<string> {"MaterialIcons-Regular.ttf"}, new List<int> {0});
+            AddFont("CupertinoIcons", new List<string> {"CupertinoIcons.ttf"}, new List<int> {0});
+            AddFont("GalleryIcons", new List<string> {"gallery/GalleryIcons.ttf"}, new List<int> {0});
         }
     }
 }

@@ -5,7 +5,7 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.widgets {
     class _Placeholderpainter : AbstractCustomPainter {
         public _Placeholderpainter(
-            Color color,
+            Color color = null,
             float strokeWidth = 0f
         ) {
             this.color = color;
@@ -18,9 +18,9 @@ namespace Unity.UIWidgets.widgets {
 
         public override void paint(Canvas canvas, Size size) {
             Paint paint = new Paint();
-            paint.color = this.color;
+            paint.color = color;
             paint.style = PaintingStyle.stroke;
-            paint.strokeWidth = this.strokeWidth;
+            paint.strokeWidth = strokeWidth;
 
             Rect rect = Offset.zero & size;
             Path path = new Path();
@@ -33,8 +33,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool shouldRepaint(CustomPainter oldPainter) {
-            return ((_Placeholderpainter) oldPainter).color != this.color ||
-                   ((_Placeholderpainter) oldPainter).strokeWidth != this.strokeWidth;
+            return ((_Placeholderpainter) oldPainter).color != color ||
+                   ((_Placeholderpainter) oldPainter).strokeWidth != strokeWidth;
         }
 
         public override bool? hitTest(Offset position) {
@@ -63,13 +63,13 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             return new LimitedBox(
-                maxWidth: this.fallbackWidth,
-                maxHeight: this.fallbackHeight,
+                maxWidth: fallbackWidth,
+                maxHeight: fallbackHeight,
                 child: new CustomPaint(
                     size: Size.infinite,
                     foregroundPainter: new _Placeholderpainter(
-                        color: this.color,
-                        strokeWidth: this.strokeWidth
+                        color: color,
+                        strokeWidth: strokeWidth
                     )
                 )
             );

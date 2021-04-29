@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
@@ -44,7 +45,7 @@ namespace UIWidgetsGallery.gallery {
                                 SearchUtils.showSearch(
                                     context: context,
                                     del: this._delegate
-                                ).Done((selected) => {
+                                ).then_((selected) => {
                                     if (selected != null && (int) selected != this._lastIntegerSelected) {
                                         this.setState(() => { this._lastIntegerSelected = (int) selected; });
                                     }
@@ -98,7 +99,7 @@ namespace UIWidgetsGallery.gallery {
                 ),
                 floatingActionButton: FloatingActionButton.extended(
                     tooltip: "Back", // Tests depend on this label to exit the demo.
-                    onPressed: () => { Navigator.of(context).pop(); },
+                    onPressed: () => { Navigator.of(context).pop<object>(); },
                     label:
                     new Text("Close demo"),
                     icon:
@@ -111,8 +112,8 @@ namespace UIWidgetsGallery.gallery {
                                 accountName: new Text("Peter Widget"),
                                 accountEmail: new Text("peter.widget@example.com"),
                                 currentAccountPicture: new CircleAvatar(
-                                    backgroundImage: new AssetImage(
-                                        "people/square/peter"
+                                    backgroundImage: new FileImage(
+                                        "gallery/people/square/peter.png"
                                     )
                                 ),
                                 margin: EdgeInsets.zero
@@ -133,7 +134,8 @@ namespace UIWidgetsGallery.gallery {
         }
     }
 
-    class _SearchDemoSearchDelegate : SearchDelegate {
+    class _SearchDemoSearchDelegate : SearchDelegate<int>
+    {
         static List<int> listGenerate(int count, Func<int, int> func) {
             var list = new List<int>();
             for (int i = 0; i < count; i++) {
@@ -268,7 +270,7 @@ namespace UIWidgetsGallery.gallery {
 
     class _ResultCard : StatelessWidget {
         public _ResultCard(
-            int integer, string title, SearchDelegate searchDelegate
+            int integer, string title, SearchDelegate<int> searchDelegate
         ) {
             this.integer = integer;
             this.title = title;
@@ -277,7 +279,7 @@ namespace UIWidgetsGallery.gallery {
 
         public readonly int integer;
         public readonly string title;
-        public readonly SearchDelegate searchDelegate;
+        public readonly SearchDelegate<int> searchDelegate;
 
         public override Widget build(BuildContext context) {
             ThemeData theme = Theme.of(context);
@@ -326,7 +328,8 @@ namespace UIWidgetsGallery.gallery {
                             text: new TextSpan(
                                 text: suggestion.Substring(0, this.query.Length),
                                 style: theme.textTheme.subhead.copyWith(fontWeight: FontWeight.bold),
-                                children: new List<TextSpan> {
+                                children: new List<InlineSpan>
+                                {
                                     new TextSpan(
                                         text: suggestion.Substring(this.query.Length),
                                         style: theme.textTheme.subhead

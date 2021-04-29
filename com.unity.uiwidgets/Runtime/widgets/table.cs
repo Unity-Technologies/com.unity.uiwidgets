@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
@@ -25,11 +26,11 @@ namespace Unity.UIWidgets.widgets {
 
         public override string ToString() {
             return "TableRow("
-                   + (this.key != null ? this.key.ToString() : "")
-                   + (this.decoration != null ? this.decoration.toString() : "")
-                   + (this.children == null ? "child list is null" :
-                       this.children.isEmpty() ? "no children" :
-                       this.children.ToString())
+                   + (key != null ? key.ToString() : "")
+                   + (decoration != null ? decoration.toString() : "")
+                   + (children == null ? "child list is null" :
+                       children.isEmpty() ? "no children" :
+                       children.ToString())
                    + ")";
         }
     }
@@ -105,11 +106,11 @@ namespace Unity.UIWidgets.widgets {
 
                 return true;
             });
-            this._rowDecorations = null;
+            _rowDecorations = null;
             if (children.Any((TableRow row) => { return row.decoration != null; })) {
-                this._rowDecorations = new List<Decoration>();
+                _rowDecorations = new List<Decoration>();
                 foreach (TableRow row in children) {
-                    this._rowDecorations.Add(row.decoration);
+                    _rowDecorations.Add(row.decoration);
                 }
             }
 
@@ -153,15 +154,15 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderTable(
-                columns: this.children.isNotEmpty() ? this.children[0].children.Count : 0,
-                rows: this.children.Count,
-                columnWidths: this.columnWidths,
-                defaultColumnWidth: this.defaultColumnWidth,
-                border: this.border,
-                rowDecorations: this._rowDecorations,
+                columns: children.isNotEmpty() ? children[0].children.Count : 0,
+                rows: children.Count,
+                columnWidths: columnWidths,
+                defaultColumnWidth: defaultColumnWidth,
+                border: border,
+                rowDecorations: _rowDecorations,
                 configuration: ImageUtils.createLocalImageConfiguration(context),
-                defaultVerticalAlignment: this.defaultVerticalAlignment,
-                textBaseline: this.textBaseline
+                defaultVerticalAlignment: defaultVerticalAlignment,
+                textBaseline: textBaseline
             );
         }
 
@@ -169,16 +170,16 @@ namespace Unity.UIWidgets.widgets {
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderTable _renderObject = (RenderTable) renderObject;
 
-            D.assert(_renderObject.columns == (this.children.isNotEmpty() ? this.children[0].children.Count : 0));
-            D.assert(_renderObject.rows == this.children.Count);
+            D.assert(_renderObject.columns == (children.isNotEmpty() ? children[0].children.Count : 0));
+            D.assert(_renderObject.rows == children.Count);
 
-            _renderObject.columnWidths = this.columnWidths;
-            _renderObject.defaultColumnWidth = this.defaultColumnWidth;
-            _renderObject.border = this.border;
-            _renderObject.rowDecorations = this._rowDecorations;
+            _renderObject.columnWidths = columnWidths;
+            _renderObject.defaultColumnWidth = defaultColumnWidth;
+            _renderObject.border = border;
+            _renderObject.rowDecorations = _rowDecorations;
             _renderObject.configuration = ImageUtils.createLocalImageConfiguration(context);
-            _renderObject.defaultVerticalAlignment = this.defaultVerticalAlignment;
-            _renderObject.textBaseline = this.textBaseline;
+            _renderObject.defaultVerticalAlignment = defaultVerticalAlignment;
+            _renderObject.textBaseline = textBaseline;
         }
     }
 
@@ -197,85 +198,53 @@ namespace Unity.UIWidgets.widgets {
 
         List<_TableElementRow> _children = new List<_TableElementRow>();
 
-        bool _debugWillReattachChildren = false;
-
         public override void mount(Element parent, object newSlot) {
             base.mount(parent, newSlot);
-            D.assert(!this._debugWillReattachChildren);
-            D.assert(() => {
-                this._debugWillReattachChildren = true;
-                return true;
-            });
 
-            this._children.Clear();
-            foreach (TableRow row in this.widget.children) {
+            _children.Clear();
+            foreach (TableRow row in widget.children) {
                 List<Element> elements = new List<Element>();
                 foreach (Widget child in row.children) {
                     D.assert(child != null);
-                    elements.Add(this.inflateWidget(child, null));
+                    elements.Add(inflateWidget(child, null));
                 }
 
-                this._children.Add(
+                _children.Add(
                     new _TableElementRow(
                         key: row.key,
                         children: elements)
                 );
             }
 
-            D.assert(() => {
-                this._debugWillReattachChildren = false;
-                return true;
-            });
-
-            this._updateRenderObjectChildren();
+            _updateRenderObjectChildren();
         }
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
-            D.assert(this._debugWillReattachChildren);
-            this.renderObject.setupParentData(child);
+            renderObject.setupParentData(child);
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slot) {
-            D.assert(this._debugWillReattachChildren);
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            D.assert(() => {
-                if (this._debugWillReattachChildren) {
-                    return true;
-                }
-
-                foreach (Element forgottenChild in this._forgottenChildren) {
-                    if (forgottenChild.renderObject == child) {
-                        return true;
-                    }
-                }
-
-                return false;
-            });
-            TableCellParentData childParentData = (TableCellParentData) child.parentData;
-            this.renderObject.setChild(childParentData.x, childParentData.y, null);
+            TableCellParentData childParentData = child.parentData as TableCellParentData;
+            renderObject.setChild(childParentData.x, childParentData.y, null);
         }
 
         readonly HashSet<Element> _forgottenChildren = new HashSet<Element>();
 
         public override void update(Widget newWidget) {
-            D.assert(!this._debugWillReattachChildren);
-            D.assert(() => {
-                this._debugWillReattachChildren = true;
-                return true;
-            });
             Table _newWidget = (Table) newWidget;
             Dictionary<LocalKey, List<Element>> oldKeyedRows = new Dictionary<LocalKey, List<Element>>();
 
-            foreach (_TableElementRow row in this._children) {
+            foreach (_TableElementRow row in _children) {
                 if (row.key != null) {
                     oldKeyedRows[row.key] = row.children;
                 }
             }
 
             List<_TableElementRow> oldUnkeyedRows = new List<_TableElementRow>();
-            foreach (_TableElementRow row in this._children) {
+            foreach (_TableElementRow row in _children) {
                 if (row.key == null) {
                     oldUnkeyedRows.Add(row);
                 }
@@ -301,14 +270,14 @@ namespace Unity.UIWidgets.widgets {
 
                 newChildren.Add(new _TableElementRow(
                     key: row.key,
-                    children: this.updateChildren(oldChildren, row.children,
-                        forgottenChildren: this._forgottenChildren))
+                    children: updateChildren(oldChildren, row.children,
+                        forgottenChildren: _forgottenChildren))
                 );
             }
 
             while (unkeyedRow < oldUnkeyedRows.Count) {
-                this.updateChildren(oldUnkeyedRows[unkeyedRow].children, new List<Widget>(),
-                    forgottenChildren: this._forgottenChildren);
+                updateChildren(oldUnkeyedRows[unkeyedRow].children, new List<Widget>(),
+                    forgottenChildren: _forgottenChildren);
                 unkeyedRow++;
             }
 
@@ -317,77 +286,71 @@ namespace Unity.UIWidgets.widgets {
                     continue;
                 }
 
-                this.updateChildren(oldChildren, new List<Widget>(), forgottenChildren: this._forgottenChildren);
+                updateChildren(oldChildren, new List<Widget>(), forgottenChildren: _forgottenChildren);
             }
-
-            D.assert(() => {
-                this._debugWillReattachChildren = false;
-                return true;
-            });
-            this._children = newChildren;
-            this._updateRenderObjectChildren();
-            this._forgottenChildren.Clear();
+            
+            _children = newChildren;
+            _updateRenderObjectChildren();
+            _forgottenChildren.Clear();
             base.update(newWidget);
-            D.assert(this.widget == newWidget);
+            D.assert(widget == newWidget);
         }
 
         void _updateRenderObjectChildren() {
-            D.assert(this.renderObject != null);
+            D.assert(renderObject != null);
             List<RenderBox> renderBoxes = new List<RenderBox>();
-            foreach (_TableElementRow row in this._children) {
+            foreach (_TableElementRow row in _children) {
                 foreach (Element child in row.children) {
                     renderBoxes.Add((RenderBox) child.renderObject);
                 }
             }
 
-            this.renderObject.setFlatChildren(
-                this._children.isNotEmpty() ? this._children[0].children.Count : 0,
+            renderObject.setFlatChildren(
+                _children.isNotEmpty() ? _children[0].children.Count : 0,
                 renderBoxes
             );
         }
 
         public override void visitChildren(ElementVisitor visitor) {
-            foreach (_TableElementRow row in this._children) {
+            foreach (_TableElementRow row in _children) {
                 foreach (Element child in row.children) {
-                    if (!this._forgottenChildren.Contains(child)) {
+                    if (!_forgottenChildren.Contains(child)) {
                         visitor(child);
                     }
                 }
             }
         }
 
-        protected override void forgetChild(Element child) {
-            this._forgottenChildren.Add(child);
+        internal override void forgetChild(Element child) {
+            _forgottenChildren.Add(child);
         }
     }
-
-
-    public class TableCell : ParentDataWidget<Table> {
+    
+    public class TableCell : ParentDataWidget<TableCellParentData> {
         public TableCell(
-            Key key = null,
-            TableCellVerticalAlignment? verticalAlignment = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
+        Key key = null,
+        TableCellVerticalAlignment verticalAlignment = default,
+        Widget child = null) : base(key: key, child: child) {
             this.verticalAlignment = verticalAlignment;
         }
-
-        public readonly TableCellVerticalAlignment? verticalAlignment;
-
-        public override void applyParentData(RenderObject renderObject) {
-            TableCellParentData parentData = (TableCellParentData) renderObject.parentData;
-            if (parentData.verticalAlignment != this.verticalAlignment) {
-                parentData.verticalAlignment = this.verticalAlignment;
-
+         public readonly TableCellVerticalAlignment verticalAlignment;
+         public override void applyParentData(RenderObject renderObject) { 
+            TableCellParentData parentData = renderObject.parentData as TableCellParentData;
+            if (parentData.verticalAlignment != verticalAlignment) {
+                parentData.verticalAlignment = verticalAlignment;
                 AbstractNodeMixinDiagnosticableTree targetParent = renderObject.parent;
-                if (targetParent is RenderObject) {
-                    ((RenderObject) targetParent).markNeedsLayout();
-                }
+                if (targetParent is RenderObject)
+                    ((RenderObject)targetParent).markNeedsLayout();
             }
-        }
+         }
+         Type debugTypicalAncestorWidgetClass {
+             get { return typeof(Table);}
+         }
 
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new EnumProperty<TableCellVerticalAlignment?>("verticalAlignment", this.verticalAlignment));
+         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) { 
+             base.debugFillProperties(properties); 
+             properties.add(new EnumProperty<TableCellVerticalAlignment>("verticalAlignment", verticalAlignment));
         }
     }
+
 }

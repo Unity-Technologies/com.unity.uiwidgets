@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using uiwidgets;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
@@ -6,14 +8,23 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
+using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample {
-    public class DividerAndButton : UIWidgetsSamplePanel {
+    public class DividerAndButton : UIWidgetsPanel {
         
-        protected override Widget createWidget() {
-            return new WidgetsApp(
-                home: new DividerAndButtonSample(),
-                pageRouteBuilder: this.pageRouteBuilder);
+        protected override void main() {
+            ui_.runApp(new MyApp());
+        }
+        
+        class MyApp : StatelessWidget
+        {
+            public override Widget build(BuildContext context)
+            {
+                return new MaterialApp(
+                    home: new DividerAndButtonSample()
+                );
+            }
         }
         
         public class DividerAndButtonSample : StatefulWidget {
@@ -28,10 +39,13 @@ namespace UIWidgetsSample {
         public class _DividerAndButtonState : State<DividerAndButtonSample> {
             string title = "Hello";
             string subtitle = "World";
-            TextEditingController controller = new TextEditingController("");
+            TextEditingController controller = new TextEditingController("xxxxxx");
 
             public override Widget build(BuildContext context) {
-                return new Container(
+                return new DividerTheme(
+                    data: new DividerThemeData(
+                    ),
+                    child: new Container(
                     height: 200,
                     padding: EdgeInsets.all(10),
                     decoration: new BoxDecoration(
@@ -56,7 +70,8 @@ namespace UIWidgetsSample {
                                             fontSize: 18,
                                             height: 1.5f,
                                             color: new Color(0xFFFF89FD)),
-                                        cursorColor: Color.fromARGB(255, 0, 0, 0)
+                                        cursorColor: Color.fromARGB(255, 0, 0, 0),
+                                        backgroundCursorColor: Colors.grey
                                     )
                                 ),
                                 new Divider(),
@@ -85,7 +100,7 @@ namespace UIWidgetsSample {
                             }
                         )
                     )
-                );
+                ));
             }
         }
     }

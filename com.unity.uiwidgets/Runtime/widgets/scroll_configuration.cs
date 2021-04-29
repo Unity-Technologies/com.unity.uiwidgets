@@ -8,7 +8,11 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public virtual ScrollPhysics getScrollPhysics(BuildContext context) {
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS
             return new BouncingScrollPhysics();
+#else
+            return new ClampingScrollPhysics();
+#endif
         }
 
         public virtual bool shouldNotify(ScrollBehavior oldDelegate) {
@@ -16,7 +20,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string ToString() {
-            return this.GetType().ToString();
+            return GetType().ToString();
         }
     }
 
@@ -33,8 +37,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly ScrollBehavior behavior;
 
         public static ScrollBehavior of(BuildContext context) {
-            ScrollConfiguration configuration =
-                (ScrollConfiguration) context.inheritFromWidgetOfExactType(typeof(ScrollConfiguration));
+            ScrollConfiguration configuration = context.dependOnInheritedWidgetOfExactType<ScrollConfiguration>();
             if (configuration != null) {
                 return configuration.behavior;
             }
@@ -45,14 +48,14 @@ namespace Unity.UIWidgets.widgets {
         public override bool updateShouldNotify(InheritedWidget oldWidgetRaw) {
             var oldWidget = (ScrollConfiguration) oldWidgetRaw;
 
-            D.assert(this.behavior != null);
-            return this.behavior.GetType() != oldWidget.behavior.GetType()
-                   || this.behavior != oldWidget.behavior && this.behavior.shouldNotify(oldWidget.behavior);
+            D.assert(behavior != null);
+            return behavior.GetType() != oldWidget.behavior.GetType()
+                   || behavior != oldWidget.behavior && behavior.shouldNotify(oldWidget.behavior);
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<ScrollBehavior>("behavior", this.behavior));
+            properties.add(new DiagnosticsProperty<ScrollBehavior>("behavior", behavior));
         }
     }
 }

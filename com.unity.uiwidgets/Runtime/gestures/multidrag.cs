@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -21,7 +22,7 @@ namespace Unity.UIWidgets.gestures {
         Drag _client;
 
         public Offset pendingDelta {
-            get { return this._pendingDelta; }
+            get { return _pendingDelta; }
         }
 
         public Offset _pendingDelta = Offset.zero;
@@ -31,35 +32,35 @@ namespace Unity.UIWidgets.gestures {
         GestureArenaEntry _arenaEntry;
 
         public void _setArenaEntry(GestureArenaEntry entry) {
-            D.assert(this._arenaEntry == null);
-            D.assert(this.pendingDelta != null);
-            D.assert(this._client == null);
-            this._arenaEntry = entry;
+            D.assert(_arenaEntry == null);
+            D.assert(pendingDelta != null);
+            D.assert(_client == null);
+            _arenaEntry = entry;
         }
 
         protected void resolve(GestureDisposition disposition) {
-            this._arenaEntry.resolve(disposition);
+            _arenaEntry.resolve(disposition);
         }
 
         public void _move(PointerMoveEvent pEvent) {
-            D.assert(this._arenaEntry != null);
+            D.assert(_arenaEntry != null);
             if (!pEvent.synthesized) {
-                this._velocityTracker.addPosition(pEvent.timeStamp, pEvent.position);
+                _velocityTracker.addPosition(pEvent.timeStamp, pEvent.position);
             }
 
-            if (this._client != null) {
-                D.assert(this.pendingDelta == null);
-                this._client.update(new DragUpdateDetails(
+            if (_client != null) {
+                D.assert(pendingDelta == null);
+                _client.update(new DragUpdateDetails(
                     sourceTimeStamp: pEvent.timeStamp,
                     delta: pEvent.delta,
                     globalPosition: pEvent.position
                 ));
             }
             else {
-                D.assert(this.pendingDelta != null);
-                this._pendingDelta += pEvent.delta;
-                this._lastPendingEventTimestamp = pEvent.timeStamp;
-                this.checkForResolutionAfterMove();
+                D.assert(pendingDelta != null);
+                _pendingDelta += pEvent.delta;
+                _lastPendingEventTimestamp = pEvent.timeStamp;
+                checkForResolutionAfterMove();
             }
         }
 
@@ -69,68 +70,68 @@ namespace Unity.UIWidgets.gestures {
         public abstract void accepted(GestureMultiDragStartCallback starter);
 
         public void rejected() {
-            D.assert(this._arenaEntry != null);
-            D.assert(this._client == null);
-            D.assert(this.pendingDelta != null);
-            this._pendingDelta = null;
-            this._lastPendingEventTimestamp = null;
-            this._arenaEntry = null;
+            D.assert(_arenaEntry != null);
+            D.assert(_client == null);
+            D.assert(pendingDelta != null);
+            _pendingDelta = null;
+            _lastPendingEventTimestamp = null;
+            _arenaEntry = null;
         }
 
         public void _startDrag(Drag client) {
-            D.assert(this._arenaEntry != null);
-            D.assert(this._client == null);
+            D.assert(_arenaEntry != null);
+            D.assert(_client == null);
             D.assert(client != null);
-            D.assert(this.pendingDelta != null);
+            D.assert(pendingDelta != null);
 
-            this._client = client;
+            _client = client;
             DragUpdateDetails details = new DragUpdateDetails(
-                sourceTimeStamp: this._lastPendingEventTimestamp ?? TimeSpan.Zero,
-                this.pendingDelta,
-                globalPosition: this.initialPosition
+                sourceTimeStamp: _lastPendingEventTimestamp ?? TimeSpan.Zero,
+                pendingDelta,
+                globalPosition: initialPosition
             );
 
-            this._pendingDelta = null;
-            this._lastPendingEventTimestamp = null;
-            this._client.update(details);
+            _pendingDelta = null;
+            _lastPendingEventTimestamp = null;
+            _client.update(details);
         }
 
         public void _up() {
-            D.assert(this._arenaEntry != null);
-            if (this._client != null) {
-                D.assert(this.pendingDelta == null);
-                DragEndDetails details = new DragEndDetails(velocity: this._velocityTracker.getVelocity());
-                Drag client = this._client;
-                this._client = null;
+            D.assert(_arenaEntry != null);
+            if (_client != null) {
+                D.assert(pendingDelta == null);
+                DragEndDetails details = new DragEndDetails(velocity: _velocityTracker.getVelocity());
+                Drag client = _client;
+                _client = null;
                 client.end(details);
             }
             else {
-                D.assert(this.pendingDelta != null);
-                this._pendingDelta = null;
-                this._lastPendingEventTimestamp = null;
+                D.assert(pendingDelta != null);
+                _pendingDelta = null;
+                _lastPendingEventTimestamp = null;
             }
         }
 
         public void _cancel() {
-            D.assert(this._arenaEntry != null);
-            if (this._client != null) {
-                D.assert(this.pendingDelta == null);
-                Drag client = this._client;
-                this._client = null;
+            D.assert(_arenaEntry != null);
+            if (_client != null) {
+                D.assert(pendingDelta == null);
+                Drag client = _client;
+                _client = null;
                 client.cancel();
             }
             else {
-                D.assert(this.pendingDelta != null);
-                this._pendingDelta = null;
-                this._lastPendingEventTimestamp = null;
+                D.assert(pendingDelta != null);
+                _pendingDelta = null;
+                _lastPendingEventTimestamp = null;
             }
         }
 
         public virtual void dispose() {
-            this._arenaEntry?.resolve(GestureDisposition.rejected);
-            this._arenaEntry = null;
+            _arenaEntry?.resolve(GestureDisposition.rejected);
+            _arenaEntry = null;
             D.assert(() => {
-                this._pendingDelta = null;
+                _pendingDelta = null;
                 return true;
             });
         }
@@ -147,37 +148,37 @@ namespace Unity.UIWidgets.gestures {
         Dictionary<int, T> _pointers = new Dictionary<int, T>();
 
         public override void addAllowedPointer(PointerDownEvent pEvent) {
-            D.assert(this._pointers != null);
+            D.assert(_pointers != null);
             D.assert(pEvent.position != null);
-            D.assert(!this._pointers.ContainsKey(pEvent.pointer));
+            D.assert(!_pointers.ContainsKey(pEvent.pointer));
 
-            T state = this.createNewPointerState(pEvent);
-            this._pointers[pEvent.pointer] = state;
-            GestureBinding.instance.pointerRouter.addRoute(pEvent.pointer, this._handleEvent);
+            T state = createNewPointerState(pEvent);
+            _pointers[pEvent.pointer] = state;
+            GestureBinding.instance.pointerRouter.addRoute(pEvent.pointer, _handleEvent);
             state._setArenaEntry(GestureBinding.instance.gestureArena.add(pEvent.pointer, this));
         }
 
         public abstract T createNewPointerState(PointerDownEvent pEvent);
 
         void _handleEvent(PointerEvent pEvent) {
-            D.assert(this._pointers != null);
+            D.assert(_pointers != null);
             D.assert(pEvent.timeStamp != null);
             D.assert(pEvent.position != null);
-            D.assert(this._pointers.ContainsKey(pEvent.pointer));
+            D.assert(_pointers.ContainsKey(pEvent.pointer));
 
-            T state = this._pointers[pEvent.pointer];
+            T state = _pointers[pEvent.pointer];
             if (pEvent is PointerMoveEvent) {
                 state._move((PointerMoveEvent) pEvent);
             }
             else if (pEvent is PointerUpEvent) {
                 D.assert(pEvent.delta == Offset.zero);
                 state._up();
-                this._removeState(pEvent.pointer);
+                _removeState(pEvent.pointer);
             }
             else if (pEvent is PointerCancelEvent) {
                 D.assert(pEvent.delta == Offset.zero);
                 state._cancel();
-                this._removeState(pEvent.pointer);
+                _removeState(pEvent.pointer);
             }
             else if (!(pEvent is PointerDownEvent)) {
                 D.assert(false);
@@ -185,63 +186,64 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void acceptGesture(int pointer) {
-            D.assert(this._pointers != null);
-            T state = this._pointers[pointer];
+            D.assert(_pointers != null);
+            T state = _pointers[pointer];
             if (state == null) {
                 return;
             }
 
-            state.accepted((Offset initialPosition) => this._startDrag(initialPosition, pointer));
+            state.accepted((Offset initialPosition) => _startDrag(initialPosition, pointer));
         }
 
         Drag _startDrag(Offset initialPosition, int pointer) {
-            D.assert(this._pointers != null);
-            T state = this._pointers[pointer];
+            D.assert(_pointers != null);
+            T state = _pointers[pointer];
             D.assert(state != null);
             D.assert(state._pendingDelta != null);
             Drag drag = null;
-            if (this.onStart != null) {
-                drag = this.invokeCallback("onStart", () => this.onStart(initialPosition));
+            if (onStart != null) {
+                drag = invokeCallback("onStart", () => onStart(initialPosition));
             }
 
             if (drag != null) {
                 state._startDrag(drag);
             }
             else {
-                this._removeState(pointer);
+                _removeState(pointer);
             }
 
             return drag;
         }
 
         public override void rejectGesture(int pointer) {
-            D.assert(this._pointers != null);
-            if (this._pointers.ContainsKey(pointer)) {
-                T state = this._pointers[pointer];
+            D.assert(_pointers != null);
+            if (_pointers.ContainsKey(pointer)) {
+                T state = _pointers[pointer];
                 D.assert(state != null);
                 state.rejected();
-                this._removeState(pointer);
+                _removeState(pointer);
             }
         }
 
         void _removeState(int pointer) {
-            if (this._pointers == null) {
+            if (_pointers == null) {
                 return;
             }
 
-            D.assert(this._pointers.ContainsKey(pointer));
-            GestureBinding.instance.pointerRouter.removeRoute(pointer, this._handleEvent);
-            this._pointers[pointer].dispose();
-            this._pointers.Remove(pointer);
+            D.assert(_pointers.ContainsKey(pointer));
+            GestureBinding.instance.pointerRouter.removeRoute(pointer, _handleEvent);
+            var pointerData = _pointers[pointer];
+            _pointers.Remove(pointer);
+            pointerData.dispose();
         }
 
 
         public override void dispose() {
-            foreach (var key in this._pointers.Keys) {
-                this._removeState(key);
+            foreach (var key in _pointers.Keys.ToList()) {
+                _removeState(key);
             }
-            D.assert(this._pointers.isEmpty);
-            this._pointers = null;
+            D.assert(_pointers.isEmpty);
+            _pointers = null;
             base.dispose();
         }
     }
@@ -252,14 +254,14 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void checkForResolutionAfterMove() {
-            D.assert(this.pendingDelta != null);
-            if (this.pendingDelta.distance > Constants.kTouchSlop) {
-                this.resolve(GestureDisposition.accepted);
+            D.assert(pendingDelta != null);
+            if (pendingDelta.distance > Constants.kTouchSlop) {
+                resolve(GestureDisposition.accepted);
             }
         }
 
         public override void accepted(GestureMultiDragStartCallback starter) {
-            starter(this.initialPosition);
+            starter(initialPosition);
         }
     }
 
@@ -283,14 +285,14 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void checkForResolutionAfterMove() {
-            D.assert(this.pendingDelta != null);
-            if (this.pendingDelta.dx.abs() > Constants.kTouchSlop) {
-                this.resolve(GestureDisposition.accepted);
+            D.assert(pendingDelta != null);
+            if (pendingDelta.dx.abs() > Constants.kTouchSlop) {
+                resolve(GestureDisposition.accepted);
             }
         }
 
         public override void accepted(GestureMultiDragStartCallback starter) {
-            starter(this.initialPosition);
+            starter(initialPosition);
         }
     }
 
@@ -314,14 +316,14 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override void checkForResolutionAfterMove() {
-            D.assert(this.pendingDelta != null);
-            if (this.pendingDelta.dy.abs() > Constants.kTouchSlop) {
-                this.resolve(GestureDisposition.accepted);
+            D.assert(pendingDelta != null);
+            if (pendingDelta.dy.abs() > Constants.kTouchSlop) {
+                resolve(GestureDisposition.accepted);
             }
         }
 
         public override void accepted(GestureMultiDragStartCallback starter) {
-            starter(this.initialPosition);
+            starter(initialPosition);
         }
     }
 
@@ -346,58 +348,58 @@ namespace Unity.UIWidgets.gestures {
             TimeSpan? delay = null)
             : base(initialPosition) {
             D.assert(delay != null);
-            this._timer = Window.instance.run(delay ?? Constants.kLongPressTimeout, this._delayPassed, false);
+            _timer = Timer.create(delay ?? Constants.kLongPressTimeout, _delayPassed);
         }
 
         Timer _timer;
         GestureMultiDragStartCallback _starter;
 
         void _delayPassed() {
-            D.assert(this._timer != null);
-            D.assert(this.pendingDelta != null);
-            D.assert(this.pendingDelta.distance <= Constants.kTouchSlop);
-            this._timer = null;
-            if (this._starter != null) {
-                this._starter(this.initialPosition);
-                this._starter = null;
+            D.assert(_timer != null);
+            D.assert(pendingDelta != null);
+            D.assert(pendingDelta.distance <= Constants.kTouchSlop);
+            _timer = null;
+            if (_starter != null) {
+                _starter(initialPosition);
+                _starter = null;
             }
             else {
-                this.resolve(GestureDisposition.accepted);
+                resolve(GestureDisposition.accepted);
             }
 
-            D.assert(this._starter == null);
+            D.assert(_starter == null);
         }
 
         void _ensureTimerStopped() {
-            this._timer?.cancel();
-            this._timer = null;
+            _timer?.cancel();
+            _timer = null;
         }
 
         public override void accepted(GestureMultiDragStartCallback starter) {
-            D.assert(this._starter == null);
-            if (this._timer == null) {
-                starter(this.initialPosition);
+            D.assert(_starter == null);
+            if (_timer == null) {
+                starter(initialPosition);
             }
             else {
-                this._starter = starter;
+                _starter = starter;
             }
         }
 
         public override void checkForResolutionAfterMove() {
-            if (this._timer == null) {
-                D.assert(this._starter != null);
+            if (_timer == null) {
+                D.assert(_starter != null);
                 return;
             }
 
-            D.assert(this.pendingDelta != null);
-            if (this.pendingDelta.distance > Constants.kTouchSlop) {
-                this.resolve(GestureDisposition.rejected);
-                this._ensureTimerStopped();
+            D.assert(pendingDelta != null);
+            if (pendingDelta.distance > Constants.kTouchSlop) {
+                resolve(GestureDisposition.rejected);
+                _ensureTimerStopped();
             }
         }
 
         public override void dispose() {
-            this._ensureTimerStopped();
+            _ensureTimerStopped();
             base.dispose();
         }
     }
@@ -418,7 +420,7 @@ namespace Unity.UIWidgets.gestures {
         readonly TimeSpan? delay;
 
         public override _DelayedPointerState createNewPointerState(PointerDownEvent pEvent) {
-            return new _DelayedPointerState(pEvent.position, this.delay);
+            return new _DelayedPointerState(pEvent.position, delay);
         }
 
         public override string debugDescription {

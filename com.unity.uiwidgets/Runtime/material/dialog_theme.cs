@@ -3,6 +3,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
@@ -54,7 +56,7 @@ namespace Unity.UIWidgets.material {
         public static DialogTheme lerp(DialogTheme a, DialogTheme b, float t) {
             return new DialogTheme(
                 backgroundColor: Color.lerp(a?.backgroundColor, b?.backgroundColor, t),
-                elevation: MathUtils.lerpFloat(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 shape: ShapeBorder.lerp(a?.shape, b?.shape, t),
                 titleTextStyle: TextStyle.lerp(a?.titleTextStyle, b?.titleTextStyle, t),
                 contentTextStyle: TextStyle.lerp(a?.contentTextStyle, b?.contentTextStyle, t)
@@ -70,11 +72,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return Equals(this.backgroundColor, other.backgroundColor)
-                   && Equals(this.elevation, other.elevation)
-                   && Equals(this.shape, other.shape)
-                   && Equals(this.titleTextStyle, other.titleTextStyle)
-                   && Equals(this.contentTextStyle, other.contentTextStyle);
+            return Equals(backgroundColor, other.backgroundColor)
+                   && Equals(elevation, other.elevation)
+                   && Equals(shape, other.shape)
+                   && Equals(titleTextStyle, other.titleTextStyle)
+                   && Equals(contentTextStyle, other.contentTextStyle);
         }
 
         public override bool Equals(object obj) {
@@ -86,15 +88,15 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((DialogTheme) obj);
+            return Equals((DialogTheme) obj);
         }
 
         public override int GetHashCode() {
-            return (this.shape != null ? this.shape.GetHashCode() : 0);
+            return (shape != null ? shape.GetHashCode() : 0);
         }
 
         public static bool operator ==(DialogTheme left, DialogTheme right) {
@@ -107,11 +109,11 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Color>("backgroundColor", this.backgroundColor));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", this.shape));
-            properties.add(new DiagnosticsProperty<float?>("elevation", this.elevation));
-            properties.add(new DiagnosticsProperty<TextStyle>("titleTextStyle", this.titleTextStyle));
-            properties.add(new DiagnosticsProperty<TextStyle>("contentTextStyle", this.contentTextStyle));
+            properties.add(new ColorProperty("backgroundColor", backgroundColor));
+            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape));
+            properties.add(new FloatProperty("elevation", elevation));
+            properties.add(new DiagnosticsProperty<TextStyle>("titleTextStyle", titleTextStyle));
+            properties.add(new DiagnosticsProperty<TextStyle>("contentTextStyle", contentTextStyle));
         }
     }
 }

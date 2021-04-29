@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
@@ -13,13 +13,13 @@ namespace Unity.UIWidgets.widgets {
             bool keepScrollOffset = true,
             string debugLabel = null
         ) {
-            this._initialScrollOffset = initialScrollOffset;
+            _initialScrollOffset = initialScrollOffset;
             this.keepScrollOffset = keepScrollOffset;
             this.debugLabel = debugLabel;
         }
 
         public virtual float initialScrollOffset {
-            get { return this._initialScrollOffset; }
+            get { return _initialScrollOffset; }
         }
 
         readonly float _initialScrollOffset;
@@ -29,63 +29,63 @@ namespace Unity.UIWidgets.widgets {
         public readonly string debugLabel;
 
         public ICollection<ScrollPosition> positions {
-            get { return this._positions; }
+            get { return _positions; }
         }
 
         readonly List<ScrollPosition> _positions = new List<ScrollPosition>();
 
         public bool hasClients {
-            get { return this._positions.isNotEmpty(); }
+            get { return _positions.isNotEmpty(); }
         }
 
         public ScrollPosition position {
             get {
-                D.assert(this._positions.isNotEmpty(), () => "ScrollController not attached to any scroll views.");
-                D.assert(this._positions.Count == 1, () => "ScrollController attached to multiple scroll views.");
-                return this._positions.Single();
+                D.assert(_positions.isNotEmpty(), () => "ScrollController not attached to any scroll views.");
+                D.assert(_positions.Count == 1, () => "ScrollController attached to multiple scroll views.");
+                return _positions.Single();
             }
         }
 
         public float offset {
-            get { return this.position.pixels; }
+            get { return position.pixels; }
         }
 
 
-        public IPromise animateTo(float to,
+        public Future animateTo(float to,
             TimeSpan duration,
             Curve curve
         ) {
-            D.assert(this._positions.isNotEmpty(), () => "ScrollController not attached to any scroll views.");
-            List<IPromise> animations = CollectionUtils.CreateRepeatedList<IPromise>(null, this._positions.Count);
-            for (int i = 0; i < this._positions.Count; i += 1) {
-                animations[i] = this._positions[i].animateTo(to, duration: duration, curve: curve);
+            D.assert(_positions.isNotEmpty(), () => "ScrollController not attached to any scroll views.");
+            List<Future> animations = CollectionUtils.CreateRepeatedList<Future>(null, _positions.Count);
+            for (int i = 0; i < _positions.Count; i += 1) {
+                animations[i] = _positions[i].animateTo(to, duration: duration, curve: curve);
             }
 
-            return Promise.All(animations);
+            return Future.wait<object>(animations);
         }
 
         public void jumpTo(float value) {
-            D.assert(this._positions.isNotEmpty(), () => "ScrollController not attached to any scroll views.");
-            foreach (ScrollPosition position in new List<ScrollPosition>(this._positions)) {
+            D.assert(_positions.isNotEmpty(), () => "ScrollController not attached to any scroll views.");
+            foreach (ScrollPosition position in new List<ScrollPosition>(_positions)) {
                 position.jumpTo(value);
             }
         }
 
         public virtual void attach(ScrollPosition position) {
-            D.assert(!this._positions.Contains(position));
-            this._positions.Add(position);
-            position.addListener(this.notifyListeners);
+            D.assert(!_positions.Contains(position));
+            _positions.Add(position);
+            position.addListener(notifyListeners);
         }
 
         public virtual void detach(ScrollPosition position) {
-            D.assert(this._positions.Contains(position));
-            position.removeListener(this.notifyListeners);
-            this._positions.Remove(position);
+            D.assert(_positions.Contains(position));
+            position.removeListener(notifyListeners);
+            _positions.Remove(position);
         }
 
         public override void dispose() {
-            foreach (ScrollPosition position in this._positions) {
-                position.removeListener(this.notifyListeners);
+            foreach (ScrollPosition position in _positions) {
+                position.removeListener(notifyListeners);
             }
 
             base.dispose();
@@ -99,36 +99,36 @@ namespace Unity.UIWidgets.widgets {
             return new ScrollPositionWithSingleContext(
                 physics: physics,
                 context: context,
-                initialPixels: this.initialScrollOffset,
-                keepScrollOffset: this.keepScrollOffset,
+                initialPixels: initialScrollOffset,
+                keepScrollOffset: keepScrollOffset,
                 oldPosition: oldPosition,
-                debugLabel: this.debugLabel
+                debugLabel: debugLabel
             );
         }
 
         public override string ToString() {
             List<string> description = new List<string>();
-            this.debugFillDescription(description);
-            return $"{Diagnostics.describeIdentity(this)}({string.Join(", ", description.ToArray())})";
+            debugFillDescription(description);
+            return $"{foundation_.describeIdentity(this)}({string.Join(", ", description.ToArray())})";
         }
 
         protected virtual void debugFillDescription(List<string> description) {
-            if (this.debugLabel != null) {
-                description.Add(this.debugLabel);
+            if (debugLabel != null) {
+                description.Add(debugLabel);
             }
 
-            if (this.initialScrollOffset != 0.0) {
-                description.Add($"initialScrollOffset: {this.initialScrollOffset:F1}, ");
+            if (initialScrollOffset != 0.0) {
+                description.Add($"initialScrollOffset: {initialScrollOffset:F1}, ");
             }
 
-            if (this._positions.isEmpty()) {
+            if (_positions.isEmpty()) {
                 description.Add("no clients");
             }
-            else if (this._positions.Count == 1) {
-                description.Add($"one client, offset {this.offset:F1}");
+            else if (_positions.Count == 1) {
+                description.Add($"one client, offset {offset:F1}");
             }
             else {
-                description.Add(this._positions.Count + " clients");
+                description.Add(_positions.Count + " clients");
             }
         }
     }
@@ -150,41 +150,41 @@ namespace Unity.UIWidgets.widgets {
         float? _lastUpdatedOffset;
 
         public ScrollPosition mostRecentlyUpdatedPosition {
-            get { return this._lastUpdated; }
+            get { return _lastUpdated; }
         }
 
         public override float initialScrollOffset {
-            get { return this._lastUpdatedOffset ?? base.initialScrollOffset; }
+            get { return _lastUpdatedOffset ?? base.initialScrollOffset; }
         }
 
         public override void attach(ScrollPosition position) {
             base.attach(position);
-            D.assert(!this._positionToListener.ContainsKey(position));
-            this._positionToListener[position] = () => {
-                this._lastUpdated = position;
-                this._lastUpdatedOffset = position.pixels;
+            D.assert(!_positionToListener.ContainsKey(position));
+            _positionToListener[position] = () => {
+                _lastUpdated = position;
+                _lastUpdatedOffset = position.pixels;
             };
-            position.addListener(this._positionToListener[position]);
+            position.addListener(_positionToListener[position]);
         }
 
         public override void detach(ScrollPosition position) {
             base.detach(position);
-            D.assert(this._positionToListener.ContainsKey(position));
-            position.removeListener(this._positionToListener[position]);
-            this._positionToListener.Remove(position);
-            if (this._lastUpdated == position) {
-                this._lastUpdated = null;
+            D.assert(_positionToListener.ContainsKey(position));
+            position.removeListener(_positionToListener[position]);
+            _positionToListener.Remove(position);
+            if (_lastUpdated == position) {
+                _lastUpdated = null;
             }
 
-            if (this._positionToListener.isEmpty()) {
-                this._lastUpdatedOffset = null;
+            if (_positionToListener.isEmpty()) {
+                _lastUpdatedOffset = null;
             }
         }
 
         public override void dispose() {
-            foreach (ScrollPosition position in this.positions) {
-                D.assert(this._positionToListener.ContainsKey(position));
-                position.removeListener(this._positionToListener[position]);
+            foreach (ScrollPosition position in positions) {
+                D.assert(_positionToListener.ContainsKey(position));
+                position.removeListener(_positionToListener[position]);
             }
 
             base.dispose();

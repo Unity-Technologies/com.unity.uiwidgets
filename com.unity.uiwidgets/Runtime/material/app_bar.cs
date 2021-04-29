@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -8,12 +9,13 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using AsyncCallback = Unity.UIWidgets.foundation.AsyncCallback;
 using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
     static class AppBarUtils {
-        internal const float _kLeadingWidth = Constants.kToolbarHeight;
+        internal const float _kLeadingWidth = material_.kToolbarHeight;
     }
 
     class _ToolbarContainerLayout : SingleChildLayoutDelegate {
@@ -21,11 +23,11 @@ namespace Unity.UIWidgets.material {
         }
 
         public override BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-            return constraints.tighten(height: Constants.kToolbarHeight);
+            return constraints.tighten(height: material_.kToolbarHeight);
         }
 
         public override Size getSize(BoxConstraints constraints) {
-            return new Size(constraints.maxWidth, Constants.kToolbarHeight);
+            return new Size(constraints.maxWidth, material_.kToolbarHeight);
         }
 
         public override Offset getPositionForChild(Size size, Size childSize) {
@@ -78,7 +80,7 @@ namespace Unity.UIWidgets.material {
             this.titleSpacing = titleSpacing;
             this.toolbarOpacity = toolbarOpacity;
             this.bottomOpacity = bottomOpacity;
-            this.preferredSize = Size.fromHeight(Constants.kToolbarHeight + (bottom?.preferredSize?.height ?? 0.0f));
+            preferredSize = Size.fromHeight(material_.kToolbarHeight + (bottom?.preferredSize?.height ?? 0.0f));
         }
 
         public readonly Widget leading;
@@ -119,14 +121,24 @@ namespace Unity.UIWidgets.material {
 
         public override Size preferredSize { get; }
 
-        public bool? _getEffectiveCenterTitle(ThemeData themeData) {
-            if (this.centerTitle != null) {
-                return this.centerTitle;
+        public bool? _getEffectiveCenterTitle(ThemeData theme) {
+            if (centerTitle != null) {
+                return centerTitle;
             }
 
-            switch (themeData.platform) {
+            D.assert(theme.platform != null);
+
+            switch (theme.platform) {
+                case RuntimePlatform.Android:
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    return false;
                 case RuntimePlatform.IPhonePlayer:
-                    return this.actions == null || this.actions.Count < 2;
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                    return actions == null || actions.Count < 2;
                 default:
                     return false;
             }
@@ -142,16 +154,16 @@ namespace Unity.UIWidgets.material {
         const float _defaultElevation = 4.0f;
 
         void _handleDrawerButton() {
-            Scaffold.of(this.context).openDrawer();
+            Scaffold.of(context).openDrawer();
         }
 
         void _handleDrawerButtonEnd() {
-            Scaffold.of(this.context).openEndDrawer();
+            Scaffold.of(context).openEndDrawer();
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
-            ThemeData themeData = Theme.of(context);
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
+            ThemeData theme = Theme.of(context);
             AppBarTheme appBarTheme = AppBarTheme.of(context);
             ScaffoldState scaffold = Scaffold.of(context, nullOk: true);
             ModalRoute parentRoute = ModalRoute.of(context);
@@ -161,22 +173,22 @@ namespace Unity.UIWidgets.material {
             bool canPop = parentRoute?.canPop ?? false;
             bool useCloseButton = parentRoute is PageRoute && ((PageRoute) parentRoute).fullscreenDialog;
 
-            IconThemeData overallIconTheme = this.widget.iconTheme
-                                            ?? appBarTheme.iconTheme
-                                            ?? themeData.primaryIconTheme;
-            IconThemeData actionsIconTheme = this.widget.actionsIconTheme
+            IconThemeData overallIconTheme = widget.iconTheme
+                                             ?? appBarTheme.iconTheme
+                                             ?? theme.primaryIconTheme;
+            IconThemeData actionsIconTheme = widget.actionsIconTheme
                                              ?? appBarTheme.actionsIconTheme
                                              ?? overallIconTheme;
-            TextStyle centerStyle = this.widget.textTheme?.title
-                                    ?? appBarTheme.textTheme?.title
-                                    ?? themeData.primaryTextTheme.title;
-            TextStyle sideStyle = this.widget.textTheme?.body1
-                                  ?? appBarTheme.textTheme?.body1
-                                  ?? themeData.primaryTextTheme.body1;
+            TextStyle centerStyle = widget.textTheme?.headline6
+                                    ?? appBarTheme.textTheme?.headline6
+                                    ?? theme.primaryTextTheme.headline6;
+            TextStyle sideStyle = widget.textTheme?.bodyText2
+                                  ?? appBarTheme.textTheme?.bodyText2
+                                  ?? theme.primaryTextTheme.bodyText2;
 
-            if (this.widget.toolbarOpacity != 1.0f) {
+            if (widget.toolbarOpacity != 1.0f) {
                 float opacity =
-                    new Interval(0.25f, 1.0f, curve: Curves.fastOutSlowIn).transform(this.widget.toolbarOpacity);
+                    new Interval(0.25f, 1.0f, curve: Curves.fastOutSlowIn).transform(widget.toolbarOpacity);
                 if (centerStyle?.color != null) {
                     centerStyle = centerStyle.copyWith(color: centerStyle.color.withOpacity(opacity));
                 }
@@ -193,12 +205,12 @@ namespace Unity.UIWidgets.material {
                 );
             }
 
-            Widget leading = this.widget.leading;
-            if (leading == null && this.widget.automaticallyImplyLeading) {
+            Widget leading = widget.leading;
+            if (leading == null && widget.automaticallyImplyLeading) {
                 if (hasDrawer) {
                     leading = new IconButton(
                         icon: new Icon(Icons.menu),
-                        onPressed: this._handleDrawerButton,
+                        onPressed: _handleDrawerButton,
                         tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip);
                 }
                 else {
@@ -214,26 +226,47 @@ namespace Unity.UIWidgets.material {
                     child: leading);
             }
 
-            Widget title = this.widget.title;
+            Widget title = widget.title;
             if (title != null) {
+                bool namesRoute;
+
+                switch (theme.platform) {
+                    case RuntimePlatform.Android:
+                    case RuntimePlatform.LinuxEditor:
+                    case RuntimePlatform.LinuxPlayer:
+                    case RuntimePlatform.WindowsEditor:
+                    case RuntimePlatform.WindowsPlayer:
+                        namesRoute = true;
+                        break;
+                    case RuntimePlatform.IPhonePlayer:
+                    case RuntimePlatform.OSXEditor:
+                    case RuntimePlatform.OSXPlayer:
+                        break;
+                    default:
+                        break;
+                }
+
+                title = new _AppBarTitleBox(child: title);
+
                 title = new DefaultTextStyle(
                     style: centerStyle,
                     softWrap: false,
                     overflow: TextOverflow.ellipsis,
-                    child: title);
+                    child: title
+                );
             }
 
             Widget actions = null;
-            if (this.widget.actions != null && this.widget.actions.isNotEmpty()) {
+            if (widget.actions != null && widget.actions.isNotEmpty()) {
                 actions = new Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: this.widget.actions);
+                    children: widget.actions);
             }
             else if (hasEndDrawer) {
                 actions = new IconButton(
                     icon: new Icon(Icons.menu),
-                    onPressed: this._handleDrawerButtonEnd,
+                    onPressed: _handleDrawerButtonEnd,
                     tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip);
             }
 
@@ -248,8 +281,8 @@ namespace Unity.UIWidgets.material {
                 leading: leading,
                 middle: title,
                 trailing: actions,
-                centerMiddle: this.widget._getEffectiveCenterTitle(themeData).Value,
-                middleSpacing: this.widget.titleSpacing);
+                centerMiddle: widget._getEffectiveCenterTitle(theme).Value,
+                middleSpacing: widget.titleSpacing);
 
             Widget appBar = new ClipRect(
                 child: new CustomSingleChildLayout(
@@ -263,29 +296,30 @@ namespace Unity.UIWidgets.material {
                 )
             );
 
-            if (this.widget.bottom != null) {
+            if (widget.bottom != null) {
                 appBar = new Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new Flexible(
                             child: new ConstrainedBox(
-                                constraints: new BoxConstraints(maxHeight: Constants.kToolbarHeight),
+                                constraints: new BoxConstraints(maxHeight: material_.kToolbarHeight),
                                 child: appBar
                             )
                         ),
-                        this.widget.bottomOpacity == 1.0f
-                            ? (Widget) this.widget.bottom
+                        foundation_.FloatEqual(widget.bottomOpacity, 1.0f)
+                            ? (Widget) widget.bottom
                             : new Opacity(
-                                opacity: new Interval(0.25f, 1.0f, curve: Curves.fastOutSlowIn).transform(this.widget
+                                opacity: new Interval(0.25f, 1.0f, curve: Curves.fastOutSlowIn).transform(widget
                                     .bottomOpacity),
-                                child: this.widget.bottom
+                                child: widget.bottom
                             )
                     }
                 );
             }
 
-            if (this.widget.primary) {
+            if (widget.primary) {
                 appBar = new SafeArea(
+                    bottom: false,
                     top: true,
                     child: appBar);
             }
@@ -294,19 +328,19 @@ namespace Unity.UIWidgets.material {
                 alignment: Alignment.topCenter,
                 child: appBar);
 
-            if (this.widget.flexibleSpace != null) {
+            if (widget.flexibleSpace != null) {
                 appBar = new Stack(
                     fit: StackFit.passthrough,
                     children: new List<Widget> {
-                        this.widget.flexibleSpace,
+                        widget.flexibleSpace,
                         appBar
                     }
                 );
             }
 
-            Brightness brightness = this.widget.brightness
+            Brightness brightness = widget.brightness
                                     ?? appBarTheme.brightness
-                                    ?? themeData.primaryColorBrightness;
+                                    ?? theme.primaryColorBrightness;
             SystemUiOverlayStyle overlayStyle = brightness == Brightness.dark
                 ? SystemUiOverlayStyle.light
                 : SystemUiOverlayStyle.dark;
@@ -314,13 +348,13 @@ namespace Unity.UIWidgets.material {
             return new AnnotatedRegion<SystemUiOverlayStyle>(
                 value: overlayStyle,
                 child: new Material(
-                    color: this.widget.backgroundColor
+                    color: widget.backgroundColor
                            ?? appBarTheme.color
-                           ?? themeData.primaryColor,
-                    elevation: this.widget.elevation
+                           ?? theme.primaryColor,
+                    elevation: widget.elevation
                                ?? appBarTheme.elevation
                                ?? _defaultElevation,
-                    shape: this.widget.shape,
+                    shape: widget.shape,
                     child: appBar
                 ));
         }
@@ -346,45 +380,44 @@ namespace Unity.UIWidgets.material {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            if (this._position != null) {
-                this._position.isScrollingNotifier.removeListener(this._isScrollingListener);
+            if (_position != null) {
+                _position.isScrollingNotifier.removeListener(_isScrollingListener);
             }
 
-            this._position = Scrollable.of(this.context)?.position;
-            if (this._position != null) {
-                this._position.isScrollingNotifier.addListener(this._isScrollingListener);
+            _position = Scrollable.of(context)?.position;
+            if (_position != null) {
+                _position.isScrollingNotifier.addListener(_isScrollingListener);
             }
         }
 
         public override void dispose() {
-            if (this._position != null) {
-                this._position.isScrollingNotifier.removeListener(this._isScrollingListener);
+            if (_position != null) {
+                _position.isScrollingNotifier.removeListener(_isScrollingListener);
             }
 
             base.dispose();
         }
 
         RenderSliverFloatingPersistentHeader _headerRenderer() {
-            return (RenderSliverFloatingPersistentHeader) this.context.ancestorRenderObjectOfType(
-                new TypeMatcher<RenderSliverFloatingPersistentHeader>());
+            return context.findAncestorRenderObjectOfType<RenderSliverFloatingPersistentHeader>();
         }
 
         void _isScrollingListener() {
-            if (this._position == null) {
+            if (_position == null) {
                 return;
             }
 
-            RenderSliverFloatingPersistentHeader header = this._headerRenderer();
-            if (this._position.isScrollingNotifier.value) {
-                header?.maybeStopSnapAnimation(this._position.userScrollDirection);
+            RenderSliverFloatingPersistentHeader header = _headerRenderer();
+            if (_position.isScrollingNotifier.value) {
+                header?.maybeStopSnapAnimation(_position.userScrollDirection);
             }
             else {
-                header?.maybeStartSnapAnimation(this._position.userScrollDirection);
+                header?.maybeStartSnapAnimation(_position.userScrollDirection);
             }
         }
 
         public override Widget build(BuildContext context) {
-            return this.widget.child;
+            return widget.child;
         }
     }
 
@@ -411,7 +444,9 @@ namespace Unity.UIWidgets.material {
             float? topPadding,
             bool floating,
             bool pinned,
-            FloatingHeaderSnapConfiguration snapConfiguration
+            FloatingHeaderSnapConfiguration snapConfiguration,
+            OverScrollHeaderStretchConfiguration stretchConfiguration,
+            ShapeBorder shape
         ) {
             D.assert(primary || topPadding == 0.0);
             this.leading = leading;
@@ -435,8 +470,10 @@ namespace Unity.UIWidgets.material {
             this.topPadding = topPadding;
             this.floating = floating;
             this.pinned = pinned;
-            this._snapConfiguration = snapConfiguration;
-            this._bottomHeight = bottom?.preferredSize?.height ?? 0.0f;
+            this.snapConfiguration = snapConfiguration;
+            _bottomHeight = bottom?.preferredSize?.height ?? 0.0f;
+            this.snapConfiguration = snapConfiguration;
+            this.stretchConfiguration = stretchConfiguration;
         }
 
         public readonly Widget leading;
@@ -460,92 +497,93 @@ namespace Unity.UIWidgets.material {
         public readonly float? topPadding;
         public readonly bool floating;
         public readonly bool pinned;
+        public readonly ShapeBorder shape;
 
         readonly float _bottomHeight;
 
         public override float? minExtent {
-            get { return this.collapsedHeight ?? (this.topPadding + Constants.kToolbarHeight + this._bottomHeight); }
+            get { return collapsedHeight ?? (topPadding + material_.kToolbarHeight + _bottomHeight); }
         }
 
         public override float? maxExtent {
             get {
                 return Mathf.Max(
-                    (this.topPadding ?? 0.0f) + (this.expandedHeight ?? Constants.kToolbarHeight + this._bottomHeight),
-                    this.minExtent ?? 0.0f);
+                    (topPadding ?? 0.0f) + (expandedHeight ?? material_.kToolbarHeight + _bottomHeight),
+                    minExtent ?? 0.0f);
             }
         }
 
-        public override FloatingHeaderSnapConfiguration snapConfiguration {
-            get { return this._snapConfiguration; }
-        }
+        public override FloatingHeaderSnapConfiguration snapConfiguration { get; }
 
-        FloatingHeaderSnapConfiguration _snapConfiguration;
+        public override OverScrollHeaderStretchConfiguration stretchConfiguration { get; }
 
         public override Widget build(BuildContext context, float shrinkOffset, bool overlapsContent) {
-            float? visibleMainHeight = this.maxExtent - shrinkOffset - this.topPadding;
-            float toolbarOpacity = !this.pinned || (!this.floating && this.bottom != null)
-                ? ((visibleMainHeight - this._bottomHeight) / Constants.kToolbarHeight)?.clamp(0.0f, 1.0f) ?? 1.0f
+            float? visibleMainHeight = maxExtent - shrinkOffset - topPadding;
+            float toolbarOpacity = !pinned || (!floating && bottom != null)
+                ? ((visibleMainHeight - _bottomHeight) / material_.kToolbarHeight)?.clamp(0.0f, 1.0f) ?? 1.0f
                 : 1.0f;
             Widget appBar = FlexibleSpaceBar.createSettings(
-                minExtent: this.minExtent,
-                maxExtent: this.maxExtent,
-                currentExtent: Mathf.Max(this.minExtent ?? 0.0f, this.maxExtent ?? 0.0f - shrinkOffset),
+                minExtent: minExtent,
+                maxExtent: maxExtent,
+                currentExtent: Mathf.Max(minExtent ?? 0.0f, maxExtent ?? 0.0f - shrinkOffset),
                 toolbarOpacity: toolbarOpacity,
                 child: new AppBar(
-                    leading: this.leading,
-                    automaticallyImplyLeading: this.automaticallyImplyLeading,
-                    title: this.title,
-                    actions: this.actions,
-                    flexibleSpace: this.flexibleSpace,
-                    bottom: this.bottom,
-                    elevation: this.forceElevated || overlapsContent ||
-                               (this.pinned && shrinkOffset > this.maxExtent - this.minExtent)
-                        ? this.elevation ?? 4.0f
+                    leading: leading,
+                    automaticallyImplyLeading: automaticallyImplyLeading,
+                    title: title,
+                    actions: actions,
+                    flexibleSpace: flexibleSpace,
+                    bottom: bottom,
+                    elevation: forceElevated || overlapsContent ||
+                               (pinned && shrinkOffset > maxExtent - minExtent)
+                        ? elevation ?? 4.0f
                         : 0.0f,
-                    backgroundColor: this.backgroundColor,
-                    brightness: this.brightness,
-                    iconTheme: this.iconTheme,
-                    textTheme: this.textTheme,
-                    primary: this.primary,
-                    centerTitle: this.centerTitle,
-                    titleSpacing: this.titleSpacing,
+                    backgroundColor: backgroundColor,
+                    brightness: brightness,
+                    iconTheme: iconTheme,
+                    textTheme: textTheme,
+                    primary: primary,
+                    centerTitle: centerTitle,
+                    titleSpacing: titleSpacing,
+                    shape: shape,
                     toolbarOpacity: toolbarOpacity,
-                    bottomOpacity: this.pinned
+                    bottomOpacity: pinned
                         ? 1.0f
-                        : (visibleMainHeight / this._bottomHeight)?.clamp(0.0f, 1.0f) ?? 1.0f
+                        : (visibleMainHeight / _bottomHeight)?.clamp(0.0f, 1.0f) ?? 1.0f
                 )
             );
-            return this.floating ? new _FloatingAppBar(child: appBar) : appBar;
+            return floating ? new _FloatingAppBar(child: appBar) : appBar;
         }
 
         public override bool shouldRebuild(SliverPersistentHeaderDelegate _oldDelegate) {
             _SliverAppBarDelegate oldDelegate = _oldDelegate as _SliverAppBarDelegate;
-            return this.leading != oldDelegate.leading
-                   || this.automaticallyImplyLeading != oldDelegate.automaticallyImplyLeading
-                   || this.title != oldDelegate.title
-                   || this.actions != oldDelegate.actions
-                   || this.flexibleSpace != oldDelegate.flexibleSpace
-                   || this.bottom != oldDelegate.bottom
-                   || this._bottomHeight != oldDelegate._bottomHeight
-                   || this.elevation != oldDelegate.elevation
-                   || this.backgroundColor != oldDelegate.backgroundColor
-                   || this.brightness != oldDelegate.brightness
-                   || this.iconTheme != oldDelegate.iconTheme
-                   || this.actionsIconTheme != oldDelegate.actionsIconTheme
-                   || this.textTheme != oldDelegate.textTheme
-                   || this.primary != oldDelegate.primary
-                   || this.centerTitle != oldDelegate.centerTitle
-                   || this.titleSpacing != oldDelegate.titleSpacing
-                   || this.expandedHeight != oldDelegate.expandedHeight
-                   || this.topPadding != oldDelegate.topPadding
-                   || this.pinned != oldDelegate.pinned
-                   || this.floating != oldDelegate.floating
-                   || this.snapConfiguration != oldDelegate.snapConfiguration;
+            return leading != oldDelegate.leading
+                   || automaticallyImplyLeading != oldDelegate.automaticallyImplyLeading
+                   || title != oldDelegate.title
+                   || actions != oldDelegate.actions
+                   || flexibleSpace != oldDelegate.flexibleSpace
+                   || bottom != oldDelegate.bottom
+                   || _bottomHeight != oldDelegate._bottomHeight
+                   || elevation != oldDelegate.elevation
+                   || backgroundColor != oldDelegate.backgroundColor
+                   || brightness != oldDelegate.brightness
+                   || iconTheme != oldDelegate.iconTheme
+                   || actionsIconTheme != oldDelegate.actionsIconTheme
+                   || textTheme != oldDelegate.textTheme
+                   || primary != oldDelegate.primary
+                   || centerTitle != oldDelegate.centerTitle
+                   || titleSpacing != oldDelegate.titleSpacing
+                   || expandedHeight != oldDelegate.expandedHeight
+                   || topPadding != oldDelegate.topPadding
+                   || pinned != oldDelegate.pinned
+                   || floating != oldDelegate.floating
+                   || snapConfiguration != oldDelegate.snapConfiguration
+                   || stretchConfiguration != oldDelegate.stretchConfiguration;
         }
 
         public override string ToString() {
             return
-                $"{Diagnostics.describeIdentity(this)}(topPadding: {this.topPadding?.ToString("F1")}, bottomHeight: {this._bottomHeight.ToString("F1")}, ...)";
+                $"{foundation_.describeIdentity(this)}(topPadding: {topPadding?.ToString("F1")}, bottomHeight: {_bottomHeight.ToString("F1")}, ...)";
         }
     }
 
@@ -571,9 +609,15 @@ namespace Unity.UIWidgets.material {
             float? expandedHeight = null,
             bool floating = false,
             bool pinned = false,
-            bool snap = false
+            bool snap = false,
+            bool stretch = false,
+            float stretchTriggerOffset = 100.0f,
+            AsyncCallback onStretchTrigger = null,
+            ShapeBorder shape = null
         ) : base(key: key) {
             D.assert(floating || !snap, () => "The 'snap' argument only makes sense for floating app bars.");
+            D.assert(stretchTriggerOffset > 0.0);
+
             this.leading = leading;
             this.automaticallyImplyLeading = true;
             this.title = title;
@@ -594,6 +638,10 @@ namespace Unity.UIWidgets.material {
             this.floating = floating;
             this.pinned = pinned;
             this.snap = snap;
+            this.stretch = stretch;
+            this.stretchTriggerOffset = stretchTriggerOffset;
+            this.onStretchTrigger = onStretchTrigger;
+            this.shape = shape;
         }
 
 
@@ -618,7 +666,7 @@ namespace Unity.UIWidgets.material {
         public readonly Brightness? brightness;
 
         public readonly IconThemeData iconTheme;
-        
+
         public readonly IconThemeData actionsIconTheme;
 
         public readonly TextTheme textTheme;
@@ -627,6 +675,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly bool? centerTitle;
 
+        public readonly bool? excludeHeaderSemantics;
+
         public readonly float titleSpacing;
 
         public readonly float? expandedHeight;
@@ -634,8 +684,16 @@ namespace Unity.UIWidgets.material {
         public readonly bool floating;
 
         public readonly bool pinned;
+        
+        public readonly ShapeBorder shape;
 
         public readonly bool snap;
+        
+        public readonly bool stretch;
+
+        public readonly float stretchTriggerOffset;
+
+        public readonly AsyncCallback onStretchTrigger;
 
         public override State createState() {
             return new _SliverAppBarState();
@@ -644,72 +702,126 @@ namespace Unity.UIWidgets.material {
 
     class _SliverAppBarState : TickerProviderStateMixin<SliverAppBar> {
         FloatingHeaderSnapConfiguration _snapConfiguration;
+        OverScrollHeaderStretchConfiguration _stretchConfiguration;
 
         void _updateSnapConfiguration() {
-            if (this.widget.snap && this.widget.floating) {
-                this._snapConfiguration = new FloatingHeaderSnapConfiguration(
+            if (widget.snap && widget.floating) {
+                _snapConfiguration = new FloatingHeaderSnapConfiguration(
                     vsync: this,
                     curve: Curves.easeOut,
                     duration: new TimeSpan(0, 0, 0, 0, 200)
                 );
             }
             else {
-                this._snapConfiguration = null;
+                _snapConfiguration = null;
+            }
+        }
+        
+        void _updateStretchConfiguration() {
+            if (widget.stretch) {
+                _stretchConfiguration = new OverScrollHeaderStretchConfiguration(
+                    stretchTriggerOffset: widget.stretchTriggerOffset,
+                    onStretchTrigger: widget.onStretchTrigger
+                );
+            } else {
+                _stretchConfiguration = null;
             }
         }
 
         public override void initState() {
             base.initState();
-            this._updateSnapConfiguration();
+            _updateSnapConfiguration();
+            _updateStretchConfiguration();
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             base.didUpdateWidget(_oldWidget);
             SliverAppBar oldWidget = _oldWidget as SliverAppBar;
-            if (this.widget.snap != oldWidget.snap || this.widget.floating != oldWidget.floating) {
-                this._updateSnapConfiguration();
+            if (widget.snap != oldWidget.snap || widget.floating != oldWidget.floating) {
+                _updateSnapConfiguration();
+            }
+
+            if (widget.stretch != oldWidget.stretch) {
+                _updateStretchConfiguration();
             }
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(!this.widget.primary || WidgetsD.debugCheckHasMediaQuery(context));
-            float? topPadding = this.widget.primary ? MediaQuery.of(context).padding.top : 0.0f;
-            float? collapsedHeight = (this.widget.pinned && this.widget.floating && this.widget.bottom != null)
-                ? this.widget.bottom.preferredSize.height + topPadding
+            D.assert(!widget.primary || WidgetsD.debugCheckHasMediaQuery(context));
+            float? topPadding = widget.primary ? MediaQuery.of(context).padding.top : 0.0f;
+            float? collapsedHeight = (widget.pinned && widget.floating && widget.bottom != null)
+                ? widget.bottom.preferredSize.height + topPadding
                 : null;
 
             return MediaQuery.removePadding(
                 context: context,
                 removeBottom: true,
                 child: new SliverPersistentHeader(
-                    floating: this.widget.floating,
-                    pinned: this.widget.pinned,
+                    floating: widget.floating,
+                    pinned: widget.pinned,
                     del: new _SliverAppBarDelegate(
-                        leading: this.widget.leading,
-                        automaticallyImplyLeading: this.widget.automaticallyImplyLeading,
-                        title: this.widget.title,
-                        actions: this.widget.actions,
-                        flexibleSpace: this.widget.flexibleSpace,
-                        bottom: this.widget.bottom,
-                        elevation: this.widget.elevation,
-                        forceElevated: this.widget.forceElevated,
-                        backgroundColor: this.widget.backgroundColor,
-                        brightness: this.widget.brightness,
-                        iconTheme: this.widget.iconTheme,
-                        actionsIconTheme: this.widget.actionsIconTheme,
-                        textTheme: this.widget.textTheme,
-                        primary: this.widget.primary,
-                        centerTitle: this.widget.centerTitle,
-                        titleSpacing: this.widget.titleSpacing,
-                        expandedHeight: this.widget.expandedHeight,
+                        leading: widget.leading,
+                        automaticallyImplyLeading: widget.automaticallyImplyLeading,
+                        title: widget.title,
+                        actions: widget.actions,
+                        flexibleSpace: widget.flexibleSpace,
+                        bottom: widget.bottom,
+                        elevation: widget.elevation,
+                        forceElevated: widget.forceElevated,
+                        backgroundColor: widget.backgroundColor,
+                        brightness: widget.brightness,
+                        iconTheme: widget.iconTheme,
+                        actionsIconTheme: widget.actionsIconTheme,
+                        textTheme: widget.textTheme,
+                        primary: widget.primary,
+                        centerTitle: widget.centerTitle,
+                        titleSpacing: widget.titleSpacing,
+                        expandedHeight: widget.expandedHeight,
                         collapsedHeight: collapsedHeight,
                         topPadding: topPadding,
-                        floating: this.widget.floating,
-                        pinned: this.widget.pinned,
-                        snapConfiguration: this._snapConfiguration
+                        floating: widget.floating,
+                        pinned: widget.pinned,
+                        shape: widget.shape,
+                        snapConfiguration: _snapConfiguration,
+                        stretchConfiguration: _stretchConfiguration
                     )
                 )
             );
+        }
+    }
+
+    internal class _AppBarTitleBox : SingleChildRenderObjectWidget {
+        internal _AppBarTitleBox(Key key = null, Widget child = null) : base(key: key, child: child) {
+            D.assert(child != null);
+        }
+
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new _RenderAppBarTitleBox(
+                textDirection: Directionality.of(context)
+            );
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            if (renderObject is _RenderAppBarTitleBox renderAppBarTitleBox) {
+                renderAppBarTitleBox.textDirection = Directionality.of(context);
+            }
+        }
+    }
+
+    class _RenderAppBarTitleBox : RenderAligningShiftedBox {
+        internal _RenderAppBarTitleBox(
+            RenderBox child = null,
+            TextDirection textDirection = TextDirection.ltr
+        ) : base(child: child, alignment: Alignment.center, textDirection: textDirection) {
+        }
+
+        protected override void performLayout() {
+            BoxConstraints constraints = this.constraints;
+            BoxConstraints innerConstraints = constraints.copyWith(maxHeight: float.PositiveInfinity);
+            child.layout(innerConstraints, parentUsesSize: true);
+            size = constraints.constrain(child.size);
+            alignChild();
         }
     }
 }

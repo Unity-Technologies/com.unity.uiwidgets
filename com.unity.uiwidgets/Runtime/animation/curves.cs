@@ -1,29 +1,38 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using Random = System.Random;
 
 namespace Unity.UIWidgets.animation {
-    public abstract class Curve {
-        public float transform(float t) {
-            D.assert(t >= 0.0f && t <= 1.0f);
+    public abstract class ParametricCurve<T> {
+        public virtual T transform(float t) {
+            D.assert(t >= 0.0f && t <= 1.0f, () => $"parametric value {t} is outside of [0, 1] range.");
+            return transformInternal(t);
+        }
+        
+        protected virtual T transformInternal(float t) {
+            throw new NotImplementedException();
+        }
+
+        public override string ToString() {
+            return $"{GetType()}";
+        }
+    }
+    
+    public abstract class Curve : ParametricCurve<float> {
+        public override float transform(float t) {
             if (t == 0.0f || t == 1.0f) {
                 return t;
             }
 
-            return this.transformInternal(t);
-        }
-
-        protected virtual float transformInternal(float t) {
-            throw new NotImplementedException();
+            return base.transform(t);
         }
 
         public Curve flipped {
             get { return new FlippedCurve(this); }
-        }
-
-        public override string ToString() {
-            return this.GetType().ToString();
         }
     }
 
@@ -41,12 +50,12 @@ namespace Unity.UIWidgets.animation {
         public readonly int count;
 
         protected override float transformInternal(float t) {
-            t *= this.count;
+            t *= count;
             return t - (int) t;
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.count})";
+            return $"{GetType()}({count})";
         }
     }
 
@@ -65,25 +74,25 @@ namespace Unity.UIWidgets.animation {
 
         protected override float transformInternal(float t) {
             D.assert(t >= 0.0 && t <= 1.0);
-            D.assert(this.begin >= 0.0);
-            D.assert(this.begin <= 1.0);
-            D.assert(this.end >= 0.0);
-            D.assert(this.end <= 1.0);
-            D.assert(this.end >= this.begin);
-            t = ((t - this.begin) / (this.end - this.begin)).clamp(0.0f, 1.0f);
+            D.assert(begin >= 0.0);
+            D.assert(begin <= 1.0);
+            D.assert(end >= 0.0);
+            D.assert(end <= 1.0);
+            D.assert(end >= begin);
+            t = ((t - begin) / (end - begin)).clamp(0.0f, 1.0f);
             if (t == 0.0 || t == 1.0) {
                 return t;
             }
 
-            return this.curve.transform(t);
+            return curve.transform(t);
         }
 
         public override string ToString() {
-            if (!(this.curve is _Linear)) {
-                return $"{this.GetType()}({this.begin}\u22EF{this.end}\u27A9{this.curve}";
+            if (!(curve is _Linear)) {
+                return $"{GetType()}({begin}\u22EF{end}\u27A9{curve}";
             }
 
-            return $"{this.GetType()}({this.begin}\u22EF{this.end})";
+            return $"{GetType()}({begin}\u22EF{end})";
         }
     }
 
@@ -95,9 +104,9 @@ namespace Unity.UIWidgets.animation {
         public readonly float threshold;
 
         protected override float transformInternal(float t) {
-            D.assert(this.threshold >= 0.0);
-            D.assert(this.threshold <= 1.0);
-            return t < this.threshold ? 0.0f : 1.0f;
+            D.assert(threshold >= 0.0);
+            D.assert(threshold <= 1.0);
+            return t < threshold ? 0.0f : 1.0f;
         }
     }
 
@@ -130,9 +139,9 @@ namespace Unity.UIWidgets.animation {
             float end = 1.0f;
             while (true) {
                 float midpoint = (start + end) / 2;
-                float estimate = this._evaluateCubic(this.a, this.c, midpoint);
+                float estimate = _evaluateCubic(a, c, midpoint);
                 if ((t - estimate).abs() < _cubicErrorBound) {
-                    return this._evaluateCubic(this.b, this.d, midpoint);
+                    return _evaluateCubic(b, d, midpoint);
                 }
 
                 if (estimate < t) {
@@ -145,7 +154,440 @@ namespace Unity.UIWidgets.animation {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.a:F2}, {this.b:F2}, {this.c:F2}, {this.d:F2})";
+            return $"{GetType()}({a:F2}, {b:F2}, {c:F2}, {d:F2})";
+        }
+    }
+
+    public abstract class Curve2D : ParametricCurve<Offset> {
+        internal IEnumerable<Curve2DSample> generateSamples(
+            float start = 0.0f,
+            float end = 1.0f,
+            float tolerance = 1e-10f) {
+            D.assert(end > start);
+
+            Random rand = new Random(samplingSeed);
+            bool isFlat(Offset p, Offset q, Offset r) {
+                Offset pr = p - r;
+                Offset qr = q - r;
+                float z = pr.dx * qr.dy - qr.dx * pr.dy;
+                return z * z < tolerance;
+            }
+            
+            Curve2DSample first = new Curve2DSample(start, transform(start));
+            Curve2DSample last = new Curve2DSample(end, transform(end));
+            List<Curve2DSample> samples = new List<Curve2DSample>(){first};
+
+            void sample(Curve2DSample p, Curve2DSample q, bool forceSubdivide = false) {
+                float t = p.t + (0.45f + 0.1f * (float)rand.NextDouble() * (q.t - p.t));
+                Curve2DSample r = new Curve2DSample(t, transform(t));
+
+                if (!forceSubdivide && isFlat(p.value, q.value, r.value)) {
+                    samples.Add(q);
+                }
+                else {
+                    sample(p, r);
+                    sample(r, q);
+                }
+            }
+            
+            sample(first, last,
+                forceSubdivide: (first.value.dx - last.value.dx).abs() < tolerance &&
+                                (first.value.dy - last.value.dy).abs() < tolerance);
+
+            return samples;
+        }
+
+        protected virtual int samplingSeed {
+            get { return 0; }
+        }
+
+        public float findInverse(float x) {
+            float start = 0.0f;
+            float end = 1.0f;
+            float mid = 0f;
+
+            float offsetToOrigin(float pos) {
+                return x - transform(pos).dx;
+            }
+
+            const float errorLimit = 1e-6f;
+            int count = 100;
+            float startValue = offsetToOrigin(start);
+            while ((end - start / 2.0f) > errorLimit && count > 0) {
+                mid = (end + start) / 2.0f;
+                float value = offsetToOrigin(mid);
+                if (value.sign() == startValue.sign()) {
+                    start = mid;
+                }
+                else {
+                    end = mid;
+                }
+
+                count--;
+            }
+
+            return mid;
+        }
+    }
+
+    internal class Curve2DSample {
+        public Curve2DSample(float t, Offset value) {
+            this.t = t;
+            this.value = value;
+        }
+        
+        public readonly float t;
+        public readonly Offset value;
+
+        public override string ToString() {
+            return $"[{value.dx:F2}, {value.dy:F2}, {t:F2}]";
+        }
+    }
+
+    class CatmullRomSpline : Curve2D {
+        CatmullRomSpline(
+            List<Offset> controlPoints,
+            float? tension = 0.0f,
+            Offset startHandle = null,
+            Offset endHandle = null
+        ) {
+            D.assert(controlPoints != null);
+            D.assert(tension != null);
+            D.assert(tension <= 1.0f, () => $"tension {tension} must not be greater than 1.0.");
+            D.assert(tension >= 0.0f, () => $"tension {tension} must not be negative.");
+            D.assert(controlPoints.Count > 3, () => "There must be at least four control points to create a CatmullRomSpline.");
+            _controlPoints = controlPoints;
+            _startHandle = startHandle;
+            _endHandle = endHandle;
+            _tension = tension;
+            _cubicSegments = new List<List<Offset>>();
+        }
+        
+        internal CatmullRomSpline(
+            List<Offset> controlPoints,
+            float? tension = 0.0f,
+            Offset startHandle = null,
+            Offset endHandle = null,
+            List<List<Offset>> cubicSegments = null
+        ) {
+            D.assert(cubicSegments != null);
+            _controlPoints = controlPoints;
+            _startHandle = startHandle;
+            _endHandle = endHandle;
+            _tension = tension;
+            _cubicSegments = new List<List<Offset>>();
+        }
+
+        public static CatmullRomSpline precompute(
+            List<Offset> controlPoints,
+            float? tension = 0.0f,
+            Offset startHandle = null,
+            Offset endHandle = null
+        ) {
+            D.assert(controlPoints != null);
+            D.assert(tension != null);
+            D.assert(tension <= 1.0f, () => $"tension {tension} must not be greater than 1.0.");
+            D.assert(tension >= 0.0f, () => $"tension {tension} must not be negative.");
+            D.assert(controlPoints.Count > 3, () => "There must be at least four control points to create a CatmullRomSpline.");
+            return new CatmullRomSpline(
+                controlPoints: null,
+                tension: null,
+                startHandle: null,
+                endHandle: null,
+                cubicSegments: _computeSegments(controlPoints, tension, startHandle: startHandle, endHandle: endHandle)
+            );
+        }
+
+        static List<List<Offset>> _computeSegments(
+            List<Offset> controlPoints,
+            float? tension,
+            Offset startHandle,
+            Offset endHandle) {
+            startHandle = startHandle ?? controlPoints[0] * 2.0f - controlPoints[1];
+            endHandle = endHandle ?? controlPoints.last() * 2.0f - controlPoints[controlPoints.Count - 2];
+
+            List<Offset> allPoints = new List<Offset>();
+            allPoints.Add(startHandle);
+            allPoints.AddRange(controlPoints);
+            allPoints.Add(endHandle);
+            
+            const float alpha = 0.5f;
+            float reverseTension = 1.0f - tension.Value;
+            List<List<Offset>> result = new List<List<Offset>>();
+            for (int i = 0; i < allPoints.Count - 3; ++i) {
+                List<Offset> curve = new List<Offset>{allPoints[i], allPoints[i + 1], allPoints[i + 2], allPoints[i + 3]};
+                Offset diffCurve10 = curve[1] - curve[0];
+                Offset diffCurve21 = curve[2] - curve[1];
+                Offset diffCurve32 = curve[3] - curve[2];
+                float t01 = Mathf.Pow(diffCurve10.distance, alpha);
+                float t12 = Mathf.Pow(diffCurve21.distance, alpha);
+                float t23 = Mathf.Pow(diffCurve32.distance, alpha);
+                
+                Offset m1 = (diffCurve21 + (diffCurve10 / t01 - (curve[2] - curve[0]) / (t01 + t12)) * t12) * reverseTension;
+                Offset m2 = (diffCurve21 + (diffCurve32 / t23 - (curve[3] - curve[1]) / (t12 + t23)) * t12) * reverseTension;
+                Offset sumM12 = m1 + m2;
+
+                List<Offset> segment = new List<Offset> {
+                    diffCurve21 * -2.0f + sumM12,
+                    diffCurve21 * 3.0f - m1 - sumM12,
+                    m1,
+                    curve[1]
+                };
+                result.Add(segment);
+            }
+
+            return result;
+        }
+
+        readonly List<List<Offset>> _cubicSegments;
+
+        readonly List<Offset> _controlPoints;
+        readonly Offset _startHandle;
+        readonly Offset _endHandle;
+        readonly float? _tension;
+
+        void _initializeIfNeeded() {
+            if (_cubicSegments.isNotEmpty()) {
+                return;
+            }
+            _cubicSegments.AddRange(_computeSegments(_controlPoints, _tension, startHandle: _startHandle, endHandle: _endHandle));
+        }
+
+        protected override int samplingSeed {
+            get {
+                _initializeIfNeeded();
+                Offset seedPoint = _cubicSegments[0][1];
+                return ((seedPoint.dx + seedPoint.dy) * 10000).round();
+            }
+        }
+
+        protected override Offset transformInternal(float t) {
+            _initializeIfNeeded();
+            float length = _cubicSegments.Count;
+            float position;
+            float localT;
+            int index;
+            
+            if (t < 1.0f) {
+                position = t * length;
+                localT = position - position.floor();
+                index = position.floor();
+            } else {
+                position = length;
+                localT = 1.0f;
+                index = _cubicSegments.Count - 1;
+            }
+            List<Offset> cubicControlPoints = _cubicSegments[index];
+            float localT2 = localT * localT;
+            return cubicControlPoints[0] * localT2 * localT
+                   + cubicControlPoints[1] * localT2
+                   + cubicControlPoints[2] * localT
+                   + cubicControlPoints[3];
+        }
+    }
+
+    public class CatmullRomCurve : Curve {
+        public CatmullRomCurve(
+            List<Offset> controlPoints,
+            float? tension = 0.0f) {
+            D.assert(tension != null);
+            
+            this.controlPoints = controlPoints;
+            this.tension = tension;
+            
+            D.assert(() => {
+                _debugAssertReasons.Clear();
+                return validateControlPoints(controlPoints,
+                    tension: tension,
+                    reasons: _debugAssertReasons);
+            }, () => $"control points {controlPoints} could not be validated:\n  {string.Join("\n ", _debugAssertReasons)}");
+            _precomputedSamples = new List<Curve2DSample>();
+        }
+        
+        internal CatmullRomCurve(
+            List<Offset> controlPoints,
+            float? tension = 0.0f,
+            List<Curve2DSample> precomputedSamples = null) {
+            D.assert(precomputedSamples != null);
+            D.assert(tension != null);
+            
+            this.controlPoints = controlPoints;
+            this.tension = tension;
+            
+            D.assert(() => {
+                _debugAssertReasons.Clear();
+                return validateControlPoints(controlPoints,
+                    tension: tension,
+                    reasons: _debugAssertReasons);
+            }, () => $"control points {controlPoints} could not be validated:\n  {string.Join("\n ", _debugAssertReasons)}");
+
+            _precomputedSamples = precomputedSamples;
+        }
+
+        public static CatmullRomCurve precompute(
+            List<Offset> controlPoints, float? tension = 0.0f) {
+            return new CatmullRomCurve(
+                controlPoints,
+                tension,
+                _computeSamples(controlPoints, tension));
+        }
+
+        static List<Curve2DSample> _computeSamples(List<Offset> controlPoints, float? tension) {
+            List<Offset> _controlPoints = new List<Offset>();
+            _controlPoints.Add(Offset.zero);
+            _controlPoints.AddRange(controlPoints);
+            _controlPoints.Add(new Offset(1.0f, 1.0f));
+            
+            return CatmullRomSpline.precompute(_controlPoints, tension: tension).generateSamples(
+                start: 0.0f, end: 1.0f, tolerance: 1e-12f).ToList();
+        }
+        
+        static readonly List<string> _debugAssertReasons = new List<string>();
+
+        readonly List<Curve2DSample> _precomputedSamples;
+
+        public readonly List<Offset> controlPoints;
+
+        public readonly float? tension;
+
+        static bool validateControlPoints(
+            List<Offset> controlPoints,
+            float? tension = 0.0f,
+            List<string> reasons = null) {
+            D.assert(tension != null);
+            if (controlPoints == null) {
+                D.assert(() => {
+                    reasons?.Add("Supplied control points cannot be null");
+                    return true;
+                });
+                return false;
+            }
+
+            if (controlPoints.Count < 2) {
+                D.assert(() => {
+                    reasons?.Add("There must be at least two points supplied to create a valid curve.");
+                    return true;
+                });
+                return false;
+            }
+
+            List<Offset> _controlPoints = new List<Offset>();
+            _controlPoints.AddRange(controlPoints);
+            
+            _controlPoints.Insert(0, Offset.zero);
+            _controlPoints.Add(new Offset(1.0f, 1.0f));
+            
+            Offset startHandle = _controlPoints[0] * 2.0f - _controlPoints[1];
+            Offset endHandle = _controlPoints.last() * 2.0f - _controlPoints[_controlPoints.Count - 2];
+            _controlPoints.Insert(0, startHandle);
+            _controlPoints.Add(endHandle);
+
+            float lastX = -float.PositiveInfinity;
+            for (int i = 0; i < _controlPoints.Count; ++i) {
+                if (i > 1 &&
+                    i < _controlPoints.Count - 2 &&
+                    (_controlPoints[i].dx <= 0.0f || _controlPoints[i].dx >= 1.0f)) {
+                    D.assert(() => {
+                        reasons?.Add("Control points must have X values between 0.0 and 1.0, exclusive. " +
+                        $"Point {i} has an x value ({_controlPoints[i].dx}) which is outside the range.");
+                        return true;
+                    });
+                    return false;
+                }
+                if (_controlPoints[i].dx <= lastX) {
+                    D.assert(() => {
+                        reasons?.Add("Each X coordinate must be greater than the preceding X coordinate " +
+                        $"(i.e. must be monotonically increasing in X). Point {i} has an x value of " + 
+                        $"{_controlPoints[i].dx}, which is not greater than {lastX}");
+                        return true;
+                    });
+                    return false;
+                }
+                lastX = _controlPoints[i].dx;
+            }
+            
+            bool success = true;
+            lastX = -float.PositiveInfinity;
+            const float tolerance = 1e-3f;
+            CatmullRomSpline testSpline = new CatmullRomSpline(_controlPoints, tension: tension);
+            float start = testSpline.findInverse(0.0f);
+            float end = testSpline.findInverse(1.0f);
+            IEnumerable<Curve2DSample> samplePoints = testSpline.generateSamples(start: start, end: end);
+
+            if (samplePoints.First().value.dy.abs() > tolerance ||
+                (1.0f - samplePoints.Last().value.dy).abs() > tolerance) {
+                bool bail = true;
+                success = false;
+                D.assert(() => {
+                    reasons?.Add($"The curve has more than one Y value at X = {samplePoints.First().value.dx}. " +
+                    "Try moving some control points further away from this value of X, or increasing " + 
+                    "the tension.");
+                    bail = reasons == null;
+                    return true;
+                });
+                if (bail) {
+                    return false;
+                }
+            }
+            foreach (Curve2DSample sample in samplePoints) {
+                Offset point = sample.value;
+                float t = sample.t;
+                float x = point.dx;
+                if (t >= start && t <= end && (x < -1e-3f || x > 1.0f + 1e-3f)) {
+                    bool bail = true;
+                    success = false;
+                    D.assert(() => {
+                        reasons?.Add($"The resulting curve has an X value ({x}) which is outside " +
+                        "the range [0.0, 1.0], inclusive.");
+                        bail = reasons == null;
+                        return true;
+                    });
+                    if (bail) {
+                        return false;
+                    }
+                }
+                if (x < lastX) {
+                    bool bail = true;
+                    success = false;
+                    D.assert(() => {
+                        reasons?.Add($"The curve has more than one Y value at x = {x}. Try moving " +
+                        "some control points further apart in X, or increasing the tension.");
+                        bail = reasons == null;
+                        return true;
+                    });
+                    if (bail) {
+                        return false;
+                    }
+                }
+                lastX = x;
+            }
+            return success;
+        }
+
+        protected override float transformInternal(float t) {
+            if (_precomputedSamples.isEmpty()) {
+                // Compute the samples now if we were constructed lazily.
+                _precomputedSamples.AddRange(_computeSamples(controlPoints, tension));
+            }
+            int start = 0;
+            int end = _precomputedSamples.Count - 1;
+            int mid;
+            Offset value;
+            Offset startValue = _precomputedSamples[start].value;
+            Offset endValue = _precomputedSamples[end].value;
+            while (end - start > 1) {
+                mid = (end + start) / 2;
+                value = _precomputedSamples[mid].value;
+                if (t >= value.dx) {
+                    start = mid;
+                    startValue = value;
+                } else {
+                    end = mid;
+                    endValue = value;
+                }
+            }
+            float t2 = (t - startValue.dx) / (endValue.dx - startValue.dx);
+            return MathUtils.lerpNullableFloat(startValue.dy, endValue.dy, t2);
         }
     }
 
@@ -158,11 +600,11 @@ namespace Unity.UIWidgets.animation {
         public readonly Curve curve;
 
         protected override float transformInternal(float t) {
-            return 1.0f - this.curve.transform(1.0f - t);
+            return 1.0f - curve.transform(1.0f - t);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.curve})";
+            return $"{GetType()}({curve})";
         }
     }
 
@@ -216,13 +658,13 @@ namespace Unity.UIWidgets.animation {
         public readonly float period;
 
         protected override float transformInternal(float t) {
-            float s = this.period / 4.0f;
+            float s = period / 4.0f;
             t = t - 1.0f;
-            return -Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / this.period);
+            return -Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / period);
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.period})";
+            return $"{GetType()}({period})";
         }
     }
 
@@ -234,12 +676,12 @@ namespace Unity.UIWidgets.animation {
         public readonly float period;
 
         protected override float transformInternal(float t) {
-            float s = this.period / 4.0f;
-            return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / this.period) + 1.0f;
+            float s = period / 4.0f;
+            return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / period) + 1.0f;
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.period})";
+            return $"{GetType()}({period})";
         }
     }
 
@@ -251,19 +693,19 @@ namespace Unity.UIWidgets.animation {
         public readonly float period;
 
         protected override float transformInternal(float t) {
-            float s = this.period / 4.0f;
+            float s = period / 4.0f;
             t = 2.0f * t - 1.0f;
             if (t < 0.0) {
-                return -0.5f * Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / this.period);
+                return -0.5f * Mathf.Pow(2.0f, 10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / period);
             }
             else {
-                return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / this.period) * 0.5f +
+                return Mathf.Pow(2.0f, -10.0f * t) * Mathf.Sin((t - s) * (Mathf.PI * 2.0f) / period) * 0.5f +
                        1.0f;
             }
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.period})";
+            return $"{GetType()}({period})";
         }
     }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -17,6 +18,7 @@ namespace Unity.UIWidgets.material {
             Key key = null,
             Widget leading = null,
             Widget title = null,
+            Widget subtitle = null,
             Color backgroundColor = null,
             ValueChanged<bool> onExpansionChanged = null,
             List<Widget> children = null,
@@ -26,6 +28,7 @@ namespace Unity.UIWidgets.material {
             D.assert(title != null);
             this.leading = leading;
             this.title = title;
+            this.subtitle = subtitle;
             this.backgroundColor = backgroundColor;
             this.onExpansionChanged = onExpansionChanged;
             this.children = children ?? new List<Widget>();
@@ -36,6 +39,8 @@ namespace Unity.UIWidgets.material {
         public readonly Widget leading;
 
         public readonly Widget title;
+
+        public readonly Widget subtitle;
 
         public readonly ValueChanged<bool> onExpansionChanged;
 
@@ -74,57 +79,57 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(duration: ExpansionTileUtils._kExpand, vsync: this);
-            this._heightFactor = this._controller.drive(_easeInTween);
-            this._iconTurns = this._controller.drive(_halfTween.chain(_easeInTween));
-            this._borderColor = this._controller.drive(this._borderColorTween.chain(_easeOutTween));
-            this._headerColor = this._controller.drive(this._headerColorTween.chain(_easeInTween));
-            this._iconColor = this._controller.drive(this._iconColorTween.chain(_easeInTween));
-            this._backgroundColor = this._controller.drive(this._backgroundColorTween.chain(_easeOutTween));
+            _controller = new AnimationController(duration: ExpansionTileUtils._kExpand, vsync: this);
+            _heightFactor = _controller.drive(_easeInTween);
+            _iconTurns = _controller.drive(_halfTween.chain(_easeInTween));
+            _borderColor = _controller.drive(_borderColorTween.chain(_easeOutTween));
+            _headerColor = _controller.drive(_headerColorTween.chain(_easeInTween));
+            _iconColor = _controller.drive(_iconColorTween.chain(_easeInTween));
+            _backgroundColor = _controller.drive(_backgroundColorTween.chain(_easeOutTween));
 
-            this._isExpanded = PageStorage.of(this.context)?.readState(this.context) == null
-                ? this.widget.initiallyExpanded
-                : (bool) PageStorage.of(this.context)?.readState(this.context);
+            _isExpanded = PageStorage.of(context)?.readState(context) == null
+                ? widget.initiallyExpanded
+                : (bool) PageStorage.of(context)?.readState(context);
 
-            if (this._isExpanded) {
-                this._controller.setValue(1.0f);
+            if (_isExpanded) {
+                _controller.setValue(1.0f);
             }
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
         void _handleTap() {
-            this.setState(() => {
-                this._isExpanded = !this._isExpanded;
-                if (this._isExpanded) {
-                    this._controller.forward();
+            setState(() => {
+                _isExpanded = !_isExpanded;
+                if (_isExpanded) {
+                    _controller.forward();
                 }
                 else {
-                    this._controller.reverse().Then(() => {
-                        if (!this.mounted) {
+                    _controller.reverse().then((value) => {
+                        if (!mounted) {
                             return;
                         }
 
-                        this.setState(() => { });
+                        setState(() => { });
                     });
                 }
 
-                PageStorage.of(this.context)?.writeState(this.context, this._isExpanded);
+                PageStorage.of(context)?.writeState(context, _isExpanded);
             });
-            if (this.widget.onExpansionChanged != null) {
-                this.widget.onExpansionChanged(this._isExpanded);
+            if (widget.onExpansionChanged != null) {
+                widget.onExpansionChanged(_isExpanded);
             }
         }
 
         Widget _buildChildren(BuildContext context, Widget child) {
-            Color borderSideColor = this._borderColor.value ?? Colors.transparent;
+            Color borderSideColor = _borderColor.value ?? Colors.transparent;
 
             return new Container(
                 decoration: new BoxDecoration(
-                    color: this._backgroundColor.value ?? Colors.transparent,
+                    color: _backgroundColor.value ?? Colors.transparent,
                     border: new Border(
                         top: new BorderSide(color: borderSideColor),
                         bottom: new BorderSide(color: borderSideColor))),
@@ -132,21 +137,22 @@ namespace Unity.UIWidgets.material {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         ListTileTheme.merge(
-                            iconColor: this._iconColor.value,
-                            textColor: this._headerColor.value,
+                            iconColor: _iconColor.value,
+                            textColor: _headerColor.value,
                             child: new ListTile(
-                                onTap: this._handleTap,
-                                leading: this.widget.leading,
-                                title: this.widget.title,
-                                trailing: this.widget.trailing ?? new RotationTransition(
-                                              turns: this._iconTurns,
+                                onTap: _handleTap,
+                                leading: widget.leading,
+                                title: widget.title,
+                                subtitle: widget.subtitle,
+                                trailing: widget.trailing ?? new RotationTransition(
+                                              turns: _iconTurns,
                                               child: new Icon(Icons.expand_more)
                                           )
                             )
                         ),
                         new ClipRect(
                             child: new Align(
-                                heightFactor: this._heightFactor.value,
+                                heightFactor: _heightFactor.value,
                                 child: child)
                         )
                     }
@@ -155,22 +161,22 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void didChangeDependencies() {
-            ThemeData theme = Theme.of(this.context);
-            this._borderColorTween.end = theme.dividerColor;
-            this._headerColorTween.begin = theme.textTheme.subhead.color;
-            this._headerColorTween.end = theme.accentColor;
-            this._iconColorTween.begin = theme.unselectedWidgetColor;
-            this._iconColorTween.end = theme.accentColor;
-            this._backgroundColorTween.end = this.widget.backgroundColor;
+            ThemeData theme = Theme.of(context);
+            _borderColorTween.end = theme.dividerColor;
+            _headerColorTween.begin = theme.textTheme.subtitle1.color;
+            _headerColorTween.end = theme.accentColor;
+            _iconColorTween.begin = theme.unselectedWidgetColor;
+            _iconColorTween.end = theme.accentColor;
+            _backgroundColorTween.end = widget.backgroundColor;
             base.didChangeDependencies();
         }
 
         public override Widget build(BuildContext context) {
-            bool closed = !this._isExpanded && this._controller.isDismissed;
+            bool closed = !_isExpanded && _controller.isDismissed;
             return new AnimatedBuilder(
-                animation: this._controller.view,
-                builder: this._buildChildren,
-                child: closed ? null : new Column(children: this.widget.children));
+                animation: _controller.view,
+                builder: _buildChildren,
+                child: closed ? null : new Column(children: widget.children));
         }
     }
 }

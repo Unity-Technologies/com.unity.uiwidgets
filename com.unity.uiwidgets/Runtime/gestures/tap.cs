@@ -60,6 +60,7 @@ namespace Unity.UIWidgets.gestures {
 
         bool _sentTapDown = false;
         bool _wonArenaForPrimaryPointer = false;
+        OffsetPair _finalPosition;
 
         PointerDownEvent _down;
         PointerUpEvent _up;
@@ -71,91 +72,93 @@ namespace Unity.UIWidgets.gestures {
         protected abstract void handleTapCancel(PointerDownEvent down, PointerCancelEvent cancel, string reason);
 
         public override void addAllowedPointer(PointerDownEvent evt) {
-            if (this.state == GestureRecognizerState.ready) {
-                this._down = evt;
+            if (state == GestureRecognizerState.ready) {
+                _down = evt;
             }
             base.addAllowedPointer(evt);
         }
 
         protected override void handlePrimaryPointer(PointerEvent evt) {
             if (evt is PointerUpEvent) {
-                this._up = (PointerUpEvent) evt;
-                this._checkUp();
+                _up = (PointerUpEvent) evt;
+                _finalPosition = new OffsetPair(global: evt.position, local: evt.localPosition);
+
+                _checkUp();
             } else if (evt is PointerCancelEvent) {
-                this.resolve(GestureDisposition.rejected);
-                if (this._sentTapDown) {
-                    this._checkCancel((PointerCancelEvent) evt, "");
+                resolve(GestureDisposition.rejected);
+                if (_sentTapDown) {
+                    _checkCancel((PointerCancelEvent) evt, "");
                 }
 
-                this._reset();
-            } else if (evt.buttons != this._down?.buttons) {
-                this.resolve(GestureDisposition.rejected);
-                this.stopTrackingPointer(this.primaryPointer);
+                _reset();
+            } else if (evt.buttons != _down?.buttons) {
+                resolve(GestureDisposition.rejected);
+                stopTrackingPointer(primaryPointer);
             }
         }
 
         protected override void resolve(GestureDisposition disposition) {
-            if (this._wonArenaForPrimaryPointer && disposition == GestureDisposition.rejected) {
-                D.assert(this._sentTapDown);
-                this._checkCancel(null, "spontaneous");
-                this._reset();
+            if (_wonArenaForPrimaryPointer && disposition == GestureDisposition.rejected) {
+                D.assert(_sentTapDown);
+                _checkCancel(null, "spontaneous");
+                _reset();
             }
             
             base.resolve(disposition);
         }
 
         protected override void didExceedDeadline() {
-            this._checkDown();
+            _checkDown();
         }
 
         public override void acceptGesture(int pointer) {
             base.acceptGesture(pointer);
 
-            if (pointer == this.primaryPointer) {
-                this._checkDown();
-                this._wonArenaForPrimaryPointer = true;
-                this._checkUp();
+            if (pointer == primaryPointer) {
+                _checkDown();
+                _wonArenaForPrimaryPointer = true;
+                _checkUp();
             }
         }
 
         public override void rejectGesture(int pointer) {
             base.rejectGesture(pointer);
-            if (pointer == this.primaryPointer) {
-                D.assert(this.state != GestureRecognizerState.possible);
-                if (this._sentTapDown) {
-                    this._checkCancel(null, "forced");
+            if (pointer == primaryPointer) {
+                D.assert(state != GestureRecognizerState.possible);
+                if (_sentTapDown) {
+                    _checkCancel(null, "forced");
                 }
 
-                this._reset();
+                _reset();
             }
         }
 
         void _checkDown() {
-            if (this._sentTapDown) {
+            if (_sentTapDown) {
                 return;
             }
             
-            this.handleTapDown(down: this._down);
-            this._sentTapDown = true;
+            handleTapDown(down: _down);
+            _sentTapDown = true;
         }
 
         void _checkUp() {
-            if (!this._wonArenaForPrimaryPointer || this._up == null) {
+            if (!_wonArenaForPrimaryPointer || _up == null) {
                 return;
             }
-            this.handleTapUp(down: this._down, up: this._up);
-            this._reset();
+            handleTapUp(down: _down, up: _up);
+            _reset();
         }
 
         void _checkCancel(PointerCancelEvent evt, string note) {
-            this.handleTapCancel(down: this._down, cancel: evt, reason: note);
+            handleTapCancel(down: _down, cancel: evt, reason: note);
         }
 
         void _reset() {
-            this._sentTapDown = false;
-            this._wonArenaForPrimaryPointer = false;
-            this._up = null;
-            this._down = null;
+            _sentTapDown = false;
+            _wonArenaForPrimaryPointer = false;
+            _up = null;
+            _down = null;
         }
         
         public override string debugDescription {
@@ -164,11 +167,11 @@ namespace Unity.UIWidgets.gestures {
         
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("wonArenaForPrimaryPointer", value: this._wonArenaForPrimaryPointer, ifTrue: "won arena"));
-            properties.add(new DiagnosticsProperty<Offset>("finalPosition", this._up?.position, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Offset>("finalLocalPosition", this._up?.position, defaultValue: this._up?.position));
-            properties.add(new DiagnosticsProperty<int>("button", this._down?.buttons?? 0, defaultValue: 0));
-            properties.add(new FlagProperty("sentTapDown", value: this._sentTapDown, ifTrue: "sent tap down"));
+            properties.add(new FlagProperty("wonArenaForPrimaryPointer", value: _wonArenaForPrimaryPointer, ifTrue: "won arena"));
+            properties.add(new DiagnosticsProperty<Offset>("finalPosition", _up?.position, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Offset>("finalLocalPosition", _up?.position, defaultValue: _up?.position));
+            properties.add(new DiagnosticsProperty<int>("button", _down?.buttons?? 0, defaultValue: 0));
+            properties.add(new FlagProperty("sentTapDown", value: _sentTapDown, ifTrue: "sent tap down"));
         }
     }
 
@@ -191,10 +194,10 @@ namespace Unity.UIWidgets.gestures {
         public GestureTapCancelCallback onSecondaryTapCancel;
 
         protected override bool isPointerAllowed(PointerDownEvent evt) {
-            if (this.onTapDown == null && 
-                this.onTap == null && 
-                this.onTapUp == null && 
-                this.onTapCancel == null) {
+            if (onTapDown == null && 
+                onTap == null && 
+                onTapUp == null && 
+                onTapCancel == null) {
                 return false;
             }
             
@@ -202,7 +205,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected override void handleTapDown(PointerDownEvent down) {
-            if (this.onTapDown != null) {
+            if (onTapDown != null) {
                 TapDownDetails details = new TapDownDetails(
                     globalPosition: down.position,
                     localPosition: down.localPosition,
@@ -210,8 +213,8 @@ namespace Unity.UIWidgets.gestures {
                     device: down.device
                 );
 
-                    this.invokeCallback<object>("onTapDown", () => {
-                        this.onTapDown(details);
+                    invokeCallback<object>("onTapDown", () => {
+                        onTapDown(details);
                         return null;
                     });
             }
@@ -225,25 +228,25 @@ namespace Unity.UIWidgets.gestures {
                 device: up.device
                 );
 
-            if (this.onTapUp != null) {
-                this.invokeCallback<object>("onTapUp", () => {
-                    this.onTapUp(details);
+            if (onTapUp != null) {
+                invokeCallback<object>("onTapUp", () => {
+                    onTapUp(details);
                     return null;
                 });
             }
 
-            if (this.onTap != null) {
-                this.invokeCallback<object>("onTap", () => {
-                    this.onTap();
+            if (onTap != null) {
+                invokeCallback<object>("onTap", () => {
+                    onTap();
                     return null;
                 });
             }
         }
 
         protected override void handleTapCancel(PointerDownEvent down, PointerCancelEvent cancel, string note) {
-            if (this.onTapCancel != null) {
-                this.invokeCallback<object>("onTapCancel", () => {
-                    this.onTapCancel();
+            if (onTapCancel != null) {
+                invokeCallback<object>("onTapCancel", () => {
+                    onTapCancel();
                     return null;
                 });
             }

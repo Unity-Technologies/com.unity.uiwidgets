@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -44,6 +45,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public abstract string postMeridiemAbbreviation { get; }
 
+        public abstract string todayLabel { get; }
+
         public abstract string alertDialogLabel { get; }
 
         public abstract string timerPickerHour(int hour);
@@ -78,8 +81,9 @@ namespace Unity.UIWidgets.cupertino {
             return locale.languageCode == "en";
         }
 
-        public override IPromise<object> load(Locale locale) {
-            return DefaultCupertinoLocalizations.load(locale);
+      
+        public override Future<WidgetsLocalizations> load(Locale locale) {
+            return DefaultCupertinoLocalizations.load(locale).to<WidgetsLocalizations>();
         }
 
         public override bool shouldReload(LocalizationsDelegate old) {
@@ -188,6 +192,10 @@ namespace Unity.UIWidgets.cupertino {
             get { return "PM"; }
         }
 
+        public override string todayLabel {
+            get { return "Today"; }
+        }
+
         public override string alertDialogLabel {
             get { return "Alert"; }
         }
@@ -232,8 +240,8 @@ namespace Unity.UIWidgets.cupertino {
             get { return "Select All"; }
         }
 
-        public static IPromise<object> load(Locale locale) {
-            return Promise<object>.Resolved(new DefaultCupertinoLocalizations());
+        public static Future<CupertinoLocalizations> load(Locale locale) {
+             return new SynchronousFuture<CupertinoLocalizations>(new DefaultCupertinoLocalizations());
         }
 
         public static readonly LocalizationsDelegate<CupertinoLocalizations>

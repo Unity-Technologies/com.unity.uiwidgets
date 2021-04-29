@@ -49,7 +49,7 @@ csharp_for_simple_types=can_use_either
 
 
 # use this.{} for all instance members
-csharp_instance_members_qualify_members=all
+csharp_instance_members_qualify_members=none
 
 
 # all braces start at the end of a line

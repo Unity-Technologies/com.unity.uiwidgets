@@ -109,35 +109,35 @@ namespace Unity.UIWidgets.rendering {
 
         public BoxConstraints deflate(EdgeInsets edges) {
             D.assert(edges != null);
-            D.assert(this.debugAssertIsValid());
+            D.assert(debugAssertIsValid());
             float horizontal = edges.horizontal;
             float vertical = edges.vertical;
-            float deflatedMinWidth = Mathf.Max(0.0f, this.minWidth - horizontal);
-            float deflatedMinHeight = Mathf.Max(0.0f, this.minHeight - vertical);
+            float deflatedMinWidth = Mathf.Max(0.0f, minWidth - horizontal);
+            float deflatedMinHeight = Mathf.Max(0.0f, minHeight - vertical);
             return new BoxConstraints(
                 minWidth: deflatedMinWidth,
-                maxWidth: Mathf.Max(deflatedMinWidth, this.maxWidth - horizontal),
+                maxWidth: Mathf.Max(deflatedMinWidth, maxWidth - horizontal),
                 minHeight: deflatedMinHeight,
-                maxHeight: Mathf.Max(deflatedMinHeight, this.maxHeight - vertical)
+                maxHeight: Mathf.Max(deflatedMinHeight, maxHeight - vertical)
             );
         }
 
         public BoxConstraints loosen() {
-            D.assert(this.debugAssertIsValid());
+            D.assert(debugAssertIsValid());
             return new BoxConstraints(
                 minWidth: 0.0f,
-                maxWidth: this.maxWidth,
+                maxWidth: maxWidth,
                 minHeight: 0.0f,
-                maxHeight: this.maxHeight
+                maxHeight: maxHeight
             );
         }
 
         public BoxConstraints enforce(BoxConstraints constraints) {
             return new BoxConstraints(
-                minWidth: this.minWidth.clamp(constraints.minWidth, constraints.maxWidth),
-                maxWidth: this.maxWidth.clamp(constraints.minWidth, constraints.maxWidth),
-                minHeight: this.minHeight.clamp(constraints.minHeight, constraints.maxHeight),
-                maxHeight: this.maxHeight.clamp(constraints.minHeight, constraints.maxHeight)
+                minWidth: minWidth.clamp(constraints.minWidth, constraints.maxWidth),
+                maxWidth: maxWidth.clamp(constraints.minWidth, constraints.maxWidth),
+                minHeight: minHeight.clamp(constraints.minHeight, constraints.maxHeight),
+                maxHeight: maxHeight.clamp(constraints.minHeight, constraints.maxHeight)
             );
         }
 
@@ -146,40 +146,40 @@ namespace Unity.UIWidgets.rendering {
             float? height = null
         ) {
             return new BoxConstraints(
-                minWidth: width == null ? this.minWidth : width.Value.clamp(this.minWidth, this.maxWidth),
-                maxWidth: width == null ? this.maxWidth : width.Value.clamp(this.minWidth, this.maxWidth),
-                minHeight: height == null ? this.minHeight : height.Value.clamp(this.minHeight, this.maxHeight),
-                maxHeight: height == null ? this.maxHeight : height.Value.clamp(this.minHeight, this.maxHeight)
+                minWidth: width == null ? minWidth : width.Value.clamp(minWidth, maxWidth),
+                maxWidth: width == null ? maxWidth : width.Value.clamp(minWidth, maxWidth),
+                minHeight: height == null ? minHeight : height.Value.clamp(minHeight, maxHeight),
+                maxHeight: height == null ? maxHeight : height.Value.clamp(minHeight, maxHeight)
             );
         }
 
         public BoxConstraints flipped {
             get {
                 return new BoxConstraints(
-                    minWidth: this.minHeight,
-                    maxWidth: this.maxHeight,
-                    minHeight: this.minWidth,
-                    maxHeight: this.maxWidth
+                    minWidth: minHeight,
+                    maxWidth: maxHeight,
+                    minHeight: minWidth,
+                    maxHeight: maxWidth
                 );
             }
         }
 
         public BoxConstraints widthConstraints() {
-            return new BoxConstraints(minWidth: this.minWidth, maxWidth: this.maxWidth);
+            return new BoxConstraints(minWidth: minWidth, maxWidth: maxWidth);
         }
 
         public BoxConstraints heightConstraints() {
-            return new BoxConstraints(minHeight: this.minHeight, maxHeight: this.maxHeight);
+            return new BoxConstraints(minHeight: minHeight, maxHeight: maxHeight);
         }
 
         public float constrainWidth(float width = float.PositiveInfinity) {
-            D.assert(this.debugAssertIsValid());
-            return width.clamp(this.minWidth, this.maxWidth);
+            D.assert(debugAssertIsValid());
+            return width.clamp(minWidth, maxWidth);
         }
 
         public float constrainHeight(float height = float.PositiveInfinity) {
-            D.assert(this.debugAssertIsValid());
-            return height.clamp(this.minHeight, this.maxHeight);
+            D.assert(debugAssertIsValid());
+            return height.clamp(minHeight, maxHeight);
         }
 
         Size _debugPropagateDebugSize(Size size, Size result) {
@@ -195,9 +195,9 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Size constrain(Size size) {
-            var result = new Size(this.constrainWidth(size.width), this.constrainHeight(size.height));
+            var result = new Size(constrainWidth(size.width), constrainHeight(size.height));
             D.assert(() => {
-                result = this._debugPropagateDebugSize(size, result);
+                result = _debugPropagateDebugSize(size, result);
                 return true;
             });
 
@@ -205,14 +205,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Size constrainDimensions(float width, float height) {
-            return new Size(this.constrainWidth(width), this.constrainHeight(height));
+            return new Size(constrainWidth(width), constrainHeight(height));
         }
 
         public Size constrainSizeAndAttemptToPreserveAspectRatio(Size size) {
-            if (this.isTight) {
-                Size result1 = this.smallest;
+            if (isTight) {
+                Size result1 = smallest;
                 D.assert(() => {
-                    result1 = this._debugPropagateDebugSize(size, result1);
+                    result1 = _debugPropagateDebugSize(size, result1);
                     return true;
                 });
                 return result1;
@@ -224,74 +224,74 @@ namespace Unity.UIWidgets.rendering {
             D.assert(height > 0.0);
             float aspectRatio = width / height;
 
-            if (width > this.maxWidth) {
-                width = this.maxWidth;
+            if (width > maxWidth) {
+                width = maxWidth;
                 height = width / aspectRatio;
             }
 
-            if (height > this.maxHeight) {
-                height = this.maxHeight;
+            if (height > maxHeight) {
+                height = maxHeight;
                 width = height * aspectRatio;
             }
 
-            if (width < this.minWidth) {
-                width = this.minWidth;
+            if (width < minWidth) {
+                width = minWidth;
                 height = width / aspectRatio;
             }
 
-            if (height < this.minHeight) {
-                height = this.minHeight;
+            if (height < minHeight) {
+                height = minHeight;
                 width = height * aspectRatio;
             }
 
-            var result = new Size(this.constrainWidth(width), this.constrainHeight(height));
+            var result = new Size(constrainWidth(width), constrainHeight(height));
             D.assert(() => {
-                result = this._debugPropagateDebugSize(size, result);
+                result = _debugPropagateDebugSize(size, result);
                 return true;
             });
             return result;
         }
 
         public Size biggest {
-            get { return new Size(this.constrainWidth(), this.constrainHeight()); }
+            get { return new Size(constrainWidth(), constrainHeight()); }
         }
 
         public Size smallest {
-            get { return new Size(this.constrainWidth(0.0f), this.constrainHeight(0.0f)); }
+            get { return new Size(constrainWidth(0.0f), constrainHeight(0.0f)); }
         }
 
         public bool hasTightWidth {
-            get { return this.minWidth >= this.maxWidth; }
+            get { return minWidth >= maxWidth; }
         }
 
         public bool hasTightHeight {
-            get { return this.minHeight >= this.maxHeight; }
+            get { return minHeight >= maxHeight; }
         }
 
         public override bool isTight {
-            get { return this.hasTightWidth && this.hasTightHeight; }
+            get { return hasTightWidth && hasTightHeight; }
         }
 
         public bool hasBoundedWidth {
-            get { return this.maxWidth < float.PositiveInfinity; }
+            get { return maxWidth < float.PositiveInfinity; }
         }
 
         public bool hasBoundedHeight {
-            get { return this.maxHeight < float.PositiveInfinity; }
+            get { return maxHeight < float.PositiveInfinity; }
         }
 
         public bool hasInfiniteWidth {
-            get { return this.minWidth >= float.PositiveInfinity; }
+            get { return minWidth >= float.PositiveInfinity; }
         }
 
         public bool hasInfiniteHeight {
-            get { return this.minHeight >= float.PositiveInfinity; }
+            get { return minHeight >= float.PositiveInfinity; }
         }
 
         public bool isSatisfiedBy(Size size) {
-            D.assert(this.debugAssertIsValid());
-            return this.minWidth <= size.width && size.width <= this.maxWidth &&
-                   this.minHeight <= size.height && size.height <= this.maxHeight;
+            D.assert(debugAssertIsValid());
+            return minWidth <= size.width && size.width <= maxWidth &&
+                   minHeight <= size.height && size.height <= maxHeight;
         }
 
         public static BoxConstraints operator *(BoxConstraints it, float factor) {
@@ -354,26 +354,26 @@ namespace Unity.UIWidgets.rendering {
                 () => "Cannot interpolate between finite constraints and unbounded constraints.");
             return new BoxConstraints(
                 minWidth: a.minWidth.isFinite()
-                    ? MathUtils.lerpFloat(a.minWidth, b.minWidth, t)
+                    ? MathUtils.lerpNullableFloat(a.minWidth, b.minWidth, t)
                     : float.PositiveInfinity,
                 maxWidth: a.maxWidth.isFinite()
-                    ? MathUtils.lerpFloat(a.maxWidth, b.maxWidth, t)
+                    ? MathUtils.lerpNullableFloat(a.maxWidth, b.maxWidth, t)
                     : float.PositiveInfinity,
                 minHeight: a.minHeight.isFinite()
-                    ? MathUtils.lerpFloat(a.minHeight, b.minHeight, t)
+                    ? MathUtils.lerpNullableFloat(a.minHeight, b.minHeight, t)
                     : float.PositiveInfinity,
                 maxHeight: a.maxHeight.isFinite()
-                    ? MathUtils.lerpFloat(a.maxHeight, b.maxHeight, t)
+                    ? MathUtils.lerpNullableFloat(a.maxHeight, b.maxHeight, t)
                     : float.PositiveInfinity
             );
         }
 
         public override bool isNormalized {
             get {
-                return this.minWidth >= 0.0 &&
-                       this.minWidth <= this.maxWidth &&
-                       this.minHeight >= 0.0 &&
-                       this.minHeight <= this.maxHeight;
+                return minWidth >= 0.0 &&
+                       minWidth <= maxWidth &&
+                       minHeight >= 0.0 &&
+                       minHeight <= maxHeight;
             }
         }
 
@@ -382,33 +382,36 @@ namespace Unity.UIWidgets.rendering {
             InformationCollector informationCollector = null
         ) {
             D.assert(() => {
-                var throwError = new Action<string>(message => {
-                    var information = new StringBuilder();
+                var throwError = new Action<DiagnosticsNode>(message => {
+                    var diagnositicsInfo = new List<DiagnosticsNode>();
+                    diagnositicsInfo.Add(message);
                     if (informationCollector != null) {
-                        informationCollector(information);
+                        diagnositicsInfo.AddRange(informationCollector.Invoke());
                     }
-
-                    throw new UIWidgetsError($"{message}\n{information}The offending constraints were:\n  {this}");
+                    diagnositicsInfo.Add(new DiagnosticsProperty<BoxConstraints>("The offending constraints were", this, style: DiagnosticsTreeStyle.errorProperty));
+                    throw new UIWidgetsError(
+                        diagnositicsInfo
+                    );
                 });
 
-                if (this.minWidth.isNaN() ||
-                    this.maxWidth.isNaN() ||
-                    this.minHeight.isNaN() ||
-                    this.maxHeight.isNaN()) {
+                if (minWidth.isNaN() ||
+                    maxWidth.isNaN() ||
+                    minHeight.isNaN() ||
+                    maxHeight.isNaN()) {
                     var affectedFieldsList = new List<string>();
-                    if (this.minWidth.isNaN()) {
+                    if (minWidth.isNaN()) {
                         affectedFieldsList.Add("minWidth");
                     }
 
-                    if (this.maxWidth.isNaN()) {
+                    if (maxWidth.isNaN()) {
                         affectedFieldsList.Add("maxWidth");
                     }
 
-                    if (this.minHeight.isNaN()) {
+                    if (minHeight.isNaN()) {
                         affectedFieldsList.Add("minHeight");
                     }
 
-                    if (this.maxHeight.isNaN()) {
+                    if (maxHeight.isNaN()) {
                         affectedFieldsList.Add("maxHeight");
                     }
 
@@ -430,55 +433,55 @@ namespace Unity.UIWidgets.rendering {
                         whichFields = affectedFieldsList.Single();
                     }
 
-                    throwError("BoxConstraints has NaN values in " + whichFields + ".");
+                    throwError(new ErrorSummary("BoxConstraints has NaN values in " + whichFields + "."));
                 }
 
-                if (this.minWidth < 0.0 && this.minHeight < 0.0) {
-                    throwError("BoxConstraints has both a negative minimum width and a negative minimum height.");
+                if (minWidth < 0.0 && minHeight < 0.0) {
+                    throwError(new ErrorSummary("BoxConstraints has both a negative minimum width and a negative minimum height."));
                 }
 
-                if (this.minWidth < 0.0) {
-                    throwError("BoxConstraints has a negative minimum width.");
+                if (minWidth < 0.0) {
+                    throwError(new ErrorSummary("BoxConstraints has a negative minimum width."));
                 }
 
-                if (this.minHeight < 0.0) {
-                    throwError("BoxConstraints has a negative minimum height.");
+                if (minHeight < 0.0) {
+                    throwError(new ErrorSummary("BoxConstraints has a negative minimum height."));
                 }
 
-                if (this.maxWidth < this.minWidth && this.maxHeight < this.minHeight) {
-                    throwError("BoxConstraints has both width and height constraints non-normalized.");
+                if (maxWidth < minWidth && maxHeight < minHeight) {
+                    throwError(new ErrorSummary("BoxConstraints has both width and height constraints non-normalized."));
                 }
 
-                if (this.maxWidth < this.minWidth) {
-                    throwError("BoxConstraints has non-normalized width constraints.");
+                if (maxWidth < minWidth) {
+                    throwError(new ErrorSummary("BoxConstraints has non-normalized width constraints."));
                 }
 
-                if (this.maxHeight < this.minHeight) {
-                    throwError("BoxConstraints has non-normalized height constraints.");
+                if (maxHeight < minHeight) {
+                    throwError(new ErrorSummary("BoxConstraints has non-normalized height constraints."));
                 }
 
                 if (isAppliedConstraint) {
-                    if (this.minWidth.isInfinite() && this.minHeight.isInfinite()) {
-                        throwError("BoxConstraints forces an infinite width and infinite height.");
+                    if (minWidth.isInfinite() && minHeight.isInfinite()) {
+                        throwError(new ErrorSummary("BoxConstraints forces an infinite width and infinite height."));
                     }
 
-                    if (this.minWidth.isInfinite()) {
-                        throwError("BoxConstraints forces an infinite width.");
+                    if (minWidth.isInfinite()) {
+                        throwError(new ErrorSummary("BoxConstraints forces an infinite width."));
                     }
 
-                    if (this.minHeight.isInfinite()) {
-                        throwError("BoxConstraints forces an infinite height.");
+                    if (minHeight.isInfinite()) {
+                        throwError(new ErrorSummary("BoxConstraints forces an infinite height."));
                     }
                 }
 
-                D.assert(this.isNormalized);
+                D.assert(isNormalized);
                 return true;
             });
-            return this.isNormalized;
+            return isNormalized;
         }
 
         public BoxConstraints normalize() {
-            if (this.isNormalized) {
+            if (isNormalized) {
                 return this;
             }
 
@@ -487,9 +490,9 @@ namespace Unity.UIWidgets.rendering {
 
             return new BoxConstraints(
                 minWidth,
-                minWidth > this.maxWidth ? minWidth : this.maxWidth,
+                minWidth > maxWidth ? minWidth : maxWidth,
                 minHeight,
-                minHeight > this.maxHeight ? minHeight : this.maxHeight
+                minHeight > maxHeight ? minHeight : maxHeight
             );
         }
 
@@ -502,10 +505,10 @@ namespace Unity.UIWidgets.rendering {
                 return true;
             }
 
-            return this.minWidth.Equals(other.minWidth)
-                   && this.maxWidth.Equals(other.maxWidth)
-                   && this.minHeight.Equals(other.minHeight)
-                   && this.maxHeight.Equals(other.maxHeight);
+            return minWidth.Equals(other.minWidth)
+                   && maxWidth.Equals(other.maxWidth)
+                   && minHeight.Equals(other.minHeight)
+                   && maxHeight.Equals(other.maxHeight);
         }
 
         public override bool Equals(object obj) {
@@ -517,19 +520,19 @@ namespace Unity.UIWidgets.rendering {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((BoxConstraints) obj);
+            return Equals((BoxConstraints) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.minWidth.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.maxWidth.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.minHeight.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.maxHeight.GetHashCode();
+                var hashCode = minWidth.GetHashCode();
+                hashCode = (hashCode * 397) ^ maxWidth.GetHashCode();
+                hashCode = (hashCode * 397) ^ minHeight.GetHashCode();
+                hashCode = (hashCode * 397) ^ maxHeight.GetHashCode();
                 return hashCode;
             }
         }
@@ -543,14 +546,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override string ToString() {
-            string annotation = this.isNormalized ? "" : "; NOT NORMALIZED";
-            if (this.minWidth == float.PositiveInfinity &&
-                this.minHeight == float.PositiveInfinity) {
+            string annotation = isNormalized ? "" : "; NOT NORMALIZED";
+            if (minWidth == float.PositiveInfinity &&
+                minHeight == float.PositiveInfinity) {
                 return "BoxConstraints(biggest" + annotation + ")";
             }
 
-            if (this.minWidth == 0 && this.maxWidth == float.PositiveInfinity &&
-                this.minHeight == 0 && this.maxHeight == float.PositiveInfinity) {
+            if (minWidth == 0 && maxWidth == float.PositiveInfinity &&
+                minHeight == 0 && maxHeight == float.PositiveInfinity) {
                 return "BoxConstraints(unconstrained" + annotation + ")";
             }
 
@@ -562,8 +565,8 @@ namespace Unity.UIWidgets.rendering {
                 return min.ToString("F1") + "<=" + dim + "<=" + max.ToString("F1");
             });
 
-            string width = describe(this.minWidth, this.maxWidth, "w");
-            string height = describe(this.minHeight, this.maxHeight, "h");
+            string width = describe(minWidth, maxWidth, "w");
+            string height = describe(minHeight, maxHeight, "h");
             return "BoxConstraints(" + width + ", " + height + annotation + ")";
         }
     }
@@ -582,7 +585,7 @@ namespace Unity.UIWidgets.rendering {
         public readonly Offset localPosition;
 
         public override string ToString() {
-            return $"{Diagnostics.describeIdentity(this.target)}@{this.localPosition}";
+            return $"{foundation_.describeIdentity(target)}@{localPosition}";
         }
     }
 
@@ -609,7 +612,7 @@ namespace Unity.UIWidgets.rendering {
                 }
             }
 
-            return this.addWithRawTransform(
+            return addWithRawTransform(
                 transform: transform,
                 position: position,
                 hitTest: hitTest
@@ -622,29 +625,29 @@ namespace Unity.UIWidgets.rendering {
             BoxHitTest hitTest
         ) {
             D.assert(hitTest != null);
-            return this.addWithRawTransform(
-                transform: offset != null ? new Matrix4().translationValues(-offset.dx, -offset.dy, 0) : null,
+            return addWithRawTransform(
+                transform: offset != null ? Matrix4.translationValues(-offset.dx, -offset.dy, 0) : null,
                 position: position,
                 hitTest: hitTest
             );
         }
 
         public bool addWithRawTransform(
-            Matrix4 transform,
-            Offset position,
-            BoxHitTest hitTest
+            Matrix4 transform = null,
+            Offset position = null,
+            BoxHitTest hitTest = null
         ) {
             D.assert(hitTest != null);
             Offset transformedPosition = position == null || transform == null
                 ? position
                 : MatrixUtils.transformPoint(transform, position);
             if (transform != null) {
-                this.pushTransform(transform);
+                pushTransform(transform);
             }
 
             bool isHit = hitTest(this, transformedPosition);
             if (transform != null) {
-                this.popTransform();
+                popTransform();
             }
 
             return isHit;
@@ -653,14 +656,14 @@ namespace Unity.UIWidgets.rendering {
 
     public class BoxParentData : ParentData {
         public Offset offset {
-            get { return this._offset; }
-            set { this._offset = value; }
+            get { return _offset; }
+            set { _offset = value; }
         }
 
         Offset _offset = Offset.zero;
 
         public override string ToString() {
-            return "offset=" + this.offset;
+            return "offset=" + offset;
         }
     }
 
@@ -689,7 +692,7 @@ namespace Unity.UIWidgets.rendering {
                 return true;
             }
 
-            return this.dimension == other.dimension && this.argument.Equals(other.argument);
+            return dimension == other.dimension && argument.Equals(other.argument);
         }
 
         public override bool Equals(object obj) {
@@ -701,16 +704,16 @@ namespace Unity.UIWidgets.rendering {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((_IntrinsicDimensionsCacheEntry) obj);
+            return Equals((_IntrinsicDimensionsCacheEntry) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((int) this.dimension * 397) ^ this.argument.GetHashCode();
+                return ((int) dimension * 397) ^ argument.GetHashCode();
             }
         }
 
@@ -734,7 +737,7 @@ namespace Unity.UIWidgets.rendering {
 
         float _computeIntrinsicDimension(_IntrinsicDimension dimension, float argument,
             Func<float, float> computer) {
-            D.assert(debugCheckingIntrinsics || !this.debugDoingThisResize);
+            D.assert(debugCheckingIntrinsics || !debugDoingThisResize);
             bool shouldCache = true;
             D.assert(() => {
                 if (debugCheckingIntrinsics) {
@@ -745,10 +748,10 @@ namespace Unity.UIWidgets.rendering {
             });
 
             if (shouldCache) {
-                this._cachedIntrinsicDimensions =
-                    this._cachedIntrinsicDimensions
+                _cachedIntrinsicDimensions =
+                    _cachedIntrinsicDimensions
                     ?? new Dictionary<_IntrinsicDimensionsCacheEntry, float>();
-                return this._cachedIntrinsicDimensions.putIfAbsent(
+                return _cachedIntrinsicDimensions.putIfAbsent(
                     new _IntrinsicDimensionsCacheEntry(dimension, argument),
                     () => computer(argument));
             }
@@ -759,87 +762,95 @@ namespace Unity.UIWidgets.rendering {
         public float getMinIntrinsicWidth(float height) {
             D.assert(() => {
                 if (height < 0.0) {
-                    throw new UIWidgetsError(
-                        "The height argument to getMinIntrinsicWidth was negative.\n" +
-                        "The argument to getMinIntrinsicWidth must not be negative. " +
-                        "If you perform computations on another height before passing it to " +
-                        "getMinIntrinsicWidth, consider using Mathf.Max() or float.clamp() " +
-                        "to force the value into the valid range."
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                            new ErrorSummary("The height argument to getMinIntrinsicWidth was negative."),
+                            new ErrorDescription("The argument to getMinIntrinsicWidth must not be negative or null."),
+                            new ErrorHint(
+                                "If you perform computations on another height before passing it to " +
+                                "getMinIntrinsicWidth, consider using math.max() or double.clamp() " +
+                                "to force the value into the valid range."
+                            )
+                        }
                     );
                 }
 
                 return true;
             });
 
-            return this._computeIntrinsicDimension(_IntrinsicDimension.minWidth, height, this.computeMinIntrinsicWidth);
+            return _computeIntrinsicDimension(_IntrinsicDimension.minWidth, height, computeMinIntrinsicWidth);
         }
 
-        protected virtual float computeMinIntrinsicWidth(float height) {
+        protected internal virtual float computeMinIntrinsicWidth(float height) {
             return 0.0f;
         }
 
         public float getMaxIntrinsicWidth(float height) {
             D.assert(() => {
                 if (height < 0.0) {
-                    throw new UIWidgetsError(
-                        "The height argument to getMaxIntrinsicWidth was negative.\n" +
-                        "The argument to getMaxIntrinsicWidth must not be negative. " +
-                        "If you perform computations on another height before passing it to " +
-                        "getMaxIntrinsicWidth, consider using Mathf.Max() or float.clamp() " +
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("The height argument to getMaxIntrinsicWidth was negative."),
+                        new ErrorDescription("The argument to getMaxIntrinsicWidth must not be negative or null."),
+                        new ErrorHint(
+                            "If you perform computations on another height before passing it to " + 
+                        "getMaxIntrinsicWidth, consider using math.max() or double.clamp() " +
                         "to force the value into the valid range."
-                    );
+                        )
+                    });
                 }
-
                 return true;
             });
 
-            return this._computeIntrinsicDimension(_IntrinsicDimension.maxWidth, height, this.computeMaxIntrinsicWidth);
+            return _computeIntrinsicDimension(_IntrinsicDimension.maxWidth, height, computeMaxIntrinsicWidth);
         }
 
-        protected virtual float computeMaxIntrinsicWidth(float height) {
+        protected internal virtual float computeMaxIntrinsicWidth(float height) {
             return 0.0f;
         }
 
         public float getMinIntrinsicHeight(float width) {
             D.assert(() => {
                 if (width < 0.0) {
-                    throw new UIWidgetsError(
-                        "The width argument to getMinIntrinsicHeight was negative.\n" +
-                        "The argument to getMinIntrinsicHeight must not be negative. " +
-                        "If you perform computations on another width before passing it to " +
-                        "getMinIntrinsicHeight, consider using Mathf.Max() or float.clamp() " +
-                        "to force the value into the valid range."
-                    );
+                    throw new UIWidgetsError( new List<DiagnosticsNode>(){
+                        new ErrorSummary("The width argument to getMinIntrinsicHeight was negative."),
+                        new ErrorDescription("The argument to getMinIntrinsicHeight must not be negative or null."),
+                        new ErrorHint(
+                            "If you perform computations on another width before passing it to " +
+                            "getMinIntrinsicHeight, consider using math.max() or double.clamp() " +
+                            "to force the value into the valid range."
+                        )
+                    });
                 }
 
                 return true;
             });
 
-            return this._computeIntrinsicDimension(_IntrinsicDimension.minHeight, width,
-                this.computeMinIntrinsicHeight);
+            return _computeIntrinsicDimension(_IntrinsicDimension.minHeight, width,
+                computeMinIntrinsicHeight);
         }
 
-        protected virtual float computeMinIntrinsicHeight(float width) {
+        protected internal virtual float computeMinIntrinsicHeight(float width) {
             return 0.0f;
         }
 
         public float getMaxIntrinsicHeight(float width) {
             D.assert(() => {
                 if (width < 0.0) {
-                    throw new UIWidgetsError(
-                        "The width argument to getMaxIntrinsicHeight was negative.\n" +
-                        "The argument to getMaxIntrinsicHeight must not be negative. " +
-                        "If you perform computations on another width before passing it to " +
-                        "getMaxIntrinsicHeight, consider using Mathf.Max() or float.clamp() " +
-                        "to force the value into the valid range."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("The width argument to getMaxIntrinsicHeight was negative."),
+                        new ErrorDescription("The argument to getMaxIntrinsicHeight must not be negative or null."),
+                        new ErrorHint(
+                            "If you perform computations on another width before passing it to " +
+                            "getMaxIntrinsicHeight, consider using math.max() or double.clamp() " +
+                            "to force the value into the valid range."
+                        )
+                    });
                 }
 
                 return true;
             });
 
-            return this._computeIntrinsicDimension(_IntrinsicDimension.maxHeight, width,
-                this.computeMaxIntrinsicHeight);
+            return _computeIntrinsicDimension(_IntrinsicDimension.maxHeight, width,
+                computeMaxIntrinsicHeight);
         }
 
         protected internal virtual float computeMaxIntrinsicHeight(float width) {
@@ -847,19 +858,19 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public bool hasSize {
-            get { return this._size != null; }
+            get { return _size != null; }
         }
 
         public Size size {
             get {
-                D.assert(this.hasSize, () => "RenderBox was not laid out: " + this);
+                D.assert(hasSize, () => "RenderBox was not laid out: " + this);
                 D.assert(() => {
-                    if (this._size is _DebugSize) {
-                        _DebugSize _size = (_DebugSize) this._size;
-                        D.assert(_size._owner == this);
+                    Size _size = this._size;
+                    if (_size is _DebugSize) {
+                        D.assert(((_DebugSize)_size)._owner == this);
                         if (debugActiveLayout != null) {
-                            D.assert(this.debugDoingThisResize || this.debugDoingThisLayout ||
-                                     (debugActiveLayout == this.parent && _size._canBeUsedByParent));
+                            D.assert(debugDoingThisResize || debugDoingThisLayout ||
+                                     (debugActiveLayout == parent && ((_DebugSize)_size)._canBeUsedByParent));
                         }
 
                         D.assert(_size == this._size);
@@ -871,58 +882,48 @@ namespace Unity.UIWidgets.rendering {
                 return this._size;
             }
             set {
-                D.assert(!(this.debugDoingThisResize && this.debugDoingThisLayout));
-                D.assert(this.sizedByParent || !this.debugDoingThisResize);
+                D.assert(!(debugDoingThisResize && debugDoingThisLayout));
+                D.assert(sizedByParent || !debugDoingThisResize);
                 D.assert(() => {
-                    if ((this.sizedByParent && this.debugDoingThisResize) ||
-                        (!this.sizedByParent && this.debugDoingThisLayout)) {
+                    if ((sizedByParent && debugDoingThisResize) ||
+                        (!sizedByParent && debugDoingThisLayout)) {
                         return true;
                     }
 
-                    D.assert(!this.debugDoingThisResize);
-
-                    string contract = "", violation = "", hint = "";
-                    if (this.debugDoingThisLayout) {
-                        D.assert(this.sizedByParent);
-                        violation = "It appears that the size setter was called from performLayout().";
-                        hint = "";
+                    D.assert(!debugDoingThisResize);
+                    List<DiagnosticsNode> information = new List<DiagnosticsNode>{
+                        new ErrorSummary("RenderBox size setter called incorrectly.")
+                    };
+                    if (debugDoingThisLayout) {
+                        D.assert(sizedByParent);
+                        information.Add(new ErrorDescription("It appears that the size setter was called from performLayout()."));
                     }
                     else {
-                        violation =
-                            "The size setter was called from outside layout (neither performResize() nor performLayout() were being run for this object).";
-                        if (this.owner != null && this.owner.debugDoingLayout) {
-                            hint =
-                                "Only the object itself can set its size. It is a contract violation for other objects to set it.";
+                        information.Add(new ErrorDescription(
+                            "The size setter was called from outside layout (neither performResize() nor performLayout() were being run for this object)."
+                        ));
+                        if (owner != null && owner.debugDoingLayout) {
+                            information.Add(new ErrorDescription("Only the object itself can set its size. It is a contract violation for other objects to set it."));
                         }
                     }
 
-                    if (this.sizedByParent) {
-                        contract =
-                            "Because this RenderBox has sizedByParent set to true, it must set its size in performResize().";
+                    if (sizedByParent) {
+                        information.Add(new ErrorDescription("Because this RenderBox has sizedByParent set to true, it must set its size in performResize()."));
                     }
                     else {
-                        contract =
-                            "Because this RenderBox has sizedByParent set to false, it must set its size in performLayout().";
+                        information.Add(new ErrorDescription("Because this RenderBox has sizedByParent set to false, it must set its size in performLayout()."));
                     }
-
-                    throw new UIWidgetsError(
-                        "RenderBox size setter called incorrectly.\n" +
-                        violation + "\n" +
-                        hint + "\n" +
-                        contract + "\n" +
-                        "The RenderBox in question is:\n" +
-                        "  " + this
-                    );
+                    throw new UIWidgetsError(information);
                 });
                 D.assert(() => {
-                    value = this.debugAdoptSize(value);
+                    value = debugAdoptSize(value);
                     return true;
                 });
 
-                this._size = value;
+                _size = value;
 
                 D.assert(() => {
-                    this.debugAssertDoesMeetConstraints();
+                    debugAssertDoesMeetConstraints();
                     return true;
                 });
             }
@@ -937,58 +938,62 @@ namespace Unity.UIWidgets.rendering {
                     var value = (_DebugSize) valueRaw;
                     if (value._owner != this) {
                         if (value._owner.parent != this) {
-                            throw new UIWidgetsError(
-                                "The size property was assigned a size inappropriately.\n" +
-                                "The following render object:\n" +
-                                "  " + this + "\n" +
-                                "...was assigned a size obtained from:\n" +
-                                "  " + value._owner + "\n" +
-                                "However, this second render object is not, or is no longer, a " +
-                                "child of the first, and it is therefore a violation of the " +
-                                "RenderBox layout protocol to use that size in the layout of the " +
-                                "first render object.\n" +
-                                "If the size was obtained at a time where it was valid to read " +
-                                "the size (because the second render object above was a child " +
-                                "of the first at the time), then it should be adopted using " +
-                                "debugAdoptSize at that time.\n" +
-                                "If the size comes from a grandchild or a render object from an " +
-                                "entirely different part of the render tree, then there is no " +
-                                "way to be notified when the size changes and therefore attempts " +
-                                "to read that size are almost certainly a source of bugs. A different " +
-                                "approach should be used."
-                            );
+                            throw new UIWidgetsError(new List<DiagnosticsNode>{
+                                new ErrorSummary("The size property was assigned a size inappropriately."),
+                                describeForError("The following render object"),
+                                value._owner.describeForError("...was assigned a size obtained from"),
+                                new ErrorDescription(
+                                    "However, this second render object is not, or is no longer, a " +
+                                    "child of the first, and it is therefore a violation of the " +
+                                    "RenderBox layout protocol to use that size in the layout of the " +
+                                    "first render object."
+                                ),
+                                new ErrorHint(
+                                    "If the size was obtained at a time where it was valid to read " +
+                                    "the size (because the second render object above was a child " +
+                                    "of the first at the time), then it should be adopted using " +
+                                    "debugAdoptSize at that time."
+                                ),
+                                new ErrorHint(
+                                    "If the size comes from a grandchild or a render object from an " +
+                                    "entirely different part of the render tree, then there is no " +
+                                    "way to be notified when the size changes and therefore attempts " +
+                                    "to read that size are almost certainly a source of bugs. A different " +
+                                    "approach should be used."
+                                )
+                            });
                         }
 
                         if (!value._canBeUsedByParent) {
-                            throw new UIWidgetsError(
-                                "A child\"s size was used without setting parentUsesSize.\n" +
-                                "The following render object:\n" +
-                                "  " + this + "\n" +
-                                "...was assigned a size obtained from its child:\n" +
-                                "  " + value._owner + "\n" +
-                                "However, when the child was laid out, the parentUsesSize argument " +
-                                "was not set or set to false. Subsequently this transpired to be " +
-                                "inaccurate: the size was nonetheless used by the parent.\n" +
-                                "It is important to tell the framework if the size will be used or not " +
-                                "as several important performance optimizations can be made if the " +
-                                "size will not be used by the parent."
-                            );
+                            throw new UIWidgetsError(new List<DiagnosticsNode>{
+                                new ErrorSummary("A child's size was used without setting parentUsesSize."),
+                                describeForError("The following render object"),
+                                value._owner.describeForError("...was assigned a size obtained from its child"),
+                                new ErrorDescription(
+                                    "However, when the child was laid out, the parentUsesSize argument " +
+                                    "was not set or set to false. Subsequently this transpired to be " +
+                                    "inaccurate: the size was nonetheless used by the parent.\n" +
+                                    "It is important to tell the framework if the size will be used or not " +
+                                    "as several important performance optimizations can be made if the " +
+                                    "size will not be used by the parent."
+                                )
+                            });
                         }
                     }
                 }
 
-                result = new _DebugSize(valueRaw, this, this.debugCanParentUseSize);
+                result = new _DebugSize(valueRaw, this, debugCanParentUseSize);
                 return true;
             });
             return result;
         }
 
         public override Rect semanticBounds {
-            get { return Offset.zero & this.size; }
+            get { return Offset.zero & size; }
         }
 
         protected override void debugResetSize() {
-            this.size = this.size;
+            size = size;
         }
 
         Dictionary<TextBaseline, float?> _cachedBaselines;
@@ -1003,16 +1008,16 @@ namespace Unity.UIWidgets.rendering {
             D.assert(!_debugDoingBaseline,
                 () =>
                     "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
-            D.assert(!this.debugNeedsLayout);
+            D.assert(!debugNeedsLayout);
             D.assert(() => {
                 RenderObject parent = (RenderObject) this.parent;
-                if (this.owner.debugDoingLayout) {
+                if (owner.debugDoingLayout) {
                     return (debugActiveLayout == parent) && parent.debugDoingThisLayout;
                 }
 
-                if (this.owner.debugDoingPaint) {
+                if (owner.debugDoingPaint) {
                     return ((debugActivePaint == parent) && parent.debugDoingThisPaint) ||
-                           ((debugActivePaint == this) && this.debugDoingThisPaint);
+                           ((debugActivePaint == this) && debugDoingThisPaint);
                 }
 
                 D.assert(parent == this.parent);
@@ -1020,11 +1025,11 @@ namespace Unity.UIWidgets.rendering {
             });
 
             D.assert(_debugSetDoingBaseline(true));
-            float? result = this.getDistanceToActualBaseline(baseline);
+            float? result = getDistanceToActualBaseline(baseline);
             D.assert(_debugSetDoingBaseline(false));
 
             if (result == null && !onlyReal) {
-                return this.size.height;
+                return size.height;
             }
 
             return result;
@@ -1035,11 +1040,11 @@ namespace Unity.UIWidgets.rendering {
                 () =>
                     "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
 
-            this._cachedBaselines = this._cachedBaselines ?? new Dictionary<TextBaseline, float?>();
-            return this._cachedBaselines.putIfAbsent(baseline, () => this.computeDistanceToActualBaseline(baseline));
+            _cachedBaselines = _cachedBaselines ?? new Dictionary<TextBaseline, float?>();
+            return _cachedBaselines.putIfAbsent(baseline, () => computeDistanceToActualBaseline(baseline));
         }
 
-        protected virtual float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public virtual float? computeDistanceToActualBaseline(TextBaseline baseline) {
             D.assert(_debugDoingBaseline,
                 () =>
                     "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
@@ -1052,94 +1057,84 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void debugAssertDoesMeetConstraints() {
-            D.assert(this.constraints != null);
+            D.assert(constraints != null);
             D.assert(() => {
-                if (!this.hasSize) {
-                    D.assert(!this.debugNeedsLayout);
-                    string contract = "";
-                    if (this.sizedByParent) {
-                        contract =
-                            "Because this RenderBox has sizedByParent set to true, it must set its size in performResize().\n";
+                if (!hasSize) {
+                    D.assert(!debugNeedsLayout);
+                    DiagnosticsNode contract;
+                    if (sizedByParent) {
+                        contract = new ErrorDescription("Because this RenderBox has sizedByParent set to true, it must set its size in performResize().");
                     }
                     else {
-                        contract =
-                            "Because this RenderBox has sizedByParent set to false, it must set its size in performLayout().\n";
+                        contract = new ErrorDescription("Because this RenderBox has sizedByParent set to false, it must set its size in performLayout().");
                     }
 
-                    throw new UIWidgetsError(
-                        "RenderBox did not set its size during layout.\n" +
-                        contract +
-                        "It appears that this did not happen; layout completed, but the size property is still null.\n" +
-                        "The RenderBox in question is:\n" +
-                        "  " + this);
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary("RenderBox did not set its size during layout."),
+                        contract,
+                        new ErrorDescription(
+                            "It appears that this did not happen; layout completed, but the size property is still null."),
+                        new DiagnosticsProperty<RenderBox>("The RenderBox in question is", this,
+                            style: DiagnosticsTreeStyle.errorProperty),
+                    });
                 }
 
-                if (!this._size.isFinite) {
-                    var information = new StringBuilder();
-                    if (!this.constraints.hasBoundedWidth) {
+                if (!_size.isFinite) {
+                    List<DiagnosticsNode> information = new List<DiagnosticsNode>{
+                        new ErrorSummary("${runtimeType} object was given an infinite size during layout."),
+                        new ErrorDescription(
+                            "This probably means that it is a render object that tries to be " +
+                            "as big as possible, but it was put inside another render object " +
+                            "that allows its children to pick their own size."
+                        )
+                    };
+                    if (!constraints.hasBoundedWidth) {
                         RenderBox node = this;
                         while (!node.constraints.hasBoundedWidth && node.parent is RenderBox) {
                             node = (RenderBox) node.parent;
+                            information.Add(node.describeForError("The nearest ancestor providing an unbounded width constraint is"));
                         }
-
-                        information.AppendLine("The nearest ancestor providing an unbounded width constraint is:");
-                        information.Append("  ");
-                        information.AppendLine(node.toStringShallow(joiner: "\n  "));
                     }
 
-                    if (!this.constraints.hasBoundedHeight) {
+                    if (!constraints.hasBoundedHeight) {
                         RenderBox node = this;
                         while (!node.constraints.hasBoundedHeight && node.parent is RenderBox) {
                             node = (RenderBox) node.parent;
+                            information.Add(node.describeForError("The nearest ancestor providing an unbounded height constraint is"));
                         }
-
-                        information.AppendLine("The nearest ancestor providing an unbounded height constraint is:");
-                        information.Append("  ");
-                        information.AppendLine(node.toStringShallow(joiner: "\n  "));
                     }
 
-                    throw new UIWidgetsError(
-                        this.GetType() + " object was given an infinite size during layout.\n" +
-                        "This probably means that it is a render object that tries to be " +
-                        "as big as possible, but it was put inside another render object " +
-                        "that allows its children to pick their own size.\n" +
-                        information +
-                        "The constraints that applied to the " + this.GetType() + " were:\n" +
-                        "  " + this.constraints + "\n" +
-                        "The exact size it was given was:\n" +
-                        "  " + this._size
-                    );
+                    information.Add(new DiagnosticsProperty<BoxConstraints>("The constraints that applied to the ${runtimeType} were", constraints, style: DiagnosticsTreeStyle.errorProperty));
+                    information.Add(new DiagnosticsProperty<Size>("The exact size it was given was", _size, style: DiagnosticsTreeStyle.errorProperty));
+                    throw new UIWidgetsError(information);
                 }
 
-                if (!this.constraints.isSatisfiedBy(this._size)) {
-                    throw new UIWidgetsError(
-                        this.GetType() + " does not meet its constraints.\n" +
-                        "Constraints: " + this.constraints + "\n" +
-                        "Size: " + this._size + "\n" +
-                        "If you are not writing your own RenderBox subclass, then this is not " +
-                        "your fault."
-                    );
+                if (!constraints.isSatisfiedBy(_size)) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("${runtimeType} does not meet its constraints."),
+                        new DiagnosticsProperty<BoxConstraints>("Constraints", constraints, style: DiagnosticsTreeStyle.errorProperty),
+                        new DiagnosticsProperty<Size>("Size", _size, style: DiagnosticsTreeStyle.errorProperty),
+                        new ErrorHint(
+                            "If you are not writing your own RenderBox subclass, then this is not " +
+                            "your fault."
+                        )
+                    });
                 }
 
                 if (D.debugCheckIntrinsicSizes) {
                     D.assert(!debugCheckingIntrinsics);
                     debugCheckingIntrinsics = true;
-                    var failures = new StringBuilder();
-                    int failureCount = 0;
+                    List<DiagnosticsNode> failures = new List<DiagnosticsNode>();
 
                     var testIntrinsic = new Func<Func<float, float>, string, float, float>(
                         (function, name, constraint) => {
                             float result = function(constraint);
                             if (result < 0) {
-                                failures.AppendLine(" * " + name + "(" + constraint + ") returned a negative value: " +
-                                                    result);
-                                failureCount += 1;
+                                failures.Add(new ErrorDescription($" * {name}({constraint}) returned a negative value: {result}"));
                             }
 
                             if (result.isInfinite()) {
-                                failures.AppendLine(" * " + name + "(" + constraint +
-                                                    ") returned a non-finite value: " + result);
-                                failureCount += 1;
+                                failures.Add(new ErrorDescription($" * {name}({constraint}) returned a non-finite value: {result}"));
                             }
 
                             return result;
@@ -1151,40 +1146,35 @@ namespace Unity.UIWidgets.rendering {
                                 float min = testIntrinsic(getMin, "getMinIntrinsic" + name, constraint);
                                 float max = testIntrinsic(getMax, "getMaxIntrinsic" + name, constraint);
                                 if (min > max) {
-                                    failures.AppendLine(
-                                        " * getMinIntrinsic" + name + "(" + constraint + ") returned a larger value (" +
-                                        min +
-                                        ") than getMaxIntrinsic" + name + "(" + constraint + ") (" + max + ")");
-                                    failureCount += 1;
+                                    failures.Add(new ErrorDescription($" * getMinIntrinsic{name}({constraint}) returned a larger value ({min}) than getMaxIntrinsic{name}({constraint}) ({max})"));
                                 }
                             });
 
-                    testIntrinsicsForValues(this.getMinIntrinsicWidth, this.getMaxIntrinsicWidth, "Width",
+                    testIntrinsicsForValues(getMinIntrinsicWidth, getMaxIntrinsicWidth, "Width",
                         float.PositiveInfinity);
-                    testIntrinsicsForValues(this.getMinIntrinsicHeight, this.getMaxIntrinsicHeight, "Height",
+                    testIntrinsicsForValues(getMinIntrinsicHeight, getMaxIntrinsicHeight, "Height",
                         float.PositiveInfinity);
 
-                    if (this.constraints.hasBoundedWidth) {
-                        testIntrinsicsForValues(this.getMinIntrinsicWidth, this.getMaxIntrinsicWidth, "Width",
-                            this.constraints.maxHeight);
+                    if (constraints.hasBoundedWidth) {
+                        testIntrinsicsForValues(getMinIntrinsicWidth, getMaxIntrinsicWidth, "Width",
+                            constraints.maxHeight);
                     }
 
-                    if (this.constraints.hasBoundedHeight) {
-                        testIntrinsicsForValues(this.getMinIntrinsicHeight, this.getMaxIntrinsicHeight, "Height",
-                            this.constraints.maxWidth);
+                    if (constraints.hasBoundedHeight) {
+                        testIntrinsicsForValues(getMinIntrinsicHeight, getMaxIntrinsicHeight, "Height",
+                            constraints.maxWidth);
                     }
 
                     debugCheckingIntrinsics = false;
-                    if (failures.Length > 0) {
-                        D.assert(failureCount > 0);
-                        throw new UIWidgetsError(
-                            "The intrinsic dimension methods of the " + this.GetType() +
-                            " class returned values that violate the intrinsic protocol contract.\n" +
-                            "The following failures was detected:\n" +
-                            failures +
+                    if (failures.Count > 0) {
+                        
+                        failures.Add(new ErrorSummary("The intrinsic dimension methods of the $runtimeType class returned values that violate the intrinsic protocol contract."));
+                        failures.Add(new ErrorDescription("The following failure(s) was detected:"));
+                        failures.Add(new ErrorHint(
                             "If you are not writing your own RenderBox subclass, then this is not\n" +
-                            "your fault."
-                        );
+                            "your fault. Contact support: https://github.com/flutter/flutter/issues/new?template=BUG.md"
+                        ));
+                        throw new UIWidgetsError(failures);
                     }
                 }
 
@@ -1193,18 +1183,18 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void markNeedsLayout() {
-            if (this._cachedBaselines != null && this._cachedBaselines.isNotEmpty() ||
-                this._cachedIntrinsicDimensions != null && this._cachedIntrinsicDimensions.isNotEmpty()) {
-                if (this._cachedBaselines != null) {
-                    this._cachedBaselines.Clear();
+            if (_cachedBaselines != null && _cachedBaselines.isNotEmpty() ||
+                _cachedIntrinsicDimensions != null && _cachedIntrinsicDimensions.isNotEmpty()) {
+                if (_cachedBaselines != null) {
+                    _cachedBaselines.Clear();
                 }
 
-                if (this._cachedIntrinsicDimensions != null) {
-                    this._cachedIntrinsicDimensions.Clear();
+                if (_cachedIntrinsicDimensions != null) {
+                    _cachedIntrinsicDimensions.Clear();
                 }
 
-                if (this.parent is RenderObject) {
-                    this.markParentNeedsLayout();
+                if (parent is RenderObject) {
+                    markParentNeedsLayout();
                     return;
                 }
             }
@@ -1214,19 +1204,21 @@ namespace Unity.UIWidgets.rendering {
 
 
         protected override void performResize() {
-            this.size = this.constraints.smallest;
-            D.assert(this.size.isFinite);
+            size = constraints.smallest;
+            D.assert(size.isFinite);
         }
 
         protected override void performLayout() {
             D.assert(() => {
-                if (!this.sizedByParent) {
-                    throw new UIWidgetsError(
-                        this.GetType() + " did not implement performLayout().\n" +
-                        "RenderBox subclasses need to either override performLayout() to " +
-                        "set a size and lay out any children, or, set sizedByParent to true " +
-                        "so that performResize() sizes the render object."
-                    );
+                if (!sizedByParent) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("$runtimeType did not implement performLayout()."),
+                        new ErrorHint(
+                            "RenderBox subclasses need to either override performLayout() to " +
+                            "set a size and lay out any children, or, set sizedByParent to true " +
+                            "so that performResize() sizes the render object."
+                        )
+                    });
                 }
 
                 return true;
@@ -1236,37 +1228,45 @@ namespace Unity.UIWidgets.rendering {
         public virtual bool hitTest(BoxHitTestResult result, Offset position = null) {
             D.assert(position != null);
             D.assert(() => {
-                if (!this.hasSize) {
-                    if (this.debugNeedsLayout) {
-                        throw new UIWidgetsError(
-                            "Cannot hit test a render box that has never been laid out.\n" +
-                            "The hitTest() method was called on this RenderBox:\n" +
-                            "  " + this + "\n" +
-                            "Unfortunately, this object\"s geometry is not known at this time, " +
-                            "probably because it has never been laid out. " +
-                            "This means it cannot be accurately hit-tested. If you are trying " +
-                            "to perform a hit test during the layout phase itself, make sure " +
-                            "you only hit test nodes that have completed layout (e.g. the node\"s " +
-                            "children, after their layout() method has been called)."
-                        );
+                if (!hasSize) {
+                    if (debugNeedsLayout) {
+                        throw new UIWidgetsError(new List<DiagnosticsNode>{
+                            new ErrorSummary("Cannot hit test a render box that has never been laid out."),
+                            describeForError("The hitTest() method was called on this RenderBox"),
+                            new ErrorDescription(
+                                "Unfortunately, this object's geometry is not known at this time, " +
+                                "probably because it has never been laid out. " +
+                                "This means it cannot be accurately hit-tested."
+                            ),
+                            new ErrorHint(
+                                "If you are trying " +
+                                "to perform a hit test during the layout phase itself, make sure " +
+                                "you only hit test nodes that have completed layout (e.g. the node's " +
+                                "children, after their layout() method has been called)."
+                            )
+                        });
                     }
 
-                    throw new UIWidgetsError(
-                        "Cannot hit test a render box with no size.\n" +
-                        "The hitTest() method was called on this RenderBox:\n" +
-                        "  " + this + "\n" +
-                        "Although this node is not marked as needing layout, " +
-                        "its size is not set. A RenderBox object must have an " +
-                        "explicit size before it can be hit-tested. Make sure " +
-                        "that the RenderBox in question sets its size during layout."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("Cannot hit test a render box with no size."),
+                        describeForError("The hitTest() method was called on this RenderBox"),
+                        new ErrorDescription(
+                            "Although this node is not marked as needing layout, " +
+                            "its size is not set."
+                        ),
+                        new ErrorHint(
+                            "A RenderBox object must have an " +
+                            "explicit size before it can be hit-tested. Make sure " +
+                            "that the RenderBox in question sets its size during layout."
+                        )
+                    });
                 }
 
                 return true;
             });
 
-            if (this._size.contains(position)) {
-                if (this.hitTestChildren(result, position: position) || this.hitTestSelf(position)) {
+            if (_size.contains(position)) {
+                if (hitTestChildren(result, position: position) || hitTestSelf(position)) {
                     result.add(new BoxHitTestEntry(this, position));
                     return true;
                 }
@@ -1288,20 +1288,19 @@ namespace Unity.UIWidgets.rendering {
             D.assert(child.parent == this);
             D.assert(() => {
                 if (!(child.parentData is BoxParentData)) {
-                    throw new UIWidgetsError(
-                        this.GetType() + " does not implement applyPaintTransform.\n" +
-                        "The following " + this.GetType() + " object:\n" +
-                        "  " + this.toStringShallow() + "\n" +
-                        "...did not use a BoxParentData class for the parentData field of the following child:\n" +
-                        "  " + child.toStringShallow() + "\n" +
-                        "The " + this.GetType() + " class inherits from RenderBox. " +
-                        "The default applyPaintTransform implementation provided by RenderBox assumes that the " +
-                        "children all use BoxParentData objects for their parentData field. " +
-                        "Since " + this.GetType() +
-                        " does not in fact use that ParentData class for its children, it must " +
-                        "provide an implementation of applyPaintTransform that supports the specific ParentData " +
-                        "subclass used by its children (which apparently is " + child.parentData.GetType() + ")."
-                    );
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary($"{GetType()} does not implement applyPaintTransform."),
+                        describeForError($"The following {GetType()} object"),
+                        child.describeForError("...did not use a BoxParentData class for the parentData field of the following child"),
+                        new ErrorDescription($"The {GetType()} class inherits from RenderBox."),
+                        new ErrorHint(
+                            "The default applyPaintTransform implementation provided by RenderBox assumes that the " +
+                            "children all use BoxParentData objects for their parentData field. " +
+                            $"Since {GetType()} does not in fact use that ParentData class for its children, it must " +
+                            "provide an implementation of applyPaintTransform that supports the specific ParentData " +
+                            $"subclass used by its children (which apparently is {child.parentData.GetType()})."
+                        ),
+                    });
                 }
 
                 return true;
@@ -1313,7 +1312,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Offset globalToLocal(Offset point, RenderObject ancestor = null) {
-            var transform = this.getTransformTo(ancestor);
+            var transform = getTransformTo(ancestor);
             float det = transform.invert();
             if (det == 0) {
                 return Offset.zero;
@@ -1328,11 +1327,11 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public Offset localToGlobal(Offset point, RenderObject ancestor = null) {
-            return MatrixUtils.transformPoint(this.getTransformTo(ancestor), point);
+            return MatrixUtils.transformPoint(getTransformTo(ancestor), point);
         }
 
         public override Rect paintBounds {
-            get { return Offset.zero & this.size; }
+            get { return Offset.zero & size; }
         }
 
         int _debugActivePointers = 0;
@@ -1341,13 +1340,13 @@ namespace Unity.UIWidgets.rendering {
             D.assert(() => {
                 if (D.debugPaintPointersEnabled) {
                     if (evt is PointerDownEvent) {
-                        this._debugActivePointers += 1;
+                        _debugActivePointers += 1;
                     }
                     else if (evt is PointerUpEvent || evt is PointerCancelEvent) {
-                        this._debugActivePointers -= 1;
+                        _debugActivePointers -= 1;
                     }
 
-                    this.markNeedsPaint();
+                    markNeedsPaint();
                 }
 
                 return true;
@@ -1358,15 +1357,15 @@ namespace Unity.UIWidgets.rendering {
         public override void debugPaint(PaintingContext context, Offset offset) {
             D.assert(() => {
                 if (D.debugPaintSizeEnabled) {
-                    this.debugPaintSize(context, offset);
+                    debugPaintSize(context, offset);
                 }
 
                 if (D.debugPaintBaselinesEnabled) {
-                    this.debugPaintBaselines(context, offset);
+                    debugPaintBaselines(context, offset);
                 }
 
                 if (D.debugPaintPointersEnabled) {
-                    this.debugPaintPointers(context, offset);
+                    debugPaintPointers(context, offset);
                 }
 
                 return true;
@@ -1380,7 +1379,7 @@ namespace Unity.UIWidgets.rendering {
                     strokeWidth = 1,
                     style = PaintingStyle.stroke,
                 };
-                context.canvas.drawRect((offset & this.size).deflate(0.5f), paint);
+                context.canvas.drawRect((offset & size).deflate(0.5f), paint);
                 return true;
             });
         }
@@ -1394,22 +1393,22 @@ namespace Unity.UIWidgets.rendering {
 
                 Path path;
                 // ideographic baseline
-                float? baselineI = this.getDistanceToBaseline(TextBaseline.ideographic, onlyReal: true);
+                float? baselineI = getDistanceToBaseline(TextBaseline.ideographic, onlyReal: true);
                 if (baselineI != null) {
                     paint.color = new Color(0xFFFFD000);
                     path = new Path();
                     path.moveTo(offset.dx, offset.dy + baselineI.Value);
-                    path.lineTo(offset.dx + this.size.width, offset.dy + baselineI.Value);
+                    path.lineTo(offset.dx + size.width, offset.dy + baselineI.Value);
                     context.canvas.drawPath(path, paint);
                 }
 
                 // alphabetic baseline
-                float? baselineA = this.getDistanceToBaseline(TextBaseline.alphabetic, onlyReal: true);
+                float? baselineA = getDistanceToBaseline(TextBaseline.alphabetic, onlyReal: true);
                 if (baselineA != null) {
                     paint.color = new Color(0xFF00FF00);
                     path = new Path();
                     path.moveTo(offset.dx, offset.dy + baselineA.Value);
-                    path.lineTo(offset.dx + this.size.width, offset.dy + baselineA.Value);
+                    path.lineTo(offset.dx + size.width, offset.dy + baselineA.Value);
                     context.canvas.drawPath(path, paint);
                 }
 
@@ -1419,11 +1418,11 @@ namespace Unity.UIWidgets.rendering {
 
         protected virtual void debugPaintPointers(PaintingContext context, Offset offset) {
             D.assert(() => {
-                if (this._debugActivePointers > 0) {
+                if (_debugActivePointers > 0) {
                     var paint = new Paint {
-                        color = new Color(0x00BBBB | ((0x04000000 * this.depth) & 0xFF000000)),
+                        color = new Color((uint)(0x00BBBB | ((0x04000000 * depth) & 0xFF000000))),
                     };
-                    context.canvas.drawRect(offset & this.size, paint);
+                    context.canvas.drawRect(offset & size, paint);
                 }
 
                 return true;
@@ -1432,7 +1431,7 @@ namespace Unity.UIWidgets.rendering {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Size>("size", this._size, missingIfNull: true));
+            properties.add(new DiagnosticsProperty<Size>("size", _size, missingIfNull: true));
         }
     }
 
@@ -1446,9 +1445,9 @@ namespace Unity.UIWidgets.rendering {
         where ChildType : RenderBox
         where ParentDataType : ContainerParentDataMixinBoxParentData<ChildType> {
         public float? defaultComputeDistanceToFirstActualBaseline(TextBaseline baseline) {
-            D.assert(!this.debugNeedsLayout);
+            D.assert(!debugNeedsLayout);
 
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 float? result = child.getDistanceToActualBaseline(baseline);
@@ -1463,10 +1462,10 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public float? defaultComputeDistanceToHighestActualBaseline(TextBaseline baseline) {
-            D.assert(!this.debugNeedsLayout);
+            D.assert(!debugNeedsLayout);
 
             float? result = null;
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 float? candidate = child.getDistanceToActualBaseline(baseline);
@@ -1487,7 +1486,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public bool defaultHitTestChildren(BoxHitTestResult result, Offset position = null) {
-            ChildType child = this.lastChild;
+            ChildType child = lastChild;
             while (child != null) {
                 ParentDataType childParentData = child.parentData as ParentDataType;
                 bool isHit = result.addWithPaintOffset(
@@ -1509,7 +1508,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void defaultPaint(PaintingContext context, Offset offset) {
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 context.paintChild(child, childParentData.offset + offset);
@@ -1519,7 +1518,7 @@ namespace Unity.UIWidgets.rendering {
 
         public List<ChildType> getChildrenAsList() {
             var result = new List<ChildType>();
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 result.Add(child);

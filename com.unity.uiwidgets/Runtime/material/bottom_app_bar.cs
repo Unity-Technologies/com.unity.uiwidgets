@@ -1,3 +1,4 @@
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -47,29 +48,33 @@ namespace Unity.UIWidgets.material {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this.geometryListenable = Scaffold.geometryOf(this.context);
+            geometryListenable = Scaffold.geometryOf(context);
         }
 
         public override Widget build(BuildContext context) {
             BottomAppBarTheme babTheme = BottomAppBarTheme.of(context);
-            NotchedShape notchedShape = this.widget.shape ?? babTheme.shape;
+            NotchedShape notchedShape = widget.shape ?? babTheme?.shape;
             CustomClipper<Path> clipper = notchedShape != null
                 ? (CustomClipper<Path>) new _BottomAppBarClipper(
-                    geometry: this.geometryListenable,
+                    geometry: geometryListenable,
                     shape: notchedShape,
-                    notchMargin: this.widget.notchMargin
+                    notchMargin: widget.notchMargin
                 )
                 : new ShapeBorderClipper(shape: new RoundedRectangleBorder());
+            
+            float elevation = widget.elevation ?? babTheme?.elevation ?? _defaultElevation;
+            Color color = widget.color ?? babTheme?.color ?? Theme.of(context).bottomAppBarColor;
+            Color effectiveColor = ElevationOverlay.applyOverlay(context, color, elevation);
             return new PhysicalShape(
                 clipper: clipper,
-                elevation: this.widget.elevation ?? babTheme.elevation ?? _defaultElevation,
-                color: this.widget.color ?? babTheme.color ?? Theme.of(context).bottomAppBarColor,
-                clipBehavior: this.widget.clipBehavior,
+                elevation: elevation,
+                color: effectiveColor,
+                clipBehavior: widget.clipBehavior,
                 child: new Material(
                     type: MaterialType.transparency,
-                    child: this.widget.child == null
+                    child: widget.child == null
                         ? null
-                        : new SafeArea(child: this.widget.child)
+                        : new SafeArea(child: widget.child)
                 )
             );
         }
@@ -93,18 +98,18 @@ namespace Unity.UIWidgets.material {
         public readonly float notchMargin;
 
         public override Path getClip(Size size) {
-            Rect button = this.geometry.value.floatingActionButtonArea?.translate(
+            Rect button = geometry.value.floatingActionButtonArea?.translate(
                 0.0f,
-                (this.geometry.value.bottomNavigationBarTop ?? 0.0f) * -1.0f
+                (geometry.value.bottomNavigationBarTop ?? 0.0f) * -1.0f
             );
-            return this.shape.getOuterPath(Offset.zero & size, button?.inflate(this.notchMargin));
+            return shape.getOuterPath(Offset.zero & size, button?.inflate(notchMargin));
         }
 
         public override bool shouldReclip(CustomClipper<Path> _oldClipper) {
             _BottomAppBarClipper oldClipper = _oldClipper as _BottomAppBarClipper;
-            return oldClipper.geometry != this.geometry
-                   || oldClipper.shape != this.shape
-                   || oldClipper.notchMargin != this.notchMargin;
+            return oldClipper.geometry != geometry
+                   || oldClipper.shape != shape
+                   || oldClipper.notchMargin != notchMargin;
         }
     }
 }

@@ -8,54 +8,54 @@ namespace Unity.UIWidgets.foundation {
         HashSet<T> _set = null;
 
         IEnumerator IEnumerable.GetEnumerator() {
-            return this.GetEnumerator();
+            return GetEnumerator();
         }
 
         public IEnumerator<T> GetEnumerator() {
-            return this._list.GetEnumerator();
+            return _list.GetEnumerator();
         }
 
         public void Add(T item) {
-            this._isDirty = true;
-            this._list.Add(item);
-        }
-
-        public void Clear() {
-            this._isDirty = true;
-            this._list.Clear();
-        }
-
-        public bool Contains(T item) {
-            if (this._list.Count < 3) {
-                return this._list.Contains(item);
-            }
-
-            if (this._isDirty) {
-                if (this._set == null) {
-                    this._set = new HashSet<T>(this._list);
-                }
-                else {
-                    this._set.Clear();
-                    this._set.UnionWith(this._list);
-                }
-
-                this._isDirty = false;
-            }
-
-            return this._set.Contains(item);
-        }
-
-        public void CopyTo(T[] array, int arrayIndex) {
-            this._list.CopyTo(array, arrayIndex);
+            _isDirty = true;
+            _list.Add(item);
         }
 
         public bool Remove(T item) {
-            this._isDirty = true;
-            return this._list.Remove(item);
+            _isDirty = true;
+            _set?.Clear();
+            return _list.Remove(item);
+        }
+
+        public bool Contains(T item) {
+            if (_list.Count < 3) {
+                return _list.Contains(item);
+            }
+
+            if (_isDirty) {
+                if (_set == null) {
+                    _set = new HashSet<T>(_list);
+                }
+                else {
+                    _set.Clear();
+                    _set.UnionWith(_list);
+                }
+                _isDirty = false;
+            }
+
+            return _set.Contains(item);
+        }
+
+        public void Clear() {
+            _isDirty = true;
+            _list.Clear();
+        }
+
+        public void CopyTo(T[] array, int arrayIndex) {
+            _list.CopyTo(array, arrayIndex);
         }
 
         public int Count {
-            get { return this._list.Count; }
+            get { return _list.Count; }
         }
 
         public bool IsReadOnly {

@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             Axis scrollDirection = Axis.vertical,
             bool reverse = false,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             bool? primary = null,
             ScrollPhysics physics = null,
             ScrollController controller = null,
@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly bool reverse;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly ScrollController controller;
 
@@ -52,28 +52,28 @@ namespace Unity.UIWidgets.widgets {
         public readonly DragStartBehavior dragStartBehavior;
 
         AxisDirection _getDirection(BuildContext context) {
-            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, this.scrollDirection,
-                this.reverse) ?? AxisDirection.down;
+            return AxisDirectionUtils.getAxisDirectionFromAxisReverseAndDirectionality(context, scrollDirection,
+                reverse) ?? AxisDirection.down;
         }
 
         public override Widget build(BuildContext context) {
-            AxisDirection axisDirection = this._getDirection(context);
-            Widget contents = this.child;
-            if (this.padding != null) {
+            AxisDirection axisDirection = _getDirection(context);
+            Widget contents = child;
+            if (padding != null) {
                 contents = new Padding(
-                    padding: this.padding,
+                    padding: padding,
                     child: contents);
             }
 
-            ScrollController scrollController = this.primary
+            ScrollController scrollController = primary
                 ? PrimaryScrollController.of(context)
-                : this.controller;
+                : controller;
 
             Scrollable scrollable = new Scrollable(
-                dragStartBehavior: this.dragStartBehavior,
+                dragStartBehavior: dragStartBehavior,
                 axisDirection: axisDirection,
                 controller: scrollController,
-                physics: this.physics,
+                physics: physics,
                 viewportBuilder: (BuildContext subContext, ViewportOffset offset) => {
                     return new _SingleChildViewport(
                         axisDirection: axisDirection,
@@ -82,7 +82,7 @@ namespace Unity.UIWidgets.widgets {
                 }
             );
 
-            if (this.primary && scrollController != null) {
+            if (primary && scrollController != null) {
                 return PrimaryScrollController.none(child: scrollable);
             }
 
@@ -109,16 +109,16 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderSingleChildViewport(
-                axisDirection: this.axisDirection,
-                offset: this.offset
+                axisDirection: axisDirection,
+                offset: offset
             );
         }
 
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             _RenderSingleChildViewport _renderObject = (_RenderSingleChildViewport) renderObject;
-            _renderObject.axisDirection = this.axisDirection;
-            _renderObject.offset = this.offset;
+            _renderObject.axisDirection = axisDirection;
+            _renderObject.offset = offset;
         }
     }
 
@@ -130,9 +130,9 @@ namespace Unity.UIWidgets.widgets {
             float cacheExtent = RenderViewportUtils.defaultCacheExtent,
             RenderBox child = null) {
             D.assert(offset != null);
-            this._axisDirection = axisDirection;
-            this._offset = offset;
-            this._cacheExtent = cacheExtent;
+            _axisDirection = axisDirection;
+            _offset = offset;
+            _cacheExtent = cacheExtent;
             this.child = child;
         }
 
@@ -141,62 +141,62 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public AxisDirection axisDirection {
-            get { return this._axisDirection; }
+            get { return _axisDirection; }
             set {
-                if (value == this._axisDirection) {
+                if (value == _axisDirection) {
                     return;
                 }
 
-                this._axisDirection = value;
-                this.markNeedsLayout();
+                _axisDirection = value;
+                markNeedsLayout();
             }
         }
 
         AxisDirection _axisDirection;
 
         public Axis axis {
-            get { return AxisUtils.axisDirectionToAxis(this.axisDirection); }
+            get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
         public ViewportOffset offset {
-            get { return this._offset; }
+            get { return _offset; }
             set {
                 D.assert(value != null);
-                if (value == this._offset) {
+                if (value == _offset) {
                     return;
                 }
 
-                if (this.attached) {
-                    this._offset.removeListener(this._hasScrolled);
+                if (attached) {
+                    _offset.removeListener(_hasScrolled);
                 }
 
-                this._offset = value;
-                if (this.attached) {
-                    this._offset.addListener(this._hasScrolled);
+                _offset = value;
+                if (attached) {
+                    _offset.addListener(_hasScrolled);
                 }
 
-                this.markNeedsLayout();
+                markNeedsLayout();
             }
         }
 
         ViewportOffset _offset;
 
         public float cacheExtent {
-            get { return this._cacheExtent; }
+            get { return _cacheExtent; }
             set {
-                if (value == this._cacheExtent) {
+                if (value == _cacheExtent) {
                     return;
                 }
 
-                this._cacheExtent = value;
-                this.markNeedsLayout();
+                _cacheExtent = value;
+                markNeedsLayout();
             }
         }
 
         float _cacheExtent;
 
         void _hasScrolled() {
-            this.markNeedsPaint();
+            markNeedsPaint();
         }
 
         public override void setupParentData(RenderObject child) {
@@ -207,11 +207,11 @@ namespace Unity.UIWidgets.widgets {
 
         public override void attach(object owner) {
             base.attach(owner);
-            this._offset.addListener(this._hasScrolled);
+            _offset.addListener(_hasScrolled);
         }
 
         public override void detach() {
-            this._offset.removeListener(this._hasScrolled);
+            _offset.removeListener(_hasScrolled);
             base.detach();
         }
 
@@ -222,12 +222,12 @@ namespace Unity.UIWidgets.widgets {
 
         float _viewportExtent {
             get {
-                D.assert(this.hasSize);
-                switch (this.axis) {
+                D.assert(hasSize);
+                switch (axis) {
                     case Axis.horizontal:
-                        return this.size.width;
+                        return size.width;
                     case Axis.vertical:
-                        return this.size.height;
+                        return size.height;
                 }
 
                 D.assert(false);
@@ -237,23 +237,23 @@ namespace Unity.UIWidgets.widgets {
 
         float _minScrollExtent {
             get {
-                D.assert(this.hasSize);
+                D.assert(hasSize);
                 return 0.0f;
             }
         }
 
         float _maxScrollExtent {
             get {
-                D.assert(this.hasSize);
-                if (this.child == null) {
+                D.assert(hasSize);
+                if (child == null) {
                     return 0.0f;
                 }
 
-                switch (this.axis) {
+                switch (axis) {
                     case Axis.horizontal:
-                        return Mathf.Max(0.0f, this.child.size.width - this.size.width);
+                        return Mathf.Max(0.0f, child.size.width - size.width);
                     case Axis.vertical:
-                        return Mathf.Max(0.0f, this.child.size.height - this.size.height);
+                        return Mathf.Max(0.0f, child.size.height - size.height);
                 }
 
                 D.assert(false);
@@ -262,7 +262,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         BoxConstraints _getInnerConstraints(BoxConstraints constraints) {
-            switch (this.axis) {
+            switch (axis) {
                 case Axis.horizontal:
                     return constraints.heightConstraints();
                 case Axis.vertical:
@@ -273,63 +273,64 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        protected override float computeMinIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicWidth(height);
+        protected internal override float computeMinIntrinsicWidth(float height) {
+            if (child != null) {
+                return child.getMinIntrinsicWidth(height);
             }
 
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicWidth(height);
+        protected internal override float computeMaxIntrinsicWidth(float height) {
+            if (child != null) {
+                return child.getMaxIntrinsicWidth(height);
             }
 
             return 0.0f;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicHeight(width);
+        protected internal override float computeMinIntrinsicHeight(float width) {
+            if (child != null) {
+                return child.getMinIntrinsicHeight(width);
             }
 
             return 0.0f;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicHeight(width);
+            if (child != null) {
+                return child.getMaxIntrinsicHeight(width);
             }
 
             return 0.0f;
         }
 
         protected override void performLayout() {
-            if (this.child == null) {
-                this.size = this.constraints.smallest;
+            BoxConstraints constraints = this.constraints;
+            if (child == null) {
+                size = constraints.smallest;
             }
             else {
-                this.child.layout(this._getInnerConstraints(this.constraints), parentUsesSize: true);
-                this.size = this.constraints.constrain(this.child.size);
+                child.layout(_getInnerConstraints(constraints), parentUsesSize: true);
+                size = constraints.constrain(child.size);
             }
 
-            this.offset.applyViewportDimension(this._viewportExtent);
-            this.offset.applyContentDimensions(this._minScrollExtent, this._maxScrollExtent);
+            offset.applyViewportDimension(_viewportExtent);
+            offset.applyContentDimensions(_minScrollExtent, _maxScrollExtent);
         }
 
         Offset _paintOffset {
-            get { return this._paintOffsetForPosition(this.offset.pixels); }
+            get { return _paintOffsetForPosition(offset.pixels); }
         }
 
         Offset _paintOffsetForPosition(float position) {
-            switch (this.axisDirection) {
+            switch (axisDirection) {
                 case AxisDirection.up:
-                    return new Offset(0.0f, position - this.child.size.height + this.size.height);
+                    return new Offset(0.0f, position - child.size.height + size.height);
                 case AxisDirection.down:
                     return new Offset(0.0f, -position);
                 case AxisDirection.left:
-                    return new Offset(position - this.child.size.width + this.size.width, 0.0f);
+                    return new Offset(position - child.size.width + size.width, 0.0f);
                 case AxisDirection.right:
                     return new Offset(-position, 0.0f);
             }
@@ -338,21 +339,21 @@ namespace Unity.UIWidgets.widgets {
         }
 
         bool _shouldClipAtPaintOffset(Offset paintOffset) {
-            D.assert(this.child != null);
+            D.assert(child != null);
             return paintOffset < Offset.zero ||
-                   !(Offset.zero & this.size).contains((paintOffset & this.child.size).bottomRight);
+                   !(Offset.zero & size).contains((paintOffset & child.size).bottomRight);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                Offset paintOffset = this._paintOffset;
+            if (child != null) {
+                Offset paintOffset = _paintOffset;
 
                 void paintContents(PaintingContext subContext, Offset SubOffset) {
-                    subContext.paintChild(this.child, SubOffset + paintOffset);
+                    subContext.paintChild(child, SubOffset + paintOffset);
                 }
 
-                if (this._shouldClipAtPaintOffset(paintOffset)) {
-                    context.pushClipRect(this.needsCompositing, offset, Offset.zero & this.size, paintContents);
+                if (_shouldClipAtPaintOffset(paintOffset)) {
+                    context.pushClipRect(needsCompositing, offset, Offset.zero & size, paintContents);
                 }
                 else {
                     paintContents(context, offset);
@@ -361,26 +362,26 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
-            Offset paintOffset = this._paintOffset;
+            Offset paintOffset = _paintOffset;
             transform.translate(paintOffset.dx, paintOffset.dy);
         }
 
         public override Rect describeApproximatePaintClip(RenderObject child) {
-            if (child != null && this._shouldClipAtPaintOffset(this._paintOffset)) {
-                return Offset.zero & this.size;
+            if (child != null && _shouldClipAtPaintOffset(_paintOffset)) {
+                return Offset.zero & size;
             }
 
             return null;
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            if (this.child != null) {
+            if (child != null) {
                 return result.addWithPaintOffset(
-                    offset: this._paintOffset,
+                    offset: _paintOffset,
                     position: position,
                     hitTest: (BoxHitTestResult resultIn, Offset transformed) => {
-                        D.assert(transformed == position + (-this._paintOffset));
-                        return this.child.hitTest(result, position: transformed);
+                        D.assert(transformed == position + (-_paintOffset));
+                        return child.hitTest(result, position: transformed);
                     }
                 );
             }
@@ -392,43 +393,43 @@ namespace Unity.UIWidgets.widgets {
         public RevealedOffset getOffsetToReveal(RenderObject target, float alignment, Rect rect = null) {
             rect = rect ?? target.paintBounds;
             if (!(target is RenderBox)) {
-                return new RevealedOffset(offset: this.offset.pixels, rect: rect);
+                return new RevealedOffset(offset: offset.pixels, rect: rect);
             }
 
             RenderBox targetBox = (RenderBox) target;
-            Matrix4 transform = targetBox.getTransformTo(this);
+            Matrix4 transform = targetBox.getTransformTo(child);
             Rect bounds = MatrixUtils.transformRect(transform, rect);
-            Size contentSize = this.child.size;
+            Size contentSize = child.size;
 
             float leadingScrollOffset = 0.0f;
             float targetMainAxisExtent = 0.0f;
             float mainAxisExtent = 0.0f;
 
-            switch (this.axisDirection) {
+            switch (axisDirection) {
                 case AxisDirection.up:
-                    mainAxisExtent = this.size.height;
+                    mainAxisExtent = size.height;
                     leadingScrollOffset = contentSize.height - bounds.bottom;
                     targetMainAxisExtent = bounds.height;
                     break;
                 case AxisDirection.right:
-                    mainAxisExtent = this.size.width;
+                    mainAxisExtent = size.width;
                     leadingScrollOffset = bounds.left;
                     targetMainAxisExtent = bounds.width;
                     break;
                 case AxisDirection.down:
-                    mainAxisExtent = this.size.height;
+                    mainAxisExtent = size.height;
                     leadingScrollOffset = bounds.top;
                     targetMainAxisExtent = bounds.height;
                     break;
                 case AxisDirection.left:
-                    mainAxisExtent = this.size.width;
+                    mainAxisExtent = size.width;
                     leadingScrollOffset = contentSize.width - bounds.right;
                     targetMainAxisExtent = bounds.width;
                     break;
             }
 
             float targetOffset = leadingScrollOffset - (mainAxisExtent - targetMainAxisExtent) * alignment;
-            Rect targetRect = bounds.shift(this._paintOffsetForPosition(targetOffset));
+            Rect targetRect = bounds.shift(_paintOffsetForPosition(targetOffset));
             return new RevealedOffset(offset: targetOffset, rect: targetRect);
         }
 
@@ -438,7 +439,7 @@ namespace Unity.UIWidgets.widgets {
             TimeSpan? duration = null,
             Curve curve = null
         ) {
-            if (!this.offset.allowImplicitScrolling) {
+            if (!offset.allowImplicitScrolling) {
                 base.showOnScreen(
                     descendant: descendant,
                     rect: rect,
@@ -450,7 +451,7 @@ namespace Unity.UIWidgets.widgets {
             Rect newRect = RenderViewport.showInViewport(
                 descendant: descendant,
                 viewport: this,
-                offset: this.offset,
+                offset: offset,
                 rect: rect,
                 duration: duration,
                 curve: curve);

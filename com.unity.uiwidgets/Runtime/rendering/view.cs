@@ -1,4 +1,5 @@
-﻿using Unity.UIWidgets.foundation;
+﻿using System.Collections.Generic;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -19,59 +20,63 @@ namespace Unity.UIWidgets.rendering {
         public readonly float devicePixelRatio;
 
         public Matrix4 toMatrix() {
-            // return new Matrix4().diagonal3Values(this.devicePixelRatio, this.devicePixelRatio, 0);
-            return new Matrix4().identity();
+            return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 0);
         }
 
         public override string ToString() {
-            return $"${this.size} at ${this.devicePixelRatio}x";
+            return $"{size} at {devicePixelRatio}x";
         }
     }
 
     public class RenderView : RenderObjectWithChildMixinRenderObject<RenderBox> {
         public RenderView(
             RenderBox child = null,
-            ViewConfiguration configuration = null) {
+            ViewConfiguration configuration = null,
+            ui.Window window = null) {
             D.assert(configuration != null);
 
             this.child = child;
-            this._configuration = configuration;
+            _configuration = configuration;
+            _window = window;
         }
 
         public Size size {
-            get { return this._size; }
+            get { return _size; }
         }
 
         Size _size = Size.zero;
 
         public ViewConfiguration configuration {
-            get { return this._configuration; }
+            get { return _configuration; }
             set {
                 D.assert(value != null);
-                if (value == this._configuration) {
+                if (value == _configuration) {
                     return;
                 }
 
-                this._configuration = value;
-                this.replaceRootLayer((OffsetLayer) this._updateMatricesAndCreateNewRootLayer());
-                this.markNeedsLayout();
+                _configuration = value;
+                replaceRootLayer((OffsetLayer) _updateMatricesAndCreateNewRootLayer());
+                D.assert(_rootTransform != null);
+                markNeedsLayout();
             }
         }
 
         ViewConfiguration _configuration;
+        ui.Window _window;
 
-        public void scheduleInitialFrame() {
-            D.assert(this.owner != null);
-            this.scheduleInitialLayout();
-            this.scheduleInitialPaint((OffsetLayer) this._updateMatricesAndCreateNewRootLayer());
-            this.owner.requestVisualUpdate();
+        public void prepareInitialFrame() {
+            D.assert(owner != null);
+            D.assert(_rootTransform == null);
+            scheduleInitialLayout();
+            scheduleInitialPaint((OffsetLayer)_updateMatricesAndCreateNewRootLayer());
+            D.assert(_rootTransform != null);
         }
-
+        
         Matrix4 _rootTransform;
 
-        public Layer _updateMatricesAndCreateNewRootLayer() {
-            this._rootTransform = this.configuration.toMatrix();
-            ContainerLayer rootLayer = new TransformLayer(transform: this._rootTransform);
+        public TransformLayer _updateMatricesAndCreateNewRootLayer() {
+            _rootTransform = configuration.toMatrix();
+            TransformLayer rootLayer = new TransformLayer(transform: _rootTransform);
             rootLayer.attach(this);
             return rootLayer;
         }
@@ -85,21 +90,28 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performLayout() {
-            this._size = this.configuration.size;
-            D.assert(this._size.isFinite);
+            D.assert(_rootTransform != null);
+            _size = configuration.size;
+            D.assert(_size.isFinite);
 
-            if (this.child != null) {
-                this.child.layout(BoxConstraints.tight(this._size));
+            if (child != null) {
+                child.layout(BoxConstraints.tight(_size));
             }
         }
 
         public bool hitTest(HitTestResult result, Offset position = null) {
-            if (this.child != null) {
-                this.child.hitTest(new BoxHitTestResult(result), position: position);
+            if (child != null) {
+                child.hitTest(new BoxHitTestResult(result), position: position);
             }
 
             result.add(new HitTestEntry(this));
             return true;
+        }
+
+        public IEnumerable<MouseTrackerAnnotation> hitTestMouseTrackers(Offset position) {
+            return layer.findAllAnnotations<MouseTrackerAnnotation>(
+                position * configuration.devicePixelRatio
+            ).annotations;
         }
 
         public override bool isRepaintBoundary {
@@ -107,25 +119,26 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                context.paintChild(this.child, offset);
+            if (child != null) {
+                context.paintChild(child, offset);
             }
         }
 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
-            transform.multiply(this._rootTransform);
+            transform.multiply(_rootTransform);
             base.applyPaintTransform(child, transform);
         }
 
         public void compositeFrame() {
             var builder = new SceneBuilder();
-            using (var scene = this.layer.buildScene(builder)) {
+            using (var scene = layer.buildScene(builder)) {
                 Window.instance.render(scene);
             }
 
             D.assert(() => {
                 if (D.debugRepaintRainbowEnabled || D.debugRepaintTextRainbowEnabled) {
-                    D.debugCurrentRepaintColor = D.debugCurrentRepaintColor.withHue((D.debugCurrentRepaintColor.hue + 2.0f) % 360.0f);
+                    D.debugCurrentRepaintColor =
+                        D.debugCurrentRepaintColor.withHue((D.debugCurrentRepaintColor.hue + 2.0f) % 360.0f);
                 }
 
                 return true;
@@ -133,13 +146,13 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override Rect paintBounds {
-            get { return Offset.zero & (this.size * this.configuration.devicePixelRatio); }
+            get { return Offset.zero & (size * configuration.devicePixelRatio); }
         }
 
         public override Rect semanticBounds {
             get {
-                D.assert(this._rootTransform != null);
-                return MatrixUtils.transformRect(this._rootTransform, Offset.zero & this.size);
+                D.assert(_rootTransform != null);
+                return MatrixUtils.transformRect(_rootTransform, Offset.zero & size);
             }
         }
 
@@ -152,7 +165,7 @@ namespace Unity.UIWidgets.rendering {
                 tooltip: "in physical pixels"));
             properties.add(new FloatProperty("device pixel ratio", Window.instance.devicePixelRatio,
                 tooltip: "physical pixels per logical pixel"));
-            properties.add(new DiagnosticsProperty<ViewConfiguration>("configuration", this.configuration,
+            properties.add(new DiagnosticsProperty<ViewConfiguration>("configuration", configuration,
                 tooltip: "in logical pixels"));
         }
     }

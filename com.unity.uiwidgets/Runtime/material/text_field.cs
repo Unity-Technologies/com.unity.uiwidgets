@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Text;
+using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -7,18 +7,57 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
+using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-
     public delegate Widget InputCounterWidgetBuilder(
         BuildContext buildContext,
         int? currentLength,
         int? maxLength,
         bool? isFocused);
-        
+
+    class _TextFieldSelectionGestureDetectorBuilder : TextSelectionGestureDetectorBuilder {
+        public _TextFieldSelectionGestureDetectorBuilder(
+            _TextFieldState state) : base(_delegate: state) {
+            _state = state;
+        }
+
+        public readonly _TextFieldState _state;
+
+        protected override void onForcePressStart(ForcePressDetails details) {
+            base.onForcePressStart(details);
+            if (_delegate.selectionEnabled && shouldShowSelectionToolbar) {
+                editableText.showToolbar();
+            }
+        }
+
+        protected override void onForcePressEnd(ForcePressDetails details) {
+            // Not required.
+        }
+
+        protected override void onSingleTapUp(TapUpDetails details) {
+            editableText.hideToolbar();
+            if (_delegate.selectionEnabled) {
+                //use android by default
+                renderEditable.selectPosition(cause: SelectionChangedCause.tap);
+            }
+
+            _state._requestKeyboard();
+            if (_state.widget.onTap != null) {
+                _state.widget.onTap();
+            }
+        }
+
+        protected override void onSingleLongTapStart(LongPressStartDetails details) {
+            if (_delegate.selectionEnabled) {
+                //use android by default
+                renderEditable.selectWord(cause: SelectionChangedCause.longPress);
+                Feedback.forLongPress(_state.context);
+            }
+        }
+    }
+
     public class TextField : StatefulWidget {
         public TextField(Key key = null,
             TextEditingController controller = null,
@@ -31,10 +70,17 @@ namespace Unity.UIWidgets.material {
             TextStyle style = null,
             StrutStyle strutStyle = null,
             TextAlign textAlign = TextAlign.left,
+            TextAlignVertical textAlignVertical = null,
             TextDirection textDirection = TextDirection.ltr,
+            bool readOnly = false,
+            ToolbarOptions toolbarOptions = null,
+            bool? showCursor = null,
             bool autofocus = false,
             bool obscureText = false,
             bool autocorrect = false,
+            SmartDashesType? smartDashesType = null,
+            SmartQuotesType? smartQuotesType = null,
+            bool enableSuggestions = true,
             int? maxLines = 1,
             int? minLines = null,
             bool expands = false,
@@ -48,12 +94,15 @@ namespace Unity.UIWidgets.material {
             float? cursorWidth = 2.0f,
             Radius cursorRadius = null,
             Color cursorColor = null,
+            BoxHeightStyle selectionHeightStyle = BoxHeightStyle.tight,
+            BoxWidthStyle selectionWidthStyle = BoxWidthStyle.tight,
             Brightness? keyboardAppearance = null,
             EdgeInsets scrollPadding = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start,
-            bool? enableInteractiveSelection = null,
+            bool enableInteractiveSelection = true,
             GestureTapCallback onTap = null,
             InputCounterWidgetBuilder buildCounter = null,
+            ScrollController scrollController = null,
             ScrollPhysics scrollPhysics = null
         ) : base(key: key) {
             D.assert(maxLines == null || maxLines > 0);
@@ -62,7 +111,13 @@ namespace Unity.UIWidgets.material {
                 () => "minLines can't be greater than maxLines");
             D.assert(!expands || (maxLines == null && minLines == null),
                 () => "minLines and maxLines must be null when expands is true.");
-            D.assert(maxLength == null || maxLength == TextField.noMaxLength || maxLength > 0);
+            D.assert(maxLength == null || maxLength == noMaxLength || maxLength > 0);
+            D.assert(!obscureText || maxLines == 1, () => "Obscured fields cannot be multiline.");
+
+            this.smartDashesType =
+                smartDashesType ?? (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled);
+            this.smartQuotesType =
+                smartQuotesType ?? (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled);
 
             this.controller = controller;
             this.focusNode = focusNode;
@@ -72,10 +127,14 @@ namespace Unity.UIWidgets.material {
             this.style = style;
             this.strutStyle = strutStyle;
             this.textAlign = textAlign;
+            this.textAlignVertical = textAlignVertical;
             this.textDirection = textDirection;
+            this.readOnly = readOnly;
+            this.showCursor = showCursor;
             this.autofocus = autofocus;
             this.obscureText = obscureText;
             this.autocorrect = autocorrect;
+            this.enableSuggestions = enableSuggestions;
             this.maxLines = maxLines;
             this.minLines = minLines;
             this.expands = expands;
@@ -88,16 +147,32 @@ namespace Unity.UIWidgets.material {
             this.enabled = enabled;
             this.cursorWidth = cursorWidth;
             this.cursorColor = cursorColor;
+            this.selectionHeightStyle = selectionHeightStyle;
+            this.selectionWidthStyle = selectionWidthStyle;
             this.cursorRadius = cursorRadius;
             this.onSubmitted = onSubmitted;
             this.keyboardAppearance = keyboardAppearance;
             this.enableInteractiveSelection = enableInteractiveSelection;
             this.onTap = onTap;
             this.keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
+            this.toolbarOptions = toolbarOptions ?? (obscureText
+                                      ? new ToolbarOptions(
+                                          selectAll: true,
+                                          paste: true
+                                      )
+                                      : new ToolbarOptions(
+                                          copy: true,
+                                          cut: true,
+                                          selectAll: true,
+                                          paste: true
+                                      ));
+
             this.scrollPadding = scrollPadding ?? EdgeInsets.all(20.0f);
             this.dragStartBehavior = dragStartBehavior;
+            this.enableInteractiveSelection = enableInteractiveSelection;
             this.buildCounter = buildCounter;
             this.scrollPhysics = scrollPhysics;
+            this.scrollController = scrollController;
         }
 
         public readonly TextEditingController controller;
@@ -118,6 +193,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly TextAlign textAlign;
 
+        public readonly TextAlignVertical textAlignVertical;
+
         public readonly TextDirection textDirection;
 
         public readonly bool autofocus;
@@ -126,12 +203,24 @@ namespace Unity.UIWidgets.material {
 
         public readonly bool autocorrect;
 
+        public readonly SmartDashesType smartDashesType;
+
+        public readonly SmartQuotesType smartQuotesType;
+
+        public readonly bool enableSuggestions;
+
         public readonly int? maxLines;
 
         public readonly int? minLines;
 
         public readonly bool expands;
-        
+
+        public readonly bool readOnly;
+
+        public readonly ToolbarOptions toolbarOptions;
+
+        public readonly bool? showCursor;
+
         public const long noMaxLength = -1;
 
         public readonly int? maxLength;
@@ -154,20 +243,24 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color cursorColor;
 
+        public readonly BoxHeightStyle selectionHeightStyle;
+
+        public readonly BoxWidthStyle selectionWidthStyle;
+
         public readonly Brightness? keyboardAppearance;
 
         public readonly EdgeInsets scrollPadding;
 
-        public readonly bool? enableInteractiveSelection;
-        
+        public readonly bool enableInteractiveSelection;
+
         public readonly DragStartBehavior dragStartBehavior;
 
         public readonly ScrollPhysics scrollPhysics;
-        
+
+        public readonly ScrollController scrollController;
+
         public bool selectionEnabled {
-            get {
-                return this.enableInteractiveSelection ?? !this.obscureText;
-            }
+            get { return enableInteractiveSelection; }
         }
 
         public readonly GestureTapCallback onTap;
@@ -181,111 +274,154 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(
-                new DiagnosticsProperty<TextEditingController>("controller", this.controller, defaultValue: null));
-            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", this.focusNode, defaultValue: null));
-            properties.add(new DiagnosticsProperty<bool?>("enabled", this.enabled, defaultValue: null));
-            properties.add(new DiagnosticsProperty<InputDecoration>("decoration", this.decoration, defaultValue: new InputDecoration()));
-            properties.add(new DiagnosticsProperty<TextInputType>("keyboardType", this.keyboardType,
+                new DiagnosticsProperty<TextEditingController>("controller", controller, defaultValue: null));
+            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", focusNode, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool?>("enabled", enabled, defaultValue: null));
+            properties.add(new DiagnosticsProperty<InputDecoration>("decoration", decoration,
+                defaultValue: new InputDecoration()));
+            properties.add(new DiagnosticsProperty<TextInputType>("keyboardType", keyboardType,
                 defaultValue: TextInputType.text));
-            properties.add(new DiagnosticsProperty<TextStyle>("style", this.style, defaultValue: null));
-            properties.add(new DiagnosticsProperty<bool>("autofocus", this.autofocus, defaultValue: false));
-            properties.add(new DiagnosticsProperty<bool>("obscureText", this.obscureText, defaultValue: false));
-            properties.add(new DiagnosticsProperty<bool>("autocorrect", this.autocorrect, defaultValue: true));
-            properties.add(new IntProperty("maxLines", this.maxLines, defaultValue: 1));
-            properties.add(new IntProperty("minLines", this.minLines, defaultValue: null));
-            properties.add(new DiagnosticsProperty<bool>("expands", this.expands, defaultValue: false));
-            properties.add(new IntProperty("maxLength", this.maxLength, defaultValue: null));
-            properties.add(new FlagProperty("maxLengthEnforced", value: this.maxLengthEnforced, defaultValue: true,
+            properties.add(new DiagnosticsProperty<TextStyle>("style", style, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool>("autofocus", autofocus, defaultValue: false));
+            properties.add(new DiagnosticsProperty<bool>("obscureText", obscureText, defaultValue: false));
+            properties.add(new DiagnosticsProperty<bool>("autocorrect", autocorrect, defaultValue: true));
+            properties.add(new EnumProperty<SmartDashesType>("smartDashesType", smartDashesType,
+                defaultValue: obscureText ? SmartDashesType.disabled : SmartDashesType.enabled));
+            properties.add(new EnumProperty<SmartQuotesType>("smartQuotesType", smartQuotesType,
+                defaultValue: obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled));
+            properties.add(new DiagnosticsProperty<bool>("enableSuggestions", enableSuggestions, defaultValue: true));
+            properties.add(new IntProperty("maxLines", maxLines, defaultValue: 1));
+            properties.add(new IntProperty("minLines", minLines, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool>("expands", expands, defaultValue: false));
+            properties.add(new IntProperty("maxLength", maxLength, defaultValue: null));
+            properties.add(new FlagProperty("maxLengthEnforced", value: maxLengthEnforced, defaultValue: true,
                 ifFalse: "maxLength not enforced"));
-            properties.add(new EnumProperty<TextInputAction?>("textInputAction", this.textInputAction, defaultValue: null));
-            properties.add(new EnumProperty<TextCapitalization>("textCapitalization", this.textCapitalization, defaultValue: TextCapitalization.none));
-            properties.add(new EnumProperty<TextAlign>("textAlign", this.textAlign, defaultValue: TextAlign.left));
-            properties.add(new EnumProperty<TextDirection>("textDirection", this.textDirection, defaultValue: null));
-            properties.add(new FloatProperty("cursorWidth", this.cursorWidth, defaultValue: 2.0f));
-            properties.add(new DiagnosticsProperty<Radius>("cursorRadius", this.cursorRadius, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("cursorColor", this.cursorColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Brightness?>("keyboardAppearance", this.keyboardAppearance, defaultValue: null));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("scrollPadding", this.scrollPadding, defaultValue: EdgeInsets.all(20.0f)));
-            properties.add(new FlagProperty("selectionEnabled", value: this.selectionEnabled, defaultValue: true, ifFalse: "selection disabled"));
-            properties.add(new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", this.scrollPhysics, defaultValue: null));
+            properties.add(new EnumProperty<TextInputAction?>("textInputAction", textInputAction, defaultValue: null));
+            properties.add(new EnumProperty<TextCapitalization>("textCapitalization", textCapitalization,
+                defaultValue: TextCapitalization.none));
+            properties.add(new EnumProperty<TextAlign>("textAlign", textAlign, defaultValue: TextAlign.left));
+            properties.add(new DiagnosticsProperty<TextAlignVertical>("textAlignVertical", textAlignVertical,
+                defaultValue: null));
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
+            properties.add(new FloatProperty("cursorWidth", cursorWidth, defaultValue: 2.0f));
+            properties.add(new DiagnosticsProperty<Radius>("cursorRadius", cursorRadius, defaultValue: null));
+            properties.add(new ColorProperty("cursorColor", cursorColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Brightness?>("keyboardAppearance", keyboardAppearance,
+                defaultValue: null));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("scrollPadding", scrollPadding,
+                defaultValue: EdgeInsets.all(20.0f)));
+            properties.add(new FlagProperty("selectionEnabled", value: selectionEnabled, defaultValue: true,
+                ifFalse: "selection disabled"));
+            properties.add(
+                new DiagnosticsProperty<ScrollController>("scrollController", scrollController, defaultValue: null));
+            properties.add(new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", scrollPhysics, defaultValue: null));
         }
     }
 
-    class _TextFieldState : AutomaticKeepAliveClientMixin<TextField> {
-        readonly GlobalKey<EditableTextState> _editableTextKey = new LabeledGlobalKey<EditableTextState>();
-
-        HashSet<InteractiveInkFeature> _splashes;
-        InteractiveInkFeature _currentSplash;
-
+    class _TextFieldState : State<TextField>, TextSelectionGestureDetectorBuilderDelegate {
         TextEditingController _controller;
 
         TextEditingController _effectiveController {
-            get { return this.widget.controller ?? this._controller; }
+            get { return widget.controller ?? _controller; }
         }
 
         FocusNode _focusNode;
 
         FocusNode _effectiveFocusNode {
             get {
-                if (this.widget.focusNode != null) {
-                    return this.widget.focusNode;
+                if (widget.focusNode != null) {
+                    return widget.focusNode;
                 }
 
-                if (this._focusNode != null) {
-                    return this._focusNode;
+                if (_focusNode != null) {
+                    return _focusNode;
                 }
 
-                this._focusNode = new FocusNode();
-                return this._focusNode;
+                _focusNode = new FocusNode();
+                return _focusNode;
             }
         }
+
+        bool _isHovering = false;
 
         bool needsCounter {
             get {
-                return this.widget.maxLength != null
-                       && this.widget.decoration != null
-                       && this.widget.decoration.counterText == null;
+                return widget.maxLength != null
+                       && widget.decoration != null
+                       && widget.decoration.counterText == null;
             }
         }
 
+        bool _showSelectionHandles = false;
+
+        _TextFieldSelectionGestureDetectorBuilder _selectionGestureDetectorBuilder;
+
+        bool _forcePressEnabled;
+
+        public bool forcePressEnabled {
+            get { return _forcePressEnabled; }
+        }
+
+        readonly GlobalKey<EditableTextState> _editableTextKey = new LabeledGlobalKey<EditableTextState>();
+
+        public GlobalKey<EditableTextState> editableTextKey {
+            get { return _editableTextKey; }
+        }
+
+        public bool selectionEnabled {
+            get { return widget.selectionEnabled; }
+        }
+
+        bool _isEnabled {
+            get { return widget.enabled ?? widget.decoration?.enabled ?? true; }
+        }
+
+        int _currentLength {
+            get { return _effectiveController.value.text.Length; }
+        }
+
         InputDecoration _getEffectiveDecoration() {
-            MaterialLocalizations localizations = MaterialLocalizations.of(this.context);
-            ThemeData themeData = Theme.of(this.context);
-            InputDecoration effectiveDecoration = (this.widget.decoration ?? new InputDecoration())
+            MaterialLocalizations localizations = MaterialLocalizations.of(context);
+            ThemeData themeData = Theme.of(context);
+            InputDecoration effectiveDecoration = (widget.decoration ?? new InputDecoration())
                 .applyDefaults(themeData.inputDecorationTheme)
                 .copyWith(
-                    enabled: this.widget.enabled,
-                    hintMaxLines: this.widget.decoration?.hintMaxLines ?? this.widget.maxLines
+                    enabled: widget.enabled,
+                    hintMaxLines: widget.decoration?.hintMaxLines ?? widget.maxLines
                 );
 
             if (effectiveDecoration.counter != null || effectiveDecoration.counterText != null) {
                 return effectiveDecoration;
             }
 
-            Widget counter;
-            int currentLength = this._effectiveController.value.text.Length;
+            Widget counter = null;
+            int currentLength = _currentLength;
             if (effectiveDecoration.counter == null
                 && effectiveDecoration.counterText == null
-                && this.widget.buildCounter != null) {
-                bool isFocused = this._effectiveFocusNode.hasFocus;
-                counter = this.widget.buildCounter(
-                    this.context,
+                && widget.buildCounter != null) {
+                bool isFocused = _effectiveFocusNode.hasFocus;
+                Widget builtCounter = widget.buildCounter(
+                    context,
                     currentLength: currentLength,
-                    maxLength: this.widget.maxLength,
+                    maxLength: widget.maxLength,
                     isFocused: isFocused
                 );
+                if (builtCounter != null) {
+                    counter = builtCounter;
+                }
+
                 return effectiveDecoration.copyWith(counter: counter);
             }
 
-            if (this.widget.maxLength == null) {
+            if (widget.maxLength == null) {
                 return effectiveDecoration;
             }
 
             string counterText = $"{currentLength}";
 
-            if (this.widget.maxLength > 0) {
-                counterText += $"/{this.widget.maxLength}";
-                if (this._effectiveController.value.text.Length > this.widget.maxLength) {
+            if (widget.maxLength > 0) {
+                counterText += $"/{widget.maxLength}";
+                if (_effectiveController.value.text.Length > widget.maxLength) {
                     return effectiveDecoration.copyWith(
                         errorText: effectiveDecoration.errorText ?? "",
                         counterStyle: effectiveDecoration.errorStyle
@@ -295,8 +431,6 @@ namespace Unity.UIWidgets.material {
                 }
             }
 
-            // Handle length exceeds maxLength
-
             return effectiveDecoration.copyWith(
                 counterText: counterText
             );
@@ -304,295 +438,188 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            if (this.widget.controller == null) {
-                this._controller = new TextEditingController();
+            _selectionGestureDetectorBuilder = new _TextFieldSelectionGestureDetectorBuilder(state: this);
+            if (widget.controller == null) {
+                _controller = new TextEditingController();
             }
+
+            _effectiveFocusNode.canRequestFocus = _isEnabled;
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.controller == null && ((TextField) oldWidget).controller != null) {
-                this._controller = TextEditingController.fromValue(((TextField) oldWidget).controller.value);
+            if (widget.controller == null && ((TextField) oldWidget).controller != null) {
+                _controller = TextEditingController.fromValue(((TextField) oldWidget).controller.value);
             }
-            else if (this.widget.controller != null && ((TextField) oldWidget).controller == null) {
-                this._controller = null;
+            else if (widget.controller != null && ((TextField) oldWidget).controller == null) {
+                _controller = null;
             }
 
-            bool isEnabled = this.widget.enabled ?? this.widget.decoration?.enabled ?? true;
-            bool wasEnabled = ((TextField) oldWidget).enabled ?? ((TextField) oldWidget).decoration?.enabled ?? true;
-            if (wasEnabled && !isEnabled) {
-                this._effectiveFocusNode.unfocus();
+            _effectiveFocusNode.canRequestFocus = _isEnabled;
+            if (_effectiveFocusNode.hasFocus && widget.readOnly != ((TextField) oldWidget).readOnly) {
+                if (_effectiveController.selection.isCollapsed) {
+                    _showSelectionHandles = !widget.readOnly;
+                }
             }
         }
 
         public override void dispose() {
-            this._focusNode?.dispose();
+            _focusNode?.dispose();
             base.dispose();
         }
 
-        void _requestKeyboard() {
-            this._editableTextKey.currentState?.requestKeyboard();
+        EditableTextState _editableText {
+            get { return editableTextKey.currentState; }
+        }
+
+        internal void _requestKeyboard() {
+            _editableText?.requestKeyboard();
+        }
+
+        bool _shouldShowSelectionHandles(SelectionChangedCause cause) {
+            if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar) {
+                return false;
+            }
+
+            if (cause == SelectionChangedCause.keyboard) {
+                return false;
+            }
+
+            if (widget.readOnly && _effectiveController.selection.isCollapsed) {
+                return false;
+            }
+
+            if (cause == SelectionChangedCause.longPress) {
+                return true;
+            }
+
+            if (_effectiveController.text.isNotEmpty()) {
+                return true;
+            }
+
+            return false;
         }
 
         void _handleSelectionChanged(TextSelection selection, SelectionChangedCause cause) {
-            switch (Theme.of(this.context).platform) {
-                case RuntimePlatform.IPhonePlayer:
-                    if (cause == SelectionChangedCause.longPress) {
-                        this._editableTextKey.currentState?.bringIntoView(selection.basePos);
-                    }
-                    return;
-                case RuntimePlatform.Android:
-                    break;
+            bool willShowSelectionHandles = _shouldShowSelectionHandles(cause);
+            if (willShowSelectionHandles != _showSelectionHandles) {
+                setState(() => { _showSelectionHandles = willShowSelectionHandles; });
+            }
+
+            //use the code path for android by default
+            return;
+        }
+
+        void _handleSelectionHandleTapped() {
+            if (_effectiveController.selection.isCollapsed) {
+                _editableText.toggleToolbar();
             }
         }
 
-        InteractiveInkFeature _createInkFeature(Offset globalPosition) {
-            MaterialInkController inkController = Material.of(this.context);
-            ThemeData themeData = Theme.of(this.context);
-            BuildContext editableContext = this._editableTextKey.currentContext;
-            RenderBox referenceBox =
-                (RenderBox) (InputDecorator.containerOf(editableContext) ?? editableContext.findRenderObject());
-            Offset position = referenceBox.globalToLocal(globalPosition);
-            Color color = themeData.splashColor;
-
-            InteractiveInkFeature splash = null;
-
-            void handleRemoved() {
-                if (this._splashes != null) {
-                    D.assert(this._splashes.Contains(splash));
-                    this._splashes.Remove(splash);
-                    if (this._currentSplash == splash) {
-                        this._currentSplash = null;
-                    }
-
-                    this.updateKeepAlive();
-                } // else we're probably in deactivate()
+        void _handleHover(bool hovering) {
+            if (hovering != _isHovering) {
+                setState(() => { _isHovering = hovering; });
             }
-
-            splash = themeData.splashFactory.create(
-                controller: inkController,
-                referenceBox: referenceBox,
-                position: position,
-                color: color,
-                containedInkWell: true,
-                borderRadius: BorderRadius.zero,
-                onRemoved: handleRemoved
-            );
-
-            return splash;
-        }
-
-        RenderEditable _renderEditable {
-            get { return this._editableTextKey.currentState.renderEditable; }
-        }
-
-        void _handleTapDown(TapDownDetails details) {
-            this._renderEditable.handleTapDown(details);
-            this._startSplash(details.globalPosition);
-        }
-
-        void _handleSingleTapUp(TapUpDetails details) {
-            if (this.widget.enableInteractiveSelection == true) {
-                this._renderEditable.handleTap();
-            }
-
-            this._requestKeyboard();
-            this._confirmCurrentSplash();
-            if (this.widget.onTap != null) {
-                this.widget.onTap();
-            }
-        }
-
-        void _handleSingleTapCancel() {
-            this._cancelCurrentSplash();
-        }
-
-        void _handleSingleLongTapStart(LongPressStartDetails details) {
-            if (this.widget.selectionEnabled) {
-                switch (Theme.of(this.context).platform) {
-                    case RuntimePlatform.IPhonePlayer:
-                        this._renderEditable.selectPositionAt(
-                            from: details.globalPosition,
-                            cause: SelectionChangedCause.longPress
-                        );
-                        break;
-                    case RuntimePlatform.Android:
-                        this._renderEditable.selectWord(cause: SelectionChangedCause.longPress);
-                        Feedback.forLongPress(this.context);
-                        break;
-                }
-            }
-            this._confirmCurrentSplash();
-        }
-
-        void _handleSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
-            if (this.widget.selectionEnabled) {
-                switch (Theme.of(this.context).platform) {
-                    case RuntimePlatform.IPhonePlayer:
-                        this._renderEditable.selectPositionAt(
-                            from: details.globalPosition,
-                            cause: SelectionChangedCause.longPress
-                        );
-                        break;
-                    case RuntimePlatform.Android:
-                        this._renderEditable.selectWordsInRange(
-                            from: details.globalPosition - details.offsetFromOrigin,
-                            to: details.globalPosition,
-                            cause: SelectionChangedCause.longPress);
-                        Feedback.forLongPress(this.context);
-                        break;
-                }
-            }
-        }
-
-        void _handleSingleLongTapEnd(LongPressEndDetails details) {
-            this._editableTextKey.currentState.showToolbar();
-        }
-
-        void _handleDoubleTapDown(TapDownDetails details) {
-            if (this.widget.selectionEnabled) {
-                this._renderEditable.selectWord(cause: SelectionChangedCause.doubleTap);
-                this._editableTextKey.currentState.showToolbar();
-            }
-        }
-
-        void _handleMouseDragSelectionStart(DragStartDetails details) {
-            this._renderEditable.selectPositionAt(
-                from: details.globalPosition,
-                cause: SelectionChangedCause.drag);
-
-            this._startSplash(details.globalPosition);
-        }
-
-        void _handleMouseDragSelectionUpdate(DragStartDetails startDetails,
-            DragUpdateDetails updateDetails) {
-            this._renderEditable.selectPositionAt(
-                from: startDetails.globalPosition,
-                to: updateDetails.globalPosition,
-                cause: SelectionChangedCause.drag);
-        }
-
-
-        void _startSplash(Offset globalPosition) {
-            if (this._effectiveFocusNode.hasFocus) {
-                return;
-            }
-
-            InteractiveInkFeature splash = this._createInkFeature(globalPosition);
-            this._splashes = this._splashes ?? new HashSet<InteractiveInkFeature>();
-            this._splashes.Add(splash);
-            this._currentSplash = splash;
-            this.updateKeepAlive();
-        }
-
-        void _confirmCurrentSplash() {
-            this._currentSplash?.confirm();
-            this._currentSplash = null;
-        }
-
-        void _cancelCurrentSplash() {
-            this._currentSplash?.cancel();
-        }
-
-        protected override bool wantKeepAlive {
-            get { return this._splashes != null && this._splashes.isNotEmpty(); }
-        }
-
-        public override void deactivate() {
-            if (this._splashes != null) {
-                HashSet<InteractiveInkFeature> splashes = this._splashes;
-                this._splashes = null;
-                foreach (InteractiveInkFeature splash in splashes) {
-                    splash.dispose();
-                }
-
-                this._currentSplash = null;
-            }
-
-            D.assert(this._currentSplash == null);
-            base.deactivate();
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context); // See AutomaticKeepAliveClientMixin.
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
             D.assert(
-              !(this.widget.style != null && this.widget.style.inherit == false &&
-                (this.widget.style.fontSize == null || this.widget.style.textBaseline == null)),
-              () => "inherit false style must supply fontSize and textBaseline"
+                !(widget.style != null && widget.style.inherit == false &&
+                  (widget.style.fontSize == null || widget.style.textBaseline == null)),
+                () => "inherit false style must supply fontSize and textBaseline"
             );
             ThemeData themeData = Theme.of(context);
-            TextStyle style = themeData.textTheme.subhead.merge(this.widget.style);
-            Brightness keyboardAppearance = this.widget.keyboardAppearance ?? themeData.primaryColorBrightness;
-            TextEditingController controller = this._effectiveController;
-            FocusNode focusNode = this._effectiveFocusNode;
-            List<TextInputFormatter> formatters = this.widget.inputFormatters ?? new List<TextInputFormatter>();
-            if (this.widget.maxLength != null && this.widget.maxLengthEnforced) {
-                formatters.Add(new LengthLimitingTextInputFormatter(this.widget.maxLength));
+            TextStyle style = themeData.textTheme.subtitle1.merge(widget.style);
+            Brightness keyboardAppearance = widget.keyboardAppearance ?? themeData.primaryColorBrightness;
+            TextEditingController controller = _effectiveController;
+            FocusNode focusNode = _effectiveFocusNode;
+            List<TextInputFormatter> formatters = widget.inputFormatters ?? new List<TextInputFormatter>();
+            if (widget.maxLength != null && widget.maxLengthEnforced) {
+                formatters.Add(new LengthLimitingTextInputFormatter(widget.maxLength));
             }
-            
-            // bool forcePressEnabled = false; // TODO: wait for force press is ready
-            TextSelectionControls textSelectionControls = MaterialUtils.materialTextSelectionControls;;
+
+            TextSelectionControls textSelectionControls = MaterialUtils.materialTextSelectionControls;
+            ;
             bool paintCursorAboveText = false;
             bool cursorOpacityAnimates = false;
             Offset cursorOffset = null;
-            Color cursorColor = this.widget.cursorColor ?? themeData.cursorColor;
-            Radius cursorRadius = this.widget.cursorRadius;
+            Color cursorColor = widget.cursorColor ?? themeData.cursorColor;
+            Radius cursorRadius = widget.cursorRadius;
+
+            _forcePressEnabled = false;
+            textSelectionControls = _MaterialTextSelectionControls.materialTextSelectionControls;
+            paintCursorAboveText = false;
+            cursorOpacityAnimates = false;
+            cursorColor = cursorColor ?? themeData.cursorColor;
 
             Widget child = new RepaintBoundary(
                 child: new EditableText(
-                    key: this._editableTextKey,
+                    key: editableTextKey,
+                    readOnly: widget.readOnly,
+                    toolbarOptions: widget.toolbarOptions,
+                    showCursor: widget.showCursor,
+                    showSelectionHandles: _showSelectionHandles,
                     controller: controller,
                     focusNode: focusNode,
-                    keyboardType: this.widget.keyboardType,
-                    textInputAction: this.widget.textInputAction,
-                    textCapitalization: this.widget.textCapitalization,
+                    keyboardType: widget.keyboardType,
+                    textInputAction: widget.textInputAction,
+                    textCapitalization: widget.textCapitalization,
                     style: style,
-                    strutStyle: this.widget.strutStyle,
-                    textAlign: this.widget.textAlign,
-                    textDirection: this.widget.textDirection,
-                    autofocus: this.widget.autofocus,
-                    obscureText: this.widget.obscureText,
-                    autocorrect: this.widget.autocorrect,
-                    maxLines: this.widget.maxLines,
-                    minLines: this.widget.minLines,
-                    expands: this.widget.expands,
+                    strutStyle: widget.strutStyle,
+                    textAlign: widget.textAlign,
+                    textDirection: widget.textDirection,
+                    autofocus: widget.autofocus,
+                    obscureText: widget.obscureText,
+                    autocorrect: widget.autocorrect,
+                    smartDashesType: widget.smartDashesType,
+                    smartQuotesType: widget.smartQuotesType,
+                    enableSuggestions: widget.enableSuggestions,
+                    maxLines: widget.maxLines,
+                    minLines: widget.minLines,
+                    expands: widget.expands,
                     selectionColor: themeData.textSelectionColor,
-                    selectionControls: this.widget.selectionEnabled ? textSelectionControls : null,
-                    onChanged: this.widget.onChanged,
-                    onSelectionChanged: this._handleSelectionChanged,
-                    onEditingComplete: this.widget.onEditingComplete,
-                    onSubmitted: this.widget.onSubmitted,
+                    selectionControls: widget.selectionEnabled ? textSelectionControls : null,
+                    onChanged: widget.onChanged,
+                    onSelectionChanged: _handleSelectionChanged,
+                    onEditingComplete: widget.onEditingComplete,
+                    onSubmitted: widget.onSubmitted,
+                    onSelectionHandleTapped: _handleSelectionHandleTapped,
                     inputFormatters: formatters,
                     rendererIgnoresPointer: true,
-                    cursorWidth: this.widget.cursorWidth,
+                    cursorWidth: widget.cursorWidth.Value,
                     cursorRadius: cursorRadius,
                     cursorColor: cursorColor,
+                    selectionHeightStyle: widget.selectionHeightStyle,
+                    selectionWidthStyle: widget.selectionWidthStyle,
                     cursorOpacityAnimates: cursorOpacityAnimates,
                     cursorOffset: cursorOffset,
                     paintCursorAboveText: paintCursorAboveText,
-                    backgroundCursorColor: new Color(0xFF8E8E93),// TODO: CupertinoColors.inactiveGray,
-                    scrollPadding: this.widget.scrollPadding,
+                    backgroundCursorColor: CupertinoColors.inactiveGray,
+                    scrollPadding: widget.scrollPadding,
                     keyboardAppearance: keyboardAppearance,
-                    enableInteractiveSelection: this.widget.enableInteractiveSelection == true,
-                    dragStartBehavior: this.widget.dragStartBehavior,
-                    scrollPhysics: this.widget.scrollPhysics
+                    enableInteractiveSelection: widget.enableInteractiveSelection == true,
+                    dragStartBehavior: widget.dragStartBehavior,
+                    scrollController: widget.scrollController,
+                    scrollPhysics: widget.scrollPhysics
                 )
             );
 
-            if (this.widget.decoration != null) {
+            if (widget.decoration != null) {
                 child = new AnimatedBuilder(
                     animation: ListenableUtils.merge(new List<Listenable> {focusNode, controller}),
                     builder:
                     (_context, _child) => {
                         return new InputDecorator(
-                            decoration: this._getEffectiveDecoration(),
-                            baseStyle: this.widget.style,
-                            textAlign: this.widget.textAlign,
+                            decoration: _getEffectiveDecoration(),
+                            baseStyle: widget.style,
+                            textAlign: widget.textAlign,
+                            textAlignVertical: widget.textAlignVertical,
+                            isHovering: _isHovering,
                             isFocused: focusNode.hasFocus,
                             isEmpty: controller.value.text.isEmpty(),
-                            expands: this.widget.expands,
+                            expands: widget.expands,
                             child: _child
                         );
                     },
@@ -600,21 +627,27 @@ namespace Unity.UIWidgets.material {
                 );
             }
 
+            void onEnter(PointerEnterEvent pEvent) {
+                _handleHover(true);
+            }
+
+            void onExit(PointerExitEvent pEvent) {
+                _handleHover(false);
+            }
+
             return new IgnorePointer(
-                ignoring: !(this.widget.enabled ?? this.widget.decoration?.enabled ?? true),
-                child: new TextSelectionGestureDetector(
-                    onTapDown: this._handleTapDown,
-                    // onForcePressStart: forcePressEnabled ? this._handleForcePressStarted : null, // TODO: Remove this when force press is added
-                    onSingleTapUp: this._handleSingleTapUp,
-                    onSingleTapCancel: this._handleSingleTapCancel,
-                    onSingleLongTapStart: this._handleSingleLongTapStart,
-                    onSingleLongTapMoveUpdate: this._handleSingleLongTapMoveUpdate,
-                    onSingleLongTapEnd: this._handleSingleLongTapEnd,
-                    onDoubleTapDown: this._handleDoubleTapDown,
-                    onDragSelectionStart: this._handleMouseDragSelectionStart,
-                    onDragSelectionUpdate: this._handleMouseDragSelectionUpdate,
-                    behavior: HitTestBehavior.translucent,
-                    child: child
+                ignoring: !_isEnabled,
+                child: new MouseRegion(
+                    onEnter: onEnter,
+                    onExit: onExit,
+                    child: new AnimatedBuilder(
+                        animation: controller,
+                        builder: (BuildContext buildContext, Widget buildChild) => { return buildChild; },
+                        child: _selectionGestureDetectorBuilder.buildGestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            child: child
+                        )
+                    )
                 )
             );
         }

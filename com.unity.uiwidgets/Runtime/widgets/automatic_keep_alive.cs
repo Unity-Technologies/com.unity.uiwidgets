@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
@@ -27,77 +29,76 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            this._updateChild();
+            _updateChild();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
+            oldWidget = (AutomaticKeepAlive)oldWidget;
             base.didUpdateWidget(oldWidget);
-            this._updateChild();
+            _updateChild();
         }
 
         void _updateChild() {
-            this._child = new NotificationListener<KeepAliveNotification>(
-                onNotification: this._addClient,
-                child: this.widget.child
+            _child = new NotificationListener<KeepAliveNotification>(
+                onNotification: _addClient,
+                child: widget.child
             );
         }
 
         public override void dispose() {
-            if (this._handles != null) {
-                foreach (Listenable handle in this._handles.Keys) {
-                    handle.removeListener(this._handles[handle]);
+            if (_handles != null) {
+                foreach (Listenable handle in _handles.Keys) {
+                    handle.removeListener(_handles[handle]);
                 }
             }
-
             base.dispose();
         }
 
         bool _addClient(KeepAliveNotification notification) {
             Listenable handle = notification.handle;
-            this._handles = this._handles ?? new Dictionary<Listenable, VoidCallback>();
-
-            D.assert(!this._handles.ContainsKey(handle));
-            this._handles[handle] = this._createCallback(handle);
-            handle.addListener(this._handles[handle]);
-            if (!this._keepingAlive) {
-                this._keepingAlive = true;
-                ParentDataElement childElement = this._getChildElement();
+            _handles = _handles ?? new Dictionary<Listenable, VoidCallback>();
+            D.assert(!_handles.ContainsKey(handle));
+            _handles[handle] = _createCallback(handle);
+            handle.addListener(_handles[handle]);
+            if (!_keepingAlive) {
+                _keepingAlive = true;
+                ParentDataElement childElement = _getChildElement();
                 if (childElement != null) {
-                    this._updateParentDataOfChild(childElement);
+                    _updateParentDataOfChild(childElement);
                 }
                 else {
                     SchedulerBinding.instance.addPostFrameCallback(timeStamp => {
-                        if (!this.mounted) {
+                        if (!mounted) {
                             return;
                         }
-                        ParentDataElement childElement1 = this._getChildElement();
+                        ParentDataElement childElement1 = _getChildElement();
                         D.assert(childElement1 != null);
-                        this._updateParentDataOfChild(childElement1);
+                        _updateParentDataOfChild(childElement1);
                     });
                 }
             }
 
             return false;
         }
-
+        
         ParentDataElement _getChildElement() {
-            D.assert(this.mounted);
-            Element element = (Element) this.context;
+            D.assert(mounted);
+            Element element = (Element) context;
             Element childElement = null;
             element.visitChildren((Element child) => { childElement = child; });
 
             D.assert(childElement == null || childElement is ParentDataElement);
             return (ParentDataElement) childElement;
         }
-
-        void _updateParentDataOfChild(ParentDataElement childElement) {
-            childElement.applyWidgetOutOfTurn((ParentDataWidget) this.build(this.context));
-        }
+        
+       void _updateParentDataOfChild(ParentDataElement childElement) {
+           childElement.applyWidgetOutOfTurn((ParentDataWidget) build(context));
+       }
 
         VoidCallback _createCallback(Listenable handle) {
             return () => {
                 D.assert(() => {
-                    if (!this.mounted) {
+                    if (!mounted) {
                         throw new UIWidgetsError(
                             "AutomaticKeepAlive handle triggered after AutomaticKeepAlive was disposed." +
                             "Widgets should always trigger their KeepAliveNotification handle when they are " +
@@ -108,17 +109,19 @@ namespace Unity.UIWidgets.widgets {
 
                     return true;
                 });
-                this._handles.Remove(handle);
-                if (this._handles.isEmpty()) {
+                _handles.Remove(handle);
+                if (_handles.isEmpty()) {
                     if (SchedulerBinding.instance.schedulerPhase < SchedulerPhase.persistentCallbacks) {
-                        this.setState(() => { this._keepingAlive = false; });
+                        setState(() => { _keepingAlive = false; });
                     }
                     else {
-                        this._keepingAlive = false;
-                        Window.instance.scheduleMicrotask(() => {
-                            if (this.mounted && this._handles.isEmpty()) {
-                                this.setState(() => { D.assert(!this._keepingAlive); });
+                        _keepingAlive = false;
+                        async_.scheduleMicrotask(() => {
+                            if (mounted && _handles.isEmpty()) {
+                                setState(() => { D.assert(!_keepingAlive); });
                             }
+
+                            return null;
                         });
                     }
                 }
@@ -126,21 +129,21 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(this._child != null);
+            D.assert(_child != null);
             return new KeepAlive(
-                keepAlive: this._keepingAlive,
-                child: this._child
+                keepAlive: _keepingAlive,
+                child: _child
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new FlagProperty("_keepingAlive", value: this._keepingAlive,
+            description.add(new FlagProperty("_keepingAlive", value: _keepingAlive,
                 ifTrue: "keeping subtree alive"));
             description.add(new DiagnosticsProperty<Dictionary<Listenable, VoidCallback>>(
                 "handles",
-                this._handles,
-                description: this._handles != null ? this._handles.Count + " active clients" : null,
+                _handles,
+                description: _handles != null ? _handles.Count + " active clients" : null,
                 ifNull: "no notifications ever received"
             ));
         }
@@ -157,7 +160,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class KeepAliveHandle : ChangeNotifier {
         public void release() {
-            this.notifyListeners();
+            notifyListeners();
         }
     }
 
@@ -167,87 +170,83 @@ namespace Unity.UIWidgets.widgets {
         KeepAliveHandle _keepAliveHandle;
 
         void _ensureKeepAlive() {
-            D.assert(this._keepAliveHandle == null);
-            this._keepAliveHandle = new KeepAliveHandle();
-            new KeepAliveNotification(this._keepAliveHandle).dispatch(this.context);
+            D.assert(_keepAliveHandle == null);
+            _keepAliveHandle = new KeepAliveHandle();
+            new KeepAliveNotification(_keepAliveHandle).dispatch(context);
         }
 
         void _releaseKeepAlive() {
-            this._keepAliveHandle.release();
-            this._keepAliveHandle = null;
+            _keepAliveHandle.release();
+            _keepAliveHandle = null;
         }
 
         protected abstract bool wantKeepAlive { get; }
 
         protected void updateKeepAlive() {
-            if (this.wantKeepAlive) {
-                if (this._keepAliveHandle == null) {
-                    this._ensureKeepAlive();
+            if (wantKeepAlive) {
+                if (_keepAliveHandle == null) {
+                    _ensureKeepAlive();
                 }
             }
             else {
-                if (this._keepAliveHandle != null) {
-                    this._releaseKeepAlive();
+                if (_keepAliveHandle != null) {
+                    _releaseKeepAlive();
                 }
             }
         }
 
         public override void initState() {
             base.initState();
-            if (this.wantKeepAlive) {
-                this._ensureKeepAlive();
+            if (wantKeepAlive) {
+                _ensureKeepAlive();
             }
         }
 
         public override void deactivate() {
-            if (this._keepAliveHandle != null) {
-                this._releaseKeepAlive();
+            if (_keepAliveHandle != null) {
+                _releaseKeepAlive();
             }
 
             base.deactivate();
         }
 
         public override Widget build(BuildContext context) {
-            if (this.wantKeepAlive && this._keepAliveHandle == null) {
-                this._ensureKeepAlive();
+            if (wantKeepAlive && _keepAliveHandle == null) {
+                _ensureKeepAlive();
             }
 
             return null;
         }
     }
-    
-    
+
+
     public abstract class AutomaticKeepAliveClientWithTickerProviderStateMixin<T> : State<T>, TickerProvider
         where T : StatefulWidget {
         HashSet<Ticker> _tickers;
 
         public Ticker createTicker(TickerCallback onTick) {
-            this._tickers = this._tickers ?? new HashSet<Ticker>();
+            _tickers = _tickers ?? new HashSet<Ticker>();
 
-            Func<string> debugLabel = null;
-            D.assert(() => {
-                debugLabel = () => "created by " + this;
-                return true;
-            });
-            var result = new _AutomaticWidgetTicker<T>(onTick, this, debugLabel: debugLabel);
-            this._tickers.Add(result);
+            var result = new _AutomaticWidgetTicker<T>(onTick, this,
+                debugLabel: foundation_.kDebugMode ? "created by " + this : null);
+            _tickers.Add(result);
             return result;
         }
 
         internal void _removeTicker(_AutomaticWidgetTicker<T> ticker) {
-            D.assert(this._tickers != null);
-            D.assert(this._tickers.Contains(ticker));
-            this._tickers.Remove(ticker);
+            D.assert(_tickers != null);
+            D.assert(_tickers.Contains(ticker));
+            _tickers.Remove(ticker);
         }
 
         public override void dispose() {
             D.assert(() => {
-                if (this._tickers != null) {
-                    foreach (Ticker ticker in this._tickers) {
+                if (_tickers != null) {
+                    foreach (Ticker ticker in _tickers) {
                         if (ticker.isActive) {
                             throw new UIWidgetsError(
                                 this + " was disposed with an active Ticker.\n" +
-                                this.GetType() +
+                                GetType() +
                                 " created a Ticker via its TickerProviderStateMixin, but at the time " +
                                 "dispose() was called on the mixin, that Ticker was still active. All Tickers must " +
                                 "be disposed before calling base.dispose(). Tickers used by AnimationControllers " +
@@ -265,9 +264,9 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void didChangeDependencies() {
-            bool muted = !TickerMode.of(this.context);
-            if (this._tickers != null) {
-                foreach (Ticker ticker in this._tickers) {
+            bool muted = !TickerMode.of(context);
+            if (_tickers != null) {
+                foreach (Ticker ticker in _tickers) {
                     ticker.muted = muted;
                 }
             }
@@ -279,58 +278,58 @@ namespace Unity.UIWidgets.widgets {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<HashSet<Ticker>>(
                 "tickers",
-                this._tickers,
-                description: this._tickers != null ? "tracking " + this._tickers.Count + " tickers" : null,
-                defaultValue: Diagnostics.kNullDefaultValue
+                _tickers,
+                description: _tickers != null ? "tracking " + _tickers.Count + " tickers" : null,
+                defaultValue: foundation_.kNullDefaultValue
             ));
         }
 
         KeepAliveHandle _keepAliveHandle;
 
         void _ensureKeepAlive() {
-            D.assert(this._keepAliveHandle == null);
-            this._keepAliveHandle = new KeepAliveHandle();
-            new KeepAliveNotification(this._keepAliveHandle).dispatch(this.context);
+            D.assert(_keepAliveHandle == null);
+            _keepAliveHandle = new KeepAliveHandle();
+            new KeepAliveNotification(_keepAliveHandle).dispatch(context);
         }
 
         void _releaseKeepAlive() {
-            this._keepAliveHandle.release();
-            this._keepAliveHandle = null;
+            _keepAliveHandle.release();
+            _keepAliveHandle = null;
         }
 
         protected abstract bool wantKeepAlive { get; }
 
         protected void updateKeepAlive() {
-            if (this.wantKeepAlive) {
-                if (this._keepAliveHandle == null) {
-                    this._ensureKeepAlive();
+            if (wantKeepAlive) {
+                if (_keepAliveHandle == null) {
+                    _ensureKeepAlive();
                 }
             }
             else {
-                if (this._keepAliveHandle != null) {
-                    this._releaseKeepAlive();
+                if (_keepAliveHandle != null) {
+                    _releaseKeepAlive();
                 }
             }
         }
 
         public override void initState() {
             base.initState();
-            if (this.wantKeepAlive) {
-                this._ensureKeepAlive();
+            if (wantKeepAlive) {
+                _ensureKeepAlive();
             }
         }
 
         public override void deactivate() {
-            if (this._keepAliveHandle != null) {
-                this._releaseKeepAlive();
+            if (_keepAliveHandle != null) {
+                _releaseKeepAlive();
             }
 
             base.deactivate();
         }
 
         public override Widget build(BuildContext context) {
-            if (this.wantKeepAlive && this._keepAliveHandle == null) {
-                this._ensureKeepAlive();
+            if (wantKeepAlive && _keepAliveHandle == null) {
+                _ensureKeepAlive();
             }
 
             return null;

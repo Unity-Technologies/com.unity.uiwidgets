@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -36,8 +38,12 @@ namespace Unity.UIWidgets.material {
             float iconSize = 24.0f,
             Color selectedItemColor = null,
             Color unselectedItemColor = null,
+            IconThemeData selectedIconTheme = null,
+            IconThemeData unselectedIconTheme = null,
             float selectedFontSize = 14.0f,
             float unselectedFontSize = 12.0f,
+            TextStyle selectedLabelStyle = null,
+            TextStyle unselectedLabelStyle = null,
             bool showSelectedLabels = true,
             bool? showUnselectedLabels = null
         ) : base(key: key) {
@@ -63,9 +69,13 @@ namespace Unity.UIWidgets.material {
             this.iconSize = iconSize;
             this.selectedItemColor = selectedItemColor ?? fixedColor;
             this.unselectedItemColor = unselectedItemColor;
+            this.selectedIconTheme = selectedIconTheme;
+            this.unselectedIconTheme = unselectedIconTheme;
             this.selectedFontSize = selectedFontSize;
             this.unselectedFontSize = unselectedFontSize;
             this.showSelectedLabels = showSelectedLabels;
+            this.selectedLabelStyle = selectedLabelStyle;
+            this.unselectedLabelStyle = unselectedLabelStyle;
             this.showUnselectedLabels = showUnselectedLabels ?? _defaultShowUnselected(_type(type, items));
         }
 
@@ -80,7 +90,7 @@ namespace Unity.UIWidgets.material {
         public readonly BottomNavigationBarType? type;
 
         public Color fixedColor {
-            get { return this.selectedItemColor; }
+            get { return selectedItemColor; }
         }
 
         public readonly Color backgroundColor;
@@ -91,6 +101,15 @@ namespace Unity.UIWidgets.material {
         public readonly Color selectedItemColor;
 
         public readonly Color unselectedItemColor;
+
+        public readonly IconThemeData selectedIconTheme;
+
+        public readonly IconThemeData unselectedIconTheme;
+
+        public readonly TextStyle selectedLabelStyle;
+
+        public readonly TextStyle unselectedLabelStyle;
+
 
         public readonly float selectedFontSize;
 
@@ -138,8 +157,10 @@ namespace Unity.UIWidgets.material {
             ColorTween colorTween = null,
             float? flex = null,
             bool selected = false,
-            float? selectedFontSize = null,
-            float? unselectedFontSize = null,
+            IconThemeData selectedIconTheme = null,
+            IconThemeData unselectedIconTheme = null,
+            TextStyle selectedLabelStyle = null,
+            TextStyle unselectedLabelStyle = null,
             bool? showSelectedLabels = null,
             bool? showUnselectedLabels = null,
             string indexLabel = null
@@ -147,8 +168,9 @@ namespace Unity.UIWidgets.material {
             D.assert(type != null);
             D.assert(item != null);
             D.assert(animation != null);
-            D.assert(selectedFontSize != null && selectedFontSize >= 0);
-            D.assert(unselectedFontSize != null && unselectedFontSize >= 0);
+            D.assert(selectedLabelStyle != null);
+            D.assert(unselectedLabelStyle != null);
+
             this.type = type;
             this.item = item;
             this.animation = animation;
@@ -157,8 +179,10 @@ namespace Unity.UIWidgets.material {
             this.colorTween = colorTween;
             this.flex = flex;
             this.selected = selected;
-            this.selectedFontSize = selectedFontSize.Value;
-            this.unselectedFontSize = unselectedFontSize.Value;
+            this.selectedLabelStyle = selectedLabelStyle;
+            this.unselectedLabelStyle = unselectedLabelStyle;
+            this.selectedIconTheme = selectedIconTheme;
+            this.unselectedIconTheme = unselectedIconTheme;
             this.showSelectedLabels = showSelectedLabels ?? false;
             this.showUnselectedLabels = showUnselectedLabels ?? false;
             this.indexLabel = indexLabel;
@@ -172,40 +196,66 @@ namespace Unity.UIWidgets.material {
         public readonly ColorTween colorTween;
         public readonly float? flex;
         public readonly bool selected;
-        public readonly float selectedFontSize;
-        public readonly float unselectedFontSize;
+        public readonly IconThemeData selectedIconTheme;
+        public readonly IconThemeData unselectedIconTheme;
+        public readonly TextStyle selectedLabelStyle;
+        public readonly TextStyle unselectedLabelStyle;
         public readonly string indexLabel;
         public readonly bool showSelectedLabels;
         public readonly bool showUnselectedLabels;
 
         public override Widget build(BuildContext context) {
             int size;
-            float bottomPadding = this.selectedFontSize / 2.0f;
-            float topPadding = this.selectedFontSize / 2.0f;
-            if (this.showSelectedLabels && !this.showUnselectedLabels) {
+
+            float selectedFontSize = selectedLabelStyle.fontSize ?? 0;
+
+            float selectedIconSize = selectedIconTheme?.size ?? iconSize ?? 0;
+            float unselectedIconSize = unselectedIconTheme?.size ?? iconSize ?? 0;
+            float selectedIconDiff = Mathf.Max(selectedIconSize - unselectedIconSize, 0);
+            float unselectedIconDiff = Mathf.Max(unselectedIconSize - selectedIconSize, 0);
+
+            float bottomPadding = 0;
+            float topPadding = 0;
+            if (showSelectedLabels && !showUnselectedLabels) {
                 bottomPadding = new FloatTween(
-                    begin: 0.0f,
-                    end: this.selectedFontSize / 2.0f
-                ).evaluate(this.animation);
+                    begin: selectedIconDiff / 2.0f,
+                    end: selectedFontSize / 2.0f - unselectedIconDiff / 2.0f
+                ).evaluate(animation);
                 topPadding = new FloatTween(
-                    begin: this.selectedFontSize,
-                    end: this.selectedFontSize / 2.0f
-                ).evaluate(this.animation);
+                    begin: selectedFontSize + selectedIconDiff / 2.0f,
+                    end: selectedFontSize / 2.0f - unselectedIconDiff / 2.0f
+                ).evaluate(animation);
+            }
+            else if (!showSelectedLabels && !showUnselectedLabels) {
+                bottomPadding = new FloatTween(
+                    begin: selectedIconDiff / 2.0f,
+                    end: unselectedIconDiff / 2.0f
+                ).evaluate(animation);
+                topPadding = new FloatTween(
+                    begin: selectedFontSize + selectedIconDiff / 2.0f,
+                    end: selectedFontSize + unselectedIconDiff / 2.0f
+                ).evaluate(animation);
+            }
+            else {
+                bottomPadding = new FloatTween(
+                    begin: selectedFontSize / 2.0f + selectedIconDiff / 2.0f,
+                    end: selectedFontSize / 2.0f + unselectedIconDiff / 2.0f
+                ).evaluate(animation);
+                topPadding = new FloatTween(
+                    begin: selectedFontSize / 2.0f + selectedIconDiff / 2.0f,
+                    end: selectedFontSize / 2.0f + unselectedIconDiff / 2.0f
+                ).evaluate(animation);
             }
 
-            if (!this.showSelectedLabels && !this.showUnselectedLabels) {
-                bottomPadding = 0.0f;
-                topPadding = this.selectedFontSize;
-            }
-            switch (this.type) {
+            switch (type) {
                 case BottomNavigationBarType.fix:
                     size = 1;
                     break;
                 case BottomNavigationBarType.shifting:
-                    size = ((this.flex * 1000.0f) ?? 0.0f).round();
+                    size = ((flex * 1000.0f) ?? 0.0f).round();
                     break;
                 default:
-                    throw new Exception("Unknown BottomNavigationBarType: " + this.type);
+                    throw new Exception("Unknown BottomNavigationBarType: " + type);
             }
 
             return new Expanded(
@@ -213,7 +263,7 @@ namespace Unity.UIWidgets.material {
                 child: new Stack(
                     children: new List<Widget> {
                         new InkResponse(
-                            onTap: this.onTap == null ? (GestureTapCallback) null : () => { this.onTap(); },
+                            onTap: onTap == null ? (GestureTapCallback) null : () => { onTap(); },
                             child: new Padding(
                                 padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
                                 child: new Column(
@@ -222,20 +272,22 @@ namespace Unity.UIWidgets.material {
                                     mainAxisSize: MainAxisSize.min,
                                     children: new List<Widget> {
                                         new _TileIcon(
-                                            colorTween: this.colorTween,
-                                            animation: this.animation,
-                                            iconSize: this.iconSize,
-                                            selected: this.selected,
-                                            item: this.item
+                                            colorTween: colorTween,
+                                            animation: animation,
+                                            iconSize: iconSize,
+                                            selected: selected,
+                                            item: item,
+                                            selectedIconTheme: selectedIconTheme,
+                                            unselectedIconTheme: unselectedIconTheme
                                         ),
                                         new _Label(
-                                            colorTween: this.colorTween,
-                                            animation: this.animation,
-                                            item: this.item,
-                                            selectedFontSize: this.selectedFontSize,
-                                            unselectedFontSize: this.unselectedFontSize,
-                                            showSelectedLabels: this.showSelectedLabels,
-                                            showUnselectedLabels: this.showUnselectedLabels
+                                            colorTween: colorTween,
+                                            animation: animation,
+                                            item: item,
+                                            selectedLabelStyle: selectedLabelStyle,
+                                            unselectedLabelStyle: unselectedLabelStyle,
+                                            showSelectedLabels: showSelectedLabels,
+                                            showUnselectedLabels: showUnselectedLabels
                                         )
                                     }
                                 )
@@ -255,7 +307,9 @@ namespace Unity.UIWidgets.material {
             Animation<float> animation = null,
             float? iconSize = null,
             bool? selected = null,
-            BottomNavigationBarItem item = null
+            BottomNavigationBarItem item = null,
+            IconThemeData selectedIconTheme = null,
+            IconThemeData unselectedIconTheme = null
         ) : base(key: key) {
             D.assert(selected != null);
             D.assert(item != null);
@@ -264,27 +318,37 @@ namespace Unity.UIWidgets.material {
             this.iconSize = iconSize;
             this.selected = selected;
             this.item = item;
+            this.selectedIconTheme = selectedIconTheme;
+            this.unselectedIconTheme = unselectedIconTheme;
         }
 
-        ColorTween colorTween;
-        Animation<float> animation;
-        float? iconSize;
-        bool? selected;
-        BottomNavigationBarItem item;
+        public readonly ColorTween colorTween;
+        public readonly Animation<float> animation;
+        public readonly float? iconSize;
+        public readonly bool? selected;
+        public readonly BottomNavigationBarItem item;
+        public readonly IconThemeData selectedIconTheme;
+        public readonly IconThemeData unselectedIconTheme;
 
         public override Widget build(BuildContext context) {
-            Color iconColor = this.colorTween.evaluate(this.animation);
+            Color iconColor = colorTween.evaluate(animation);
+            IconThemeData defaultIconTheme = new IconThemeData(
+                color: iconColor,
+                size: iconSize
+            );
+            IconThemeData iconThemeData = IconThemeData.lerp(
+                defaultIconTheme.merge(unselectedIconTheme),
+                defaultIconTheme.merge(selectedIconTheme),
+                animation.value
+            );
 
             return new Align(
                 alignment: Alignment.topCenter,
                 heightFactor: 1.0f,
                 child: new Container(
                     child: new IconTheme(
-                        data: new IconThemeData(
-                            color: iconColor,
-                            size: this.iconSize
-                        ),
-                        child: this.selected == true ? this.item.activeIcon : this.item.icon
+                        data: iconThemeData,
+                        child: selected == true ? item.activeIcon : item.icon
                     )
                 )
             );
@@ -297,23 +361,23 @@ namespace Unity.UIWidgets.material {
             ColorTween colorTween = null,
             Animation<float> animation = null,
             BottomNavigationBarItem item = null,
-            float? selectedFontSize = null,
-            float? unselectedFontSize = null,
+            TextStyle selectedLabelStyle = null,
+            TextStyle unselectedLabelStyle = null,
             bool? showSelectedLabels = null,
             bool? showUnselectedLabels = null
         ) : base(key: key) {
             D.assert(colorTween != null);
             D.assert(animation != null);
             D.assert(item != null);
-            D.assert(selectedFontSize != null);
-            D.assert(unselectedFontSize != null);
+            D.assert(selectedLabelStyle != null);
+            D.assert(unselectedLabelStyle != null);
             D.assert(showSelectedLabels != null);
             D.assert(showUnselectedLabels != null);
             this.colorTween = colorTween;
             this.animation = animation;
             this.item = item;
-            this.selectedFontSize = selectedFontSize.Value;
-            this.unselectedFontSize = unselectedFontSize.Value;
+            this.selectedLabelStyle = selectedLabelStyle;
+            this.unselectedLabelStyle = unselectedLabelStyle;
             this.showSelectedLabels = showSelectedLabels.Value;
             this.showUnselectedLabels = showUnselectedLabels.Value;
         }
@@ -321,43 +385,52 @@ namespace Unity.UIWidgets.material {
         public readonly ColorTween colorTween;
         public readonly Animation<float> animation;
         public readonly BottomNavigationBarItem item;
-        public readonly float selectedFontSize;
-        public readonly float unselectedFontSize;
+        public readonly TextStyle selectedLabelStyle;
+        public readonly TextStyle unselectedLabelStyle;
         public readonly bool showSelectedLabels;
         public readonly bool showUnselectedLabels;
 
         public override Widget build(BuildContext context) {
-            float t = new FloatTween(begin: this.unselectedFontSize / this.selectedFontSize, end: 1.0f)
-                    .evaluate(this.animation);
+            float selectedFontSize = selectedLabelStyle.fontSize ?? 0;
+            float unselectedFontSize = unselectedLabelStyle.fontSize ?? 0;
+
+            TextStyle customStyle = TextStyle.lerp(
+                unselectedLabelStyle,
+                selectedLabelStyle,
+                animation.value
+            );
+            float t = new FloatTween(begin: unselectedFontSize / selectedFontSize, end: 1.0f)
+                .evaluate(animation);
             Widget text = DefaultTextStyle.merge(
-                style: new TextStyle(
-                    fontSize: this.selectedFontSize,
-                    color: this.colorTween.evaluate(this.animation)
+                style: customStyle.copyWith(
+                    fontSize: selectedFontSize,
+                    color: colorTween.evaluate(animation)
                 ),
                 child: new Transform(
-                    transform: new Matrix4().diagonal3Values(t, t, t),
+                    transform: Matrix4.diagonal3Values(t, t, t),
                     alignment: Alignment.bottomCenter,
-                    child: this.item.title
+                    child: item.title
                 )
             );
-            if (!this.showUnselectedLabels && !this.showSelectedLabels) {
+            if (!showUnselectedLabels && !showSelectedLabels) {
                 text = new Opacity(
                     opacity: 0.0f,
                     child: text
                 );
             }
-            else if (!this.showUnselectedLabels) {
+            else if (!showUnselectedLabels) {
                 text = new FadeTransition(
-                    opacity: this.animation,
+                    opacity: animation,
                     child: text
                 );
             }
-            else if (!this.showSelectedLabels) {
+            else if (!showSelectedLabels) {
                 text = new FadeTransition(
-                    opacity: new FloatTween(begin: 1.0f, end: 0.0f).animate(this.animation),
+                    opacity: new FloatTween(begin: 1.0f, end: 0.0f).animate(animation),
                     child: text
                 );
             }
+
             return new Align(
                 alignment: Alignment.bottomCenter,
                 heightFactor: 1.0f,
@@ -380,54 +453,54 @@ namespace Unity.UIWidgets.material {
         }
 
         void _resetState() {
-            foreach (AnimationController controller in this._controllers) {
+            foreach (AnimationController controller in _controllers) {
                 controller.dispose();
             }
 
-            foreach (_Circle circle in this._circles) {
+            foreach (_Circle circle in _circles) {
                 circle.dispose();
             }
 
-            this._circles.Clear();
+            _circles.Clear();
 
-            this._controllers = new List<AnimationController>(capacity: this.widget.items.Count);
-            for (int index = 0; index < this.widget.items.Count; index++) {
+            _controllers = new List<AnimationController>(capacity: widget.items.Count);
+            for (int index = 0; index < widget.items.Count; index++) {
                 AnimationController controller = new AnimationController(
                     duration: ThemeUtils.kThemeAnimationDuration,
                     vsync: this
                 );
-                controller.addListener(this._rebuild);
-                this._controllers.Add(controller);
+                controller.addListener(_rebuild);
+                _controllers.Add(controller);
             }
 
-            this._animations = new List<CurvedAnimation>(capacity: this.widget.items.Count);
-            for (int index = 0; index < this.widget.items.Count; index++) {
-                this._animations.Add(new CurvedAnimation(
-                    parent: this._controllers[index],
+            _animations = new List<CurvedAnimation>(capacity: widget.items.Count);
+            for (int index = 0; index < widget.items.Count; index++) {
+                _animations.Add(new CurvedAnimation(
+                    parent: _controllers[index],
                     curve: Curves.fastOutSlowIn,
                     reverseCurve: Curves.fastOutSlowIn.flipped
                 ));
             }
 
-            this._controllers[this.widget.currentIndex].setValue(1.0f);
-            this._backgroundColor = this.widget.items[this.widget.currentIndex].backgroundColor;
+            _controllers[widget.currentIndex].setValue(1.0f);
+            _backgroundColor = widget.items[widget.currentIndex].backgroundColor;
         }
 
         public override void initState() {
             base.initState();
-            this._resetState();
+            _resetState();
         }
 
         void _rebuild() {
-            this.setState(() => { });
+            setState(() => { });
         }
 
         public override void dispose() {
-            foreach (AnimationController controller in this._controllers) {
+            foreach (AnimationController controller in _controllers) {
                 controller.dispose();
             }
 
-            foreach (_Circle circle in this._circles) {
+            foreach (_Circle circle in _circles) {
                 circle.dispose();
             }
 
@@ -439,20 +512,20 @@ namespace Unity.UIWidgets.material {
         }
 
         void _pushCircle(int index) {
-            if (this.widget.items[index].backgroundColor != null) {
+            if (widget.items[index].backgroundColor != null) {
                 _Circle circle = new _Circle(
                     state: this,
                     index: index,
-                    color: this.widget.items[index].backgroundColor,
+                    color: widget.items[index].backgroundColor,
                     vsync: this
                 );
                 circle.controller.addStatusListener(
                     (AnimationStatus status) => {
                         switch (status) {
                             case AnimationStatus.completed:
-                                this.setState(() => {
-                                    _Circle cir = this._circles.Dequeue();
-                                    this._backgroundColor = cir.color;
+                                setState(() => {
+                                    _Circle cir = _circles.Dequeue();
+                                    _backgroundColor = cir.color;
                                     cir.dispose();
                                 });
                                 break;
@@ -463,41 +536,50 @@ namespace Unity.UIWidgets.material {
                         }
                     }
                 );
-                this._circles.Enqueue(circle);
+                _circles.Enqueue(circle);
             }
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             base.didUpdateWidget(_oldWidget);
             BottomNavigationBar oldWidget = _oldWidget as BottomNavigationBar;
-            if (this.widget.items.Count != oldWidget.items.Count) {
-                this._resetState();
+            if (widget.items.Count != oldWidget.items.Count) {
+                _resetState();
                 return;
             }
 
-            if (this.widget.currentIndex != oldWidget.currentIndex) {
-                switch (this.widget.type) {
+            if (widget.currentIndex != oldWidget.currentIndex) {
+                switch (widget.type) {
                     case BottomNavigationBarType.fix:
                         break;
                     case BottomNavigationBarType.shifting:
-                        this._pushCircle(this.widget.currentIndex);
+                        _pushCircle(widget.currentIndex);
                         break;
                 }
 
-                this._controllers[oldWidget.currentIndex].reverse();
-                this._controllers[this.widget.currentIndex].forward();
+                _controllers[oldWidget.currentIndex].reverse();
+                _controllers[widget.currentIndex].forward();
             }
             else {
-                if (this._backgroundColor != this.widget.items[this.widget.currentIndex].backgroundColor) {
-                    this._backgroundColor = this.widget.items[this.widget.currentIndex].backgroundColor;
+                if (_backgroundColor != widget.items[widget.currentIndex].backgroundColor) {
+                    _backgroundColor = widget.items[widget.currentIndex].backgroundColor;
                 }
             }
         }
 
+        static TextStyle _effectiveTextStyle(TextStyle textStyle, float fontSize) {
+            textStyle = textStyle ?? new TextStyle();
+            return textStyle.fontSize == null ? textStyle.copyWith(fontSize: fontSize) : textStyle;
+        }
+
         List<Widget> _createTiles() {
-            MaterialLocalizations localizations = MaterialLocalizations.of(this.context);
+            MaterialLocalizations localizations = MaterialLocalizations.of(context);
             D.assert(localizations != null);
-            ThemeData themeData = Theme.of(this.context);
+            ThemeData themeData = Theme.of(context);
+            TextStyle effectiveSelectedLabelStyle =
+                _effectiveTextStyle(widget.selectedLabelStyle, widget.selectedFontSize);
+            TextStyle effectiveUnselectedLabelStyle =
+                _effectiveTextStyle(widget.unselectedLabelStyle, widget.unselectedFontSize);
             Color themeColor;
             switch (themeData.brightness) {
                 case Brightness.light:
@@ -511,44 +593,46 @@ namespace Unity.UIWidgets.material {
             }
 
             ColorTween colorTween;
-            switch (this.widget.type) {
+            switch (widget.type) {
                 case BottomNavigationBarType.fix:
                     colorTween = new ColorTween(
-                        begin: this.widget.unselectedItemColor ?? themeData.textTheme.caption.color,
-                        end: this.widget.selectedItemColor ?? this.widget.fixedColor ?? themeColor
+                        begin: widget.unselectedItemColor ?? themeData.textTheme.caption.color,
+                        end: widget.selectedItemColor ?? widget.fixedColor ?? themeColor
                     );
                     break;
                 case BottomNavigationBarType.shifting:
                     colorTween = new ColorTween(
-                        begin: this.widget.unselectedItemColor ?? Colors.white,
-                        end: this.widget.selectedItemColor ?? Colors.white
+                        begin: widget.unselectedItemColor ?? Colors.white,
+                        end: widget.selectedItemColor ?? Colors.white
                     );
                     break;
                 default:
-                    throw new UIWidgetsError($"Unknown bottom navigation bar type: {this.widget.type}");
+                    throw new UIWidgetsError($"Unknown bottom navigation bar type: {widget.type}");
             }
 
             List<Widget> tiles = new List<Widget>();
-            for (int i = 0; i < this.widget.items.Count; i++) {
+            for (int i = 0; i < widget.items.Count; i++) {
                 int index = i;
                 tiles.Add(new _BottomNavigationTile(
-                    this.widget.type,
-                    this.widget.items[i],
-                    this._animations[i],
-                    this.widget.iconSize,
-                    selectedFontSize: this.widget.selectedFontSize,
-                    unselectedFontSize: this.widget.unselectedFontSize,
+                    widget.type,
+                    widget.items[i],
+                    _animations[i],
+                    widget.iconSize,
+                    selectedIconTheme: widget.selectedIconTheme,
+                    unselectedIconTheme: widget.unselectedIconTheme,
+                    selectedLabelStyle: effectiveSelectedLabelStyle,
+                    unselectedLabelStyle: effectiveUnselectedLabelStyle,
                     onTap: () => {
-                        if (this.widget.onTap != null) {
-                            this.widget.onTap(index);
+                        if (widget.onTap != null) {
+                            widget.onTap(index);
                         }
                     },
                     colorTween: colorTween,
-                    flex: this._evaluateFlex(this._animations[i]),
-                    selected: i == this.widget.currentIndex,
-                    showSelectedLabels: this.widget.showSelectedLabels,
-                    showUnselectedLabels: this.widget.showUnselectedLabels,
-                    indexLabel: localizations.tabLabel(tabIndex: i+1, tabCount: this.widget.items.Count)
+                    flex: _evaluateFlex(_animations[i]),
+                    selected: i == widget.currentIndex,
+                    showSelectedLabels: widget.showSelectedLabels,
+                    showUnselectedLabels: widget.showUnselectedLabels,
+                    indexLabel: localizations.tabLabel(tabIndex: i + 1, tabCount: widget.items.Count)
                 ));
             }
 
@@ -567,30 +651,30 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             D.assert(WidgetsD.debugCheckHasDirectionality(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             float additionalBottomPadding =
-                Mathf.Max(MediaQuery.of(context).padding.bottom - this.widget.selectedFontSize / 2.0f, 0.0f);
+                Mathf.Max(MediaQuery.of(context).padding.bottom - widget.selectedFontSize / 2.0f, 0.0f);
             Color backgroundColor = null;
-            switch (this.widget.type) {
+            switch (widget.type) {
                 case BottomNavigationBarType.fix:
-                    backgroundColor = this.widget.backgroundColor;
+                    backgroundColor = widget.backgroundColor;
                     break;
                 case BottomNavigationBarType.shifting:
-                    backgroundColor = this._backgroundColor;
+                    backgroundColor = _backgroundColor;
                     break;
             }
 
 
             return new Material(
-                elevation: this.widget.elevation,
+                elevation: widget.elevation,
                 color: backgroundColor,
                 child: new ConstrainedBox(
                     constraints: new BoxConstraints(
-                        minHeight: Constants.kBottomNavigationBarHeight + additionalBottomPadding),
+                        minHeight: material_.kBottomNavigationBarHeight + additionalBottomPadding),
                     child: new CustomPaint(
                         painter: new _RadialPainter(
-                            circles: this._circles.ToList()
+                            circles: _circles.ToList()
                         ),
                         child: new Material( // Splashes.
                             type: MaterialType.transparency,
@@ -599,7 +683,7 @@ namespace Unity.UIWidgets.material {
                                 child: MediaQuery.removePadding(
                                     context: context,
                                     removeBottom: true,
-                                    child: this._createContainer(this._createTiles())
+                                    child: _createContainer(_createTiles())
                                 )
                             )
                         )
@@ -622,15 +706,15 @@ namespace Unity.UIWidgets.material {
             this.state = state;
             this.index = index;
             this.color = color;
-            this.controller = new AnimationController(
+            controller = new AnimationController(
                 duration: ThemeUtils.kThemeAnimationDuration,
                 vsync: vsync
             );
-            this.animation = new CurvedAnimation(
-                parent: this.controller,
+            animation = new CurvedAnimation(
+                parent: controller,
                 curve: Curves.fastOutSlowIn
             );
-            this.controller.forward();
+            controller.forward();
         }
 
         public readonly _BottomNavigationBarState state;
@@ -642,19 +726,19 @@ namespace Unity.UIWidgets.material {
         public float horizontalLeadingOffset {
             get {
                 float weightSum(IEnumerable<Animation<float>> animations) {
-                    return animations.Select(this.state._evaluateFlex).Sum();
+                    return LinqUtils<float,Animation<float>>.SelectList(animations, state._evaluateFlex).Sum();
                 }
 
-                float allWeights = weightSum(this.state._animations);
-                float leadingWeights = weightSum(this.state._animations.GetRange(0, this.index ?? 0));
+                float allWeights = weightSum(state._animations); 
+                float leadingWeights = weightSum(state._animations.GetRange(0, index ?? 0));
 
-                return (leadingWeights + this.state._evaluateFlex(this.state._animations[this.index ?? 0]) / 2.0f) /
+                return (leadingWeights + state._evaluateFlex(state._animations[index ?? 0]) / 2.0f) /
                        allWeights;
             }
         }
 
         public void dispose() {
-            this.controller.dispose();
+            controller.dispose();
         }
     }
 
@@ -676,16 +760,16 @@ namespace Unity.UIWidgets.material {
 
         public override bool shouldRepaint(CustomPainter _oldPainter) {
             _RadialPainter oldPainter = _oldPainter as _RadialPainter;
-            if (this.circles == oldPainter.circles) {
+            if (circles == oldPainter.circles) {
                 return false;
             }
 
-            if (this.circles.Count != oldPainter.circles.Count) {
+            if (circles.Count != oldPainter.circles.Count) {
                 return true;
             }
 
-            for (int i = 0; i < this.circles.Count; i += 1) {
-                if (this.circles[i] != oldPainter.circles[i]) {
+            for (int i = 0; i < circles.Count; i += 1) {
+                if (circles[i] != oldPainter.circles[i]) {
                     return true;
                 }
             }
@@ -694,7 +778,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override void paint(Canvas canvas, Size size) {
-            foreach (_Circle circle in this.circles) {
+            foreach (_Circle circle in circles) {
                 Paint paint = new Paint();
                 paint.color = circle.color;
                 Rect rect = Rect.fromLTWH(0.0f, 0.0f, size.width, size.height);

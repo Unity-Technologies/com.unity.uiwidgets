@@ -10,11 +10,13 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace UIWidgetsGallery.gallery {
-    class BackdropConstants {
-        public const float _kFrontHeadingHeight = 32.0f;
-        public const float _kFrontClosedHeight = 92.0f;
-        public const float _kBackAppBarHeight = 56.0f;
+namespace UIWidgetsGallery.gallery
+{
+    public static class GalleryBackdropUtils
+    {
+        public const float _kFrontHeadingHeight = 32.0f; // front layer beveled rectangle
+        public const float _kFrontClosedHeight = 92.0f; // front layer height when closed
+        public const float _kBackAppBarHeight = 56.0f; // back layer (options) appbar height
 
         public static readonly Animatable<BorderRadius> _kFrontHeadingBevelRadius = new BorderRadiusTween(
             begin: BorderRadius.only(
@@ -28,13 +30,15 @@ namespace UIWidgetsGallery.gallery {
         );
     }
 
-    class _TappableWhileStatusIs : StatefulWidget {
+    internal class _TappableWhileStatusIs : StatefulWidget
+    {
         public _TappableWhileStatusIs(
             AnimationStatus status,
             Key key = null,
             AnimationController controller = null,
             Widget child = null
-        ) : base(key: key) {
+        ) : base(key: key)
+        {
             this.controller = controller;
             this.status = status;
             this.child = child;
@@ -44,49 +48,67 @@ namespace UIWidgetsGallery.gallery {
         public readonly AnimationStatus status;
         public readonly Widget child;
 
-        public override State createState() {
+        public override State createState()
+        {
             return new _TappableWhileStatusIsState();
         }
     }
 
-    class _TappableWhileStatusIsState : State<_TappableWhileStatusIs> {
-        bool _active;
+    internal class _TappableWhileStatusIsState : State<_TappableWhileStatusIs>
+    {
+        private bool _active;
 
-        public override void initState() {
+        public override void initState()
+        {
             base.initState();
             this.widget.controller.addStatusListener(this._handleStatusChange);
             this._active = this.widget.controller.status == this.widget.status;
         }
 
-        public override void dispose() {
+
+        public override void dispose()
+        {
             this.widget.controller.removeStatusListener(this._handleStatusChange);
             base.dispose();
         }
 
-        void _handleStatusChange(AnimationStatus status) {
+        private void _handleStatusChange(AnimationStatus status)
+        {
             bool value = this.widget.controller.status == this.widget.status;
-            if (this._active != value) {
+            if (this._active != value)
                 this.setState(() => { this._active = value; });
-            }
         }
 
-        public override Widget build(BuildContext context) {
-            return new AbsorbPointer(
+        public override Widget build(BuildContext context)
+        {
+            Widget child = new AbsorbPointer(
                 absorbing: !this._active,
                 child: this.widget.child
             );
+
+            if (!this._active)
+                child = new FocusScope(
+                    canRequestFocus: false,
+                    debugLabel: "_TappableWhileStatusIs",
+                    child: child
+                );
+
+            return child;
         }
     }
 
-    class _CrossFadeTransition : AnimatedWidget {
+    internal class _CrossFadeTransition : AnimatedWidget
+    {
         public _CrossFadeTransition(
             Key key = null,
             Alignment alignment = null,
             Animation<float> progress = null,
             Widget child0 = null,
             Widget child1 = null
-        ) : base(key: key, listenable: progress) {
-            this.alignment = alignment ?? Alignment.center;
+        ) : base(key: key, listenable: progress)
+        {
+            alignment = alignment ?? Alignment.center;
+            this.alignment = alignment;
             this.child0 = child0;
             this.child1 = child1;
         }
@@ -95,7 +117,9 @@ namespace UIWidgetsGallery.gallery {
         public readonly Widget child0;
         public readonly Widget child1;
 
-        protected override Widget build(BuildContext context) {
+
+        protected override Widget build(BuildContext context)
+        {
             Animation<float> progress = this.listenable as Animation<float>;
 
             float opacity1 = new CurvedAnimation(
@@ -110,7 +134,8 @@ namespace UIWidgetsGallery.gallery {
 
             return new Stack(
                 alignment: this.alignment,
-                children: new List<Widget> {
+                children: new List<Widget>
+                {
                     new Opacity(
                         opacity: opacity1,
                         child: this.child1
@@ -124,15 +149,18 @@ namespace UIWidgetsGallery.gallery {
         }
     }
 
-    class _BackAppBar : StatelessWidget {
+    internal class _BackAppBar : StatelessWidget
+    {
         public _BackAppBar(
             Key key = null,
             Widget leading = null,
             Widget title = null,
             Widget trailing = null
-        ) : base(key: key) {
+        ) : base(key: key)
+        {
+            leading = leading ?? new SizedBox(width: 56.0f);
             D.assert(title != null);
-            this.leading = leading ?? new SizedBox(width: 56.0f);
+            this.leading = leading;
             this.title = title;
             this.trailing = trailing;
         }
@@ -141,8 +169,13 @@ namespace UIWidgetsGallery.gallery {
         public readonly Widget title;
         public readonly Widget trailing;
 
-        public override Widget build(BuildContext context) {
-            List<Widget> children = new List<Widget> {
+
+        public override Widget build(BuildContext context)
+        {
+            ThemeData theme = Theme.of(context);
+
+            List<Widget> children = new List<Widget>
+            {
                 new Container(
                     alignment: Alignment.center,
                     width: 56.0f,
@@ -150,47 +183,46 @@ namespace UIWidgetsGallery.gallery {
                 ),
                 new Expanded(
                     child: this.title
-                ),
+                )
             };
 
-            if (this.trailing != null) {
-                children.Add(
-                    new Container(
-                        alignment: Alignment.center,
-                        width: 56.0f,
-                        child: this.trailing
-                    )
-                );
-            }
-
-            ThemeData theme = Theme.of(context);
+            if (this.trailing != null)
+                children.Add(new Container(
+                    alignment: Alignment.center,
+                    width: 56.0f,
+                    child: this.trailing
+                ));
 
             return IconTheme.merge(
                 data: theme.primaryIconTheme,
                 child: new DefaultTextStyle(
-                    style: theme.primaryTextTheme.title,
+                    style: theme.primaryTextTheme.headline6,
                     child: new SizedBox(
-                        height: BackdropConstants._kBackAppBarHeight,
-                        child: new Row(children: children)
+                        height: GalleryBackdropUtils._kBackAppBarHeight,
+                        child: new Row(
+                            children: children
+                        )
                     )
                 )
             );
         }
     }
 
-    public class Backdrop : StatefulWidget {
+    public class Backdrop : StatefulWidget
+    {
         public Backdrop(
             Widget frontAction = null,
             Widget frontTitle = null,
-            Widget frontHeading = null,
             Widget frontLayer = null,
+            Widget frontHeading = null,
             Widget backTitle = null,
             Widget backLayer = null
-        ) {
+        )
+        {
             this.frontAction = frontAction;
             this.frontTitle = frontTitle;
-            this.frontHeading = frontHeading;
             this.frontLayer = frontLayer;
+            this.frontHeading = frontHeading;
             this.backTitle = backTitle;
             this.backLayer = backLayer;
         }
@@ -202,20 +234,23 @@ namespace UIWidgetsGallery.gallery {
         public readonly Widget backTitle;
         public readonly Widget backLayer;
 
-        public override State createState() {
+        public override State createState()
+        {
             return new _BackdropState();
         }
     }
 
-    class _BackdropState : SingleTickerProviderStateMixin<Backdrop> {
-        GlobalKey _backdropKey = GlobalKey.key(debugLabel: "Backdrop");
-        AnimationController _controller;
-        Animation<float> _frontOpacity;
+    internal class _BackdropState : SingleTickerProviderStateMixin<Backdrop>
+    {
+        private GlobalKey _backdropKey = GlobalKey.key(debugLabel: "Backdrop");
+        private AnimationController _controller;
+        private Animation<float> _frontOpacity;
 
-        static Animatable<float> _frontOpacityTween = new FloatTween(begin: 0.2f, end: 1.0f)
+        private static readonly Animatable<float> _frontOpacityTween = new FloatTween(begin: 0.2f, end: 1.0f)
             .chain(new CurveTween(curve: new Interval(0.0f, 0.4f, curve: Curves.easeInOut)));
 
-        public override void initState() {
+        public override void initState()
+        {
             base.initState();
             this._controller = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, 300),
@@ -225,64 +260,71 @@ namespace UIWidgetsGallery.gallery {
             this._frontOpacity = this._controller.drive(_frontOpacityTween);
         }
 
-        public override void dispose() {
+        public override void dispose()
+        {
             this._controller.dispose();
             base.dispose();
         }
 
-        float? _backdropHeight {
-            get {
-                RenderBox renderBox = (RenderBox) this._backdropKey.currentContext.findRenderObject();
+        private float _backdropHeight
+        {
+            get
+            {
+                // Warning: this can be safely called from the event handlers but it may
+                // not be called at build time.
+                RenderBox renderBox = this._backdropKey.currentContext.findRenderObject() as RenderBox;
                 return Mathf.Max(0.0f,
-                    renderBox.size.height - BackdropConstants._kBackAppBarHeight -
-                    BackdropConstants._kFrontClosedHeight);
+                    renderBox.size.height - GalleryBackdropUtils._kBackAppBarHeight -
+                    GalleryBackdropUtils._kFrontClosedHeight);
             }
         }
 
-        void _handleDragUpdate(DragUpdateDetails details) {
-            this._controller.setValue(this._controller.value -
-                                      details.primaryDelta / (this._backdropHeight ?? details.primaryDelta) ?? 0.0f);
+        private void _handleDragUpdate(DragUpdateDetails details)
+        {
+            this._controller.setValue(this._controller.value - details.primaryDelta.Value / this._backdropHeight);
         }
 
-        void _handleDragEnd(DragEndDetails details) {
-            if (this._controller.isAnimating || this._controller.status == AnimationStatus.completed) {
+        private void _handleDragEnd(DragEndDetails details)
+        {
+            if (this._controller.isAnimating || this._controller.status == AnimationStatus.completed)
                 return;
-            }
 
-            float? flingVelocity = details.velocity.pixelsPerSecond.dy / this._backdropHeight;
-            if (flingVelocity < 0.0f) {
-                this._controller.fling(velocity: Mathf.Max(2.0f, -flingVelocity ?? 0.0f));
-            }
-            else if (flingVelocity > 0.0f) {
-                this._controller.fling(velocity: Mathf.Min(-2.0f, -flingVelocity ?? 0.0f));
-            }
-            else {
+            float flingVelocity = details.velocity.pixelsPerSecond.dy / this._backdropHeight;
+            if (flingVelocity < 0.0)
+                this._controller.fling(velocity: Mathf.Max(2.0f, -flingVelocity));
+            else if (flingVelocity > 0.0)
+                this._controller.fling(velocity: Mathf.Min(-2.0f, -flingVelocity));
+            else
                 this._controller.fling(velocity: this._controller.value < 0.5 ? -2.0f : 2.0f);
-            }
         }
 
-        void _toggleFrontLayer() {
+        private void _toggleFrontLayer()
+        {
             AnimationStatus status = this._controller.status;
             bool isOpen = status == AnimationStatus.completed || status == AnimationStatus.forward;
             this._controller.fling(velocity: isOpen ? -2.0f : 2.0f);
         }
 
-        Widget _buildStack(BuildContext context, BoxConstraints constraints) {
+        private Widget _buildStack(BuildContext context, BoxConstraints constraints)
+        {
             Animation<RelativeRect> frontRelativeRect = this._controller.drive(new RelativeRectTween(
-                begin: RelativeRect.fromLTRB(0.0f, constraints.biggest.height - BackdropConstants._kFrontClosedHeight,
-                    0.0f, 0.0f),
-                end: RelativeRect.fromLTRB(0.0f, BackdropConstants._kBackAppBarHeight, 0.0f, 0.0f)
+                begin: RelativeRect.fromLTRB(0.0f,
+                    constraints.biggest.height - GalleryBackdropUtils._kFrontClosedHeight, 0.0f, 0.0f),
+                end: RelativeRect.fromLTRB(0.0f, GalleryBackdropUtils._kBackAppBarHeight, 0.0f, 0.0f)
             ));
 
-            List<Widget> layers = new List<Widget> {
+            var children = new List<Widget>
+            {
                 new Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new _BackAppBar(
                             leading: this.widget.frontAction,
                             title: new _CrossFadeTransition(
                                 progress: this._controller,
-                                alignment: Alignment.centerLeft,
+                                alignment: Alignment.center,
+                                //alignment: AlignmentDirectional.centerStart,
                                 child0: this.widget.frontTitle,
                                 child1: this.widget.backTitle
                             ),
@@ -296,26 +338,32 @@ namespace UIWidgetsGallery.gallery {
                             )
                         ),
                         new Expanded(
-                            child: new Visibility(
-                                child: this.widget.backLayer,
-                                visible: this._controller.status != AnimationStatus.completed,
-                                maintainState: true
+                            child: new _TappableWhileStatusIs(
+                                AnimationStatus.dismissed,
+                                controller: this._controller,
+                                child: new Visibility(
+                                    child: this.widget.backLayer,
+                                    visible: this._controller.status != AnimationStatus.completed,
+                                    maintainState: true
+                                )
                             )
                         )
                     }
                 ),
+                // Front layer
                 new PositionedTransition(
                     rect: frontRelativeRect,
                     child: new AnimatedBuilder(
                         animation: this._controller,
-                        builder: (BuildContext _context, Widget child) => {
+                        builder: (BuildContext subContext, Widget child) =>
+                        {
                             return new PhysicalShape(
                                 elevation: 12.0f,
-                                color: Theme.of(_context).canvasColor,
+                                color: Theme.of(subContext).canvasColor,
                                 clipper: new ShapeBorderClipper(
                                     shape: new BeveledRectangleBorder(
-                                        borderRadius: BackdropConstants._kFrontHeadingBevelRadius.evaluate(
-                                            this._controller)
+                                        borderRadius: GalleryBackdropUtils._kFrontHeadingBevelRadius.transform(
+                                            this._controller.value)
                                     )
                                 ),
                                 clipBehavior: Clip.antiAlias,
@@ -334,31 +382,29 @@ namespace UIWidgetsGallery.gallery {
                 )
             };
 
-            if (this.widget.frontHeading != null) {
-                layers.Add(
-                    new PositionedTransition(
-                        rect: frontRelativeRect,
-                        child: new Container(
-                            alignment: Alignment.topLeft,
-                            child: new GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: this._toggleFrontLayer,
-                                onVerticalDragUpdate: this._handleDragUpdate,
-                                onVerticalDragEnd: this._handleDragEnd,
-                                child: this.widget.frontHeading
-                            )
+            if (this.widget.frontHeading != null)
+                children.Add(new PositionedTransition(
+                    rect: frontRelativeRect,
+                    child: new Container(
+                        alignment: Alignment.topLeft,
+                        child: new GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: this._toggleFrontLayer,
+                            onVerticalDragUpdate: this._handleDragUpdate,
+                            onVerticalDragEnd: this._handleDragEnd,
+                            child: this.widget.frontHeading
                         )
                     )
-                );
-            }
+                ));
 
             return new Stack(
                 key: this._backdropKey,
-                children: layers
+                children: children
             );
         }
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             return new LayoutBuilder(builder: this._buildStack);
         }
     }

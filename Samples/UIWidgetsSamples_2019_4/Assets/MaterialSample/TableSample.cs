@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using uiwidgets;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
@@ -7,19 +9,19 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
+using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample {
     
-    public class TableSample : UIWidgetsSamplePanel {
+    public class TableSample : UIWidgetsPanel {
 
-        protected override Widget createWidget() {
-            return new MaterialApp(
+        protected override void main() {
+            ui_.runApp(new MaterialApp(
                 showPerformanceOverlay: false,
-                home: new TableWidget());
+                home: new TableWidget()));
         }
 
-        protected override void OnEnable() {
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/MaterialIcons-Regular"), "Material Icons");
+        protected new void OnEnable() {
             base.OnEnable();
         }
     }

@@ -1,4 +1,5 @@
-using RSG;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -8,14 +9,22 @@ namespace Unity.UIWidgets.material {
         Feedback() {
         }
 
-        public static IPromise forTap(BuildContext context) {
+        public static Future forTap(BuildContext context) {
             switch (_platform(context)) {
                 case RuntimePlatform.Android:
-                    return
-                        Promise.Resolved(); // SystemSound.play(SystemSoundType.click); TODO: replace with unity equivalent
-                default:
-                    return Promise.Resolved();
+                    return Future.value(); // SystemSound.play(SystemSoundType.click); TODO: replace with unity equivalent
+                case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    return Future.value();
             }
+
+            D.assert(false, () => $"Unhandled TargetPlatform {_platform(context)}");
+            return Future.value();
         }
 
         public static GestureTapCallback wrapForTap(GestureTapCallback callback, BuildContext context) {
@@ -29,13 +38,21 @@ namespace Unity.UIWidgets.material {
             };
         }
 
-        public static IPromise forLongPress(BuildContext context) {
+        public static Future forLongPress(BuildContext context) {
             switch (_platform(context)) {
                 case RuntimePlatform.Android:
-                    return Promise.Resolved(); // HapticFeedback.vibrate(); TODO
-                default:
-                    return Promise.Resolved();
+                    return Future.value(); // HapticFeedback.vibrate(); TODO
+                case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.LinuxEditor:
+                case RuntimePlatform.LinuxPlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.WindowsPlayer:
+                    return Future.value();
             }
+            D.assert(false, ()=>$"Unhandled TargetPlatform {_platform(context)}");
+            return Future.value();
         }
 
         public static GestureLongPressCallback

@@ -23,8 +23,8 @@ namespace Unity.UIWidgets.cupertino {
         public const float _kSwitchHeight = 39.0f;
         public const float _kCupertinoSwitchDisabledOpacity = 0.5f;
         public static readonly Color _kTrackColor = CupertinoColors.lightBackgroundGray;
-        public static readonly TimeSpan _kReactionDuration = new TimeSpan(0, 0, 0, 0, 300);
-        public static readonly TimeSpan _kToggleDuration = new TimeSpan(0, 0, 0, 0, 200);
+        public static readonly TimeSpan _kReactionDuration = TimeSpan.FromMilliseconds(300);
+        public static readonly TimeSpan _kToggleDuration = TimeSpan.FromMilliseconds(200);
     }
 
     public class CupertinoSwitch : StatefulWidget {
@@ -33,11 +33,13 @@ namespace Unity.UIWidgets.cupertino {
             ValueChanged<bool> onChanged,
             Key key = null,
             Color activeColor = null,
+            Color trackColor = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
             this.value = value;
             this.onChanged = onChanged;
             this.activeColor = activeColor;
+            this.trackColor = trackColor;
             this.dragStartBehavior = dragStartBehavior;
         }
 
@@ -46,6 +48,8 @@ namespace Unity.UIWidgets.cupertino {
         public readonly ValueChanged<bool> onChanged;
 
         public readonly Color activeColor;
+        
+        public readonly Color trackColor;
 
         public readonly DragStartBehavior dragStartBehavior;
 
@@ -55,23 +59,157 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("value", value: this.value, ifTrue: "on", ifFalse: "off", showName: true));
-            properties.add(new ObjectFlagProperty<ValueChanged<bool>>("onChanged", this.onChanged, ifNull: "disabled"));
+            properties.add(new FlagProperty("value", value: value, ifTrue: "on", ifFalse: "off", showName: true));
+            properties.add(new ObjectFlagProperty<ValueChanged<bool>>("onChanged", onChanged, ifNull: "disabled"));
         }
     }
 
     class _CupertinoSwitchState : TickerProviderStateMixin<CupertinoSwitch> {
+        public TapGestureRecognizer _tap;
+        public HorizontalDragGestureRecognizer _drag;
+
+        AnimationController _positionController;
+        public CurvedAnimation position;
+
+        AnimationController _reactionController;
+        public Animation<float> _reaction;
+
+        bool isInteractive {
+            get {
+                return  widget.onChanged != null;
+            }
+        }
+        bool needsPositionAnimation = false;
+        
+        public override void initState() {
+            base.initState();
+
+            _tap = new TapGestureRecognizer();
+            _tap.onTapDown = _handleTapDown;
+            _tap.onTapUp = _handleTapUp;
+            _tap.onTap = _handleTap;
+            _tap.onTapCancel = _handleTapCancel;
+            _drag = new HorizontalDragGestureRecognizer();
+            _drag.onStart = _handleDragStart;
+            _drag.onUpdate = _handleDragUpdate;
+            _drag.onEnd = _handleDragEnd;
+            _drag.dragStartBehavior = widget.dragStartBehavior;
+
+            _positionController = new AnimationController(
+                duration: CupertinoSwitchUtils._kToggleDuration,
+                value: widget.value ? 1.0f : 0.0f,
+                vsync: this
+            );
+            position = new CurvedAnimation(
+                parent: _positionController,
+                curve: Curves.linear
+            );
+            _reactionController = new AnimationController(
+                duration: CupertinoSwitchUtils._kReactionDuration,
+                vsync: this
+            );
+            _reaction = new CurvedAnimation(
+                parent: _reactionController,
+                curve: Curves.ease
+            );
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            oldWidget = (CupertinoSwitch) oldWidget;
+            base.didUpdateWidget(oldWidget);
+            _drag.dragStartBehavior = widget.dragStartBehavior;
+
+            if (needsPositionAnimation || ((CupertinoSwitch) oldWidget).value != widget.value)
+                _resumePositionAnimation(isLinear: needsPositionAnimation);
+        }
+        void _resumePositionAnimation( bool isLinear = true ) {
+            needsPositionAnimation = false;
+            position.curve = isLinear ? null : Curves.ease;
+            position.reverseCurve = isLinear ? null : Curves.ease.flipped;
+            if (widget.value)
+                _positionController.forward();
+            else
+                _positionController.reverse();
+        }
+
+        void _handleTapDown(TapDownDetails details) {
+            if (isInteractive)
+                needsPositionAnimation = false;
+            _reactionController.forward();
+        }
+
+        void _handleTap() {
+            if (isInteractive) {
+                widget.onChanged(!widget.value);
+            }
+        }
+
+        void _handleTapUp(TapUpDetails details) {
+            if (isInteractive) {
+                needsPositionAnimation = false;
+                _reactionController.reverse();
+            }
+        }
+
+        void _handleTapCancel() {
+            if (isInteractive)
+                _reactionController.reverse();
+        }
+
+        void _handleDragStart(DragStartDetails details) {
+            if (isInteractive) {
+                needsPositionAnimation = false;
+                _reactionController.forward();
+            }
+        }
+
+        void _handleDragUpdate(DragUpdateDetails details) {
+            if (isInteractive) {
+                position.curve = null;
+                    position.reverseCurve = null;
+                float? delta = details.primaryDelta / CupertinoSwitchUtils._kTrackInnerLength;
+                switch (Directionality.of(context)) {
+                    case TextDirection.rtl:
+                        _positionController.setValue( _positionController.value - delta ?? 0.0f);
+                        break;
+                    case TextDirection.ltr:
+                        _positionController.setValue( _positionController.value + delta ?? 0.0f);
+                        break;
+                }
+            }
+        }
+
+        void _handleDragEnd(DragEndDetails details) {
+            setState(()=> { needsPositionAnimation = true; });
+            if (position.value >= 0.5 != widget.value)
+                widget.onChanged(!widget.value);
+            _reactionController.reverse();
+        }
         public override Widget build(BuildContext context) {
+            if (needsPositionAnimation)
+                _resumePositionAnimation();
             return new Opacity(
-                opacity: this.widget.onChanged == null ? CupertinoSwitchUtils._kCupertinoSwitchDisabledOpacity : 1.0f,
+                opacity: widget.onChanged == null ? CupertinoSwitchUtils._kCupertinoSwitchDisabledOpacity : 1.0f,
                 child: new _CupertinoSwitchRenderObjectWidget(
-                    value: this.widget.value,
-                    activeColor: this.widget.activeColor ?? CupertinoColors.activeGreen,
-                    onChanged: this.widget.onChanged,
-                    vsync: this,
-                    dragStartBehavior: this.widget.dragStartBehavior
+                    value: widget.value,
+                    activeColor: CupertinoDynamicColor.resolve(
+                        widget.activeColor ?? CupertinoColors.systemGreen,
+                        context
+                    ),
+                    trackColor: CupertinoDynamicColor.resolve(widget.trackColor ?? CupertinoColors.secondarySystemFill, context),
+                    onChanged: widget.onChanged,
+                    textDirection: Directionality.of(context),
+                    state: this
                 )
             );
+        }
+        public override void dispose() {
+            _tap.dispose();
+            _drag.dispose();
+
+            _positionController.dispose();
+            _reactionController.dispose();
+            base.dispose();
         }
     }
 
@@ -80,42 +218,46 @@ namespace Unity.UIWidgets.cupertino {
             Key key = null,
             bool value = false,
             Color activeColor = null,
+            Color trackColor = null,
             ValueChanged<bool> onChanged = null,
-            TickerProvider vsync = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            TextDirection? textDirection = null,
+            _CupertinoSwitchState state = null
         ) : base(key: key) {
             this.value = value;
             this.activeColor = activeColor;
+            this.trackColor = trackColor;
             this.onChanged = onChanged;
-            this.vsync = vsync;
-            this.dragStartBehavior = dragStartBehavior;
+            this.state = state;
+            this.textDirection = textDirection;
+
         }
 
         public readonly bool value;
         public readonly Color activeColor;
+        public readonly Color trackColor;
         public readonly ValueChanged<bool> onChanged;
-        public readonly TickerProvider vsync;
-        public readonly DragStartBehavior dragStartBehavior;
+        public readonly _CupertinoSwitchState state;
+        public readonly TextDirection? textDirection;
+        
         
         public override RenderObject createRenderObject(BuildContext context) {
             return new _RenderCupertinoSwitch(
-                value: this.value,
-                activeColor: this.activeColor,
-                onChanged: this.onChanged,
-                textDirection: Directionality.of(context),
-                vsync: this.vsync,
-                dragStartBehavior: this.dragStartBehavior
+                value: value,
+                activeColor: activeColor,
+                trackColor: trackColor,
+                onChanged: onChanged,
+                textDirection: textDirection,
+                state: state
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             var _renderObject = renderObject as _RenderCupertinoSwitch;
-            _renderObject.value = this.value;
-            _renderObject.activeColor = this.activeColor;
-            _renderObject.onChanged = this.onChanged;
-            _renderObject.textDirection = Directionality.of(context);
-            _renderObject.vsync = this.vsync;
-            _renderObject.dragStartBehavior = this.dragStartBehavior;
+            _renderObject.value = value;
+            _renderObject.activeColor = activeColor;
+            _renderObject.trackColor = trackColor;
+            _renderObject.onChanged = onChanged;
+            _renderObject.textDirection = textDirection;
         }
     }
 
@@ -124,280 +266,108 @@ namespace Unity.UIWidgets.cupertino {
         public _RenderCupertinoSwitch(
             bool value,
             Color activeColor,
-            TextDirection textDirection,
-            TickerProvider vsync,
+            Color trackColor = null,
+            TextDirection? textDirection = null,
             ValueChanged<bool> onChanged = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start
+            _CupertinoSwitchState state = null
         ) : base(additionalConstraints: BoxConstraints.tightFor(
             width: CupertinoSwitchUtils._kSwitchWidth,
             height: CupertinoSwitchUtils._kSwitchHeight)
         ) {
-            D.assert(activeColor != null);
-            D.assert(vsync != null);
-            this._value = value;
-            this._activeColor = activeColor;
-            this._onChanged = onChanged;
-            this._textDirection = textDirection;
-            this._vsync = vsync;
+            D.assert(state != null);
+            _value = value;
+            _activeColor = activeColor;
+            _trackColor = trackColor;
+            _onChanged = onChanged;
+            _textDirection = textDirection;
+            _state = state;
+            state.position.addListener(markNeedsPaint);
+            state._reaction.addListener(markNeedsPaint);
 
-            this._tap = new TapGestureRecognizer() {
-                onTapDown = this._handleTapDown,
-                onTap = this._handleTap,
-                onTapUp = this._handleTapUp,
-                onTapCancel = this._handleTapCancel,
-            };
 
-            this._drag = new HorizontalDragGestureRecognizer() {
-                onStart = this._handleDragStart,
-                onUpdate = this._handleDragUpdate,
-                onEnd = this._handleDragEnd,
-                dragStartBehavior = dragStartBehavior
-            };
-
-            this._positionController = new AnimationController(
-                duration: CupertinoSwitchUtils._kToggleDuration,
-                value: value ? 1.0f : 0.0f,
-                vsync: vsync
-            );
-            this._position = new CurvedAnimation(
-                parent: this._positionController,
-                curve: Curves.linear
-            );
-            this._position.addListener(this.markNeedsPaint);
-            this._position.addStatusListener(this._handlePositionStateChanged);
-
-            this._reactionController = new AnimationController(
-                duration: CupertinoSwitchUtils._kReactionDuration,
-                vsync: vsync
-            );
-            this._reaction = new CurvedAnimation(
-                parent: this._reactionController,
-                curve: Curves.ease
-            );
-            this._reaction.addListener(this.markNeedsPaint);
         }
 
         AnimationController _positionController;
         CurvedAnimation _position;
         AnimationController _reactionController;
         Animation<float> _reaction;
+        public readonly _CupertinoSwitchState _state;
 
         public bool value {
-            get { return this._value; }
+            get { return _value; }
             set {
-                if (value == this._value) {
+                D.assert(value != null);
+                if (value == _value)
                     return;
-                }
-
-                this._value = value;
-                // this.markNeedsSemanticsUpdate();
-                this._position.curve = Curves.ease;
-                this._position.reverseCurve = Curves.ease.flipped;
-                if (value) {
-                    this._positionController.forward();
-                }
-                else {
-                    this._positionController.reverse();
-                }
+                _value = value;
+                //markNeedsSemanticsUpdate();
             }
         }
 
         bool _value;
 
-        public TickerProvider vsync {
-            get { return this._vsync; }
-            set {
-                D.assert(value != null);
-                if (value == this._vsync) {
-                    return;
-                }
-
-                this._vsync = value;
-                this._positionController.resync(this.vsync);
-                this._reactionController.resync(this.vsync);
-            }
-        }
-
-        TickerProvider _vsync;
 
         public Color activeColor {
-            get { return this._activeColor; }
+            get { return _activeColor; }
             set {
                 D.assert(value != null);
-                if (value == this._activeColor) {
+                if (value == _activeColor) {
                     return;
                 }
 
-                this._activeColor = value;
-                this.markNeedsPaint();
+                _activeColor = value;
+                markNeedsPaint();
             }
         }
 
         Color _activeColor;
 
-        public ValueChanged<bool> onChanged {
-            get { return this._onChanged; }
+        public Color trackColor {
+            get { return _trackColor; }
             set {
-                if (value == this._onChanged) {
+                D.assert(value != null);
+                if (value == _trackColor)
+                    return;
+                _trackColor = value;
+                markNeedsPaint();
+            }
+        }
+
+        Color _trackColor;
+
+        public ValueChanged<bool> onChanged {
+            get { return _onChanged; }
+            set {
+                if (value == _onChanged) {
                     return;
                 }
 
-                bool wasInteractive = this.isInteractive;
-                this._onChanged = value;
-                if (wasInteractive != this.isInteractive) {
-                    this.markNeedsPaint();
+                bool wasInteractive = isInteractive;
+                _onChanged = value;
+                if (wasInteractive != isInteractive) {
+                    markNeedsPaint();
                 }
             }
         }
 
         ValueChanged<bool> _onChanged;
 
-        public TextDirection textDirection {
-            get { return this._textDirection; }
+        public TextDirection? textDirection {
+            get { return _textDirection; }
             set {
-                if (this._textDirection == value) {
+                if (_textDirection == value) {
                     return;
                 }
 
-                this._textDirection = value;
-                this.markNeedsPaint();
+                _textDirection = value;
+                markNeedsPaint();
             }
         }
 
-        TextDirection _textDirection;
-
-
-        public DragStartBehavior dragStartBehavior {
-            get { return this._drag.dragStartBehavior; }
-            set {
-                if (this._drag.dragStartBehavior == value) {
-                    return;
-                }
-
-                this._drag.dragStartBehavior = value;
-            }
-        }
+        TextDirection? _textDirection;
 
         public bool isInteractive {
-            get { return this.onChanged != null; }
-        }
-
-        TapGestureRecognizer _tap;
-        HorizontalDragGestureRecognizer _drag;
-
-        public override void attach(object _owner) {
-            base.attach(_owner);
-            if (this.value) {
-                this._positionController.forward();
-            }
-            else {
-                this._positionController.reverse();
-            }
-
-            if (this.isInteractive) {
-                switch (this._reactionController.status) {
-                    case AnimationStatus.forward:
-                        this._reactionController.forward();
-                        break;
-                    case AnimationStatus.reverse:
-                        this._reactionController.reverse();
-                        break;
-                    case AnimationStatus.dismissed:
-                    case AnimationStatus.completed:
-                        break;
-                }
-            }
-        }
-
-        public override void detach() {
-            this._positionController.stop();
-            this._reactionController.stop();
-            base.detach();
-        }
-
-        void _handlePositionStateChanged(AnimationStatus status) {
-            if (this.isInteractive) {
-                if (status == AnimationStatus.completed && !this._value) {
-                    this.onChanged(true);
-                }
-                else if (status == AnimationStatus.dismissed && this._value) {
-                    this.onChanged(false);
-                }
-            }
-        }
-
-        void _handleTapDown(TapDownDetails details) {
-            if (this.isInteractive) {
-                this._reactionController.forward();
-            }
-        }
-
-        void _handleTap() {
-            if (this.isInteractive) {
-                this.onChanged(!this._value);
-                this._emitVibration();
-            }
-        }
-
-        void _handleTapUp(TapUpDetails details) {
-            if (this.isInteractive) {
-                this._reactionController.reverse();
-            }
-        }
-
-        void _handleTapCancel() {
-            if (this.isInteractive) {
-                this._reactionController.reverse();
-            }
-        }
-
-        void _handleDragStart(DragStartDetails details) {
-            if (this.isInteractive) {
-                this._reactionController.forward();
-                this._emitVibration();
-            }
-        }
-
-        void _handleDragUpdate(DragUpdateDetails details) {
-            if (this.isInteractive) {
-                this._position.curve = null;
-                this._position.reverseCurve = null;
-                float delta = details.primaryDelta / CupertinoSwitchUtils._kTrackInnerLength ?? 0f;
-
-                this._positionController.setValue(this._positionController.value + delta);
-
-                // switch (this.textDirection) {
-                //     case TextDirection.rtl:
-                //         this._positionController.setValue(this._positionController.value - delta);
-                //         break;
-                //     case TextDirection.ltr:
-                //         this._positionController.setValue(this._positionController.value + delta);
-                //         break;
-                // }
-            }
-        }
-
-        void _handleDragEnd(DragEndDetails details) {
-            if (this._position.value >= 0.5) {
-                this._positionController.forward();
-            }
-            else {
-                this._positionController.reverse();
-            }
-
-            this._reactionController.reverse();
-        }
-
-        void _emitVibration() {
-            // switch (Platform defaultTargetPlatform) {
-            //     case TargetPlatform.iOS:
-            //         HapticFeedback.lightImpact();
-            //         break;
-            //     case TargetPlatform.fuchsia:
-            //     case TargetPlatform.android:
-            //         break;
-            // }
-            return;
+            get { return onChanged != null; }
         }
 
         protected override bool hitTestSelf(Offset position) {
@@ -405,33 +375,20 @@ namespace Unity.UIWidgets.cupertino {
         }
 
         public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
-            D.assert(this.debugHandleEvent(evt, entry));
-            if (evt is PointerDownEvent && this.isInteractive) {
-                this._drag.addPointer(evt as PointerDownEvent);
-                this._tap.addPointer(evt as PointerDownEvent);
+            D.assert(debugHandleEvent(evt, entry));
+            if (evt is PointerDownEvent && isInteractive) {
+                _state._drag.addPointer((PointerDownEvent) evt);
+                _state._tap.addPointer((PointerDownEvent) evt);
             }
         }
 
-        // public override void describeSemanticsConfiguration(SemanticsConfiguration config) {
-        //     base.describeSemanticsConfiguration(config);
-        //
-        //     if (isInteractive)
-        //         config.onTap = _handleTap;
-        //
-        //     config.isEnabled = isInteractive;
-        //     config.isToggled = _value;
-        // }
-
-        public readonly CupertinoThumbPainter _thumbPainter = new CupertinoThumbPainter();
-
         public override void paint(PaintingContext context, Offset offset) {
             Canvas canvas = context.canvas;
+            float currentValue = _state.position.value;
+            float currentReactionValue = _state._reaction.value;
 
-            float currentValue = this._position.value;
-            float currentReactionValue = this._reaction.value;
-
-            float visualPosition = 0f;
-            switch (this.textDirection) {
+            float visualPosition = 0.0f;
+            switch (textDirection) {
                 case TextDirection.rtl:
                     visualPosition = 1.0f - currentValue;
                     break;
@@ -440,56 +397,52 @@ namespace Unity.UIWidgets.cupertino {
                     break;
             }
 
-            Color trackColor = this._value ? this.activeColor : CupertinoSwitchUtils._kTrackColor;
-            float borderThickness =
-                1.5f + (CupertinoSwitchUtils._kTrackRadius - 1.5f) * Mathf.Max(currentReactionValue, currentValue);
-
-            Paint paint = new Paint();
-            paint.color = trackColor;
-
+            Paint paint = new Paint() {color = Color.lerp(trackColor, activeColor, currentValue)};
             Rect trackRect = Rect.fromLTWH(
-                offset.dx + (this.size.width - CupertinoSwitchUtils._kTrackWidth) / 2.0f,
-                offset.dy + (this.size.height - CupertinoSwitchUtils._kTrackHeight) / 2.0f,
+                offset.dx + (size.width - CupertinoSwitchUtils._kTrackWidth) / 2.0f,
+                offset.dy + (size.height - CupertinoSwitchUtils._kTrackHeight) / 2.0f,
                 CupertinoSwitchUtils._kTrackWidth,
                 CupertinoSwitchUtils._kTrackHeight
             );
-            RRect outerRRect = RRect.fromRectAndRadius(trackRect, Radius.circular(CupertinoSwitchUtils
-                ._kTrackRadius));
-            RRect innerRRect = RRect.fromRectAndRadius(trackRect.deflate(borderThickness), Radius.circular
-                (CupertinoSwitchUtils._kTrackRadius));
-            canvas.drawDRRect(outerRRect, innerRRect, paint);
+            RRect trackRRect = RRect.fromRectAndRadius(trackRect, Radius.circular(CupertinoSwitchUtils._kTrackRadius));
+            canvas.drawRRect(trackRRect, paint);
 
             float currentThumbExtension = CupertinoThumbPainter.extension * currentReactionValue;
-            float thumbLeft = MathUtils.lerpFloat(
+            float thumbLeft = MathUtils.lerpNullableFloat(
                 trackRect.left + CupertinoSwitchUtils._kTrackInnerStart - CupertinoThumbPainter.radius,
                 trackRect.left + CupertinoSwitchUtils._kTrackInnerEnd - CupertinoThumbPainter.radius -
                 currentThumbExtension,
                 visualPosition
             );
-            float thumbRight = MathUtils.lerpFloat(
+            float thumbRight = MathUtils.lerpNullableFloat(
                 trackRect.left + CupertinoSwitchUtils._kTrackInnerStart + CupertinoThumbPainter.radius +
                 currentThumbExtension,
                 trackRect.left + CupertinoSwitchUtils._kTrackInnerEnd + CupertinoThumbPainter.radius,
                 visualPosition
             );
-            float thumbCenterY = offset.dy + this.size.height / 2.0f;
-
-            this._thumbPainter.paint(canvas, Rect.fromLTRB(
+            float thumbCenterY = offset.dy + size.height / 2.0f;
+            Rect thumbBounds = Rect.fromLTRB(
                 thumbLeft,
                 thumbCenterY - CupertinoThumbPainter.radius,
                 thumbRight,
                 thumbCenterY + CupertinoThumbPainter.radius
-            ));
-        }
+            );
 
+            context.pushClipRRect(needsCompositing, Offset.zero, thumbBounds, trackRRect,
+                (PaintingContext innerContext, Offset offset1) => {
+                    CupertinoThumbPainter.switchThumb().paint(innerContext.canvas, thumbBounds);
+                });
+        }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
             description.add(
-                new FlagProperty("value", value: this.value, ifTrue: "checked", ifFalse: "unchecked", showName: true));
-            description.add(new FlagProperty("isInteractive", value: this.isInteractive, ifTrue: "enabled",
+                new FlagProperty("value", value: value, ifTrue: "checked", ifFalse: "unchecked", showName: true));
+            description.add(new FlagProperty("isInteractive", value: isInteractive, ifTrue: "enabled",
                 ifFalse: "disabled",
                 showName: true, defaultValue: true));
         }
+
+
     }
 }

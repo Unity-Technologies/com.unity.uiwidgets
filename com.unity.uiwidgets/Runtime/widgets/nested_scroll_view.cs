@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -53,74 +53,75 @@ namespace Unity.UIWidgets.widgets {
         public readonly DragStartBehavior dragStartBehavior;
 
         public static SliverOverlapAbsorberHandle sliverOverlapAbsorberHandleFor(BuildContext context) {
-            _InheritedNestedScrollView target =
-                (_InheritedNestedScrollView) context.inheritFromWidgetOfExactType(typeof(_InheritedNestedScrollView));
+            _InheritedNestedScrollView target = context.dependOnInheritedWidgetOfExactType<_InheritedNestedScrollView>();
             D.assert(target != null,
-                () => {
-                    return
-                        "NestedScrollView.sliverOverlapAbsorberHandleFor must be called with a context that contains a NestedScrollView.";
-                });
+                () => "NestedScrollView.sliverOverlapAbsorberHandleFor must be called with a context that contains a NestedScrollView."
+                );
             return target.state._absorberHandle;
         }
 
         internal List<Widget> _buildSlivers(BuildContext context, ScrollController innerController,
             bool bodyIsScrolled) {
-            List<Widget> slivers = new List<Widget> { };
-            slivers.AddRange(this.headerSliverBuilder(context, bodyIsScrolled));
+            List<Widget> slivers = new List<Widget>();
+            slivers.AddRange(headerSliverBuilder(context, bodyIsScrolled));
             slivers.Add(new SliverFillRemaining(
                 child: new PrimaryScrollController(
                     controller: innerController,
-                    child: this.body
+                    child: body
                 )
             ));
             return slivers;
         }
 
         public override State createState() {
-            return new _NestedScrollViewState();
+            return new NestedScrollViewState();
         }
     }
 
-    class _NestedScrollViewState : State<NestedScrollView> {
-        internal SliverOverlapAbsorberHandle _absorberHandle = new SliverOverlapAbsorberHandle();
+    class NestedScrollViewState : State<NestedScrollView> {
+        internal readonly SliverOverlapAbsorberHandle _absorberHandle = new SliverOverlapAbsorberHandle();
+
+        ScrollController innerController => _coordinator._innerController;
+
+        ScrollController outerController => _coordinator._outerController;
 
         _NestedScrollCoordinator _coordinator;
 
         public override void initState() {
             base.initState();
-            this._coordinator =
-                new _NestedScrollCoordinator(this, this.widget.controller, this._handleHasScrolledBodyChanged);
+            _coordinator =
+                new _NestedScrollCoordinator(this, widget.controller, _handleHasScrolledBodyChanged);
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this._coordinator.setParent(this.widget.controller);
+            _coordinator.setParent(widget.controller);
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             NestedScrollView oldWidget = _oldWidget as NestedScrollView;
             base.didUpdateWidget(oldWidget);
-            if (oldWidget.controller != this.widget.controller) {
-                this._coordinator.setParent(this.widget.controller);
+            if (oldWidget.controller != widget.controller) {
+                _coordinator.setParent(widget.controller);
             }
         }
 
         public override void dispose() {
-            this._coordinator.dispose();
-            this._coordinator = null;
+            _coordinator.dispose();
+            _coordinator = null;
             base.dispose();
         }
 
         bool _lastHasScrolledBody;
 
         void _handleHasScrolledBodyChanged() {
-            if (!this.mounted) {
+            if (!mounted) {
                 return;
             }
 
-            bool newHasScrolledBody = this._coordinator.hasScrolledBody;
-            if (this._lastHasScrolledBody != newHasScrolledBody) {
-                this.setState(() => { });
+            bool newHasScrolledBody = _coordinator.hasScrolledBody;
+            if (_lastHasScrolledBody != newHasScrolledBody) {
+                setState(() => { });
             }
         }
 
@@ -129,20 +130,22 @@ namespace Unity.UIWidgets.widgets {
                 state: this,
                 child: new Builder(
                     builder: (BuildContext _context) => {
-                        this._lastHasScrolledBody = this._coordinator.hasScrolledBody;
+                        _lastHasScrolledBody = _coordinator.hasScrolledBody;
                         return new _NestedScrollViewCustomScrollView(
-                            dragStartBehavior: this.widget.dragStartBehavior,
-                            scrollDirection: this.widget.scrollDirection,
-                            reverse: this.widget.reverse,
-                            physics: this.widget.physics != null
-                                ? this.widget.physics.applyTo(new ClampingScrollPhysics())
-                                : new ClampingScrollPhysics(),
-                            controller: this._coordinator._outerController,
-                            slivers: this.widget._buildSlivers(
-                                _context, this._coordinator._innerController, this._lastHasScrolledBody
-                            ),
-                            handle: this._absorberHandle
-                        );
+                            dragStartBehavior: widget.dragStartBehavior,
+                            scrollDirection: widget.scrollDirection,
+                            reverse: widget.reverse,
+                            physics: widget.physics != null
+                                ? widget.physics.applyTo(new ClampingScrollPhysics())
+                            : new ClampingScrollPhysics(),
+                        controller: _coordinator._outerController,
+                        slivers: widget._buildSlivers(
+                            _context,
+                            _coordinator._innerController,
+                            _lastHasScrolledBody
+                        ),
+                        handle: _absorberHandle
+                            );
                     }
                 )
             );
@@ -151,7 +154,7 @@ namespace Unity.UIWidgets.widgets {
 
     class _NestedScrollViewCustomScrollView : CustomScrollView {
         public _NestedScrollViewCustomScrollView(
-            Axis scrollDirection,
+            Axis scrollDirection, 
             bool reverse,
             ScrollPhysics physics,
             ScrollController controller,
@@ -177,12 +180,12 @@ namespace Unity.UIWidgets.widgets {
             AxisDirection axisDirection,
             List<Widget> slivers
         ) {
-            D.assert(!this.shrinkWrap);
+            D.assert(!shrinkWrap);
             return new NestedScrollViewViewport(
                 axisDirection: axisDirection,
                 offset: offset,
                 slivers: slivers,
-                handle: this.handle
+                handle: handle
             );
         }
     }
@@ -190,7 +193,7 @@ namespace Unity.UIWidgets.widgets {
     class _InheritedNestedScrollView : InheritedWidget {
         public _InheritedNestedScrollView(
             Key key = null,
-            _NestedScrollViewState state = null,
+            NestedScrollViewState state = null,
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(state != null);
@@ -198,11 +201,11 @@ namespace Unity.UIWidgets.widgets {
             this.state = state;
         }
 
-        public readonly _NestedScrollViewState state;
+        public readonly NestedScrollViewState state;
 
         public override bool updateShouldNotify(InheritedWidget _old) {
             _InheritedNestedScrollView old = _old as _InheritedNestedScrollView;
-            return this.state != old.state;
+            return state != old.state;
         }
     }
 
@@ -261,19 +264,19 @@ namespace Unity.UIWidgets.widgets {
 
     class _NestedScrollCoordinator : ScrollActivityDelegate, ScrollHoldController {
         public _NestedScrollCoordinator(
-            _NestedScrollViewState _state,
+            NestedScrollViewState _state,
             ScrollController _parent,
             VoidCallback _onHasScrolledBodyChanged) {
             float initialScrollOffset = _parent?.initialScrollOffset ?? 0.0f;
-            this._outerController =
+            _outerController =
                 new _NestedScrollController(this, initialScrollOffset: initialScrollOffset, debugLabel: "outer");
-            this._innerController = new _NestedScrollController(this, initialScrollOffset: 0.0f, debugLabel: "inner");
+            _innerController = new _NestedScrollController(this, initialScrollOffset: 0.0f, debugLabel: "inner");
             this._state = _state;
             this._parent = _parent;
             this._onHasScrolledBodyChanged = _onHasScrolledBodyChanged;
         }
 
-        public readonly _NestedScrollViewState _state;
+        public readonly NestedScrollViewState _state;
         ScrollController _parent;
         public readonly VoidCallback _onHasScrolledBodyChanged;
 
@@ -282,21 +285,20 @@ namespace Unity.UIWidgets.widgets {
 
         _NestedScrollPosition _outerPosition {
             get {
-                if (!this._outerController.hasClients) {
+                if (!_outerController.hasClients) {
                     return null;
                 }
-
-                return this._outerController.nestedPositions.Single();
+                return _outerController.nestedPositions.Single();
             }
         }
 
         IEnumerable<_NestedScrollPosition> _innerPositions {
-            get { return this._innerController.nestedPositions; }
+            get { return _innerController.nestedPositions; }
         }
 
         public bool canScrollBody {
             get {
-                _NestedScrollPosition outer = this._outerPosition;
+                _NestedScrollPosition outer = _outerPosition;
                 if (outer == null) {
                     return true;
                 }
@@ -307,7 +309,7 @@ namespace Unity.UIWidgets.widgets {
 
         public bool hasScrolledBody {
             get {
-                foreach (_NestedScrollPosition position in this._innerPositions) {
+                foreach (_NestedScrollPosition position in _innerPositions) {
                     if (position.pixels > position.minScrollExtent) {
                         return true;
                     }
@@ -318,25 +320,24 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void updateShadow() {
-            if (this._onHasScrolledBodyChanged != null) {
-                this._onHasScrolledBodyChanged();
+            if (_onHasScrolledBodyChanged != null) {
+                _onHasScrolledBodyChanged();
             }
         }
 
         public ScrollDirection userScrollDirection {
-            get { return this._userScrollDirection; }
+            get { return _userScrollDirection; }
         }
 
         ScrollDirection _userScrollDirection = ScrollDirection.idle;
 
         public void updateUserScrollDirection(ScrollDirection value) {
-            if (this.userScrollDirection == value) {
+            if (userScrollDirection == value) {
                 return;
             }
-
-            this._userScrollDirection = value;
-            this._outerPosition.didUpdateScrollDirection(value);
-            foreach (_NestedScrollPosition position in this._innerPositions) {
+            _userScrollDirection = value;
+            _outerPosition.didUpdateScrollDirection(value);
+            foreach (_NestedScrollPosition position in _innerPositions) {
                 position.didUpdateScrollDirection(value);
             }
         }
@@ -344,23 +345,23 @@ namespace Unity.UIWidgets.widgets {
         ScrollDragController _currentDrag;
 
         public void beginActivity(ScrollActivity newOuterActivity, _NestedScrollActivityGetter innerActivityGetter) {
-            this._outerPosition.beginActivity(newOuterActivity);
+            _outerPosition.beginActivity(newOuterActivity);
             bool scrolling = newOuterActivity.isScrolling;
-            foreach (_NestedScrollPosition position in this._innerPositions) {
+            foreach (_NestedScrollPosition position in _innerPositions) {
                 ScrollActivity newInnerActivity = innerActivityGetter(position);
                 position.beginActivity(newInnerActivity);
                 scrolling = scrolling && newInnerActivity.isScrolling;
             }
 
-            this._currentDrag?.dispose();
-            this._currentDrag = null;
+            _currentDrag?.dispose();
+            _currentDrag = null;
             if (!scrolling) {
-                this.updateUserScrollDirection(ScrollDirection.idle);
+                updateUserScrollDirection(ScrollDirection.idle);
             }
         }
 
         public AxisDirection axisDirection {
-            get { return this._outerPosition.axisDirection; }
+            get { return _outerPosition.axisDirection; }
         }
 
         static IdleScrollActivity _createIdleScrollActivity(_NestedScrollPosition position) {
@@ -368,19 +369,20 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void goIdle() {
-            this.beginActivity(_createIdleScrollActivity(this._outerPosition), _createIdleScrollActivity);
+            beginActivity(_createIdleScrollActivity(_outerPosition), _createIdleScrollActivity);
         }
 
         public void goBallistic(float velocity) {
-            this.beginActivity(this.createOuterBallisticScrollActivity(velocity),
-                (_NestedScrollPosition position) => this.createInnerBallisticScrollActivity(position, velocity)
+            beginActivity(
+                createOuterBallisticScrollActivity(velocity),
+                (_NestedScrollPosition position) => createInnerBallisticScrollActivity(position, velocity)
             );
         }
 
         public ScrollActivity createOuterBallisticScrollActivity(float velocity) {
             _NestedScrollPosition innerPosition = null;
             if (velocity != 0.0f) {
-                foreach (_NestedScrollPosition position in this._innerPositions) {
+                foreach (_NestedScrollPosition position in _innerPositions) {
                     if (innerPosition != null) {
                         if (velocity > 0.0f) {
                             if (innerPosition.pixels < position.pixels) {
@@ -400,16 +402,16 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (innerPosition == null) {
-                return this._outerPosition.createBallisticScrollActivity(
-                    this._outerPosition.physics.createBallisticSimulation(this._outerPosition, velocity),
+                return _outerPosition.createBallisticScrollActivity(
+                    _outerPosition.physics.createBallisticSimulation(_outerPosition, velocity),
                     mode: _NestedBallisticScrollActivityMode.independent
                 );
             }
 
-            _NestedScrollMetrics metrics = this._getMetrics(innerPosition, velocity);
+            _NestedScrollMetrics metrics = _getMetrics(innerPosition, velocity);
 
-            return this._outerPosition.createBallisticScrollActivity(
-                this._outerPosition.physics.createBallisticSimulation(metrics, velocity),
+            return _outerPosition.createBallisticScrollActivity(
+                _outerPosition.physics.createBallisticSimulation(metrics, velocity),
                 mode: _NestedBallisticScrollActivityMode.outer,
                 metrics: metrics
             );
@@ -419,7 +421,7 @@ namespace Unity.UIWidgets.widgets {
             float velocity) {
             return position.createBallisticScrollActivity(
                 position.physics.createBallisticSimulation(
-                    velocity == 0 ? (ScrollMetrics) position : this._getMetrics(position, velocity),
+                    velocity == 0f ? (ScrollMetrics) position : _getMetrics(position, velocity),
                     velocity
                 ),
                 mode: _NestedBallisticScrollActivityMode.inner
@@ -430,10 +432,10 @@ namespace Unity.UIWidgets.widgets {
             D.assert(innerPosition != null);
             float pixels, minRange, maxRange, correctionOffset, extra;
             if (innerPosition.pixels == innerPosition.minScrollExtent) {
-                pixels = this._outerPosition.pixels.clamp(this._outerPosition.minScrollExtent,
-                    this._outerPosition.maxScrollExtent); // TODO(ianh): gracefully handle out-of-range outer positions
-                minRange = this._outerPosition.minScrollExtent;
-                maxRange = this._outerPosition.maxScrollExtent;
+                pixels = _outerPosition.pixels.clamp(_outerPosition.minScrollExtent,
+                    _outerPosition.maxScrollExtent); // TODO(ianh): gracefully handle out-of-range outer positions
+                minRange = _outerPosition.minScrollExtent;
+                maxRange = _outerPosition.maxScrollExtent;
                 D.assert(minRange <= maxRange);
                 correctionOffset = 0.0f;
                 extra = 0.0f;
@@ -441,54 +443,54 @@ namespace Unity.UIWidgets.widgets {
             else {
                 D.assert(innerPosition.pixels != innerPosition.minScrollExtent);
                 if (innerPosition.pixels < innerPosition.minScrollExtent) {
-                    pixels = innerPosition.pixels - innerPosition.minScrollExtent + this._outerPosition.minScrollExtent;
+                    pixels = innerPosition.pixels - innerPosition.minScrollExtent + _outerPosition.minScrollExtent;
                 }
                 else {
                     D.assert(innerPosition.pixels > innerPosition.minScrollExtent);
-                    pixels = innerPosition.pixels - innerPosition.minScrollExtent + this._outerPosition.maxScrollExtent;
+                    pixels = innerPosition.pixels - innerPosition.minScrollExtent + _outerPosition.maxScrollExtent;
                 }
 
                 if ((velocity > 0.0f) && (innerPosition.pixels > innerPosition.minScrollExtent)) {
-                    extra = this._outerPosition.maxScrollExtent - this._outerPosition.pixels;
+                    extra = _outerPosition.maxScrollExtent - _outerPosition.pixels;
                     D.assert(extra >= 0.0f);
                     minRange = pixels;
                     maxRange = pixels + extra;
                     D.assert(minRange <= maxRange);
-                    correctionOffset = this._outerPosition.pixels - pixels;
+                    correctionOffset = _outerPosition.pixels - pixels;
                 }
                 else if ((velocity < 0.0f) && (innerPosition.pixels < innerPosition.minScrollExtent)) {
-                    extra = this._outerPosition.pixels - this._outerPosition.minScrollExtent;
+                    extra = _outerPosition.pixels - _outerPosition.minScrollExtent;
                     D.assert(extra >= 0.0f);
                     minRange = pixels - extra;
                     maxRange = pixels;
                     D.assert(minRange <= maxRange);
-                    correctionOffset = this._outerPosition.pixels - pixels;
+                    correctionOffset = _outerPosition.pixels - pixels;
                 }
                 else {
                     if (velocity > 0.0f) {
-                        extra = this._outerPosition.minScrollExtent - this._outerPosition.pixels;
+                        extra = _outerPosition.minScrollExtent - _outerPosition.pixels;
                     }
                     else {
                         D.assert(velocity < 0.0f);
-                        extra = this._outerPosition.pixels -
-                                (this._outerPosition.maxScrollExtent - this._outerPosition.minScrollExtent);
+                        extra = _outerPosition.pixels -
+                                (_outerPosition.maxScrollExtent - _outerPosition.minScrollExtent);
                     }
 
                     D.assert(extra <= 0.0f);
-                    minRange = this._outerPosition.minScrollExtent;
-                    maxRange = this._outerPosition.maxScrollExtent + extra;
+                    minRange = _outerPosition.minScrollExtent;
+                    maxRange = _outerPosition.maxScrollExtent + extra;
                     D.assert(minRange <= maxRange);
                     correctionOffset = 0.0f;
                 }
             }
 
             return new _NestedScrollMetrics(
-                minScrollExtent: this._outerPosition.minScrollExtent,
-                maxScrollExtent: this._outerPosition.maxScrollExtent + innerPosition.maxScrollExtent -
+                minScrollExtent: _outerPosition.minScrollExtent,
+                maxScrollExtent: _outerPosition.maxScrollExtent + innerPosition.maxScrollExtent -
                                  innerPosition.minScrollExtent + extra,
                 pixels: pixels,
-                viewportDimension: this._outerPosition.viewportDimension,
-                axisDirection: this._outerPosition.axisDirection,
+                viewportDimension: _outerPosition.viewportDimension,
+                axisDirection: _outerPosition.axisDirection,
                 minRange: minRange,
                 maxRange: maxRange,
                 correctionOffset: correctionOffset
@@ -496,40 +498,40 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public float unnestOffset(float value, _NestedScrollPosition source) {
-            if (source == this._outerPosition) {
-                return value.clamp(this._outerPosition.minScrollExtent, this._outerPosition.maxScrollExtent);
+            if (source == _outerPosition) {
+                return value.clamp(_outerPosition.minScrollExtent, _outerPosition.maxScrollExtent);
             }
 
             if (value < source.minScrollExtent) {
-                return value - source.minScrollExtent + this._outerPosition.minScrollExtent;
+                return value - source.minScrollExtent + _outerPosition.minScrollExtent;
             }
 
-            return value - source.minScrollExtent + this._outerPosition.maxScrollExtent;
+            return value - source.minScrollExtent + _outerPosition.maxScrollExtent;
         }
 
         public float nestOffset(float value, _NestedScrollPosition target) {
-            if (target == this._outerPosition) {
-                return value.clamp(this._outerPosition.minScrollExtent, this._outerPosition.maxScrollExtent);
+            if (target == _outerPosition) {
+                return value.clamp(_outerPosition.minScrollExtent, _outerPosition.maxScrollExtent);
             }
 
-            if (value < this._outerPosition.minScrollExtent) {
-                return value - this._outerPosition.minScrollExtent + target.minScrollExtent;
+            if (value < _outerPosition.minScrollExtent) {
+                return value - _outerPosition.minScrollExtent + target.minScrollExtent;
             }
 
-            if (value > this._outerPosition.maxScrollExtent) {
-                return value - this._outerPosition.maxScrollExtent + target.minScrollExtent;
+            if (value > _outerPosition.maxScrollExtent) {
+                return value - _outerPosition.maxScrollExtent + target.minScrollExtent;
             }
 
             return target.minScrollExtent;
         }
 
         public void updateCanDrag() {
-            if (!this._outerPosition.haveDimensions) {
+            if (!_outerPosition.haveDimensions) {
                 return;
             }
 
             float maxInnerExtent = 0.0f;
-            foreach (_NestedScrollPosition position in this._innerPositions) {
+            foreach (_NestedScrollPosition position in _innerPositions) {
                 if (!position.haveDimensions) {
                     return;
                 }
@@ -537,24 +539,25 @@ namespace Unity.UIWidgets.widgets {
                 maxInnerExtent = Mathf.Max(maxInnerExtent, position.maxScrollExtent - position.minScrollExtent);
             }
 
-            this._outerPosition.updateCanDrag(maxInnerExtent);
+            _outerPosition.updateCanDrag(maxInnerExtent);
         }
 
-        public IPromise animateTo(float to,
+        public Future animateTo(
+            float to,
             TimeSpan duration,
             Curve curve
         ) {
-            DrivenScrollActivity outerActivity = this._outerPosition.createDrivenScrollActivity(
-                this.nestOffset(to, this._outerPosition),
+            DrivenScrollActivity outerActivity = _outerPosition.createDrivenScrollActivity(
+                nestOffset(to, _outerPosition),
                 duration,
                 curve
             );
-            List<IPromise> resultFutures = new List<IPromise> {outerActivity.done};
-            this.beginActivity(
+            List<Future> resultFutures = new List<Future> {outerActivity.done};
+            beginActivity(
                 outerActivity,
                 (_NestedScrollPosition position) => {
                     DrivenScrollActivity innerActivity = position.createDrivenScrollActivity(
-                        this.nestOffset(to, position),
+                        nestOffset(to, position),
                         duration,
                         curve
                     );
@@ -562,17 +565,17 @@ namespace Unity.UIWidgets.widgets {
                     return innerActivity;
                 }
             );
-            return Promise.All(resultFutures);
+            return Future.wait<object>(resultFutures);
         }
 
         public void jumpTo(float to) {
-            this.goIdle();
-            this._outerPosition.localJumpTo(this.nestOffset(to, this._outerPosition));
-            foreach (_NestedScrollPosition position in this._innerPositions) {
-                position.localJumpTo(this.nestOffset(to, position));
+            goIdle();
+            _outerPosition.localJumpTo(nestOffset(to, _outerPosition));
+            foreach (_NestedScrollPosition position in _innerPositions) {
+                position.localJumpTo(nestOffset(to, position));
             }
 
-            this.goBallistic(0.0f);
+            goBallistic(0.0f);
         }
 
         public float setPixels(float newPixels) {
@@ -581,15 +584,15 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public ScrollHoldController hold(VoidCallback holdCancelCallback) {
-            this.beginActivity(
-                new HoldScrollActivity(del: this._outerPosition, onHoldCanceled: holdCancelCallback),
+            beginActivity(
+                new HoldScrollActivity(del: _outerPosition, onHoldCanceled: holdCancelCallback),
                 (_NestedScrollPosition position) => new HoldScrollActivity(del: position)
             );
             return this;
         }
 
         public void cancel() {
-            this.goBallistic(0.0f);
+            goBallistic(0.0f);
         }
 
         public Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
@@ -598,25 +601,25 @@ namespace Unity.UIWidgets.widgets {
                 details: details,
                 onDragCanceled: dragCancelCallback
             );
-            this.beginActivity(
-                new DragScrollActivity(this._outerPosition, drag),
+            beginActivity(
+                new DragScrollActivity(_outerPosition, drag),
                 (_NestedScrollPosition position) => new DragScrollActivity(position, drag)
             );
-            D.assert(this._currentDrag == null);
-            this._currentDrag = drag;
+            D.assert(_currentDrag == null);
+            _currentDrag = drag;
             return drag;
         }
 
         public void applyUserOffset(float delta) {
-            this.updateUserScrollDirection(delta > 0.0f ? ScrollDirection.forward : ScrollDirection.reverse);
+            updateUserScrollDirection(delta > 0.0f ? ScrollDirection.forward : ScrollDirection.reverse);
             D.assert(delta != 0.0f);
-            if (!this._innerPositions.Any()) {
-                this._outerPosition.applyFullDragUpdate(delta);
+            if (!_innerPositions.Any()) {
+                _outerPosition.applyFullDragUpdate(delta);
             }
             else if (delta < 0.0f) {
-                float innerDelta = this._outerPosition.applyClampedDragUpdate(delta);
+                float innerDelta = _outerPosition.applyClampedDragUpdate(delta);
                 if (innerDelta != 0.0f) {
-                    foreach (_NestedScrollPosition position in this._innerPositions) {
+                    foreach (_NestedScrollPosition position in _innerPositions) {
                         position.applyFullDragUpdate(innerDelta);
                     }
                 }
@@ -624,7 +627,7 @@ namespace Unity.UIWidgets.widgets {
             else {
                 float outerDelta = 0.0f; // it will go positive if it changes
                 List<float> overscrolls = new List<float> { };
-                List<_NestedScrollPosition> innerPositions = this._innerPositions.ToList();
+                List<_NestedScrollPosition> innerPositions = _innerPositions.ToList();
                 foreach (_NestedScrollPosition position in innerPositions) {
                     float overscroll = position.applyClampedDragUpdate(delta);
                     outerDelta = Mathf.Max(outerDelta, overscroll);
@@ -632,7 +635,7 @@ namespace Unity.UIWidgets.widgets {
                 }
 
                 if (outerDelta != 0.0f) {
-                    outerDelta -= this._outerPosition.applyClampedDragUpdate(outerDelta);
+                    outerDelta -= _outerPosition.applyClampedDragUpdate(outerDelta);
                 }
 
                 for (int i = 0; i < innerPositions.Count; ++i) {
@@ -646,27 +649,27 @@ namespace Unity.UIWidgets.widgets {
 
         public void applyUserScrollOffset(float delta) {
             // TODO: replace with real implementation
-            this.applyUserOffset(delta);
+            applyUserOffset(delta);
         }
 
         public void setParent(ScrollController value) {
-            this._parent = value;
-            this.updateParent();
+            _parent = value;
+            updateParent();
         }
 
         public void updateParent() {
-            this._outerPosition?.setParent(this._parent ?? PrimaryScrollController.of(this._state.context));
+            _outerPosition?.setParent(_parent ?? PrimaryScrollController.of(_state.context));
         }
 
         public void dispose() {
-            this._currentDrag?.dispose();
-            this._currentDrag = null;
-            this._outerController.dispose();
-            this._innerController.dispose();
+            _currentDrag?.dispose();
+            _currentDrag = null;
+            _outerController.dispose();
+            _innerController.dispose();
         }
 
         public override string ToString() {
-            return "$GetType()(outer=$_outerController; inner=$_innerController)";
+            return $"{GetType()}(outer={_outerController}; inner={_innerController})";
         }
     }
 
@@ -687,40 +690,40 @@ namespace Unity.UIWidgets.widgets {
             ScrollPosition oldPosition
         ) {
             return new _NestedScrollPosition(
-                coordinator: this.coordinator,
+                coordinator: coordinator,
                 physics: physics,
                 context: context,
-                initialPixels: this.initialScrollOffset,
+                initialPixels: initialScrollOffset,
                 oldPosition: oldPosition,
-                debugLabel: this.debugLabel
+                debugLabel: debugLabel
             );
         }
 
         public override void attach(ScrollPosition position) {
             D.assert(position is _NestedScrollPosition);
             base.attach(position);
-            this.coordinator.updateParent();
-            this.coordinator.updateCanDrag();
-            position.addListener(this._scheduleUpdateShadow);
-            this._scheduleUpdateShadow();
+            coordinator.updateParent();
+            coordinator.updateCanDrag();
+            position.addListener(_scheduleUpdateShadow);
+            _scheduleUpdateShadow();
         }
 
         public override void detach(ScrollPosition position) {
             D.assert(position is _NestedScrollPosition);
-            position.removeListener(this._scheduleUpdateShadow);
+            position.removeListener(_scheduleUpdateShadow);
             base.detach(position);
-            this._scheduleUpdateShadow();
+            _scheduleUpdateShadow();
         }
 
         void _scheduleUpdateShadow() {
             SchedulerBinding.instance.addPostFrameCallback(
-                (TimeSpan timeStamp) => { this.coordinator.updateShadow(); }
+                (TimeSpan timeStamp) => { coordinator.updateShadow(); }
             );
         }
 
         public IEnumerable<_NestedScrollPosition> nestedPositions {
             get {
-                foreach (var scrollPosition in this.positions) {
+                foreach (var scrollPosition in positions) {
                     yield return (_NestedScrollPosition) scrollPosition;
                 }
             }
@@ -743,66 +746,66 @@ namespace Unity.UIWidgets.widgets {
             coordinator: coordinator
         ) {
             D.assert(coordinator != null);
-            if (!this.havePixels) {
-                this.correctPixels(initialPixels);
+            if (!havePixels) {
+                correctPixels(initialPixels);
             }
 
-            if (this.activity == null) {
-                this.goIdle();
+            if (activity == null) {
+                goIdle();
             }
 
-            D.assert(this.activity != null);
-            this.saveScrollOffset(); // in case we didn't restore but could, so that we don't restore it later
+            D.assert(activity != null);
+            saveScrollOffset(); // in case we didn't restore but could, so that we don't restore it later
         }
 
         public _NestedScrollCoordinator coordinator {
-            get { return (_NestedScrollCoordinator) this._coordinator; }
+            get { return (_NestedScrollCoordinator) _coordinator; }
         }
 
         public TickerProvider vsync {
-            get { return this.context.vsync; }
+            get { return context.vsync; }
         }
 
         ScrollController _parent;
 
         public void setParent(ScrollController value) {
-            this._parent?.detach(this);
-            this._parent = value;
-            this._parent?.attach(this);
+            _parent?.detach(this);
+            _parent = value;
+            _parent?.attach(this);
         }
 
         public override AxisDirection axisDirection {
-            get { return this.context.axisDirection; }
+            get { return context.axisDirection; }
         }
 
         protected override void absorb(ScrollPosition other) {
             base.absorb(other);
-            this.activity.updateDelegate(this);
+            activity.updateDelegate(this);
         }
 
         protected override void restoreScrollOffset() {
-            if (this.coordinator.canScrollBody) {
+            if (coordinator.canScrollBody) {
                 base.restoreScrollOffset();
             }
         }
 
         public float applyClampedDragUpdate(float delta) {
             D.assert(delta != 0.0f);
-            float min = delta < 0.0f ? -float.PositiveInfinity : Mathf.Min(this.minScrollExtent, this.pixels);
-            float max = delta > 0.0f ? float.PositiveInfinity : Mathf.Max(this.maxScrollExtent, this.pixels);
-            float oldPixels = this.pixels;
-            float newPixels = (this.pixels - delta).clamp(min, max);
-            float clampedDelta = newPixels - this.pixels;
+            float min = delta < 0.0f ? -float.PositiveInfinity : Mathf.Min(minScrollExtent, pixels);
+            float max = delta > 0.0f ? float.PositiveInfinity : Mathf.Max(maxScrollExtent, pixels);
+            float oldPixels = pixels;
+            float newPixels = (pixels - delta).clamp(min, max);
+            float clampedDelta = newPixels - pixels;
             if (clampedDelta == 0.0f) {
                 return delta;
             }
 
-            float overscroll = this.physics.applyBoundaryConditions(this, newPixels);
+            float overscroll = physics.applyBoundaryConditions(this, newPixels);
             float actualNewPixels = newPixels - overscroll;
             float offset = actualNewPixels - oldPixels;
             if (offset != 0.0f) {
-                this.forcePixels(actualNewPixels);
-                this.didUpdateScrollPositionBy(offset);
+                forcePixels(actualNewPixels);
+                didUpdateScrollPositionBy(offset);
             }
 
             return delta + offset;
@@ -810,39 +813,58 @@ namespace Unity.UIWidgets.widgets {
 
         public float applyFullDragUpdate(float delta) {
             D.assert(delta != 0.0f);
-            float oldPixels = this.pixels;
-            float newPixels = this.pixels - this.physics.applyPhysicsToUserOffset(this, delta);
+            float oldPixels = pixels;
+            float newPixels = pixels - physics.applyPhysicsToUserOffset(this, delta);
             if (oldPixels == newPixels) {
                 return 0.0f; // delta must have been so small we dropped it during floating point addition
             }
 
-            float overscroll = this.physics.applyBoundaryConditions(this, newPixels);
+            float overscroll = physics.applyBoundaryConditions(this, newPixels);
             float actualNewPixels = newPixels - overscroll;
             if (actualNewPixels != oldPixels) {
-                this.forcePixels(actualNewPixels);
-                this.didUpdateScrollPositionBy(actualNewPixels - oldPixels);
+                forcePixels(actualNewPixels);
+                didUpdateScrollPositionBy(actualNewPixels - oldPixels);
             }
 
             if (overscroll != 0.0f) {
-                this.didOverscrollBy(overscroll);
+                didOverscrollBy(overscroll);
                 return overscroll;
             }
 
             return 0.0f;
         }
 
+        public float applyClampedPointerSignalUpdate(float delta) {
+            D.assert(delta != 0.0f);
+
+            float min = delta > 0.0f
+                ? float.NegativeInfinity
+                : Mathf.Min(minScrollExtent, pixels);
+            // The logic for max is equivalent but on the other side.
+            float max = delta < 0.0f
+                ? float.PositiveInfinity
+                : Mathf.Max(maxScrollExtent, pixels);
+            float newPixels = (pixels + delta).clamp(min, max);
+            float clampedDelta = newPixels - pixels;
+            if (clampedDelta == 0.0f)
+                return delta;
+            forcePixels(newPixels);
+            didUpdateScrollPositionBy(clampedDelta);
+            return delta - clampedDelta;
+        }
+        
         public override ScrollDirection userScrollDirection {
-            get { return this.coordinator.userScrollDirection; }
+            get { return coordinator.userScrollDirection; }
         }
 
         public DrivenScrollActivity createDrivenScrollActivity(float to, TimeSpan duration, Curve curve) {
             return new DrivenScrollActivity(
                 this,
-                from: this.pixels,
+                from: pixels,
                 to: to,
                 duration: duration,
                 curve: curve,
-                vsync: this.vsync
+                vsync: vsync
             );
         }
 
@@ -852,20 +874,20 @@ namespace Unity.UIWidgets.widgets {
 
         public void applyUserScrollOffset(float delta) {
             // TODO: replace with real implementation
-            this.applyUserOffset(delta);
+            applyUserOffset(delta);
         }
 
         public void goIdle() {
-            this.beginActivity(new IdleScrollActivity(this));
+            beginActivity(new IdleScrollActivity(this));
         }
 
         public void goBallistic(float velocity) {
             Simulation simulation = null;
             if (velocity != 0.0f || this.outOfRange()) {
-                simulation = this.physics.createBallisticSimulation(this, velocity);
+                simulation = physics.createBallisticSimulation(this, velocity);
             }
 
-            this.beginActivity(this.createBallisticScrollActivity(
+            beginActivity(createBallisticScrollActivity(
                 simulation,
                 mode: _NestedBallisticScrollActivityMode.independent
             ));
@@ -888,60 +910,60 @@ namespace Unity.UIWidgets.widgets {
                         return new IdleScrollActivity(this);
                     }
 
-                    return new _NestedOuterBallisticScrollActivity(this.coordinator, this, metrics, simulation,
-                        this.context.vsync);
+                    return new _NestedOuterBallisticScrollActivity(coordinator, this, metrics, simulation,
+                        context.vsync);
                 case _NestedBallisticScrollActivityMode.inner:
-                    return new _NestedInnerBallisticScrollActivity(this.coordinator, this, simulation,
-                        this.context.vsync);
+                    return new _NestedInnerBallisticScrollActivity(coordinator, this, simulation,
+                        context.vsync);
                 case _NestedBallisticScrollActivityMode.independent:
-                    return new BallisticScrollActivity(this, simulation, this.context.vsync);
+                    return new BallisticScrollActivity(this, simulation, context.vsync);
             }
 
             return null;
         }
 
-        public override IPromise animateTo(float to,
+        public override Future animateTo(float to,
             TimeSpan duration,
             Curve curve
         ) {
-            return this.coordinator.animateTo(this.coordinator.unnestOffset(to, this), duration: duration,
+            return coordinator.animateTo(coordinator.unnestOffset(to, this), duration: duration,
                 curve: curve);
         }
 
         public override void jumpTo(float value) {
-            this.coordinator.jumpTo(this.coordinator.unnestOffset(value, this));
+            coordinator.jumpTo(coordinator.unnestOffset(value, this));
         }
 
         public void localJumpTo(float value) {
-            if (this.pixels != value) {
-                float oldPixels = this.pixels;
-                this.forcePixels(value);
-                this.didStartScroll();
-                this.didUpdateScrollPositionBy(this.pixels - oldPixels);
-                this.didEndScroll();
+            if (pixels != value) {
+                float oldPixels = pixels;
+                forcePixels(value);
+                didStartScroll();
+                didUpdateScrollPositionBy(pixels - oldPixels);
+                didEndScroll();
             }
         }
 
         protected override void applyNewDimensions() {
             base.applyNewDimensions();
-            this.coordinator.updateCanDrag();
+            coordinator.updateCanDrag();
         }
 
         public void updateCanDrag(float totalExtent) {
-            this.context.setCanDrag(totalExtent > (this.viewportDimension - this.maxScrollExtent) ||
-                                    this.minScrollExtent != this.maxScrollExtent);
+            context.setCanDrag(totalExtent > (viewportDimension - maxScrollExtent) ||
+                                    minScrollExtent != maxScrollExtent);
         }
 
         public override ScrollHoldController hold(VoidCallback holdCancelCallback) {
-            return this.coordinator.hold(holdCancelCallback);
+            return coordinator.hold(holdCancelCallback);
         }
 
         public override Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-            return this.coordinator.drag(details, dragCancelCallback);
+            return coordinator.drag(details, dragCancelCallback);
         }
 
         public override void dispose() {
-            this._parent?.detach(this);
+            _parent?.detach(this);
             base.dispose();
         }
     }
@@ -969,15 +991,15 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void resetActivity() {
-            this.del.beginActivity(this.coordinator.createInnerBallisticScrollActivity(this.del, this.velocity));
+            del.beginActivity(coordinator.createInnerBallisticScrollActivity(del, velocity));
         }
 
         public override void applyNewDimensions() {
-            this.del.beginActivity(this.coordinator.createInnerBallisticScrollActivity(this.del, this.velocity));
+            del.beginActivity(coordinator.createInnerBallisticScrollActivity(del, velocity));
         }
 
         protected override bool applyMoveTo(float value) {
-            return base.applyMoveTo(this.coordinator.nestOffset(value, this.del));
+            return base.applyMoveTo(coordinator.nestOffset(value, del));
         }
     }
 
@@ -1003,48 +1025,48 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void resetActivity() {
-            this.del.beginActivity(this.coordinator.createOuterBallisticScrollActivity(this.velocity));
+            del.beginActivity(coordinator.createOuterBallisticScrollActivity(velocity));
         }
 
         public override void applyNewDimensions() {
-            this.del.beginActivity(this.coordinator.createOuterBallisticScrollActivity(this.velocity));
+            del.beginActivity(coordinator.createOuterBallisticScrollActivity(velocity));
         }
 
         protected override bool applyMoveTo(float value) {
             bool done = false;
-            if (this.velocity > 0.0f) {
-                if (value < this.metrics.minRange) {
+            if (velocity > 0.0f) {
+                if (value < metrics.minRange) {
                     return true;
                 }
 
-                if (value > this.metrics.maxRange) {
-                    value = this.metrics.maxRange;
+                if (value > metrics.maxRange) {
+                    value = metrics.maxRange;
                     done = true;
                 }
             }
-            else if (this.velocity < 0.0f) {
-                if (value > this.metrics.maxRange) {
+            else if (velocity < 0.0f) {
+                if (value > metrics.maxRange) {
                     return true;
                 }
 
-                if (value < this.metrics.minRange) {
-                    value = this.metrics.minRange;
+                if (value < metrics.minRange) {
+                    value = metrics.minRange;
                     done = true;
                 }
             }
             else {
-                value = value.clamp(this.metrics.minRange, this.metrics.maxRange);
+                value = value.clamp(metrics.minRange, metrics.maxRange);
                 done = true;
             }
 
-            bool result = base.applyMoveTo(value + this.metrics.correctionOffset);
+            bool result = base.applyMoveTo(value + metrics.correctionOffset);
             D.assert(result); // since we tried to pass an in-range value, it shouldn"t ever overflow
             return !done;
         }
 
         public override string ToString() {
             return
-                $"{this.GetType()}({this.metrics.minRange} .. {this.metrics.maxRange}; correcting by {this.metrics.correctionOffset})";
+                $"{GetType()}({metrics.minRange} .. {metrics.maxRange}; correcting by {metrics.correctionOffset})";
         }
     }
 
@@ -1052,31 +1074,31 @@ namespace Unity.UIWidgets.widgets {
         internal int _writers = 0;
 
         public float layoutExtent {
-            get { return this._layoutExtent; }
+            get { return _layoutExtent; }
         }
 
         float _layoutExtent;
 
         public float scrollExtent {
-            get { return this._scrollExtent; }
+            get { return _scrollExtent; }
         }
 
         float _scrollExtent;
 
         internal void _setExtents(float layoutValue, float scrollValue) {
-            D.assert(this._writers == 1,
+            D.assert(_writers == 1,
                 () => "Multiple RenderSliverOverlapAbsorbers have been provided the same SliverOverlapAbsorberHandle.");
-            this._layoutExtent = layoutValue;
-            this._scrollExtent = scrollValue;
+            _layoutExtent = layoutValue;
+            _scrollExtent = scrollValue;
         }
 
         internal void _markNeedsLayout() {
-            this.notifyListeners();
+            notifyListeners();
         }
 
         public override string ToString() {
             string extra = "";
-            switch (this._writers) {
+            switch (_writers) {
                 case 0:
                     extra = ", orphan";
                     break;
@@ -1087,7 +1109,7 @@ namespace Unity.UIWidgets.widgets {
                     break;
             }
 
-            return $"{this.GetType()}({this.layoutExtent}{extra})";
+            return $"{GetType()}({layoutExtent}{extra})";
         }
     }
 
@@ -1095,9 +1117,11 @@ namespace Unity.UIWidgets.widgets {
         public SliverOverlapAbsorber(
             Key key = null,
             SliverOverlapAbsorberHandle handle = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
+            Widget child = null,
+            Widget sliver = null
+        ) : base(key: key, child: sliver ?? child) {
             D.assert(handle != null);
+            D.assert(child == null || sliver == null);
             this.handle = handle;
         }
 
@@ -1105,46 +1129,48 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderSliverOverlapAbsorber(
-                handle: this.handle
+                handle: handle
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderSliverOverlapAbsorber renderObject = _renderObject as RenderSliverOverlapAbsorber;
-            renderObject.handle = this.handle;
+            renderObject.handle = handle;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", this.handle));
+            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", handle));
         }
     }
 
     public class RenderSliverOverlapAbsorber : RenderObjectWithChildMixinRenderSliver<RenderSliver> {
         public RenderSliverOverlapAbsorber(
             SliverOverlapAbsorberHandle handle,
-            RenderSliver child = null
+            RenderSliver child = null,
+            RenderSliver sliver = null
         ) {
             D.assert(handle != null);
-            this._handle = handle;
-            this.child = child;
+            D.assert(child == null || sliver == null);
+            _handle = handle;
+            this.child = sliver ?? child;
         }
 
         public SliverOverlapAbsorberHandle handle {
-            get { return this._handle; }
+            get { return _handle; }
             set {
                 D.assert(value != null);
-                if (this.handle == value) {
+                if (handle == value) {
                     return;
                 }
 
-                if (this.attached) {
-                    this.handle._writers -= 1;
+                if (attached) {
+                    handle._writers -= 1;
                     value._writers += 1;
-                    value._setExtents(this.handle.layoutExtent, this.handle.scrollExtent);
+                    value._setExtents(handle.layoutExtent, handle.scrollExtent);
                 }
 
-                this._handle = value;
+                _handle = value;
             }
         }
 
@@ -1152,30 +1178,30 @@ namespace Unity.UIWidgets.widgets {
 
         public override void attach(object owner) {
             base.attach(owner);
-            this.handle._writers += 1;
+            handle._writers += 1;
         }
 
         public override void detach() {
-            this.handle._writers -= 1;
+            handle._writers -= 1;
             base.detach();
         }
 
         protected override void performLayout() {
-            D.assert(this.handle._writers == 1,
+            D.assert(handle._writers == 1,
                 () =>
                     "A SliverOverlapAbsorberHandle cannot be passed to multiple RenderSliverOverlapAbsorber objects at the same time.");
-            if (this.child == null) {
-                this.geometry = new SliverGeometry();
+            if (child == null) {
+                geometry = new SliverGeometry();
                 return;
             }
 
-            this.child.layout(this.constraints, parentUsesSize: true);
-            SliverGeometry childLayoutGeometry = this.child.geometry;
-            this.geometry = new SliverGeometry(
+            child.layout(constraints, parentUsesSize: true);
+            SliverGeometry childLayoutGeometry = child.geometry;
+            geometry = new SliverGeometry(
                 scrollExtent: childLayoutGeometry.scrollExtent - childLayoutGeometry.maxScrollObstructionExtent,
                 paintExtent: childLayoutGeometry.paintExtent,
                 paintOrigin: childLayoutGeometry.paintOrigin,
-                layoutExtent: childLayoutGeometry.paintExtent - childLayoutGeometry.maxScrollObstructionExtent,
+                layoutExtent: Mathf.Max(0, childLayoutGeometry.paintExtent - childLayoutGeometry.maxScrollObstructionExtent),
                 maxPaintExtent: childLayoutGeometry.maxPaintExtent,
                 maxScrollObstructionExtent: childLayoutGeometry.maxScrollObstructionExtent,
                 hitTestExtent: childLayoutGeometry.hitTestExtent,
@@ -1183,7 +1209,7 @@ namespace Unity.UIWidgets.widgets {
                 hasVisualOverflow: childLayoutGeometry.hasVisualOverflow,
                 scrollOffsetCorrection: childLayoutGeometry.scrollOffsetCorrection
             );
-            this.handle._setExtents(childLayoutGeometry.maxScrollObstructionExtent,
+            handle._setExtents(childLayoutGeometry.maxScrollObstructionExtent,
                 childLayoutGeometry.maxScrollObstructionExtent);
         }
 
@@ -1195,8 +1221,8 @@ namespace Unity.UIWidgets.widgets {
             float mainAxisPosition = 0,
             float crossAxisPosition = 0
         ) {
-            if (this.child != null) {
-                return this.child.hitTest(result, mainAxisPosition: mainAxisPosition,
+            if (child != null) {
+                return child.hitTest(result, mainAxisPosition: mainAxisPosition,
                     crossAxisPosition: crossAxisPosition);
             }
 
@@ -1204,14 +1230,14 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                context.paintChild(this.child, offset);
+            if (child != null) {
+                context.paintChild(child, offset);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", this.handle));
+            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", handle));
         }
     }
 
@@ -1219,9 +1245,11 @@ namespace Unity.UIWidgets.widgets {
         public SliverOverlapInjector(
             Key key = null,
             SliverOverlapAbsorberHandle handle = null,
-            Widget child = null
-        ) : base(key: key, child: child) {
+            Widget child = null,
+            Widget sliver = null
+        ) : base(key: key, child: sliver ?? child) {
             D.assert(handle != null);
+            D.assert(child == null || sliver == null);
             this.handle = handle;
         }
 
@@ -1229,18 +1257,18 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderSliverOverlapInjector(
-                handle: this.handle
+                handle: handle
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderSliverOverlapInjector renderObject = _renderObject as RenderSliverOverlapInjector;
-            renderObject.handle = this.handle;
+            renderObject.handle = handle;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", this.handle));
+            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", handle));
         }
     }
 
@@ -1249,30 +1277,30 @@ namespace Unity.UIWidgets.widgets {
             SliverOverlapAbsorberHandle handle
         ) {
             D.assert(handle != null);
-            this._handle = handle;
+            _handle = handle;
         }
 
         float _currentLayoutExtent;
         float _currentMaxExtent;
 
         public SliverOverlapAbsorberHandle handle {
-            get { return this._handle; }
+            get { return _handle; }
             set {
                 D.assert(value != null);
-                if (this.handle == value) {
+                if (handle == value) {
                     return;
                 }
 
-                if (this.attached) {
-                    this.handle.removeListener(this.markNeedsLayout);
+                if (attached) {
+                    handle.removeListener(markNeedsLayout);
                 }
 
-                this._handle = value;
-                if (this.attached) {
-                    this.handle.addListener(this.markNeedsLayout);
-                    if (this.handle.layoutExtent != this._currentLayoutExtent ||
-                        this.handle.scrollExtent != this._currentMaxExtent) {
-                        this.markNeedsLayout();
+                _handle = value;
+                if (attached) {
+                    handle.addListener(markNeedsLayout);
+                    if (handle.layoutExtent != _currentLayoutExtent ||
+                        handle.scrollExtent != _currentMaxExtent) {
+                        markNeedsLayout();
                     }
                 }
             }
@@ -1282,27 +1310,27 @@ namespace Unity.UIWidgets.widgets {
 
         public override void attach(object owner) {
             base.attach(owner);
-            this.handle.addListener(this.markNeedsLayout);
-            if (this.handle.layoutExtent != this._currentLayoutExtent ||
-                this.handle.scrollExtent != this._currentMaxExtent) {
-                this.markNeedsLayout();
+            handle.addListener(markNeedsLayout);
+            if (handle.layoutExtent != _currentLayoutExtent ||
+                handle.scrollExtent != _currentMaxExtent) {
+                markNeedsLayout();
             }
         }
 
         public override void detach() {
-            this.handle.removeListener(this.markNeedsLayout);
+            handle.removeListener(markNeedsLayout);
             base.detach();
         }
 
         protected override void performLayout() {
-            this._currentLayoutExtent = this.handle.layoutExtent;
-            this._currentMaxExtent = this.handle.layoutExtent;
-            float clampedLayoutExtent = Mathf.Min(this._currentLayoutExtent - this.constraints.scrollOffset,
-                this.constraints.remainingPaintExtent);
-            this.geometry = new SliverGeometry(
-                scrollExtent: this._currentLayoutExtent,
+            _currentLayoutExtent = handle.layoutExtent;
+            _currentMaxExtent = handle.layoutExtent;
+            float clampedLayoutExtent = Mathf.Min(_currentLayoutExtent - constraints.scrollOffset,
+                constraints.remainingPaintExtent);
+            geometry = new SliverGeometry(
+                scrollExtent: _currentLayoutExtent,
                 paintExtent: Mathf.Max(0.0f, clampedLayoutExtent),
-                maxPaintExtent: this._currentMaxExtent
+                maxPaintExtent: _currentMaxExtent
             );
         }
 
@@ -1314,18 +1342,18 @@ namespace Unity.UIWidgets.widgets {
                     paint.strokeWidth = 3.0f;
                     paint.style = PaintingStyle.stroke;
                     Offset start, end, delta;
-                    switch (this.constraints.axis) {
+                    switch (constraints.axis) {
                         case Axis.vertical:
-                            float x = offset.dx + this.constraints.crossAxisExtent / 2.0f;
+                            float x = offset.dx + constraints.crossAxisExtent / 2.0f;
                             start = new Offset(x, offset.dy);
-                            end = new Offset(x, offset.dy + this.geometry.paintExtent);
-                            delta = new Offset(this.constraints.crossAxisExtent / 5.0f, 0.0f);
+                            end = new Offset(x, offset.dy + geometry.paintExtent);
+                            delta = new Offset(constraints.crossAxisExtent / 5.0f, 0.0f);
                             break;
                         case Axis.horizontal:
-                            float y = offset.dy + this.constraints.crossAxisExtent / 2.0f;
+                            float y = offset.dy + constraints.crossAxisExtent / 2.0f;
                             start = new Offset(offset.dx, y);
-                            end = new Offset(offset.dy + this.geometry.paintExtent, y);
-                            delta = new Offset(0.0f, this.constraints.crossAxisExtent / 5.0f);
+                            end = new Offset(offset.dy + geometry.paintExtent, y);
+                            delta = new Offset(0.0f, constraints.crossAxisExtent / 5.0f);
                             break;
                         default:
                             throw new Exception("");
@@ -1343,7 +1371,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", this.handle));
+            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", handle));
         }
     }
 
@@ -1375,31 +1403,31 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderNestedScrollViewViewport(
-                axisDirection: this.axisDirection,
-                crossAxisDirection: this.crossAxisDirection ??
-                                    getDefaultCrossAxisDirection(context, this.axisDirection),
-                anchor: this.anchor,
-                offset: this.offset,
-                handle: this.handle
+                axisDirection: axisDirection,
+                crossAxisDirection: crossAxisDirection ??
+                                    getDefaultCrossAxisDirection(context, axisDirection),
+                anchor: anchor,
+                offset: offset,
+                handle: handle
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderNestedScrollViewViewport renderObject = _renderObject as RenderNestedScrollViewViewport;
-            renderObject.axisDirection = this.axisDirection;
-            renderObject.crossAxisDirection = this.crossAxisDirection ??
-                                              getDefaultCrossAxisDirection(context, this.axisDirection);
-            if (this.crossAxisDirection == null) {
-                renderObject.anchor = this.anchor;
+            renderObject.axisDirection = axisDirection;
+            renderObject.crossAxisDirection = crossAxisDirection ??
+                                              getDefaultCrossAxisDirection(context, axisDirection);
+            if (crossAxisDirection == null) {
+                renderObject.anchor = anchor;
             }
 
-            renderObject.offset = this.offset;
-            renderObject.handle = this.handle;
+            renderObject.offset = offset;
+            renderObject.handle = handle;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", this.handle));
+            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", handle));
         }
     }
 
@@ -1422,32 +1450,32 @@ namespace Unity.UIWidgets.widgets {
         ) {
             D.assert(handle != null);
             D.assert(offset != null);
-            this._handle = handle;
+            _handle = handle;
         }
 
         public SliverOverlapAbsorberHandle handle {
-            get { return this._handle; }
+            get { return _handle; }
             set {
                 D.assert(value != null);
-                if (this.handle == value) {
+                if (handle == value) {
                     return;
                 }
 
-                this._handle = value;
-                this.handle._markNeedsLayout();
+                _handle = value;
+                handle._markNeedsLayout();
             }
         }
 
         SliverOverlapAbsorberHandle _handle;
 
         public override void markNeedsLayout() {
-            this.handle._markNeedsLayout();
+            handle._markNeedsLayout();
             base.markNeedsLayout();
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", this.handle));
+            properties.add(new DiagnosticsProperty<SliverOverlapAbsorberHandle>("handle", handle));
         }
     }
 }

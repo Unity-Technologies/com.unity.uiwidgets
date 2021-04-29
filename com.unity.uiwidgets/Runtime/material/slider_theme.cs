@@ -1,3 +1,4 @@
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -11,7 +12,7 @@ using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-    public class SliderTheme : InheritedWidget {
+    public class SliderTheme : InheritedTheme {
         public SliderTheme(
             Key key = null,
             SliderThemeData data = null,
@@ -25,13 +26,18 @@ namespace Unity.UIWidgets.material {
         public readonly SliderThemeData data;
 
         public static SliderThemeData of(BuildContext context) {
-            SliderTheme inheritedTheme = (SliderTheme) context.inheritFromWidgetOfExactType(typeof(SliderTheme));
+            SliderTheme inheritedTheme = context.dependOnInheritedWidgetOfExactType<SliderTheme>();
             return inheritedTheme != null ? inheritedTheme.data : Theme.of(context).sliderTheme;
+        }
+
+        public override Widget wrap(BuildContext context, Widget child) {
+            SliderTheme ancestorTheme = context.findAncestorWidgetOfExactType<SliderTheme>();
+            return ReferenceEquals(this, ancestorTheme) ? child : new SliderTheme(data: data, child: child);
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
             SliderTheme _oldWidget = (SliderTheme) oldWidget;
-            return this.data != _oldWidget.data;
+            return data != _oldWidget.data;
         }
     }
 
@@ -41,6 +47,11 @@ namespace Unity.UIWidgets.material {
         onlyForContinuous,
         always,
         never
+    }
+
+    public enum Thumb {
+        start,
+        end
     }
 
     public class SliderThemeData : Diagnosticable {
@@ -55,38 +66,25 @@ namespace Unity.UIWidgets.material {
             Color disabledActiveTickMarkColor = null,
             Color disabledInactiveTickMarkColor = null,
             Color thumbColor = null,
+            Color overlappingShapeStrokeColor = null,
             Color disabledThumbColor = null,
             Color overlayColor = null,
             Color valueIndicatorColor = null,
-            SliderTrackShape trackShape = null,
+            SliderComponentShape overlayShape = null,
             SliderTickMarkShape tickMarkShape = null,
             SliderComponentShape thumbShape = null,
-            SliderComponentShape overlayShape = null,
+            SliderTrackShape trackShape = null,
             SliderComponentShape valueIndicatorShape = null,
+            RangeSliderTickMarkShape rangeTickMarkShape = null,
+            RangeSliderThumbShape rangeThumbShape = null,
+            RangeSliderTrackShape rangeTrackShape = null,
+            RangeSliderValueIndicatorShape rangeValueIndicatorShape = null,
             ShowValueIndicator? showValueIndicator = null,
-            TextStyle valueIndicatorTextStyle = null
+            TextStyle valueIndicatorTextStyle = null,
+            float? minThumbSeparation = null,
+            RangeThumbSelector thumbSelector = null
         ) {
-            D.assert(trackHeight != null);
-            D.assert(activeTrackColor != null);
-            D.assert(inactiveTrackColor != null);
-            D.assert(disabledActiveTrackColor != null);
-            D.assert(disabledInactiveTrackColor != null);
-            D.assert(activeTickMarkColor != null);
-            D.assert(inactiveTickMarkColor != null);
-            D.assert(disabledActiveTickMarkColor != null);
-            D.assert(disabledInactiveTickMarkColor != null);
-            D.assert(thumbColor != null);
-            D.assert(disabledThumbColor != null);
-            D.assert(overlayColor != null);
-            D.assert(valueIndicatorColor != null);
-            D.assert(trackShape != null);
-            D.assert(tickMarkShape != null);
-            D.assert(thumbShape != null);
-            D.assert(overlayShape != null);
-            D.assert(valueIndicatorShape != null);
-            D.assert(valueIndicatorTextStyle != null);
-            D.assert(showValueIndicator != null);
-            this.trackHeight = trackHeight.Value;
+            this.trackHeight = trackHeight;
             this.activeTrackColor = activeTrackColor;
             this.inactiveTrackColor = inactiveTrackColor;
             this.disabledActiveTrackColor = disabledActiveTrackColor;
@@ -96,16 +94,23 @@ namespace Unity.UIWidgets.material {
             this.disabledActiveTickMarkColor = disabledActiveTickMarkColor;
             this.disabledInactiveTickMarkColor = disabledInactiveTickMarkColor;
             this.thumbColor = thumbColor;
+            this.overlappingShapeStrokeColor = overlappingShapeStrokeColor;
             this.disabledThumbColor = disabledThumbColor;
             this.overlayColor = overlayColor;
             this.valueIndicatorColor = valueIndicatorColor;
-            this.trackShape = trackShape;
+            this.overlayShape = overlayShape;
             this.tickMarkShape = tickMarkShape;
             this.thumbShape = thumbShape;
-            this.overlayShape = overlayShape;
+            this.trackShape = trackShape;
             this.valueIndicatorShape = valueIndicatorShape;
-            this.showValueIndicator = showValueIndicator.Value;
+            this.rangeTickMarkShape = rangeTickMarkShape;
+            this.rangeThumbShape = rangeThumbShape;
+            this.rangeTrackShape = rangeTrackShape;
+            this.rangeValueIndicatorShape = rangeValueIndicatorShape;
+            this.showValueIndicator = showValueIndicator;
             this.valueIndicatorTextStyle = valueIndicatorTextStyle;
+            this.minThumbSeparation = minThumbSeparation;
+            this.thumbSelector = thumbSelector;
         }
 
         public static SliderThemeData fromPrimaryColors(
@@ -128,9 +133,8 @@ namespace Unity.UIWidgets.material {
             const int disabledInactiveTickMarkAlpha = 0x1f; // 12% opacity
             const int thumbAlpha = 0xff;
             const int disabledThumbAlpha = 0x52; // 32% opacity
+            const int overlayAlpha = 0x1f;        // 12% opacity
             const int valueIndicatorAlpha = 0xff;
-
-            const int overlayLightAlpha = 0x29;
 
             return new SliderThemeData(
                 trackHeight: 2.0f,
@@ -143,20 +147,25 @@ namespace Unity.UIWidgets.material {
                 disabledActiveTickMarkColor: primaryColorLight.withAlpha(disabledActiveTickMarkAlpha),
                 disabledInactiveTickMarkColor: primaryColorDark.withAlpha(disabledInactiveTickMarkAlpha),
                 thumbColor: primaryColor.withAlpha(thumbAlpha),
+                overlappingShapeStrokeColor: Colors.white,
                 disabledThumbColor: primaryColorDark.withAlpha(disabledThumbAlpha),
-                overlayColor: primaryColor.withAlpha(overlayLightAlpha),
+                overlayColor: primaryColor.withAlpha(overlayAlpha),
                 valueIndicatorColor: primaryColor.withAlpha(valueIndicatorAlpha),
-                trackShape: new RectangularSliderTrackShape(),
+                overlayShape: new RoundSliderOverlayShape(),
                 tickMarkShape: new RoundSliderTickMarkShape(),
                 thumbShape: new RoundSliderThumbShape(),
-                overlayShape: new RoundSliderOverlayShape(),
+                trackShape: new RoundedRectSliderTrackShape(),
                 valueIndicatorShape: new PaddleSliderValueIndicatorShape(),
+                rangeTickMarkShape: new RoundRangeSliderTickMarkShape(),
+                rangeThumbShape: new RoundRangeSliderThumbShape(),
+                rangeTrackShape: new RoundedRectRangeSliderTrackShape(),
+                rangeValueIndicatorShape: new PaddleRangeSliderValueIndicatorShape(),
                 valueIndicatorTextStyle: valueIndicatorTextStyle,
                 showValueIndicator: ShowValueIndicator.onlyForDiscrete
             );
         }
 
-        public readonly float trackHeight;
+        public readonly float? trackHeight;
 
         public readonly Color activeTrackColor;
 
@@ -176,13 +185,13 @@ namespace Unity.UIWidgets.material {
 
         public readonly Color thumbColor;
 
+        public readonly Color overlappingShapeStrokeColor;
+
         public readonly Color disabledThumbColor;
 
         public readonly Color overlayColor;
 
         public readonly Color valueIndicatorColor;
-
-        public readonly SliderTrackShape trackShape;
 
         public readonly SliderTickMarkShape tickMarkShape;
 
@@ -190,11 +199,25 @@ namespace Unity.UIWidgets.material {
 
         public readonly SliderComponentShape thumbShape;
 
+        public readonly SliderTrackShape trackShape;
+
         public readonly SliderComponentShape valueIndicatorShape;
 
-        public readonly ShowValueIndicator showValueIndicator;
+        public readonly RangeSliderTickMarkShape rangeTickMarkShape;
+
+        public readonly RangeSliderThumbShape rangeThumbShape;
+
+        public readonly RangeSliderTrackShape rangeTrackShape;
+
+        public readonly RangeSliderValueIndicatorShape rangeValueIndicatorShape;
+
+        public readonly ShowValueIndicator? showValueIndicator;
 
         public readonly TextStyle valueIndicatorTextStyle;
+
+        public readonly float? minThumbSeparation;
+
+        public readonly RangeThumbSelector thumbSelector;
 
         public SliderThemeData copyWith(
             float? trackHeight = null,
@@ -207,16 +230,23 @@ namespace Unity.UIWidgets.material {
             Color disabledActiveTickMarkColor = null,
             Color disabledInactiveTickMarkColor = null,
             Color thumbColor = null,
+            Color overlappingShapeStrokeColor = null,
             Color disabledThumbColor = null,
             Color overlayColor = null,
             Color valueIndicatorColor = null,
-            SliderTrackShape trackShape = null,
+            SliderComponentShape overlayShape = null,
             SliderTickMarkShape tickMarkShape = null,
             SliderComponentShape thumbShape = null,
-            SliderComponentShape overlayShape = null,
+            SliderTrackShape trackShape = null,
             SliderComponentShape valueIndicatorShape = null,
+            RangeSliderTickMarkShape rangeTickMarkShape = null,
+            RangeSliderThumbShape rangeThumbShape = null,
+            RangeSliderTrackShape rangeTrackShape = null,
+            RangeSliderValueIndicatorShape rangeValueIndicatorShape = null,
             ShowValueIndicator? showValueIndicator = null,
-            TextStyle valueIndicatorTextStyle = null
+            TextStyle valueIndicatorTextStyle = null,
+            float? minThumbSeparation = null,
+            RangeThumbSelector thumbSelector = null
         ) {
             return new SliderThemeData(
                 trackHeight: trackHeight ?? this.trackHeight,
@@ -229,16 +259,23 @@ namespace Unity.UIWidgets.material {
                 disabledActiveTickMarkColor: disabledActiveTickMarkColor ?? this.disabledActiveTickMarkColor,
                 disabledInactiveTickMarkColor: disabledInactiveTickMarkColor ?? this.disabledInactiveTickMarkColor,
                 thumbColor: thumbColor ?? this.thumbColor,
+                overlappingShapeStrokeColor: overlappingShapeStrokeColor ?? this.overlappingShapeStrokeColor,
                 disabledThumbColor: disabledThumbColor ?? this.disabledThumbColor,
                 overlayColor: overlayColor ?? this.overlayColor,
                 valueIndicatorColor: valueIndicatorColor ?? this.valueIndicatorColor,
-                trackShape: trackShape ?? this.trackShape,
+                overlayShape: overlayShape ?? this.overlayShape,
                 tickMarkShape: tickMarkShape ?? this.tickMarkShape,
                 thumbShape: thumbShape ?? this.thumbShape,
-                overlayShape: overlayShape ?? this.overlayShape,
+                trackShape: trackShape ?? this.trackShape,
                 valueIndicatorShape: valueIndicatorShape ?? this.valueIndicatorShape,
+                rangeTickMarkShape: rangeTickMarkShape ?? this.rangeTickMarkShape,
+                rangeThumbShape: rangeThumbShape ?? this.rangeThumbShape,
+                rangeTrackShape: rangeTrackShape ?? this.rangeTrackShape,
+                rangeValueIndicatorShape: rangeValueIndicatorShape ?? this.rangeValueIndicatorShape,
                 showValueIndicator: showValueIndicator ?? this.showValueIndicator,
-                valueIndicatorTextStyle: valueIndicatorTextStyle ?? this.valueIndicatorTextStyle
+                valueIndicatorTextStyle: valueIndicatorTextStyle ?? this.valueIndicatorTextStyle,
+                minThumbSeparation: minThumbSeparation ?? this.minThumbSeparation,
+                thumbSelector: thumbSelector ?? this.thumbSelector
             );
         }
 
@@ -246,7 +283,7 @@ namespace Unity.UIWidgets.material {
             D.assert(a != null);
             D.assert(b != null);
             return new SliderThemeData(
-                trackHeight: MathUtils.lerpFloat(a.trackHeight, b.trackHeight, t),
+                trackHeight: MathUtils.lerpNullableFloat(a.trackHeight, b.trackHeight, t),
                 activeTrackColor: Color.lerp(a.activeTrackColor, b.activeTrackColor, t),
                 inactiveTrackColor: Color.lerp(a.inactiveTrackColor, b.inactiveTrackColor, t),
                 disabledActiveTrackColor: Color.lerp(a.disabledActiveTrackColor, b.disabledActiveTrackColor, t),
@@ -258,16 +295,23 @@ namespace Unity.UIWidgets.material {
                 disabledInactiveTickMarkColor: Color.lerp(a.disabledInactiveTickMarkColor,
                     b.disabledInactiveTickMarkColor, t),
                 thumbColor: Color.lerp(a.thumbColor, b.thumbColor, t),
+                overlappingShapeStrokeColor: Color.lerp(a.overlappingShapeStrokeColor, b.overlappingShapeStrokeColor, t),
                 disabledThumbColor: Color.lerp(a.disabledThumbColor, b.disabledThumbColor, t),
                 overlayColor: Color.lerp(a.overlayColor, b.overlayColor, t),
                 valueIndicatorColor: Color.lerp(a.valueIndicatorColor, b.valueIndicatorColor, t),
-                trackShape: t < 0.5 ? a.trackShape : b.trackShape,
+                overlayShape: t < 0.5 ? a.overlayShape : b.overlayShape,
                 tickMarkShape: t < 0.5 ? a.tickMarkShape : b.tickMarkShape,
                 thumbShape: t < 0.5 ? a.thumbShape : b.thumbShape,
-                overlayShape: t < 0.5 ? a.overlayShape : b.overlayShape,
+                trackShape: t < 0.5 ? a.trackShape : b.trackShape,
                 valueIndicatorShape: t < 0.5 ? a.valueIndicatorShape : b.valueIndicatorShape,
+                rangeTickMarkShape: t < 0.5 ? a.rangeTickMarkShape : b.rangeTickMarkShape,
+                rangeThumbShape: t < 0.5 ? a.rangeThumbShape : b.rangeThumbShape,
+                rangeTrackShape: t < 0.5 ? a.rangeTrackShape : b.rangeTrackShape,
+                rangeValueIndicatorShape: t < 0.5 ? a.rangeValueIndicatorShape : b.rangeValueIndicatorShape,
                 showValueIndicator: t < 0.5 ? a.showValueIndicator : b.showValueIndicator,
-                valueIndicatorTextStyle: TextStyle.lerp(a.valueIndicatorTextStyle, b.valueIndicatorTextStyle, t)
+                valueIndicatorTextStyle: TextStyle.lerp(a.valueIndicatorTextStyle, b.valueIndicatorTextStyle, t),
+                minThumbSeparation: MathUtils.lerpNullableFloat(a.minThumbSeparation, b.minThumbSeparation, t),
+                thumbSelector: t < 0.5 ? a.thumbSelector : b.thumbSelector
             );
         }
 
@@ -280,26 +324,33 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return other.trackHeight == this.trackHeight
-                   && other.activeTrackColor == this.activeTrackColor
-                   && other.inactiveTrackColor == this.inactiveTrackColor
-                   && other.disabledActiveTrackColor == this.disabledActiveTrackColor
-                   && other.disabledInactiveTrackColor == this.disabledInactiveTrackColor
-                   && other.activeTickMarkColor == this.activeTickMarkColor
-                   && other.inactiveTickMarkColor == this.inactiveTickMarkColor
-                   && other.disabledActiveTickMarkColor == this.disabledActiveTickMarkColor
-                   && other.disabledInactiveTickMarkColor == this.disabledInactiveTickMarkColor
-                   && other.thumbColor == this.thumbColor
-                   && other.disabledThumbColor == this.disabledThumbColor
-                   && other.overlayColor == this.overlayColor
-                   && other.valueIndicatorColor == this.valueIndicatorColor
-                   && other.trackShape == this.trackShape
-                   && other.tickMarkShape == this.tickMarkShape
-                   && other.thumbShape == this.thumbShape
-                   && other.overlayShape == this.overlayShape
-                   && other.valueIndicatorShape == this.valueIndicatorShape
-                   && other.showValueIndicator == this.showValueIndicator
-                   && other.valueIndicatorTextStyle == this.valueIndicatorTextStyle;
+            return Equals(other.trackHeight, trackHeight)
+                   && other.activeTrackColor == activeTrackColor
+                   && other.inactiveTrackColor == inactiveTrackColor
+                   && other.disabledActiveTrackColor == disabledActiveTrackColor
+                   && other.disabledInactiveTrackColor == disabledInactiveTrackColor
+                   && other.activeTickMarkColor == activeTickMarkColor
+                   && other.inactiveTickMarkColor == inactiveTickMarkColor
+                   && other.disabledActiveTickMarkColor == disabledActiveTickMarkColor
+                   && other.disabledInactiveTickMarkColor == disabledInactiveTickMarkColor
+                   && other.thumbColor == thumbColor
+                   && other.overlappingShapeStrokeColor == overlappingShapeStrokeColor
+                   && other.disabledThumbColor == disabledThumbColor
+                   && other.overlayColor == overlayColor
+                   && other.valueIndicatorColor == valueIndicatorColor
+                   && other.overlayShape == overlayShape
+                   && other.tickMarkShape == tickMarkShape
+                   && other.thumbShape == thumbShape
+                   && other.trackShape == trackShape
+                   && other.valueIndicatorShape == valueIndicatorShape
+                   && other.rangeTickMarkShape == rangeTickMarkShape
+                   && other.rangeThumbShape == rangeThumbShape
+                   && other.rangeTrackShape == rangeTrackShape
+                   && other.rangeValueIndicatorShape == rangeValueIndicatorShape
+                   && other.showValueIndicator == showValueIndicator
+                   && other.valueIndicatorTextStyle == valueIndicatorTextStyle
+                   && Equals(other.minThumbSeparation, minThumbSeparation)
+                   && other.thumbSelector == thumbSelector;
         }
 
         public override bool Equals(object obj) {
@@ -311,11 +362,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((SliderThemeData) obj);
+            return Equals((SliderThemeData) obj);
         }
 
         public static bool operator ==(SliderThemeData left, SliderThemeData right) {
@@ -329,33 +380,40 @@ namespace Unity.UIWidgets.material {
         int? _cachedHashCode = null;
 
         public override int GetHashCode() {
-            if (this._cachedHashCode != null) {
-                return this._cachedHashCode.Value;
+            if (_cachedHashCode != null) {
+                return _cachedHashCode.Value;
             }
 
             unchecked {
-                var hashCode = this.trackHeight.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.activeTrackColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.inactiveTrackColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledActiveTrackColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledInactiveTrackColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.activeTickMarkColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.inactiveTickMarkColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledActiveTickMarkColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledInactiveTickMarkColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.thumbColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.disabledThumbColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.overlayColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.valueIndicatorColor.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.trackShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.tickMarkShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.thumbShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.overlayShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.valueIndicatorShape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.showValueIndicator.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.valueIndicatorTextStyle.GetHashCode();
+                var hashCode = trackHeight?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ activeTrackColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ inactiveTrackColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ disabledActiveTrackColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ disabledInactiveTrackColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ activeTickMarkColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ inactiveTickMarkColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ disabledActiveTickMarkColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ disabledInactiveTickMarkColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ thumbColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ overlappingShapeStrokeColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ disabledThumbColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ overlayColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ valueIndicatorColor?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ overlayShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ tickMarkShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ thumbShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ trackShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ rangeTickMarkShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ rangeThumbShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ rangeTrackShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ rangeValueIndicatorShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ valueIndicatorShape?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ showValueIndicator?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ valueIndicatorTextStyle?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ minThumbSeparation?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ thumbSelector?.GetHashCode() ?? 0;
 
-                this._cachedHashCode = hashCode;
+                _cachedHashCode = hashCode;
                 return hashCode;
             }
         }
@@ -369,49 +427,104 @@ namespace Unity.UIWidgets.material {
                 primaryColorLight: defaultTheme.primaryColorLight,
                 valueIndicatorTextStyle: defaultTheme.accentTextTheme.body2
             );
-            properties.add(new DiagnosticsProperty<Color>("activeTrackColor", this.activeTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("activeTrackColor", activeTrackColor,
                 defaultValue: defaultData.activeTrackColor));
-            properties.add(new DiagnosticsProperty<Color>("activeTrackColor", this.activeTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("activeTrackColor", activeTrackColor,
                 defaultValue: defaultData.activeTrackColor));
-            properties.add(new DiagnosticsProperty<Color>("inactiveTrackColor", this.inactiveTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("inactiveTrackColor", inactiveTrackColor,
                 defaultValue: defaultData.inactiveTrackColor));
-            properties.add(new DiagnosticsProperty<Color>("disabledActiveTrackColor", this.disabledActiveTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("disabledActiveTrackColor", disabledActiveTrackColor,
                 defaultValue: defaultData.disabledActiveTrackColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("disabledInactiveTrackColor", this.disabledInactiveTrackColor,
+            properties.add(new DiagnosticsProperty<Color>("disabledInactiveTrackColor", disabledInactiveTrackColor,
                 defaultValue: defaultData.disabledInactiveTrackColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("activeTickMarkColor", this.activeTickMarkColor,
+            properties.add(new DiagnosticsProperty<Color>("activeTickMarkColor", activeTickMarkColor,
                 defaultValue: defaultData.activeTickMarkColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("inactiveTickMarkColor", this.inactiveTickMarkColor,
+            properties.add(new DiagnosticsProperty<Color>("inactiveTickMarkColor", inactiveTickMarkColor,
                 defaultValue: defaultData.inactiveTickMarkColor, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<Color>("disabledActiveTickMarkColor",
-                this.disabledActiveTickMarkColor, defaultValue: defaultData.disabledActiveTickMarkColor,
+                disabledActiveTickMarkColor, defaultValue: defaultData.disabledActiveTickMarkColor,
                 level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<Color>("disabledInactiveTickMarkColor",
-                this.disabledInactiveTickMarkColor, defaultValue: defaultData.disabledInactiveTickMarkColor,
+                disabledInactiveTickMarkColor, defaultValue: defaultData.disabledInactiveTickMarkColor,
                 level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("thumbColor", this.thumbColor,
+            properties.add(new DiagnosticsProperty<Color>("thumbColor", thumbColor,
                 defaultValue: defaultData.thumbColor));
-            properties.add(new DiagnosticsProperty<Color>("disabledThumbColor", this.disabledThumbColor,
+            properties.add(new ColorProperty("overlappingShapeStrokeColor", overlappingShapeStrokeColor, defaultValue: defaultData.overlappingShapeStrokeColor));
+
+            properties.add(new DiagnosticsProperty<Color>("disabledThumbColor", disabledThumbColor,
                 defaultValue: defaultData.disabledThumbColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("overlayColor", this.overlayColor,
+            properties.add(new DiagnosticsProperty<Color>("overlayColor", overlayColor,
                 defaultValue: defaultData.overlayColor, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<Color>("valueIndicatorColor", this.valueIndicatorColor,
+            properties.add(new DiagnosticsProperty<Color>("valueIndicatorColor", valueIndicatorColor,
                 defaultValue: defaultData.valueIndicatorColor));
-            properties.add(new DiagnosticsProperty<SliderTrackShape>("trackShape", this.trackShape,
-                defaultValue: defaultData.trackShape, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<SliderTickMarkShape>("tickMarkShape", this.tickMarkShape,
-                defaultValue: defaultData.tickMarkShape, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<SliderComponentShape>("thumbShape", this.thumbShape,
-                defaultValue: defaultData.thumbShape, level: DiagnosticLevel.debug));
-            properties.add(new DiagnosticsProperty<SliderComponentShape>("overlayShape", this.overlayShape,
+            properties.add(new DiagnosticsProperty<SliderComponentShape>("overlayShape", overlayShape,
                 defaultValue: defaultData.overlayShape, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<SliderTickMarkShape>("tickMarkShape", tickMarkShape,
+                defaultValue: defaultData.tickMarkShape, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<SliderComponentShape>("thumbShape", thumbShape,
+                defaultValue: defaultData.thumbShape, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<SliderTrackShape>("trackShape", trackShape,
+                defaultValue: defaultData.trackShape, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<SliderComponentShape>("valueIndicatorShape",
-                this.valueIndicatorShape, defaultValue: defaultData.valueIndicatorShape, level: DiagnosticLevel.debug));
-            properties.add(new EnumProperty<ShowValueIndicator>("showValueIndicator", this.showValueIndicator,
+                valueIndicatorShape, defaultValue: defaultData.valueIndicatorShape, level: DiagnosticLevel.debug));
+            properties.add(new DiagnosticsProperty<RangeSliderTickMarkShape>("rangeTickMarkShape", rangeTickMarkShape, defaultValue: defaultData.rangeTickMarkShape));
+            properties.add(new DiagnosticsProperty<RangeSliderThumbShape>("rangeThumbShape", rangeThumbShape, defaultValue: defaultData.rangeThumbShape));
+            properties.add(new DiagnosticsProperty<RangeSliderTrackShape>("rangeTrackShape", rangeTrackShape, defaultValue: defaultData.rangeTrackShape));
+            properties.add(new DiagnosticsProperty<RangeSliderValueIndicatorShape>("rangeValueIndicatorShape", rangeValueIndicatorShape, defaultValue: defaultData.rangeValueIndicatorShape));
+            properties.add(new EnumProperty<ShowValueIndicator>("showValueIndicator", showValueIndicator.Value,
                 defaultValue: defaultData.showValueIndicator));
-            properties.add(new DiagnosticsProperty<TextStyle>("valueIndicatorTextStyle", this.valueIndicatorTextStyle,
+            properties.add(new DiagnosticsProperty<TextStyle>("valueIndicatorTextStyle", valueIndicatorTextStyle,
                 defaultValue: defaultData.valueIndicatorTextStyle));
+            properties.add(new FloatProperty("minThumbSeparation", minThumbSeparation, defaultValue: defaultData.minThumbSeparation));
+            properties.add(new DiagnosticsProperty<RangeThumbSelector>("thumbSelector", thumbSelector, defaultValue: defaultData.thumbSelector));
         }
+    }
+
+    public abstract class SliderComponentShape {
+        public SliderComponentShape() {
+        }
+
+        public abstract Size getPreferredSize(
+            bool isEnabled,
+            bool isDiscrete,
+            TextPainter textPainter = null);
+
+        public abstract void paint(
+            PaintingContext context,
+            Offset center,
+            Animation<float> activationAnimation = null,
+            Animation<float> enableAnimation = null,
+            bool isDiscrete = false,
+            TextPainter labelPainter = null,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            TextDirection? textDirection = null,
+            float? value = null);
+
+        public static readonly SliderComponentShape noThumb = new _EmptySliderComponentShape();
+
+        public static readonly SliderComponentShape noOverlay = new _EmptySliderComponentShape();
+    }
+
+    public abstract class SliderTickMarkShape {
+        public SliderTickMarkShape() {
+        }
+
+        public abstract Size getPreferredSize(
+            SliderThemeData sliderTheme = null,
+            bool isEnabled = false);
+
+        public abstract void paint(
+            PaintingContext context,
+            Offset offset,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            Animation<float> enableAnimation = null,
+            Offset thumbCenter = null,
+            bool isEnabled = false,
+            TextDirection? textDirection = null);
+
+        public static readonly SliderTickMarkShape noTickMark = new _EmptySliderTickMarkShape();
     }
 
     public abstract class SliderTrackShape {
@@ -422,8 +535,8 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             Offset offset = null,
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null);
+            bool isEnabled = false,
+            bool isDiscrete = false);
 
         public abstract void paint(
             PaintingContext context,
@@ -432,18 +545,96 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null
+            bool isEnabled = false,
+            bool isDiscrete = false,
+            TextDirection? textDirection = null
         );
     }
 
-    public abstract class SliderTickMarkShape {
-        public SliderTickMarkShape() {
+    public abstract class RangeSliderThumbShape {
+        public RangeSliderThumbShape() {
+        }
+
+        public abstract Size getPreferredSize(bool isEnabled, bool isDiscrete);
+
+        public abstract void paint(
+            PaintingContext context,
+            Offset center,
+            Animation<float> activationAnimation = null,
+            Animation<float> enableAnimation = null,
+            bool isDiscrete = false,
+            bool isEnabled = false,
+            bool? isOnTop = null,
+            TextDirection? textDirection = null,
+            SliderThemeData sliderTheme = null,
+            Thumb? thumb = null
+        );
+    }
+
+    public abstract class RangeSliderValueIndicatorShape {
+        public RangeSliderValueIndicatorShape() {
+        }
+
+        public abstract Size getPreferredSize(bool isEnabled, bool isDiscrete, TextPainter labelPainter = null);
+
+        public virtual float getHorizontalShift(
+            RenderBox parentBox = null,
+            Offset center = null,
+            TextPainter labelPainter = null,
+            Animation<float> activationAnimation = null
+        ) {
+            return 0;
+        }
+
+        public abstract void paint(
+            PaintingContext context,
+            Offset center,
+            Animation<float> activationAnimation = null,
+            Animation<float> enableAnimation = null,
+            bool isDiscrete = false,
+            bool? isOnTop = null,
+            TextPainter labelPainter = null,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            TextDirection? textDirection = null,
+            float? value = null,
+            Thumb? thumb = null
+        );
+    }
+
+    public abstract class RangeSliderTickMarkShape {
+        public RangeSliderTickMarkShape() {
         }
 
         public abstract Size getPreferredSize(
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null);
+            bool isEnabled = false
+        );
+
+        public abstract void paint(
+            PaintingContext context,
+            Offset center,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            Animation<float> enableAnimation = null,
+            Offset startThumbCenter = null,
+            Offset endThumbCenter = null,
+            bool isEnabled = false,
+            TextDirection? textDirection = null
+        );
+    }
+
+    public abstract class RangeSliderTrackShape {
+        public RangeSliderTrackShape() {
+        }
+
+        public abstract Rect getPreferredRect(
+            RenderBox parentBox = null,
+            Offset offset = null,
+            SliderThemeData sliderTheme = null,
+            bool isEnabled = false,
+            bool isDiscrete = false
+        );
 
         public abstract void paint(
             PaintingContext context,
@@ -451,73 +642,12 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
-            Offset thumbCenter = null,
-            bool? isEnabled = null);
-
-        public static readonly SliderTickMarkShape noTickMark = new _EmptySliderTickMarkShape();
-    }
-
-
-    class _EmptySliderTickMarkShape : SliderTickMarkShape {
-        public override Size getPreferredSize(
-            SliderThemeData sliderTheme = null,
-            bool? isEnabled = null) {
-            return Size.zero;
-        }
-
-        public override void paint(
-            PaintingContext context,
-            Offset offset,
-            RenderBox parentBox = null,
-            SliderThemeData sliderTheme = null,
-            Animation<float> enableAnimation = null,
-            Offset thumbCenter = null,
-            bool? isEnabled = null) {
-        }
-    }
-
-    public abstract class SliderComponentShape {
-        public SliderComponentShape() {
-        }
-
-        public abstract Size getPreferredSize(
-            bool? isEnabled,
-            bool? isDiscrete);
-
-        public abstract void paint(
-            PaintingContext context,
-            Offset center,
-            Animation<float> activationAnimation = null,
-            Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
-            TextPainter labelPainter = null,
-            RenderBox parentBox = null,
-            SliderThemeData sliderTheme = null,
-            float? value = null);
-
-        public static readonly SliderComponentShape noThumb = new _EmptySliderComponentShape();
-
-        public static readonly SliderComponentShape noOverlay = new _EmptySliderComponentShape();
-    }
-
-    class _EmptySliderComponentShape : SliderComponentShape {
-        public override Size getPreferredSize(
-            bool? isEnabled,
-            bool? isDiscrete) {
-            return Size.zero;
-        }
-
-        public override void paint(
-            PaintingContext context,
-            Offset center,
-            Animation<float> activationAnimation = null,
-            Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
-            TextPainter labelPainter = null,
-            RenderBox parentBox = null,
-            SliderThemeData sliderTheme = null,
-            float? value = null) {
-        }
+            Offset startThumbCenter = null,
+            Offset endThumbCenter = null,
+            bool isEnabled = false,
+            bool isDiscrete = false,
+            TextDirection? textDirection = null
+        );
     }
 
     public class RectangularSliderTrackShape : SliderTrackShape {
@@ -533,18 +663,23 @@ namespace Unity.UIWidgets.material {
             RenderBox parentBox = null,
             Offset offset = null,
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null) {
+            bool isEnabled = false,
+            bool isDiscrete = false) {
+            offset = offset ?? Offset.zero;
+            
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            float thumbWidth = sliderTheme.thumbShape.getPreferredSize(isEnabled, isDiscrete).width;
             float overlayWidth = sliderTheme.overlayShape.getPreferredSize(isEnabled, isDiscrete).width;
-            float trackHeight = sliderTheme.trackHeight;
+            float trackHeight = sliderTheme.trackHeight.Value;
             D.assert(overlayWidth >= 0);
             D.assert(trackHeight >= 0);
             D.assert(parentBox.size.width >= overlayWidth);
             D.assert(parentBox.size.height >= trackHeight);
 
-            float trackLeft = offset.dx + overlayWidth / 2f;
-            float trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2f;
-            float trackWidth = parentBox.size.width - overlayWidth;
+            float trackLeft = offset.dx + overlayWidth / 2;
+            float trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+            float trackWidth = parentBox.size.width - Mathf.Max(thumbWidth, overlayWidth);
             return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
         }
 
@@ -555,8 +690,22 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = null,
-            bool? isDiscrete = null) {
+            bool isEnabled = false,
+            bool isDiscrete = false,
+            TextDirection? textDirection = null) {
+            D.assert(context != null);
+            D.assert(offset != null);
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.disabledActiveTrackColor != null);
+            D.assert(sliderTheme.disabledInactiveTrackColor != null);
+            D.assert(sliderTheme.activeTrackColor != null);
+            D.assert(sliderTheme.inactiveTrackColor != null);
+            D.assert(sliderTheme.thumbShape != null);
+            D.assert(enableAnimation != null);
+            D.assert(textDirection != null);
+            D.assert(thumbCenter != null);
+
             if (sliderTheme.trackHeight == 0) {
                 return;
             }
@@ -567,17 +716,20 @@ namespace Unity.UIWidgets.material {
                 end: sliderTheme.inactiveTrackColor);
             Paint activePaint = new Paint {color = activeTrackColorTween.evaluate(enableAnimation)};
             Paint inactivePaint = new Paint {color = inactiveTrackColorTween.evaluate(enableAnimation)};
-            Paint leftTrackPaint = activePaint;
-            Paint rightTrackPaint = inactivePaint;
-
-            float horizontalAdjustment = 0.0f;
-            if (!isEnabled.Value) {
-                float disabledThumbRadius = sliderTheme.thumbShape.getPreferredSize(false, isDiscrete).width / 2.0f;
-                float gap = this.disabledThumbGapWidth * (1.0f - enableAnimation.value);
-                horizontalAdjustment = disabledThumbRadius + gap;
+            Paint leftTrackPaint = null;
+            Paint rightTrackPaint = null;
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    leftTrackPaint = activePaint;
+                    rightTrackPaint = inactivePaint;
+                    break;
+                case TextDirection.rtl:
+                    leftTrackPaint = inactivePaint;
+                    rightTrackPaint = activePaint;
+                    break;
             }
 
-            Rect trackRect = this.getPreferredRect(
+            Rect trackRect = getPreferredRect(
                 parentBox: parentBox,
                 offset: offset,
                 sliderTheme: sliderTheme,
@@ -585,13 +737,356 @@ namespace Unity.UIWidgets.material {
                 isDiscrete: isDiscrete
             );
 
-            Rect leftTrackSegment = Rect.fromLTRB(trackRect.left, trackRect.top, thumbCenter.dx - horizontalAdjustment,
-                trackRect.bottom);
-            context.canvas.drawRect(leftTrackSegment, leftTrackPaint);
+            Size thumbSize = sliderTheme.thumbShape.getPreferredSize(isEnabled, isDiscrete);
+            Rect leftTrackSegment = Rect.fromLTRB(trackRect.left + trackRect.height / 2, trackRect.top,
+                thumbCenter.dx - thumbSize.width / 2, trackRect.bottom);
+            if (!leftTrackSegment.isEmpty) {
+                context.canvas.drawRect(leftTrackSegment, leftTrackPaint);
+            }
 
-            Rect rightTrackSegment = Rect.fromLTRB(thumbCenter.dx + horizontalAdjustment, trackRect.top,
-                trackRect.right, trackRect.bottom);
-            context.canvas.drawRect(rightTrackSegment, rightTrackPaint);
+            Rect rightTrackSegment = Rect.fromLTRB(thumbCenter.dx + thumbSize.width / 2, trackRect.top, trackRect.right,
+                trackRect.bottom);
+            if (!rightTrackSegment.isEmpty) {
+                context.canvas.drawRect(rightTrackSegment, rightTrackPaint);
+            }
+        }
+    }
+
+    public class RoundedRectSliderTrackShape : SliderTrackShape {
+        public RoundedRectSliderTrackShape() {
+        }
+
+        public override Rect getPreferredRect(
+            RenderBox parentBox = null,
+            Offset offset = null,
+            SliderThemeData sliderTheme = null,
+            bool isEnabled = false,
+            bool isDiscrete = false) {
+            offset = offset ?? Offset.zero;
+
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            float thumbWidth = sliderTheme.thumbShape.getPreferredSize(isEnabled, isDiscrete).width;
+            float overlayWidth = sliderTheme.overlayShape.getPreferredSize(isEnabled, isDiscrete).width;
+            float trackHeight = sliderTheme.trackHeight.Value;
+            D.assert(overlayWidth >= 0);
+            D.assert(trackHeight >= 0);
+            D.assert(parentBox.size.width >= overlayWidth);
+            D.assert(parentBox.size.height >= trackHeight);
+
+            float trackLeft = offset.dx + overlayWidth / 2;
+            float trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+            float trackWidth = parentBox.size.width - Mathf.Max(thumbWidth, overlayWidth);
+            return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset offset,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            Animation<float> enableAnimation = null,
+            Offset thumbCenter = null,
+            bool isEnabled = false,
+            bool isDiscrete = false,
+            TextDirection? textDirection = null) {
+            D.assert(context != null);
+            D.assert(offset != null);
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.disabledActiveTrackColor != null);
+            D.assert(sliderTheme.disabledInactiveTrackColor != null);
+            D.assert(sliderTheme.activeTrackColor != null);
+            D.assert(sliderTheme.inactiveTrackColor != null);
+            D.assert(sliderTheme.thumbShape != null);
+            D.assert(enableAnimation != null);
+            D.assert(textDirection != null);
+            D.assert(thumbCenter != null);
+
+            if (sliderTheme.trackHeight <= 0) {
+                return;
+            }
+
+            ColorTween activeTrackColorTween = new ColorTween(begin: sliderTheme.disabledActiveTrackColor,
+                end: sliderTheme.activeTrackColor);
+            ColorTween inactiveTrackColorTween = new ColorTween(begin: sliderTheme.disabledInactiveTrackColor,
+                end: sliderTheme.inactiveTrackColor);
+            Paint activePaint = new Paint {color = activeTrackColorTween.evaluate(enableAnimation)};
+            Paint inactivePaint = new Paint {color = inactiveTrackColorTween.evaluate(enableAnimation)};
+            Paint leftTrackPaint = null;
+            Paint rightTrackPaint = null;
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    leftTrackPaint = activePaint;
+                    rightTrackPaint = inactivePaint;
+                    break;
+                case TextDirection.rtl:
+                    leftTrackPaint = inactivePaint;
+                    rightTrackPaint = activePaint;
+                    break;
+            }
+
+            Rect trackRect = getPreferredRect(
+                parentBox: parentBox,
+                offset: offset,
+                sliderTheme: sliderTheme,
+                isEnabled: isEnabled,
+                isDiscrete: isDiscrete
+            );
+
+            Rect leftTrackArcRect = Rect.fromLTWH(trackRect.left, trackRect.top, trackRect.height, trackRect.height);
+            if (!leftTrackArcRect.isEmpty) {
+                context.canvas.drawArc(leftTrackArcRect, Mathf.PI / 2, Mathf.PI, false, leftTrackPaint);
+            }
+
+            Rect rightTrackArcRect = Rect.fromLTWH(trackRect.right - trackRect.height / 2, trackRect.top,
+                trackRect.height, trackRect.height);
+            if (!rightTrackArcRect.isEmpty) {
+                context.canvas.drawArc(rightTrackArcRect, -Mathf.PI / 2, Mathf.PI, false, rightTrackPaint);
+            }
+
+            Size thumbSize = sliderTheme.thumbShape.getPreferredSize(isEnabled, isDiscrete);
+            Rect leftTrackSegment = Rect.fromLTRB(trackRect.left + trackRect.height / 2, trackRect.top,
+                thumbCenter.dx - thumbSize.width / 2, trackRect.bottom);
+            if (!leftTrackSegment.isEmpty) {
+                context.canvas.drawRect(leftTrackSegment, leftTrackPaint);
+            }
+
+            Rect rightTrackSegment = Rect.fromLTRB(thumbCenter.dx + thumbSize.width / 2, trackRect.top, trackRect.right,
+                trackRect.bottom);
+            if (!rightTrackSegment.isEmpty) {
+                context.canvas.drawRect(rightTrackSegment, rightTrackPaint);
+            }
+        }
+    }
+
+    public class RectangularRangeSliderTrackShape : RangeSliderTrackShape {
+        public RectangularRangeSliderTrackShape() {
+        }
+
+        public override Rect getPreferredRect(
+            RenderBox parentBox = null,
+            Offset offset = null,
+            SliderThemeData sliderTheme = null,
+            bool isEnabled = false,
+            bool isDiscrete = false
+        ) {
+            offset = offset ?? Offset.zero;
+
+            D.assert(parentBox != null);
+            D.assert(offset != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.overlayShape != null);
+
+
+            float overlayWidth = sliderTheme.overlayShape.getPreferredSize(isEnabled, isDiscrete).width;
+            float trackHeight = sliderTheme.trackHeight.Value;
+
+            D.assert(overlayWidth >= 0);
+            D.assert(trackHeight >= 0);
+            D.assert(parentBox.size.width >= overlayWidth);
+            D.assert(parentBox.size.height >= trackHeight);
+
+            float trackLeft = offset.dx + overlayWidth / 2;
+            float trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+            float trackWidth = parentBox.size.width - overlayWidth;
+            return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset offset,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            Animation<float> enableAnimation = null,
+            Offset startThumbCenter = null,
+            Offset endThumbCenter = null,
+            bool isEnabled = false,
+            bool isDiscrete = false,
+            TextDirection? textDirection = null
+        ) {
+            D.assert(context != null);
+            D.assert(offset != null);
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.disabledActiveTrackColor != null);
+            D.assert(sliderTheme.disabledInactiveTrackColor != null);
+            D.assert(sliderTheme.activeTrackColor != null);
+            D.assert(sliderTheme.inactiveTrackColor != null);
+            D.assert(sliderTheme.rangeThumbShape != null);
+            D.assert(enableAnimation != null);
+            D.assert(startThumbCenter != null);
+            D.assert(endThumbCenter != null);
+            D.assert(textDirection != null);
+
+            ColorTween activeTrackColorTween = new ColorTween(begin: sliderTheme.disabledActiveTrackColor,
+                end: sliderTheme.activeTrackColor);
+            ColorTween inactiveTrackColorTween = new ColorTween(begin: sliderTheme.disabledInactiveTrackColor,
+                end: sliderTheme.inactiveTrackColor);
+            Paint activePaint = new Paint {color = activeTrackColorTween.evaluate(enableAnimation)};
+            Paint inactivePaint = new Paint {color = inactiveTrackColorTween.evaluate(enableAnimation)};
+
+            Offset leftThumbOffset = null;
+            Offset rightThumbOffset = null;
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    leftThumbOffset = startThumbCenter;
+                    rightThumbOffset = endThumbCenter;
+                    break;
+                case TextDirection.rtl:
+                    leftThumbOffset = endThumbCenter;
+                    rightThumbOffset = startThumbCenter;
+                    break;
+            }
+
+            Size thumbSize = sliderTheme.rangeThumbShape.getPreferredSize(isEnabled, isDiscrete);
+            float thumbRadius = thumbSize.width / 2;
+
+            Rect trackRect = getPreferredRect(
+                parentBox: parentBox,
+                offset: offset,
+                sliderTheme: sliderTheme,
+                isEnabled: isEnabled,
+                isDiscrete: isDiscrete
+            );
+            Rect leftTrackSegment = Rect.fromLTRB(trackRect.left, trackRect.top, leftThumbOffset.dx - thumbRadius,
+                trackRect.bottom);
+            if (!leftTrackSegment.isEmpty) {
+                context.canvas.drawRect(leftTrackSegment, inactivePaint);
+            }
+
+            Rect middleTrackSegment = Rect.fromLTRB(leftThumbOffset.dx + thumbRadius, trackRect.top,
+                rightThumbOffset.dx - thumbRadius, trackRect.bottom);
+            if (!middleTrackSegment.isEmpty) {
+                context.canvas.drawRect(middleTrackSegment, activePaint);
+            }
+
+            Rect rightTrackSegment = Rect.fromLTRB(rightThumbOffset.dx + thumbRadius, trackRect.top, trackRect.right,
+                trackRect.bottom);
+            if (!rightTrackSegment.isEmpty) {
+                context.canvas.drawRect(rightTrackSegment, inactivePaint);
+            }
+        }
+    }
+
+    public class RoundedRectRangeSliderTrackShape : RangeSliderTrackShape {
+        public override Rect getPreferredRect(
+            RenderBox parentBox = null,
+            Offset offset = null,
+            SliderThemeData sliderTheme = null,
+            bool isEnabled = false,
+            bool isDiscrete = false
+        ) {
+            offset = offset ?? Offset.zero;
+
+            D.assert(parentBox != null);
+            D.assert(offset != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.overlayShape != null);
+            D.assert(sliderTheme.trackHeight != null);
+
+            float overlayWidth = sliderTheme.overlayShape.getPreferredSize(isEnabled, isDiscrete).width;
+            float trackHeight = sliderTheme.trackHeight.Value;
+
+            D.assert(overlayWidth >= 0);
+            D.assert(trackHeight >= 0);
+            D.assert(parentBox.size.width >= overlayWidth);
+            D.assert(parentBox.size.height >= trackHeight);
+
+            float trackLeft = offset.dx + overlayWidth / 2;
+            float trackTop = offset.dy + (parentBox.size.height - trackHeight) / 2;
+            float trackWidth = parentBox.size.width - overlayWidth;
+            return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset offset,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            Animation<float> enableAnimation = null,
+            Offset startThumbCenter = null,
+            Offset endThumbCenter = null,
+            bool isEnabled = false,
+            bool isDiscrete = false,
+            TextDirection? textDirection = null
+        ) {
+            D.assert(context != null);
+            D.assert(offset != null);
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.disabledActiveTrackColor != null);
+            D.assert(sliderTheme.disabledInactiveTrackColor != null);
+            D.assert(sliderTheme.activeTrackColor != null);
+            D.assert(sliderTheme.inactiveTrackColor != null);
+            D.assert(sliderTheme.rangeThumbShape != null);
+            D.assert(enableAnimation != null);
+            D.assert(startThumbCenter != null);
+            D.assert(endThumbCenter != null);
+            D.assert(textDirection != null);
+
+            ColorTween activeTrackColorTween = new ColorTween(begin: sliderTheme.disabledActiveTrackColor,
+                end: sliderTheme.activeTrackColor);
+            ColorTween inactiveTrackColorTween = new ColorTween(begin: sliderTheme.disabledInactiveTrackColor,
+                end: sliderTheme.inactiveTrackColor);
+            Paint activePaint = new Paint {color = activeTrackColorTween.evaluate(enableAnimation)};
+            Paint inactivePaint = new Paint {color = inactiveTrackColorTween.evaluate(enableAnimation)};
+
+            Offset leftThumbOffset = null;
+            Offset rightThumbOffset = null;
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    leftThumbOffset = startThumbCenter;
+                    rightThumbOffset = endThumbCenter;
+                    break;
+                case TextDirection.rtl:
+                    leftThumbOffset = endThumbCenter;
+                    rightThumbOffset = startThumbCenter;
+                    break;
+            }
+
+            Size thumbSize = sliderTheme.rangeThumbShape.getPreferredSize(isEnabled, isDiscrete);
+            float thumbRadius = thumbSize.width / 2;
+            D.assert(thumbRadius > 0);
+
+            Rect trackRect = getPreferredRect(
+                parentBox: parentBox,
+                offset: offset,
+                sliderTheme: sliderTheme,
+                isEnabled: isEnabled,
+                isDiscrete: isDiscrete
+            );
+
+            float trackRadius = trackRect.height / 2;
+
+            Rect leftTrackArcRect = Rect.fromLTWH(trackRect.left, trackRect.top, trackRect.height, trackRect.height);
+            if (!leftTrackArcRect.isEmpty) {
+                context.canvas.drawArc(leftTrackArcRect, Mathf.PI / 2, Mathf.PI, false, inactivePaint);
+            }
+
+            Rect leftTrackSegment = Rect.fromLTRB(trackRect.left + trackRadius, trackRect.top,
+                leftThumbOffset.dx - thumbRadius, trackRect.bottom);
+            if (!leftTrackSegment.isEmpty) {
+                context.canvas.drawRect(leftTrackSegment, inactivePaint);
+            }
+
+            Rect middleTrackSegment = Rect.fromLTRB(leftThumbOffset.dx + thumbRadius, trackRect.top,
+                rightThumbOffset.dx - thumbRadius, trackRect.bottom);
+            if (!middleTrackSegment.isEmpty) {
+                context.canvas.drawRect(middleTrackSegment, activePaint);
+            }
+
+            Rect rightTrackSegment = Rect.fromLTRB(rightThumbOffset.dx + thumbRadius, trackRect.top,
+                trackRect.right - trackRadius, trackRect.bottom);
+            if (!rightTrackSegment.isEmpty) {
+                context.canvas.drawRect(rightTrackSegment, inactivePaint);
+            }
+
+            Rect rightTrackArcRect = Rect.fromLTWH(trackRect.right - trackRect.height, trackRect.top, trackRect.height,
+                trackRect.height);
+            if (!rightTrackArcRect.isEmpty) {
+                context.canvas.drawArc(rightTrackArcRect, -Mathf.PI / 2, Mathf.PI, false, inactivePaint);
+            }
         }
     }
 
@@ -606,9 +1101,11 @@ namespace Unity.UIWidgets.material {
 
         public override Size getPreferredSize(
             SliderThemeData sliderTheme = null,
-            bool? isEnabled = null
+            bool isEnabled = false
         ) {
-            return Size.fromRadius(this.tickMarkRadius ?? sliderTheme.trackHeight / 2f);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.trackHeight != null);
+            return Size.fromRadius(tickMarkRadius ?? sliderTheme.trackHeight.Value / 2f);
         }
 
 
@@ -619,30 +1116,163 @@ namespace Unity.UIWidgets.material {
             SliderThemeData sliderTheme = null,
             Animation<float> enableAnimation = null,
             Offset thumbCenter = null,
-            bool? isEnabled = null
+            bool isEnabled = false,
+            TextDirection? textDirection = null
         ) {
-            Color begin;
-            Color end;
+            D.assert(context != null);
+            D.assert(center != null);
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.disabledActiveTickMarkColor != null);
+            D.assert(sliderTheme.disabledInactiveTickMarkColor != null);
+            D.assert(sliderTheme.activeTickMarkColor != null);
+            D.assert(sliderTheme.inactiveTickMarkColor != null);
+            D.assert(enableAnimation != null);
+            D.assert(textDirection != null);
+            D.assert(thumbCenter != null);
 
-            bool isTickMarkRightOfThumb = center.dx > thumbCenter.dx;
-            begin = isTickMarkRightOfThumb
-                ? sliderTheme.disabledInactiveTickMarkColor
-                : sliderTheme.disabledActiveTickMarkColor;
-            end = isTickMarkRightOfThumb ? sliderTheme.inactiveTickMarkColor : sliderTheme.activeTickMarkColor;
+            Color begin = null;
+            Color end = null;
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    bool isTickMarkRightOfThumb = center.dx > thumbCenter.dx;
+                    begin = isTickMarkRightOfThumb
+                        ? sliderTheme.disabledInactiveTickMarkColor
+                        : sliderTheme.disabledActiveTickMarkColor;
+                    end = isTickMarkRightOfThumb ? sliderTheme.inactiveTickMarkColor : sliderTheme.activeTickMarkColor;
+                    break;
+                case TextDirection.rtl:
+                    bool isTickMarkLeftOfThumb = center.dx < thumbCenter.dx;
+                    begin = isTickMarkLeftOfThumb
+                        ? sliderTheme.disabledInactiveTickMarkColor
+                        : sliderTheme.disabledActiveTickMarkColor;
+                    end = isTickMarkLeftOfThumb ? sliderTheme.inactiveTickMarkColor : sliderTheme.activeTickMarkColor;
+                    break;
+            }
 
             Paint paint = new Paint {color = new ColorTween(begin: begin, end: end).evaluate(enableAnimation)};
 
-            float tickMarkRadius = this.getPreferredSize(
+            float tickMarkRadius = getPreferredSize(
                                        isEnabled: isEnabled,
                                        sliderTheme: sliderTheme
                                    ).width / 2f;
-            context.canvas.drawCircle(center, tickMarkRadius, paint);
+            if (tickMarkRadius > 0) {
+                context.canvas.drawCircle(center, tickMarkRadius, paint);
+            }
+        }
+    }
+
+    class RoundRangeSliderTickMarkShape : RangeSliderTickMarkShape {
+        public RoundRangeSliderTickMarkShape(float? tickMarkRadius = null) {
+            this.tickMarkRadius = tickMarkRadius;
+        }
+
+        public readonly float? tickMarkRadius;
+
+        public override Size getPreferredSize(
+            SliderThemeData sliderTheme = null,
+            bool isEnabled = false
+        ) {
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.trackHeight != null);
+
+            return Size.fromRadius(tickMarkRadius ?? sliderTheme.trackHeight.Value / 2f);
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset center,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            Animation<float> enableAnimation = null,
+            Offset startThumbCenter = null,
+            Offset endThumbCenter = null,
+            bool isEnabled = false,
+            TextDirection? textDirection = null
+        ) {
+            D.assert(context != null);
+            D.assert(center != null);
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.disabledActiveTickMarkColor != null);
+            D.assert(sliderTheme.disabledInactiveTickMarkColor != null);
+            D.assert(sliderTheme.activeTickMarkColor != null);
+            D.assert(sliderTheme.inactiveTickMarkColor != null);
+            D.assert(enableAnimation != null);
+            D.assert(startThumbCenter != null);
+            D.assert(endThumbCenter != null);
+            D.assert(textDirection != null);
+
+            bool isBetweenThumbs = false;
+            switch (textDirection) {
+                case TextDirection.ltr:
+                    isBetweenThumbs = startThumbCenter.dx < center.dx && center.dx < endThumbCenter.dx;
+                    break;
+                case TextDirection.rtl:
+                    isBetweenThumbs = endThumbCenter.dx < center.dx && center.dx < startThumbCenter.dx;
+                    break;
+            }
+
+            Color begin = isBetweenThumbs
+                ? sliderTheme.disabledActiveTickMarkColor
+                : sliderTheme.disabledInactiveTickMarkColor;
+            Color end = isBetweenThumbs ? sliderTheme.activeTickMarkColor : sliderTheme.inactiveTickMarkColor;
+            Paint paint = new Paint {color = new ColorTween(begin: begin, end: end).evaluate(enableAnimation)};
+
+            float tickMarkRadius = getPreferredSize(
+                                       isEnabled: isEnabled,
+                                       sliderTheme: sliderTheme
+                                   ).width / 2;
+            if (tickMarkRadius > 0) {
+                context.canvas.drawCircle(center, tickMarkRadius, paint);
+            }
+        }
+    }
+
+    class _EmptySliderTickMarkShape : SliderTickMarkShape {
+        public override Size getPreferredSize(
+            SliderThemeData sliderTheme = null,
+            bool isEnabled = false) {
+            return Size.zero;
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset offset,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            Animation<float> enableAnimation = null,
+            Offset thumbCenter = null,
+            bool isEnabled = false,
+            TextDirection? textDirection = null) {
+        }
+    }
+
+    class _EmptySliderComponentShape : SliderComponentShape {
+        public override Size getPreferredSize(
+            bool isEnabled = false,
+            bool isDiscrete = false,
+            TextPainter textPainter = null) {
+            return Size.zero;
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset center,
+            Animation<float> activationAnimation = null,
+            Animation<float> enableAnimation = null,
+            bool isDiscrete = false,
+            TextPainter labelPainter = null,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            TextDirection? textDirection = null,
+            float? value = null) {
         }
     }
 
     public class RoundSliderThumbShape : SliderComponentShape {
         public RoundSliderThumbShape(
-            float enabledThumbRadius = 6.0f,
+            float enabledThumbRadius = 10.0f,
             float? disabledThumbRadius = null
         ) {
             this.enabledThumbRadius = enabledThumbRadius;
@@ -654,12 +1284,12 @@ namespace Unity.UIWidgets.material {
         public readonly float? disabledThumbRadius;
 
         float _disabledThumbRadius {
-            get { return this.disabledThumbRadius ?? this.enabledThumbRadius * 2f / 3f; }
+            get { return disabledThumbRadius ?? enabledThumbRadius; }
         }
 
 
-        public override Size getPreferredSize(bool? isEnabled, bool? isDiscrete) {
-            return Size.fromRadius(isEnabled.Value ? this.enabledThumbRadius : this._disabledThumbRadius);
+        public override Size getPreferredSize(bool isEnabled, bool isDiscrete, TextPainter textPainter = null) {
+            return Size.fromRadius(isEnabled == true ? enabledThumbRadius : _disabledThumbRadius);
         }
 
 
@@ -668,16 +1298,24 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
             SliderThemeData sliderTheme = null,
+            TextDirection? textDirection = null,
             float? value = null
         ) {
+            D.assert(context != null);
+            D.assert(center != null);
+            D.assert(enableAnimation != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.disabledThumbColor != null);
+            D.assert(sliderTheme.thumbColor != null);
+
             Canvas canvas = context.canvas;
-            FloatTween radiusTween = new FloatTween(
-                begin: this._disabledThumbRadius,
-                end: this.enabledThumbRadius
+            Tween<float> radiusTween = new FloatTween(
+                begin: _disabledThumbRadius,
+                end: enabledThumbRadius
             );
             ColorTween colorTween = new ColorTween(
                 begin: sliderTheme.disabledThumbColor,
@@ -691,16 +1329,25 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    public class RoundSliderOverlayShape : SliderComponentShape {
-        public RoundSliderOverlayShape(
-            float overlayRadius = 16.0f) {
-            this.overlayRadius = overlayRadius;
+    public class RoundRangeSliderThumbShape : RangeSliderThumbShape {
+        public RoundRangeSliderThumbShape(
+            float enabledThumbRadius = 10.0f,
+            float? disabledThumbRadius = null
+        ) {
+            this.enabledThumbRadius = enabledThumbRadius;
+            this.disabledThumbRadius = disabledThumbRadius;
         }
 
-        public readonly float overlayRadius;
+        public readonly float enabledThumbRadius;
 
-        public override Size getPreferredSize(bool? isEnabled, bool? isDiscrete) {
-            return Size.fromRadius(this.overlayRadius);
+        public readonly float? disabledThumbRadius;
+
+        float _disabledThumbRadius {
+            get { return disabledThumbRadius ?? enabledThumbRadius; }
+        }
+
+        public override Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+            return Size.fromRadius(isEnabled == true ? enabledThumbRadius : _disabledThumbRadius);
         }
 
         public override void paint(
@@ -708,17 +1355,96 @@ namespace Unity.UIWidgets.material {
             Offset center,
             Animation<float> activationAnimation = null,
             Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
+            bool isDiscrete = false,
+            bool isEnabled = false,
+            bool? isOnTop = null,
+            TextDirection? textDirection = null,
+            SliderThemeData sliderTheme = null,
+            Thumb? thumb = null
+        ) {
+            D.assert(context != null);
+            D.assert(center != null);
+            D.assert(activationAnimation != null);
+            D.assert(sliderTheme != null);
+            D.assert(sliderTheme.showValueIndicator != null);
+            D.assert(sliderTheme.overlappingShapeStrokeColor != null);
+            D.assert(enableAnimation != null);
+            Canvas canvas = context.canvas;
+            Tween<float> radiusTween = new FloatTween(
+                begin: _disabledThumbRadius,
+                end: enabledThumbRadius
+            );
+            ColorTween colorTween = new ColorTween(
+                begin: sliderTheme.disabledThumbColor,
+                end: sliderTheme.thumbColor
+            );
+            float radius = radiusTween.evaluate(enableAnimation);
+
+            if (isOnTop == true) {
+                bool showValueIndicator = false;
+                switch (sliderTheme.showValueIndicator) {
+                    case ShowValueIndicator.onlyForDiscrete:
+                        showValueIndicator = isDiscrete;
+                        break;
+                    case ShowValueIndicator.onlyForContinuous:
+                        showValueIndicator = !isDiscrete;
+                        break;
+                    case ShowValueIndicator.always:
+                        showValueIndicator = true;
+                        break;
+                    case ShowValueIndicator.never:
+                        showValueIndicator = false;
+                        break;
+                }
+
+                if (!showValueIndicator || activationAnimation.value == 0) {
+                    Paint strokePaint = new Paint {
+                        color = sliderTheme.overlappingShapeStrokeColor,
+                        strokeWidth = 1.0f,
+                        style = PaintingStyle.stroke
+                    };
+                    canvas.drawCircle(center, radius, strokePaint);
+                }
+            }
+
+            canvas.drawCircle(
+                center,
+                radius,
+                new Paint {color = colorTween.evaluate(enableAnimation)}
+            );
+        }
+    }
+
+    public class RoundSliderOverlayShape : SliderComponentShape {
+        public RoundSliderOverlayShape(
+            float overlayRadius = 24.0f) {
+            this.overlayRadius = overlayRadius;
+        }
+
+        public readonly float overlayRadius;
+
+        public override Size getPreferredSize(bool isEnabled, bool isDiscrete, TextPainter textPainter = null) {
+            return Size.fromRadius(overlayRadius);
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset center,
+            Animation<float> activationAnimation = null,
+            Animation<float> enableAnimation = null,
+            bool isDiscrete = false,
             TextPainter labelPainter = null,
             RenderBox parentBox = null,
             SliderThemeData sliderTheme = null,
+            TextDirection? textDirection = null,
             float? value = null
         ) {
             Canvas canvas = context.canvas;
             FloatTween radiusTween = new FloatTween(
                 begin: 0.0f,
-                end: this.overlayRadius
+                end: overlayRadius
             );
+
             canvas.drawCircle(
                 center,
                 radiusTween.evaluate(activationAnimation),
@@ -731,106 +1457,172 @@ namespace Unity.UIWidgets.material {
         public PaddleSliderValueIndicatorShape() {
         }
 
+        static readonly _PaddleSliderTrackShapePathPainter _pathPainter = new _PaddleSliderTrackShapePathPainter();
+
+        public override Size getPreferredSize(
+            bool isEnabled,
+            bool isDiscrete,
+            TextPainter labelPainter = null) {
+            D.assert(labelPainter != null);
+            return _pathPainter.getPreferredSize(isEnabled, isDiscrete, labelPainter);
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset center,
+            Animation<float> activationAnimation = null,
+            Animation<float> enableAnimation = null,
+            bool isDiscrete = false,
+            TextPainter labelPainter = null,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            TextDirection? textDirection = null,
+            float? value = null
+        ) {
+            D.assert(context != null);
+            D.assert(center != null);
+            D.assert(activationAnimation != null);
+            D.assert(enableAnimation != null);
+            D.assert(labelPainter != null);
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+
+            ColorTween enableColor = new ColorTween(
+                begin: sliderTheme.disabledThumbColor,
+                end: sliderTheme.valueIndicatorColor
+            );
+
+            _pathPainter.drawValueIndicator(
+                parentBox,
+                context.canvas,
+                center,
+                new Paint {color = enableColor.evaluate(enableAnimation)},
+                activationAnimation.value,
+                labelPainter,
+                null
+            );
+        }
+    }
+
+    public class PaddleRangeSliderValueIndicatorShape : RangeSliderValueIndicatorShape {
+        public PaddleRangeSliderValueIndicatorShape() {
+        }
+
+        static readonly _PaddleSliderTrackShapePathPainter _pathPainter = new _PaddleSliderTrackShapePathPainter();
+
+        public override Size getPreferredSize(bool isEnabled, bool isDiscrete, TextPainter labelPainter = null) {
+            D.assert(labelPainter != null);
+            return _pathPainter.getPreferredSize(isEnabled, isDiscrete, labelPainter);
+        }
+
+        public override float getHorizontalShift(
+            RenderBox parentBox = null,
+            Offset center = null,
+            TextPainter labelPainter = null,
+            Animation<float> activationAnimation = null
+        ) {
+            return _pathPainter.getHorizontalShift(
+                parentBox: parentBox,
+                center: center,
+                labelPainter: labelPainter,
+                scale: activationAnimation.value
+            );
+        }
+
+        public override void paint(
+            PaintingContext context,
+            Offset center,
+            Animation<float> activationAnimation = null,
+            Animation<float> enableAnimation = null,
+            bool isDiscrete = false,
+            bool? isOnTop = null,
+            TextPainter labelPainter = null,
+            RenderBox parentBox = null,
+            SliderThemeData sliderTheme = null,
+            TextDirection? textDirection = null,
+            float? value = null,
+            Thumb? thumb = null
+        ) {
+            D.assert(context != null);
+            D.assert(center != null);
+            D.assert(activationAnimation != null);
+            D.assert(enableAnimation != null);
+            D.assert(labelPainter != null);
+            D.assert(parentBox != null);
+            D.assert(sliderTheme != null);
+            ColorTween enableColor = new ColorTween(
+                begin: sliderTheme.disabledThumbColor,
+                end: sliderTheme.valueIndicatorColor
+            );
+
+            _pathPainter.drawValueIndicator(
+                parentBox,
+                context.canvas,
+                center,
+                new Paint {color = enableColor.evaluate(enableAnimation)},
+                activationAnimation.value,
+                labelPainter,
+                isOnTop == true ? sliderTheme.overlappingShapeStrokeColor : null
+            );
+        }
+    }
+
+    class _PaddleSliderTrackShapePathPainter {
+        public _PaddleSliderTrackShapePathPainter() {
+        }
+
+
         const float _topLobeRadius = 16.0f;
         const float _labelTextDesignSize = 14.0f;
-        const float _bottomLobeRadius = 6.0f;
-        const float _bottomLobeStartAngle = -1.1f * Mathf.PI / 4.0f;
-        const float _bottomLobeEndAngle = 1.1f * 5f * Mathf.PI / 4.0f;
+        const float _bottomLobeRadius = 10.0f;
         const float _labelPadding = 8.0f;
         const float _distanceBetweenTopBottomCenters = 40.0f;
+        const float _middleNeckWidth = 2.0f;
+        const float _bottomNeckRadius = 4.5f;
+        const float _neckTriangleBase = _topNeckRadius + _middleNeckWidth / 2f;
+        const float _rightBottomNeckCenterX = _middleNeckWidth / 2f + _bottomNeckRadius;
+        const float _rightBottomNeckAngleStart = Mathf.PI;
         static readonly Offset _topLobeCenter = new Offset(0.0f, -_distanceBetweenTopBottomCenters);
-        const float _topNeckRadius = 14.0f;
-
+        const float _topNeckRadius = 13.0f;
         const float _neckTriangleHypotenuse = _topLobeRadius + _topNeckRadius;
-
         const float _twoSeventyDegrees = 3.0f * Mathf.PI / 2.0f;
         const float _ninetyDegrees = Mathf.PI / 2.0f;
         const float _thirtyDegrees = Mathf.PI / 6.0f;
-
-        static readonly Size _preferredSize =
-            Size.fromHeight(_distanceBetweenTopBottomCenters + _topLobeRadius + _bottomLobeRadius);
-
+        const float _preferredHeight = _distanceBetweenTopBottomCenters + _topLobeRadius + _bottomLobeRadius;
         const bool _debuggingLabelLocation = false;
 
-        static Path _bottomLobePath;
-        static Offset _bottomLobeEnd;
-
-
-        public override Size getPreferredSize(
-            bool? isEnabled,
-            bool? isDiscrete) {
-            return _preferredSize;
+        public Size getPreferredSize(
+            bool isEnabled,
+            bool isDiscrete,
+            TextPainter labelPainter
+        ) {
+            D.assert(labelPainter != null);
+            float textScaleFactor = labelPainter.height / _labelTextDesignSize;
+            return new Size(labelPainter.width + 2 * _labelPadding * textScaleFactor,
+                _preferredHeight * textScaleFactor);
         }
 
         static void _addArc(Path path, Offset center, float radius, float startAngle, float endAngle) {
+            D.assert(center.isFinite);
             Rect arcRect = Rect.fromCircle(center: center, radius: radius);
             path.arcTo(arcRect, startAngle, endAngle - startAngle, false);
         }
 
-        static void _generateBottomLobe() {
-            const float bottomNeckRadius = 4.5f;
-            const float bottomNeckStartAngle = _bottomLobeEndAngle - Mathf.PI;
-            const float bottomNeckEndAngle = 0.0f;
-
-            Path path = new Path();
-            Offset bottomKnobStart = new Offset(
-                _bottomLobeRadius * Mathf.Cos(_bottomLobeStartAngle),
-                _bottomLobeRadius * Mathf.Sin(_bottomLobeStartAngle)
+        internal float getHorizontalShift(
+            RenderBox parentBox,
+            Offset center,
+            TextPainter labelPainter,
+            float scale
+        ) {
+            float textScaleFactor = labelPainter.height / _labelTextDesignSize;
+            float inverseTextScale = textScaleFactor != 0 ? 1.0f / textScaleFactor : 0.0f;
+            float labelHalfWidth = labelPainter.width / 2.0f;
+            float halfWidthNeeded = Mathf.Max(
+                0.0f,
+                inverseTextScale * labelHalfWidth - (_topLobeRadius - _labelPadding)
             );
-            Offset bottomNeckRightCenter = bottomKnobStart +
-                                           new Offset(
-                                               bottomNeckRadius * Mathf.Cos(bottomNeckStartAngle),
-                                               -bottomNeckRadius * Mathf.Sin(bottomNeckStartAngle)
-                                           );
-            Offset bottomNeckLeftCenter = new Offset(
-                -bottomNeckRightCenter.dx,
-                bottomNeckRightCenter.dy
-            );
-
-            Offset bottomNeckStartRight = new Offset(
-                bottomNeckRightCenter.dx - bottomNeckRadius,
-                bottomNeckRightCenter.dy
-            );
-
-            path.moveTo(bottomNeckStartRight.dx, bottomNeckStartRight.dy);
-            _addArc(
-                path,
-                bottomNeckRightCenter,
-                bottomNeckRadius,
-                Mathf.PI - bottomNeckEndAngle,
-                Mathf.PI - bottomNeckStartAngle
-            );
-            _addArc(
-                path,
-                Offset.zero,
-                _bottomLobeRadius,
-                _bottomLobeStartAngle,
-                _bottomLobeEndAngle
-            );
-            _addArc(
-                path,
-                bottomNeckLeftCenter,
-                bottomNeckRadius,
-                bottomNeckStartAngle,
-                bottomNeckEndAngle
-            );
-
-            _bottomLobeEnd = new Offset(
-                -bottomNeckStartRight.dx,
-                bottomNeckStartRight.dy
-            );
-
-            _bottomLobePath = path;
-        }
-
-
-        Offset _addBottomLobe(Path path) {
-            if (_bottomLobePath == null || _bottomLobeEnd == null) {
-                _generateBottomLobe();
-            }
-
-            path.addPath(_bottomLobePath, Offset.zero);
-            return _bottomLobeEnd;
+            float shift = _getIdealOffset(parentBox, halfWidthNeeded, textScaleFactor * scale, center);
+            return shift * textScaleFactor;
         }
 
         float _getIdealOffset(
@@ -850,76 +1642,108 @@ namespace Unity.UIWidgets.material {
             Offset topLeft = (topLobeRect.topLeft * scale) + center;
             Offset bottomRight = (topLobeRect.bottomRight * scale) + center;
             float shift = 0.0f;
-            if (topLeft.dx < edgeMargin) {
-                shift = edgeMargin - topLeft.dx;
+
+            float startGlobal = parentBox.localToGlobal(Offset.zero).dx;
+            if (topLeft.dx < startGlobal + edgeMargin) {
+                shift = startGlobal + edgeMargin - topLeft.dx;
             }
 
-            if (bottomRight.dx > parentBox.size.width - edgeMargin) {
-                shift = parentBox.size.width - bottomRight.dx - edgeMargin;
+            float endGlobal = parentBox.localToGlobal(new Offset(parentBox.size.width, parentBox.size.height)).dx;
+            if (bottomRight.dx > endGlobal - edgeMargin) {
+                shift = endGlobal - edgeMargin - bottomRight.dx;
             }
 
             shift = scale == 0.0f ? 0.0f : shift / scale;
-            return shift;
-        }
-
-        void _drawValueIndicator(
-            RenderBox parentBox,
-            Canvas canvas,
-            Offset center,
-            Paint paint,
-            float scale,
-            TextPainter labelPainter
-        ) {
-            canvas.save();
-            canvas.translate(center.dx, center.dy);
-
-            float textScaleFactor = labelPainter.height / _labelTextDesignSize;
-            float overallScale = scale * textScaleFactor;
-            canvas.scale(overallScale, overallScale);
-            float inverseTextScale = textScaleFactor != 0 ? 1.0f / textScaleFactor : 0.0f;
-            float labelHalfWidth = labelPainter.width / 2.0f;
-
-            float halfWidthNeeded = Mathf.Max(
-                0.0f,
-                inverseTextScale * labelHalfWidth - (_topLobeRadius - _labelPadding)
-            );
-
-            float shift = this._getIdealOffset(parentBox, halfWidthNeeded, overallScale, center);
-            float leftWidthNeeded;
-            float rightWidthNeeded;
-            if (shift < 0.0) {
+            if (shift < 0.0f) {
                 shift = Mathf.Max(shift, -halfWidthNeeded);
             }
             else {
                 shift = Mathf.Min(shift, halfWidthNeeded);
             }
 
-            rightWidthNeeded = halfWidthNeeded + shift;
-            leftWidthNeeded = halfWidthNeeded - shift;
+            return shift;
+        }
 
+        public void drawValueIndicator(
+            RenderBox parentBox,
+            Canvas canvas,
+            Offset center,
+            Paint paint,
+            float scale,
+            TextPainter labelPainter,
+            Color strokePaintColor
+        ) {
+            if (scale == 0.0f) {
+                return;
+            }
+
+            float textScaleFactor = labelPainter.height / _labelTextDesignSize;
+            float overallScale = scale * textScaleFactor;
+            float inverseTextScale = textScaleFactor != 0 ? 1.0f / textScaleFactor : 0.0f;
+            float labelHalfWidth = labelPainter.width / 2.0f;
+
+            canvas.save();
+            canvas.translate(center.dx, center.dy);
+            canvas.scale(overallScale, overallScale);
+
+            float bottomNeckTriangleHypotenuse = _bottomNeckRadius + _bottomLobeRadius / overallScale;
+            float rightBottomNeckCenterY =
+                -Mathf.Sqrt(Mathf.Pow(bottomNeckTriangleHypotenuse, 2) - Mathf.Pow(_rightBottomNeckCenterX, 2));
+            float rightBottomNeckAngleEnd = Mathf.PI + Mathf.Atan(rightBottomNeckCenterY / _rightBottomNeckCenterX);
             Path path = new Path();
-            Offset bottomLobeEnd = this._addBottomLobe(path);
+            path.moveTo(_middleNeckWidth / 2, rightBottomNeckCenterY);
+            _addArc(
+                path,
+                new Offset(_rightBottomNeckCenterX, rightBottomNeckCenterY),
+                _bottomNeckRadius,
+                _rightBottomNeckAngleStart,
+                rightBottomNeckAngleEnd
+            );
+            _addArc(
+                path,
+                Offset.zero,
+                _bottomLobeRadius / overallScale,
+                rightBottomNeckAngleEnd - Mathf.PI,
+                2 * Mathf.PI - rightBottomNeckAngleEnd
+            );
+            _addArc(
+                path,
+                new Offset(-_rightBottomNeckCenterX, rightBottomNeckCenterY),
+                _bottomNeckRadius,
+                Mathf.PI - rightBottomNeckAngleEnd,
+                0
+            );
 
-            float neckTriangleBase = _topNeckRadius - bottomLobeEnd.dx;
+            float halfWidthNeeded = Mathf.Max(
+                0.0f,
+                inverseTextScale * labelHalfWidth - (_topLobeRadius - _labelPadding)
+            );
 
-            float leftAmount = Mathf.Max(0.0f, Mathf.Min(1.0f, leftWidthNeeded / neckTriangleBase));
-            float rightAmount = Mathf.Max(0.0f, Mathf.Min(1.0f, rightWidthNeeded / neckTriangleBase));
+            float shift = _getIdealOffset(parentBox, halfWidthNeeded, overallScale, center);
+            float leftWidthNeeded = halfWidthNeeded - shift;
+            float rightWidthNeeded = halfWidthNeeded + shift;
+
+            float leftAmount = Mathf.Max(0.0f, Mathf.Min(1.0f, leftWidthNeeded / _neckTriangleBase));
+            float rightAmount = Mathf.Max(0.0f, Mathf.Min(1.0f, rightWidthNeeded / _neckTriangleBase));
 
             float leftTheta = (1.0f - leftAmount) * _thirtyDegrees;
             float rightTheta = (1.0f - rightAmount) * _thirtyDegrees;
-            Offset neckLeftCenter = new Offset(
-                -neckTriangleBase,
+
+            Offset leftTopNeckCenter = new Offset(
+                -_neckTriangleBase,
                 _topLobeCenter.dy + Mathf.Cos(leftTheta) * _neckTriangleHypotenuse
             );
+
             Offset neckRightCenter = new Offset(
-                neckTriangleBase,
+                _neckTriangleBase,
                 _topLobeCenter.dy + Mathf.Cos(rightTheta) * _neckTriangleHypotenuse
             );
 
             float leftNeckArcAngle = _ninetyDegrees - leftTheta;
             float rightNeckArcAngle = Mathf.PI + _ninetyDegrees - rightTheta;
 
-            float neckStretchBaseline = bottomLobeEnd.dy - Mathf.Max(neckLeftCenter.dy, neckRightCenter.dy);
+            float neckStretchBaseline = Mathf.Max(0.0f,
+                rightBottomNeckCenterY - Mathf.Max(leftTopNeckCenter.dy, neckRightCenter.dy));
             float t = Mathf.Pow(inverseTextScale, 3.0f);
             float stretch = (neckStretchBaseline * t).clamp(0.0f, 10.0f * neckStretchBaseline);
             Offset neckStretch = new Offset(0.0f, neckStretchBaseline - stretch);
@@ -929,7 +1753,6 @@ namespace Unity.UIWidgets.material {
                     return true;
                 }
 
-#pragma warning disable 0162
                 Offset leftCenter = _topLobeCenter - new Offset(leftWidthNeeded, 0.0f) + neckStretch;
                 Offset rightCenter = _topLobeCenter + new Offset(rightWidthNeeded, 0.0f) + neckStretch;
                 Rect valueRect = Rect.fromLTRB(
@@ -938,18 +1761,18 @@ namespace Unity.UIWidgets.material {
                     rightCenter.dx + _topLobeRadius,
                     rightCenter.dy + _topLobeRadius
                 );
-                Paint outlinePaint = new Paint();
-                outlinePaint.color = new Color(0xffff0000);
-                outlinePaint.style = PaintingStyle.stroke;
-                outlinePaint.strokeWidth = 1.0f;
+                Paint outlinePaint = new Paint {
+                    color = new Color(0xffff0000),
+                    style = PaintingStyle.stroke,
+                    strokeWidth = 1.0f
+                };
                 canvas.drawRect(valueRect, outlinePaint);
                 return true;
-#pragma warning restore 0162
             });
 
             _addArc(
                 path,
-                neckLeftCenter + neckStretch,
+                leftTopNeckCenter + neckStretch,
                 _topNeckRadius,
                 0.0f,
                 -leftNeckArcAngle
@@ -975,6 +1798,17 @@ namespace Unity.UIWidgets.material {
                 rightNeckArcAngle,
                 Mathf.PI
             );
+
+            if (strokePaintColor != null) {
+                Paint strokePaint = new Paint {
+                    color = strokePaintColor,
+                    strokeWidth = 1.0f,
+                    style = PaintingStyle.stroke
+                };
+
+                canvas.drawPath(path, strokePaint);
+            }
+
             canvas.drawPath(path, paint);
 
             canvas.save();
@@ -984,29 +1818,136 @@ namespace Unity.UIWidgets.material {
             canvas.restore();
             canvas.restore();
         }
+    }
+    
+    public delegate Thumb? RangeThumbSelector(TextDirection textDirection,
+    RangeValues values,
+    float tapValue,
+    Size thumbSize,
+    Size trackSize,
+    float dx
+    );
 
-        public override void paint(
-            PaintingContext context,
-            Offset center,
-            Animation<float> activationAnimation = null,
-            Animation<float> enableAnimation = null,
-            bool? isDiscrete = null,
-            TextPainter labelPainter = null,
-            RenderBox parentBox = null,
-            SliderThemeData sliderTheme = null,
-            float? value = null) {
-            ColorTween enableColor = new ColorTween(
-                begin: sliderTheme.disabledThumbColor,
-                end: sliderTheme.valueIndicatorColor
-            );
-            this._drawValueIndicator(
-                parentBox,
-                context.canvas,
-                center,
-                new Paint {color = enableColor.evaluate(enableAnimation)},
-                activationAnimation.value,
-                labelPainter
-            );
+    public class RangeValues {
+        public RangeValues(
+            float start,
+            float end
+        ) {
+            this.start = start;
+            this.end = end;
+        }
+        
+        public readonly float start;
+
+        public readonly float end;
+
+        public bool Equals(RangeValues obj) {
+            if (ReferenceEquals(obj, null)) {
+                return false;
+            }
+            
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            return start.Equals(obj.start) 
+                   && end.Equals(obj.end);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(obj, null)) {
+                return false;
+            }
+            
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+            
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((RangeValues) obj);
+        }
+        
+        public static bool operator ==(RangeValues left, RangeValues right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(RangeValues left, RangeValues right) {
+            return !Equals(left, right);
+        }
+        
+        public override int GetHashCode() {
+            unchecked {
+                return (start.GetHashCode() * 397) ^ end.GetHashCode();
+            }
+        }
+
+        public override string ToString() {
+            return $"{GetType()}({start}, {end})";
+        }
+    }
+    
+    
+    public class RangeLabels {
+        public RangeLabels(
+            string start,
+            string end
+        ) {
+            this.start = start;
+            this.end = end;
+        }
+        
+        public readonly string start;
+
+        public readonly string end;
+
+        public bool Equals(RangeLabels obj) {
+            if (ReferenceEquals(obj, null)) {
+                return false;
+            }
+            
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            return start.Equals(obj.start) 
+                   && end.Equals(obj.end);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(obj, null)) {
+                return false;
+            }
+            
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+            
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((RangeLabels) obj);
+        }
+        
+        public static bool operator ==(RangeLabels left, RangeLabels right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(RangeLabels left, RangeLabels right) {
+            return !Equals(left, right);
+        }
+        
+        public override int GetHashCode() {
+            unchecked {
+                return (start.GetHashCode() * 397) ^ end.GetHashCode();
+            }
+        }
+
+        public override string ToString() {
+            return $"{GetType()}({start}, {end})";
         }
     }
 }

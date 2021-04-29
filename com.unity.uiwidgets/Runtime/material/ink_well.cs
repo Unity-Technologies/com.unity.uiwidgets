@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -16,7 +19,7 @@ namespace Unity.UIWidgets.material {
         ) : base(controller: controller, referenceBox: referenceBox, onRemoved: onRemoved) {
             D.assert(controller != null);
             D.assert(referenceBox != null);
-            this._color = color;
+            _color = color;
         }
 
         public virtual void confirm() {
@@ -26,18 +29,65 @@ namespace Unity.UIWidgets.material {
         }
 
         public Color color {
-            get { return this._color; }
+            get { return _color; }
             set {
-                if (value == this._color) {
+                if (value == _color) {
                     return;
                 }
 
-                this._color = value;
-                this.controller.markNeedsPaint();
+                _color = value;
+                controller.markNeedsPaint();
             }
         }
 
         Color _color;
+
+        protected void paintInkCircle(
+            Canvas canvas,
+            Matrix4 transform,
+            Paint paint,
+            Offset center,
+            float radius,
+            TextDirection? textDirection = null,
+            ShapeBorder customBorder = null,
+            BorderRadius borderRadius = null,
+            RectCallback clipCallback = null) {
+            borderRadius = borderRadius ?? BorderRadius.zero;
+            D.assert(canvas != null);
+            D.assert(transform != null);
+            D.assert(paint != null);
+            D.assert(center != null);
+            D.assert(borderRadius != null);
+
+            Offset originOffset = MatrixUtils.getAsTranslation(transform);
+            canvas.save();
+            if (originOffset == null) {
+                canvas.transform(transform.storage);
+            }
+            else {
+                canvas.translate(originOffset.dx, originOffset.dy);
+            }
+
+            if (clipCallback != null) {
+                Rect rect = clipCallback();
+                if (customBorder != null) {
+                    canvas.clipPath(customBorder.getOuterPath(rect, textDirection: textDirection));
+                }
+                else if (borderRadius != BorderRadius.zero) {
+                    canvas.clipRRect(RRect.fromRectAndCorners(
+                        rect,
+                        topLeft: borderRadius.topLeft, topRight: borderRadius.topRight,
+                        bottomLeft: borderRadius.bottomLeft, bottomRight: borderRadius.bottomRight
+                    ));
+                }
+                else {
+                    canvas.clipRect(rect);
+                }
+            }
+
+            canvas.drawCircle(center, radius, paint);
+            canvas.restore();
+        }
     }
 
     public abstract class InteractiveInkFeatureFactory {
@@ -49,6 +99,7 @@ namespace Unity.UIWidgets.material {
             RenderBox referenceBox = null,
             Offset position = null,
             Color color = null,
+            TextDirection? textDirection = null,
             bool containedInkWell = false,
             RectCallback rectCallback = null,
             BorderRadius borderRadius = null,
@@ -68,14 +119,22 @@ namespace Unity.UIWidgets.material {
             GestureTapCallback onDoubleTap = null,
             GestureLongPressCallback onLongPress = null,
             ValueChanged<bool> onHighlightChanged = null,
+            ValueChanged<bool> onHover = null,
             bool containedInkWell = false,
             BoxShape highlightShape = BoxShape.circle,
             float? radius = null,
             BorderRadius borderRadius = null,
             ShapeBorder customBorder = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
-            InteractiveInkFeatureFactory splashFactory = null) : base(key: key) {
+            InteractiveInkFeatureFactory splashFactory = null,
+            bool enableFeedback = true,
+            FocusNode focusNode = null,
+            bool canRequestFocus = true,
+            ValueChanged<bool> onFocusChange = null,
+            bool autofocus = false) : base(key: key) {
             this.child = child;
             this.onTap = onTap;
             this.onTapDown = onTapDown;
@@ -83,14 +142,22 @@ namespace Unity.UIWidgets.material {
             this.onDoubleTap = onDoubleTap;
             this.onLongPress = onLongPress;
             this.onHighlightChanged = onHighlightChanged;
+            this.onHover = onHover;
             this.containedInkWell = containedInkWell;
             this.highlightShape = highlightShape;
             this.radius = radius;
             this.borderRadius = borderRadius;
             this.customBorder = customBorder;
+            this.focusColor = focusColor;
+            this.hoverColor = hoverColor;
             this.highlightColor = highlightColor;
             this.splashColor = splashColor;
             this.splashFactory = splashFactory;
+            this.enableFeedback = enableFeedback;
+            this.focusNode = focusNode;
+            this.canRequestFocus = canRequestFocus;
+            this.onFocusChange = onFocusChange;
+            this.autofocus = autofocus;
         }
 
         public readonly Widget child;
@@ -107,6 +174,8 @@ namespace Unity.UIWidgets.material {
 
         public readonly ValueChanged<bool> onHighlightChanged;
 
+        public readonly ValueChanged<bool> onHover;
+
         public readonly bool containedInkWell;
 
         public readonly BoxShape highlightShape;
@@ -117,11 +186,25 @@ namespace Unity.UIWidgets.material {
 
         public readonly ShapeBorder customBorder;
 
+        public readonly Color focusColor;
+
+        public readonly Color hoverColor;
+
         public readonly Color highlightColor;
 
         public readonly Color splashColor;
 
         public readonly InteractiveInkFeatureFactory splashFactory;
+
+        public readonly bool enableFeedback;
+
+        public readonly ValueChanged<bool> onFocusChange;
+
+        public readonly bool autofocus;
+
+        public readonly FocusNode focusNode;
+
+        public readonly bool canRequestFocus;
 
         public virtual RectCallback getRectCallback(RenderBox referenceBox) {
             return null;
@@ -129,7 +212,7 @@ namespace Unity.UIWidgets.material {
 
 
         public virtual bool debugCheckContext(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterial(context));
             return true;
         }
 
@@ -141,218 +224,393 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             List<string> gestures = new List<string>();
-            if (this.onTap != null) {
+            if (onTap != null) {
                 gestures.Add("tap");
             }
 
-            if (this.onDoubleTap != null) {
+            if (onDoubleTap != null) {
                 gestures.Add("double tap");
             }
 
-            if (this.onLongPress != null) {
+            if (onLongPress != null) {
                 gestures.Add("long press");
             }
 
-            if (this.onTapDown != null) {
+            if (onTapDown != null) {
                 gestures.Add("tap down");
             }
 
-            if (this.onTapCancel != null) {
+            if (onTapCancel != null) {
                 gestures.Add("tap cancel");
             }
 
             properties.add(new EnumerableProperty<string>("gestures", gestures, ifEmpty: "<none>"));
-            properties.add(new DiagnosticsProperty<bool>("containedInkWell", this.containedInkWell,
+            properties.add(new DiagnosticsProperty<bool>("containedInkWell", containedInkWell,
                 level: DiagnosticLevel.fine));
             properties.add(new DiagnosticsProperty<BoxShape>(
                 "highlightShape",
-                this.highlightShape,
-                description: (this.containedInkWell ? "clipped to" : "") + this.highlightShape,
+                highlightShape,
+                description: (containedInkWell ? "clipped to" : "") + highlightShape,
                 showName: false
             ));
         }
     }
 
+    public enum _HighlightType {
+        pressed,
+        hover,
+        focus
+    }
 
     public class _InkResponseState<T> : AutomaticKeepAliveClientMixin<T> where T : InkResponse {
         HashSet<InteractiveInkFeature> _splashes;
         InteractiveInkFeature _currentSplash;
-        InkHighlight _lastHighlight;
 
-        protected override bool wantKeepAlive {
-            get { return this._lastHighlight != null || (this._splashes != null && this._splashes.isNotEmpty()); }
+        bool _hovering = false;
+        readonly Dictionary<_HighlightType, InkHighlight> _highlights = new Dictionary<_HighlightType, InkHighlight>();
+        Dictionary<LocalKey, ActionFactory> _actionMap;
+
+        bool highlightsExist => _highlights.Values.Count(highlight => highlight != null) != 0;
+
+        void _handleAction(FocusNode node, Intent intent) {
+            _startSplash(context: node.context);
+            _handleTap(node.context);
         }
 
-        public void updateHighlight(bool value) {
-            if (value == (this._lastHighlight != null && this._lastHighlight.active)) {
+        UiWidgetAction _createAction() {
+            return new CallbackAction(
+                ActivateAction.key,
+                onInvoke: _handleAction
+            );
+        }
+
+        public override void initState() {
+            base.initState();
+            _actionMap = new Dictionary<LocalKey, ActionFactory>();
+            _actionMap[ActivateAction.key] = _createAction;
+            FocusManager.instance.addHighlightModeListener(_handleFocusHighlightModeChange);
+        }
+
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            var _oldWidget = (InkResponse) oldWidget;
+            base.didUpdateWidget(oldWidget);
+            if (_isWidgetEnabled(widget) != _isWidgetEnabled(_oldWidget)) {
+                _handleHoverChange(_hovering);
+                _updateFocusHighlights();
+            }
+        }
+
+        public override void dispose() {
+            FocusManager.instance.removeHighlightModeListener(_handleFocusHighlightModeChange);
+            base.dispose();
+        }
+
+        protected override bool wantKeepAlive {
+            get { return highlightsExist || (_splashes != null && _splashes.isNotEmpty()); }
+        }
+
+        Color getHighlightColorForType(_HighlightType type) {
+            switch (type) {
+                case _HighlightType.pressed:
+                    return widget.highlightColor ?? Theme.of(context).highlightColor;
+                case _HighlightType.focus:
+                    return widget.focusColor ?? Theme.of(context).focusColor;
+                case _HighlightType.hover:
+                    return widget.hoverColor ?? Theme.of(context).hoverColor;
+            }
+
+            D.assert(false, () => $"Unhandled {typeof(_HighlightType)} {type}");
+            return null;
+        }
+
+        TimeSpan getFadeDurationForType(_HighlightType type) {
+            switch (type) {
+                case _HighlightType.pressed:
+                    return new TimeSpan(0, 0, 0, 0, 200);
+                case _HighlightType.hover:
+                case _HighlightType.focus:
+                    return new TimeSpan(0, 0, 0, 0, 50);
+            }
+
+            D.assert(false, () => $"Unhandled {typeof(_HighlightType)} {type}");
+            return TimeSpan.Zero;
+        }
+
+        public void updateHighlight(_HighlightType type, bool value) {
+            InkHighlight highlight = _highlights.getOrDefault(type);
+
+            void handleInkRemoval() {
+                D.assert(_highlights.getOrDefault(type) != null);
+                _highlights[type] = null;
+                updateKeepAlive();
+            }
+
+            if (value == (highlight != null && highlight.active)) {
                 return;
             }
 
             if (value) {
-                if (this._lastHighlight == null) {
-                    RenderBox referenceBox = (RenderBox) this.context.findRenderObject();
-                    this._lastHighlight = new InkHighlight(
-                        controller: Material.of(this.context),
+                if (highlight == null) {
+                    RenderBox referenceBox = (RenderBox) context.findRenderObject();
+                    _highlights[type] = new InkHighlight(
+                        controller: Material.of(context),
                         referenceBox: referenceBox,
-                        color: this.widget.highlightColor ?? Theme.of(this.context).highlightColor,
-                        shape: this.widget.highlightShape,
-                        borderRadius: this.widget.borderRadius,
-                        customBorder: this.widget.customBorder,
-                        rectCallback: this.widget.getRectCallback(referenceBox),
-                        onRemoved: this._handleInkHighlightRemoval);
-                    this.updateKeepAlive();
+                        color: getHighlightColorForType(type),
+                        shape: widget.highlightShape,
+                        borderRadius: widget.borderRadius,
+                        customBorder: widget.customBorder,
+                        rectCallback: widget.getRectCallback(referenceBox),
+                        onRemoved: handleInkRemoval,
+                        textDirection: Directionality.of(context),
+                        fadeDuration: getFadeDurationForType(type)
+                    );
+                    updateKeepAlive();
                 }
                 else {
-                    this._lastHighlight.activate();
+                    highlight.activate();
                 }
             }
             else {
-                this._lastHighlight.deactivate();
+                highlight.deactivate();
             }
 
-            D.assert(value == (this._lastHighlight != null && this._lastHighlight.active));
-            if (this.widget.onHighlightChanged != null) {
-                this.widget.onHighlightChanged(value);
+            D.assert(value == (_highlights.getOrDefault(type) != null && _highlights[type].active));
+            switch (type) {
+                case _HighlightType.pressed: {
+                    if (widget.onHighlightChanged != null)
+                        widget.onHighlightChanged(value);
+                    break;
+                }
+                case _HighlightType.hover: {
+                    if (widget.onHover != null)
+                        widget.onHover(value);
+                    break;
+                }
+                case _HighlightType.focus:
+                    break;
             }
         }
 
-        void _handleInkHighlightRemoval() {
-            D.assert(this._lastHighlight != null);
-            this._lastHighlight = null;
-            this.updateKeepAlive();
-        }
-
-        InteractiveInkFeature _createInkFeature(TapDownDetails details) {
-            MaterialInkController inkController = Material.of(this.context);
-            RenderBox referenceBox = (RenderBox) this.context.findRenderObject();
-            Offset position = referenceBox.globalToLocal(details.globalPosition);
-            Color color = this.widget.splashColor ?? Theme.of(this.context).splashColor;
-            RectCallback rectCallback = this.widget.containedInkWell ? this.widget.getRectCallback(referenceBox) : null;
-            BorderRadius borderRadius = this.widget.borderRadius;
-            ShapeBorder customBorder = this.widget.customBorder;
+        InteractiveInkFeature _createInkFeature(Offset globalPosition) {
+            MaterialInkController inkController = Material.of(context);
+            RenderBox referenceBox = context.findRenderObject() as RenderBox;
+            Offset position = referenceBox.globalToLocal(globalPosition);
+            Color color = widget.splashColor ?? Theme.of(context).splashColor;
+            RectCallback rectCallback = widget.containedInkWell ? widget.getRectCallback(referenceBox) : null;
+            BorderRadius borderRadius = widget.borderRadius;
+            ShapeBorder customBorder = widget.customBorder;
 
             InteractiveInkFeature splash = null;
 
             void OnRemoved() {
-                if (this._splashes != null) {
-                    D.assert(this._splashes.Contains(splash));
-                    this._splashes.Remove(splash);
-                    if (this._currentSplash == splash) {
-                        this._currentSplash = null;
+                if (_splashes != null) {
+                    D.assert(_splashes.Contains(splash));
+                    _splashes.Remove(splash);
+                    if (_currentSplash == splash) {
+                        _currentSplash = null;
                     }
 
-                    this.updateKeepAlive();
+                    updateKeepAlive();
                 }
             }
 
-            splash = (this.widget.splashFactory ?? Theme.of(this.context).splashFactory).create(
+            splash = (widget.splashFactory ?? Theme.of(context).splashFactory).create(
                 controller: inkController,
                 referenceBox: referenceBox,
                 position: position,
                 color: color,
-                containedInkWell: this.widget.containedInkWell,
+                containedInkWell: widget.containedInkWell,
                 rectCallback: rectCallback,
-                radius: this.widget.radius,
+                radius: widget.radius,
                 borderRadius: borderRadius,
                 customBorder: customBorder,
-                onRemoved: OnRemoved);
+                onRemoved: OnRemoved,
+                textDirection: Directionality.of(context));
 
             return splash;
         }
 
-
-        void _handleTapDown(TapDownDetails details) {
-            InteractiveInkFeature splash = this._createInkFeature(details);
-            this._splashes = this._splashes ?? new HashSet<InteractiveInkFeature>();
-            this._splashes.Add(splash);
-            this._currentSplash = splash;
-            if (this.widget.onTapDown != null) {
-                this.widget.onTapDown(details);
+        void _handleFocusHighlightModeChange(FocusHighlightMode mode) {
+            if (!mounted) {
+                return;
             }
 
-            this.updateKeepAlive();
-            this.updateHighlight(true);
+            setState(() => { _updateFocusHighlights(); });
+        }
+
+        void _updateFocusHighlights() {
+            bool showFocus = false;
+            switch (FocusManager.instance.highlightMode) {
+                case FocusHighlightMode.touch: {
+                    showFocus = false;
+                    break;
+                }
+                case FocusHighlightMode.traditional: {
+                    showFocus = enabled && _hasFocus;
+                    break;
+                }
+            }
+
+            updateHighlight(_HighlightType.focus, value: showFocus);
+        }
+
+        bool _hasFocus = false;
+
+        void _handleFocusUpdate(bool hasFocus) {
+            _hasFocus = hasFocus;
+            _updateFocusHighlights();
+            if (widget.onFocusChange != null) {
+                widget.onFocusChange(hasFocus);
+            }
+        }
+
+
+        void _handleTapDown(TapDownDetails details) {
+            _startSplash(details: details);
+            if (widget.onTapDown != null) {
+                widget.onTapDown(details);
+            }
+        }
+
+        void _startSplash(TapDownDetails details = null, BuildContext context = null) {
+            D.assert(details != null || context != null);
+
+            Offset globalPosition;
+            if (context != null) {
+                RenderBox referenceBox = context.findRenderObject() as RenderBox;
+                D.assert(referenceBox.hasSize, () => "InkResponse must be done with layout before starting a splash.");
+                globalPosition = referenceBox.localToGlobal(referenceBox.paintBounds.center);
+            }
+            else {
+                globalPosition = details.globalPosition;
+            }
+
+            InteractiveInkFeature splash = _createInkFeature(globalPosition);
+            _splashes = _splashes ?? new HashSet<InteractiveInkFeature>();
+            _splashes.Add(splash);
+            _currentSplash = splash;
+            updateKeepAlive();
+            updateHighlight(_HighlightType.pressed, value: true);
         }
 
         void _handleTap(BuildContext context) {
-            this._currentSplash?.confirm();
-            this._currentSplash = null;
-            this.updateHighlight(false);
-            if (this.widget.onTap != null) {
-                this.widget.onTap();
+            _currentSplash?.confirm();
+            _currentSplash = null;
+            updateHighlight(_HighlightType.pressed, value: false);
+            if (widget.onTap != null) {
+                widget.onTap();
             }
         }
 
         void _handleTapCancel() {
-            this._currentSplash?.cancel();
-            this._currentSplash = null;
-            if (this.widget.onTapCancel != null) {
-                this.widget.onTapCancel();
+            _currentSplash?.cancel();
+            _currentSplash = null;
+            if (widget.onTapCancel != null) {
+                widget.onTapCancel();
             }
 
-            this.updateHighlight(false);
+            updateHighlight(_HighlightType.pressed, value: false);
         }
 
         void _handleDoubleTap() {
-            this._currentSplash?.confirm();
-            this._currentSplash = null;
-            if (this.widget.onDoubleTap != null) {
-                this.widget.onDoubleTap();
+            _currentSplash?.confirm();
+            _currentSplash = null;
+            if (widget.onDoubleTap != null) {
+                widget.onDoubleTap();
             }
         }
 
         void _handleLongPress(BuildContext context) {
-            this._currentSplash?.confirm();
-            this._currentSplash = null;
-            if (this.widget.onLongPress != null) {
-                this.widget.onLongPress();
+            _currentSplash?.confirm();
+            _currentSplash = null;
+            if (widget.onLongPress != null) {
+                widget.onLongPress();
             }
         }
 
         public override void deactivate() {
-            if (this._splashes != null) {
-                HashSet<InteractiveInkFeature> splashes = this._splashes;
-                this._splashes = null;
+            if (_splashes != null) {
+                HashSet<InteractiveInkFeature> splashes = _splashes;
+                _splashes = null;
                 foreach (InteractiveInkFeature splash in splashes) {
                     splash.dispose();
                 }
 
-                this._currentSplash = null;
+                _currentSplash = null;
             }
 
-            D.assert(this._currentSplash == null);
-            this._lastHighlight?.dispose();
-            this._lastHighlight = null;
+            D.assert(_currentSplash == null);
+            foreach (_HighlightType highlight in _highlights.Keys.ToList()) {
+                _highlights[highlight]?.dispose();
+                _highlights[highlight] = null;
+            }
+
             base.deactivate();
         }
 
+        bool _isWidgetEnabled(InkResponse widget) {
+            return widget.onTap != null || widget.onDoubleTap != null || widget.onLongPress != null;
+        }
+
+        bool enabled {
+            get { return _isWidgetEnabled(widget); }
+        }
+
+        void _handleMouseEnter(PointerEnterEvent Event) {
+            _handleHoverChange(true);
+        }
+
+        void _handleMouseExit(PointerExitEvent Event) {
+            _handleHoverChange(false);
+        }
+
+        void _handleHoverChange(bool hovering) {
+            if (_hovering != hovering) {
+                _hovering = hovering;
+                updateHighlight(_HighlightType.hover, value: enabled && _hovering);
+            }
+        }
+
         public override Widget build(BuildContext context) {
-            D.assert(this.widget.debugCheckContext(context));
+            D.assert(widget.debugCheckContext(context));
             base.build(context);
-            ThemeData themeData = Theme.of(context);
-            if (this._lastHighlight != null) {
-                this._lastHighlight.color = this.widget.highlightColor ?? themeData.highlightColor;
+            foreach (_HighlightType type in _highlights.Keys) {
+                if (_highlights[type] != null) {
+                    _highlights[type].color = getHighlightColorForType(type);
+                }
             }
 
-            if (this._currentSplash != null) {
-                this._currentSplash.color = this.widget.splashColor ?? themeData.splashColor;
+            if (_currentSplash != null) {
+                _currentSplash.color = widget.splashColor ?? Theme.of(context).splashColor;
             }
 
-            bool enabled = this.widget.onTap != null || this.widget.onDoubleTap != null ||
-                           this.widget.onLongPress != null;
+            bool canRequestFocus = enabled && widget.canRequestFocus;
 
-            return new GestureDetector(
-                onTapDown: enabled ? (GestureTapDownCallback) this._handleTapDown : null,
-                onTap: enabled ? (GestureTapCallback) (() => this._handleTap(context)) : null,
-                onTapCancel: enabled ? (GestureTapCancelCallback) this._handleTapCancel : null,
-                onDoubleTap: this.widget.onDoubleTap != null
-                    ? (GestureDoubleTapCallback) (details => this._handleDoubleTap())
-                    : null,
-                onLongPress: this.widget.onLongPress != null
-                    ? (GestureLongPressCallback) (() => this._handleLongPress(context))
-                    : null,
-                behavior: HitTestBehavior.opaque,
-                child: this.widget.child
+            return new Actions(
+                actions: _actionMap,
+                child: new Focus(
+                    focusNode: widget.focusNode,
+                    canRequestFocus: canRequestFocus,
+                    onFocusChange: _handleFocusUpdate,
+                    autofocus: widget.autofocus,
+                    child: new MouseRegion(
+                        onEnter: enabled ? _handleMouseEnter : (PointerEnterEventListener) null,
+                        onExit: enabled ? _handleMouseExit : (PointerExitEventListener) null,
+                        child: new GestureDetector(
+                            onTapDown: enabled ? _handleTapDown : (GestureTapDownCallback) null,
+                            onTap: enabled ? () => _handleTap(context) : (GestureTapCallback) null,
+                            onTapCancel: enabled ? _handleTapCancel : (GestureTapCancelCallback) null,
+                            onDoubleTap: widget.onDoubleTap != null
+                                ? _handleDoubleTap
+                                : (GestureDoubleTapCallback) null,
+                            onLongPress: widget.onLongPress != null
+                                ? () => _handleLongPress(context)
+                                : (GestureLongPressCallback) null,
+                            behavior: HitTestBehavior.opaque,
+                            child: widget.child
+                        )
+                    )
+                )
             );
         }
     }
@@ -368,12 +626,20 @@ namespace Unity.UIWidgets.material {
             GestureTapDownCallback onTapDown = null,
             GestureTapCancelCallback onTapCancel = null,
             ValueChanged<bool> onHighlightChanged = null,
+            ValueChanged<bool> onHover = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             InteractiveInkFeatureFactory splashFactory = null,
             float? radius = null,
             BorderRadius borderRadius = null,
-            ShapeBorder customBorder = null
+            ShapeBorder customBorder = null,
+            bool enableFeedback = true,
+            FocusNode focusNode = null,
+            bool canRequestFocus = true,
+            ValueChanged<bool> onFocusChange = null,
+            bool autofocus = false
         ) : base(
             key: key,
             child: child,
@@ -387,14 +653,22 @@ namespace Unity.UIWidgets.material {
                 }
             },
             onHighlightChanged: onHighlightChanged,
+            onHover: onHover,
             containedInkWell: true,
             highlightShape: BoxShape.rectangle,
+            focusColor: focusColor,
+            hoverColor: hoverColor,
             highlightColor: highlightColor,
             splashColor: splashColor,
             splashFactory: splashFactory,
             radius: radius,
             borderRadius: borderRadius,
-            customBorder: customBorder) {
+            customBorder: customBorder,
+            enableFeedback: enableFeedback,
+            focusNode: focusNode,
+            canRequestFocus: canRequestFocus,
+            onFocusChange: onFocusChange,
+            autofocus: autofocus) {
         }
     }
 }

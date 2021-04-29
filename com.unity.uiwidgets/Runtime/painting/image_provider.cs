@@ -2,14 +2,25 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using RSG;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.Networking;
+using Codec = Unity.UIWidgets.ui.Codec;
+using Locale = Unity.UIWidgets.ui.Locale;
+using Object = UnityEngine.Object;
+using Path = System.IO.Path;
+using TextDirection = Unity.UIWidgets.ui.TextDirection;
 
 namespace Unity.UIWidgets.painting {
+    public static partial class painting_ {
+        internal delegate void _KeyAndErrorHandlerCallback<T>(T key, Action<Exception> handleError);
+
+        internal delegate Future _AsyncKeyErrorHandler<T>(T key, Exception exception);
+    }
+
     public class ImageConfiguration : IEquatable<ImageConfiguration> {
         public ImageConfiguration(
             AssetBundle bundle = null,
@@ -47,6 +58,8 @@ namespace Unity.UIWidgets.painting {
 
         public readonly Locale locale;
 
+        public readonly TextDirection textDirection;
+
         public readonly Size size;
 
         public readonly RuntimePlatform? platform;
@@ -62,9 +75,9 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.bundle, other.bundle) && this.devicePixelRatio.Equals(other.devicePixelRatio) &&
-                   Equals(this.locale, other.locale) && Equals(this.size, other.size) &&
-                   this.platform == other.platform;
+            return Equals(bundle, other.bundle) && devicePixelRatio.Equals(other.devicePixelRatio) &&
+                   Equals(locale, other.locale) && Equals(size, other.size) &&
+                   platform == other.platform;
         }
 
         public override bool Equals(object obj) {
@@ -76,20 +89,20 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ImageConfiguration) obj);
+            return Equals((ImageConfiguration) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.bundle != null ? this.bundle.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.devicePixelRatio.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.locale != null ? this.locale.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.size != null ? this.size.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.platform.GetHashCode();
+                var hashCode = (bundle != null ? bundle.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ devicePixelRatio.GetHashCode();
+                hashCode = (hashCode * 397) ^ (locale != null ? locale.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (size != null ? size.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ platform.GetHashCode();
                 return hashCode;
             }
         }
@@ -106,48 +119,48 @@ namespace Unity.UIWidgets.painting {
             var result = new StringBuilder();
             result.Append("ImageConfiguration(");
             bool hasArguments = false;
-            if (this.bundle != null) {
+            if (bundle != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"bundle: {this.bundle}");
+                result.Append($"bundle: {bundle}");
                 hasArguments = true;
             }
 
-            if (this.devicePixelRatio != null) {
+            if (devicePixelRatio != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"devicePixelRatio: {this.devicePixelRatio:F1}");
+                result.Append($"devicePixelRatio: {devicePixelRatio:F1}");
                 hasArguments = true;
             }
 
-            if (this.locale != null) {
+            if (locale != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"locale: {this.locale}");
+                result.Append($"locale: {locale}");
                 hasArguments = true;
             }
 
-            if (this.size != null) {
+            if (size != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"size: {this.size}");
+                result.Append($"size: {size}");
                 hasArguments = true;
             }
 
-            if (this.platform != null) {
+            if (platform != null) {
                 if (hasArguments) {
                     result.Append(", ");
                 }
 
-                result.Append($"platform: {this.platform}");
+                result.Append($"platform: {platform}");
                 hasArguments = true;
             }
 
@@ -156,8 +169,18 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    public delegate Future<Codec> DecoderCallback(byte[] bytes, int? cacheWidth = 0, int? cacheHeight = 0);
+
     public abstract class ImageProvider {
         public abstract ImageStream resolve(ImageConfiguration configuration);
+
+        public static bool operator ==(ImageProvider left, ImageProvider right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(ImageProvider left, ImageProvider right) {
+            return !Equals(left, right);
+        }
     }
 
     public abstract class ImageProvider<T> : ImageProvider {
@@ -165,40 +188,171 @@ namespace Unity.UIWidgets.painting {
             D.assert(configuration != null);
 
             ImageStream stream = new ImageStream();
-            T obtainedKey = default;
+            _createErrorHandlerAndKey(
+                configuration,
+                (T successKey, Action<Exception> errorHandler) => {
+                    resolveStreamForKey(configuration, stream, successKey, (Exception e) => errorHandler(e));
+                },
+                (T key, Exception exception) => {
+                    Timer.run(() => {
+                        _ErrorImageCompleter imageCompleter = new _ErrorImageCompleter();
+                        stream.setCompleter(imageCompleter);
+                        InformationCollector collector = null;
+                        D.assert(() => {
+                            IEnumerable<DiagnosticsNode> infoCollector() {
+                                yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
+                                yield return new DiagnosticsProperty<ImageConfiguration>("Image configuration",
+                                    configuration);
+                                yield return new DiagnosticsProperty<T>("Image key", key, defaultValue: null);
+                            }
 
-            this.obtainKey(configuration).Then(key => {
-                obtainedKey = key;
-                stream.setCompleter(PaintingBinding.instance.imageCache.putIfAbsent(key, () => this.load(key)));
-            }).Catch(ex => {
-                UIWidgetsError.reportError(new UIWidgetsErrorDetails(
-                    exception: ex,
-                    library: "services library",
-                    context: "while resolving an image",
-                    silent: true,
-                    informationCollector: information => {
-                        information.AppendLine($"Image provider: {this}");
-                        information.AppendLine($"Image configuration: {configuration}");
-                        if (obtainedKey != null) {
-                            information.AppendLine($"Image key: {obtainedKey}");
-                        }
-                    }
-                ));
-            });
+                            collector = infoCollector;
+                            return true;
+                        });
+                        imageCompleter.setError(
+                            exception: exception,
+                            stack: exception.StackTrace,
+                            context: new ErrorDescription("while resolving an image"),
+                            silent: true, // could be a network error or whatnot
+                            informationCollector: collector
+                        );
+                        return null;
+                    });
+                    return null;
+                }
+            );
 
             return stream;
         }
 
-        public IPromise<bool> evict(ImageCache cache = null, ImageConfiguration configuration = null) {
+        public ImageStream createStream(ImageConfiguration configuration) {
+            return new ImageStream();
+        }
+
+        public virtual void resolveStreamForKey(ImageConfiguration configuration, ImageStream stream, T key,
+            ImageErrorListener handleError) {
+            if (stream.completer != null) {
+                ImageStreamCompleter completerEdge = PaintingBinding.instance.imageCache.putIfAbsent(
+                    key,
+                    () => stream.completer,
+                    onError: handleError
+                );
+                D.assert(Equals(completerEdge, stream.completer));
+                return;
+            }
+
+            ImageStreamCompleter completer = PaintingBinding.instance.imageCache.putIfAbsent(
+                key,
+                () => load(key, ui_.instantiateImageCodec),
+                onError: handleError
+            );
+            if (completer != null) {
+                stream.setCompleter(completer);
+            }
+        }
+
+        public Future<bool> evict(ImageCache cache = null, ImageConfiguration configuration = null) {
             configuration = configuration ?? ImageConfiguration.empty;
             cache = cache ?? PaintingBinding.instance.imageCache;
 
-            return this.obtainKey(configuration).Then(key => cache.evict(key));
+            return obtainKey(configuration).then(key => cache.evict(key)).to<bool>();
         }
 
-        protected abstract ImageStreamCompleter load(T key);
+        public abstract ImageStreamCompleter load(T assetBundleImageKey, DecoderCallback decode);
 
-        protected abstract IPromise<T> obtainKey(ImageConfiguration configuration);
+        public abstract Future<T> obtainKey(ImageConfiguration configuration);
+
+        Future<ImageCacheStatus> obtainCacheStatus(
+            ImageConfiguration configuration,
+            ImageErrorListener handleError = null
+        ) {
+            D.assert(configuration != null);
+            Completer completer = Completer.create();
+            _createErrorHandlerAndKey(
+                configuration,
+                (T key, Action<Exception> innerHandleError) => {
+                    completer.complete(FutureOr.value(PaintingBinding.instance.imageCache.statusForKey(key)));
+                },
+                (T key, Exception exception) => {
+                    if (handleError != null) {
+                        handleError(exception);
+                    }
+                    else {
+                        InformationCollector collector = null;
+                        D.assert(() => {
+                            IEnumerable<DiagnosticsNode> infoCollector() {
+                                yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
+                                yield return new DiagnosticsProperty<ImageConfiguration>("Image configuration",
+                                    configuration);
+                                yield return new DiagnosticsProperty<T>("Image key", key, defaultValue: null);
+                            }
+
+                            collector = infoCollector;
+                            return true;
+                        });
+                        UIWidgetsError.onError(new UIWidgetsErrorDetails(
+                            context: new ErrorDescription("while checking the cache location of an image"),
+                            informationCollector: collector,
+                            exception: exception
+                        ));
+                        completer.complete();
+                    }
+
+                    return Future.value();
+                }
+            );
+            return completer.future.to<ImageCacheStatus>();
+        }
+
+        private void _createErrorHandlerAndKey(
+            ImageConfiguration configuration,
+            painting_._KeyAndErrorHandlerCallback<T> successCallback,
+            painting_._AsyncKeyErrorHandler<T> errorCallback
+        ) {
+            T obtainedKey = default;
+            bool didError = false;
+
+            Action<Exception> handleError = (Exception exception) => {
+                if (didError) {
+                    return;
+                }
+
+                if (!didError) {
+                    errorCallback(obtainedKey, exception);
+                }
+
+                didError = true;
+            };
+
+            Zone dangerZone = Zone.current.fork(
+                specification: new ZoneSpecification(
+                    handleUncaughtError: (Zone self, ZoneDelegate parent, Zone zone, Exception error) => {
+                        handleError(error);
+                    }
+                )
+            );
+            dangerZone.runGuarded(() => {
+                Future<T> key;
+                try {
+                    key = obtainKey(configuration);
+                }
+                catch (Exception error) {
+                    handleError(error);
+                    return null;
+                }
+
+                key.then_((T reusltKey) => {
+                    obtainedKey = reusltKey;
+                    try {
+                        successCallback(reusltKey, handleError);
+                    }
+                    catch (Exception error) {
+                        handleError(error);
+                    }
+                }).catchError(handleError);
+                return null;
+            });
+        }
     }
 
     public class AssetBundleImageKey : IEquatable<AssetBundleImageKey> {
@@ -230,8 +384,8 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.bundle, other.bundle) && string.Equals(this.name, other.name) &&
-                   this.scale.Equals(other.scale);
+            return Equals(bundle, other.bundle) && string.Equals(name, other.name) &&
+                   scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -243,18 +397,18 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((AssetBundleImageKey) obj);
+            return Equals((AssetBundleImageKey) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.bundle != null ? this.bundle.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.name != null ? this.name.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.scale.GetHashCode();
+                var hashCode = (bundle != null ? bundle.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (name != null ? name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ scale.GetHashCode();
                 return hashCode;
             }
         }
@@ -268,7 +422,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(bundle: {this.bundle}, name: \"{this.name}\", scale: {this.scale})";
+            return $"{GetType()}(bundle: {bundle}, name: \"{name}\", scale: {scale})";
         }
     }
 
@@ -276,46 +430,38 @@ namespace Unity.UIWidgets.painting {
         protected AssetBundleImageProvider() {
         }
 
-        protected override ImageStreamCompleter load(AssetBundleImageKey key) {
+        public override ImageStreamCompleter load(AssetBundleImageKey key, DecoderCallback decode) {
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                yield return new DiagnosticsProperty<ImageProvider>("Image provider", this);
+                yield return new DiagnosticsProperty<AssetBundleImageKey>("Image key", key);
+            }
+
             return new MultiFrameImageStreamCompleter(
-                codec: this._loadAsync(key),
+                codec: _loadAsync(key, decode),
                 scale: key.scale,
-                informationCollector: information => {
-                    information.AppendLine($"Image provider: {this}");
-                    information.Append($"Image key: {key}");
-                }
+                informationCollector: infoCollector
             );
         }
 
-        IPromise<Codec> _loadAsync(AssetBundleImageKey key) {
-            var coroutine = Window.instance.startCoroutine(this._loadAssetAsync(key));
-            return coroutine.promise.Then(result => {
-                if (result == null) {
-                    if (key.bundle == null) {
-                        throw new Exception($"Unable to find asset \"{key.name}\" from Resources folder");
-                    }
+        Future<Codec> _loadAsync(AssetBundleImageKey key, DecoderCallback decode) {
+            Object data;
+            // Hot reload/restart could change whether an asset bundle or key in a
+            // bundle are available, or if it is a network backed bundle.
+            try {
+                data = key.bundle.LoadAsset(key.name);
+            }
+            catch (Exception e) {
+                PaintingBinding.instance.imageCache.evict(key);
+                throw e;
+            }
 
-                    throw new Exception($"Unable to find asset \"{key.name}\" from asset bundle \"{key.bundle}\"");
-                }
-
-                if (result is Texture2D texture) {
-                    return CodecUtils.getCodec(new Image(texture, isAsset: true, bundle: key.bundle));
-                }
-                else if (result is TextAsset text) {
-                    var bytes = text.bytes;
-                    if (key.bundle == null) {
-                        Resources.UnloadAsset(text);
-                    }
-                    else {
-                        key.bundle.Unload(text);
-                    }
-
-                    return CodecUtils.getCodec(bytes);
-                }
-                else {
-                    throw new Exception($"Unknown type for asset \"{key.name}\": \"{result.GetType()}\"");
-                }
-            });
+            if (data != null && data is Texture2D textureData) {
+                return decode(textureData.EncodeToPNG());
+            }
+            else {
+                PaintingBinding.instance.imageCache.evict(key);
+                throw new Exception("Unable to read data");
+            }
         }
 
         IEnumerator _loadAssetAsync(AssetBundleImageKey key) {
@@ -323,7 +469,8 @@ namespace Unity.UIWidgets.painting {
                 ResourceRequest request = Resources.LoadAsync(key.name);
                 if (request.asset) {
                     yield return request.asset;
-                } else {
+                }
+                else {
                     yield return request;
                     yield return request.asset;
                 }
@@ -332,10 +479,131 @@ namespace Unity.UIWidgets.painting {
                 AssetBundleRequest request = key.bundle.LoadAssetAsync(key.name);
                 if (request.asset) {
                     yield return request.asset;
-                } else {
+                }
+                else {
                     yield return request.asset;
                 }
             }
+        }
+    }
+
+
+    internal class _SizeAwareCacheKey : IEquatable<_SizeAwareCacheKey> {
+        internal _SizeAwareCacheKey(object providerCacheKey, int width, int height) {
+            this.providerCacheKey = providerCacheKey;
+            this.width = width;
+            this.height = height;
+        }
+
+        public readonly object providerCacheKey;
+
+        public readonly int width;
+
+        public readonly int height;
+
+        public static bool operator ==(_SizeAwareCacheKey left, object right) {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(_SizeAwareCacheKey left, object right) {
+            return !Equals(left, right);
+        }
+
+        public bool Equals(_SizeAwareCacheKey other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return Equals(providerCacheKey, other.providerCacheKey) && width == other.width && height == other.height;
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((_SizeAwareCacheKey) obj);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = (providerCacheKey != null ? providerCacheKey.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ width;
+                hashCode = (hashCode * 397) ^ height;
+                return hashCode;
+            }
+        }
+    }
+
+    internal class ResizeImage : ImageProvider<_SizeAwareCacheKey> {
+        public ResizeImage(
+            ImageProvider<object> imageProvider,
+            int width = 0,
+            int height = 0
+        ) {
+            this.imageProvider = imageProvider;
+            this.width = width;
+            this.height = height;
+        }
+
+        public readonly ImageProvider<object> imageProvider;
+
+        public readonly int width;
+
+        public readonly int height;
+
+        public static ImageProvider resizeIfNeeded(int? cacheWidth, int? cacheHeight, ImageProvider provider) {
+            if (cacheWidth != null || cacheHeight != null) {
+                return new ResizeImage((ImageProvider<object>) provider, width: cacheWidth.Value,
+                    height: cacheHeight.Value);
+            }
+
+            return provider;
+        }
+
+        public override ImageStreamCompleter load(_SizeAwareCacheKey assetBundleImageKey, DecoderCallback decode) {
+            Future<Codec> decodeResize(byte[] bytes, int? cacheWidth = 0, int? cacheHeight = 0) {
+                D.assert(
+                    cacheWidth == null && cacheHeight == null,
+                    () =>
+                        "ResizeImage cannot be composed with another ImageProvider that applies cacheWidth or cacheHeight."
+                );
+                return decode(bytes, cacheWidth: width, cacheHeight: height);
+            }
+
+            return imageProvider.load(assetBundleImageKey.providerCacheKey, decodeResize);
+        }
+
+        public override Future<_SizeAwareCacheKey> obtainKey(ImageConfiguration configuration) {
+            Completer completer = null;
+            SynchronousFuture<_SizeAwareCacheKey> result = null;
+            imageProvider.obtainKey(configuration).then((object key) => {
+                // TODO: completer is always null?
+                if (completer == null) {
+                    result = new SynchronousFuture<_SizeAwareCacheKey>(new _SizeAwareCacheKey(key, width, height));
+                }
+                else {
+                    completer.complete(FutureOr.value(new _SizeAwareCacheKey(key, width, height)));
+                }
+            });
+            if (result != null) {
+                return result;
+            }
+
+            completer = Completer.create();
+            return completer.future.to<_SizeAwareCacheKey>();
         }
     }
 
@@ -355,30 +623,62 @@ namespace Unity.UIWidgets.painting {
 
         public readonly IDictionary<string, string> headers;
 
-        protected override IPromise<NetworkImage> obtainKey(ImageConfiguration configuration) {
-            return Promise<NetworkImage>.Resolved(this);
+        public override Future<NetworkImage> obtainKey(ImageConfiguration configuration) {
+            return new SynchronousFuture<NetworkImage>(this);
         }
 
-        protected override ImageStreamCompleter load(NetworkImage key) {
+        public override ImageStreamCompleter load(NetworkImage key, DecoderCallback decode) {
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                yield return new ErrorDescription($"url: {url}");
+            }
+
             return new MultiFrameImageStreamCompleter(
-                codec: this._loadAsync(key),
+                codec: _loadAsync(key, decode),
                 scale: key.scale,
-                informationCollector: information => {
-                    information.AppendLine($"Image provider: {this}");
-                    information.Append($"Image key: {key}");
-                }
+                informationCollector: infoCollector
             );
         }
 
-        IPromise<Codec> _loadAsync(NetworkImage key) {
-            var coroutine = Window.instance.startCoroutine(this._loadBytes(key));
-            return coroutine.promise.Then(obj => {
-                if (obj is byte[] bytes) {
-                    return CodecUtils.getCodec(bytes);
+        Future<Codec> _loadAsync(NetworkImage key, DecoderCallback decode) {
+            var completer = Completer.create();
+            var isolate = Isolate.current;
+            var panel = UIWidgetsPanelWrapper.current.window;
+            if (panel.isActive()) {
+                panel.startCoroutine(_loadCoroutine(key.url, completer, isolate));
+                return completer.future.to<byte[]>().then_<byte[]>(data => {
+                    if (data != null && data.Length > 0) {
+                        return decode(data);
+                    }
+
+                    throw new Exception("not loaded");
+                }).to<Codec>();
+            }
+
+            return new Future<Codec>(Future.create(() => FutureOr.value(null)));
+        }
+
+        IEnumerator _loadCoroutine(string key, Completer completer, Isolate isolate) {
+            var url = new Uri(key);
+            using (var www = UnityWebRequest.Get(url)) {
+                if (headers != null) {
+                    foreach (var header in headers) {
+                        www.SetRequestHeader(header.Key, header.Value);
+                    }
                 }
 
-                return CodecUtils.getCodec(new Image((Texture2D) obj));
-            });
+                yield return www.SendWebRequest();
+
+                if (www.isNetworkError || www.isHttpError) {
+                    completer.completeError(new Exception($"Failed to load from url \"{url}\": {www.error}"));
+                    yield break;
+                }
+
+                var data = www.downloadHandler.data;
+
+                using (Isolate.getScope(isolate)) {
+                    completer.complete(data);
+                }
+            }
         }
 
         IEnumerator _loadBytes(NetworkImage key) {
@@ -387,8 +687,8 @@ namespace Unity.UIWidgets.painting {
 
             if (uri.LocalPath.EndsWith(".gif")) {
                 using (var www = UnityWebRequest.Get(uri)) {
-                    if (this.headers != null) {
-                        foreach (var header in this.headers) {
+                    if (headers != null) {
+                        foreach (var header in headers) {
                             www.SetRequestHeader(header.Key, header.Value);
                         }
                     }
@@ -407,8 +707,8 @@ namespace Unity.UIWidgets.painting {
             }
 
             using (var www = UnityWebRequestTexture.GetTexture(uri)) {
-                if (this.headers != null) {
-                    foreach (var header in this.headers) {
+                if (headers != null) {
+                    foreach (var header in headers) {
                         www.SetRequestHeader(header.Key, header.Value);
                     }
                 }
@@ -433,7 +733,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return string.Equals(this.url, other.url) && this.scale.Equals(other.scale);
+            return string.Equals(url, other.url) && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -445,16 +745,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((NetworkImage) obj);
+            return Equals((NetworkImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.url != null ? this.url.GetHashCode() : 0) * 397) ^ this.scale.GetHashCode();
+                return ((url != null ? url.GetHashCode() : 0) * 397) ^ scale.GetHashCode();
             }
         }
 
@@ -467,7 +767,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"runtimeType(\"{this.url}\", scale: {this.scale})";
+            return $"runtimeType(\"{url}\", scale: {scale})";
         }
     }
 
@@ -482,25 +782,41 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float scale;
 
-        protected override IPromise<FileImage> obtainKey(ImageConfiguration configuration) {
-            return Promise<FileImage>.Resolved(this);
+        public override Future<FileImage> obtainKey(ImageConfiguration configuration) {
+            return new SynchronousFuture<FileImage>(this);
         }
 
-        protected override ImageStreamCompleter load(FileImage key) {
-            return new MultiFrameImageStreamCompleter(this._loadAsync(key),
+        public override ImageStreamCompleter load(FileImage key, DecoderCallback decode) {
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                yield return new ErrorDescription($"Path: {file}");
+            }
+
+            return new MultiFrameImageStreamCompleter(_loadAsync(key, decode),
                 scale: key.scale,
-                informationCollector: information => { information.AppendLine($"Path: {this.file}"); });
+                informationCollector: infoCollector);
         }
 
-        IPromise<Codec> _loadAsync(FileImage key) {
-            var coroutine = Window.instance.startCoroutine(this._loadBytes(key));
-            return coroutine.promise.Then(obj => {
-                if (obj is byte[] bytes) {
-                    return CodecUtils.getCodec(bytes);
+        Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            var path = Path.Combine(Application.streamingAssetsPath, key.file);
+#else
+            var path = "file://" + Path.Combine(Application.streamingAssetsPath, key.file);
+#endif
+            using(var unpackerWWW = UnityWebRequest.Get(path)) {
+                unpackerWWW.SendWebRequest();
+                while (!unpackerWWW.isDone) {
+                } // This will block in the webplayer.
+                if (unpackerWWW.isNetworkError || unpackerWWW.isHttpError) {
+                    throw new Exception($"Failed to get file \"{path}\": {unpackerWWW.error}");
                 }
 
-                return CodecUtils.getCodec(new Image((Texture2D) obj));
-            });
+                var data = unpackerWWW.downloadHandler.data;
+                if (data.Length > 0) {
+                    return decode(data);
+                }
+
+                throw new Exception("not loaded");
+            }
         }
 
         IEnumerator _loadBytes(FileImage key) {
@@ -543,7 +859,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return string.Equals(this.file, other.file) && this.scale.Equals(other.scale);
+            return string.Equals(file, other.file) && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -555,16 +871,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((FileImage) obj);
+            return Equals((FileImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.file != null ? this.file.GetHashCode() : 0) * 397) ^ this.scale.GetHashCode();
+                return ((file != null ? file.GetHashCode() : 0) * 397) ^ scale.GetHashCode();
             }
         }
 
@@ -577,7 +893,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(\"{this.file}\", scale: {this.scale})";
+            return $"{foundation_.objectRuntimeType(this, "FileImage")}({file}, scale: {scale})";
         }
     }
 
@@ -592,20 +908,21 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float scale;
 
-        protected override IPromise<MemoryImage> obtainKey(ImageConfiguration configuration) {
-            return Promise<MemoryImage>.Resolved(this);
+        public override Future<MemoryImage> obtainKey(ImageConfiguration configuration) {
+            return new SynchronousFuture<MemoryImage>(this);
+            //Future.value(FutureOr.value(this)).to<MemoryImage>();
         }
 
-        protected override ImageStreamCompleter load(MemoryImage key) {
+        public override ImageStreamCompleter load(MemoryImage key, DecoderCallback decode) {
             return new MultiFrameImageStreamCompleter(
-                this._loadAsync(key),
+                _loadAsync(key, decode),
                 scale: key.scale);
         }
 
-        IPromise<Codec> _loadAsync(MemoryImage key) {
+        Future<Codec> _loadAsync(MemoryImage key, DecoderCallback decode) {
             D.assert(key == this);
 
-            return CodecUtils.getCodec(this.bytes);
+            return decode(bytes);
         }
 
         public bool Equals(MemoryImage other) {
@@ -617,7 +934,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.bytes, other.bytes) && this.scale.Equals(other.scale);
+            return Equals(bytes, other.bytes) && scale.Equals(other.scale);
         }
 
         public override bool Equals(object obj) {
@@ -629,16 +946,16 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((MemoryImage) obj);
+            return Equals((MemoryImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.bytes != null ? this.bytes.GetHashCode() : 0) * 397) ^ this.scale.GetHashCode();
+                return ((bytes != null ? bytes.GetHashCode() : 0) * 397) ^ scale.GetHashCode();
             }
         }
 
@@ -651,7 +968,8 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({Diagnostics.describeIdentity(this.bytes)}), scale: {this.scale}";
+            return
+                $"{foundation_.objectRuntimeType(this, "MemoryImage")}({foundation_.describeIdentity(bytes)}), scale: {scale}";
         }
     }
 
@@ -673,11 +991,11 @@ namespace Unity.UIWidgets.painting {
 
         public readonly AssetBundle bundle;
 
-        protected override IPromise<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
-            return Promise<AssetBundleImageKey>.Resolved(new AssetBundleImageKey(
-                bundle: this.bundle ? this.bundle : configuration.bundle,
-                name: this.assetName,
-                scale: this.scale
+        public override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
+            return new SynchronousFuture<AssetBundleImageKey>(new AssetBundleImageKey(
+                bundle: bundle ? bundle : configuration.bundle,
+                name: assetName,
+                scale: scale
             ));
         }
 
@@ -690,8 +1008,8 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return string.Equals(this.assetName, other.assetName) && this.scale.Equals(other.scale) &&
-                   Equals(this.bundle, other.bundle);
+            return string.Equals(assetName, other.assetName) && scale.Equals(other.scale) &&
+                   Equals(bundle, other.bundle);
         }
 
         public override bool Equals(object obj) {
@@ -703,18 +1021,18 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ExactAssetImage) obj);
+            return Equals((ExactAssetImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.assetName != null ? this.assetName.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.scale.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this.bundle != null ? this.bundle.GetHashCode() : 0);
+                var hashCode = (assetName != null ? assetName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ scale.GetHashCode();
+                hashCode = (hashCode * 397) ^ (bundle != null ? bundle.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -728,7 +1046,46 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(name: \"{this.assetName}\", scale: {this.scale}, bundle: {this.bundle})";
+            return
+                $"{foundation_.objectRuntimeType(this, "ExactAssetImage")}(name: \"{assetName}\", scale: {scale}, bundle: {bundle})";
         }
+    }
+
+    internal class _ErrorImageCompleter : ImageStreamCompleter {
+        internal _ErrorImageCompleter() {
+        }
+
+        public void setError(
+            DiagnosticsNode context,
+            Exception exception,
+            string stack,
+            InformationCollector informationCollector,
+            bool silent = false
+        ) {
+            reportError(
+                context: context,
+                exception: exception,
+                informationCollector: informationCollector,
+                silent: silent
+            );
+        }
+    }
+
+    public class NetworkImageLoadException : Exception {
+        NetworkImageLoadException(int statusCode, Uri uri) {
+            D.assert(uri != null);
+            D.assert(statusCode != null);
+            this.statusCode = statusCode;
+            this.uri = uri;
+            _message = $"HTTP request failed, statusCode: {statusCode}, {uri}";
+        }
+
+        public readonly int statusCode;
+
+        readonly string _message;
+
+        public readonly Uri uri;
+
+        public override string ToString() => _message;
     }
 }

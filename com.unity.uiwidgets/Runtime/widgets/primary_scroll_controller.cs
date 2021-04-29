@@ -11,7 +11,7 @@ namespace Unity.UIWidgets.widgets {
             this.controller = controller;
         }
 
-        PrimaryScrollController(
+        public PrimaryScrollController(
             Key key = null,
             Widget child = null
         ) : base(key: key, child: child) {
@@ -27,18 +27,17 @@ namespace Unity.UIWidgets.widgets {
         public readonly ScrollController controller;
 
         public static ScrollController of(BuildContext context) {
-            PrimaryScrollController result =
-                (PrimaryScrollController) context.inheritFromWidgetOfExactType(typeof(PrimaryScrollController));
-            return result == null ? null : result.controller;
+            PrimaryScrollController result = context.dependOnInheritedWidgetOfExactType<PrimaryScrollController>();
+            return result?.controller;
         }
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.controller != ((PrimaryScrollController) oldWidget).controller;
+            return controller != ((PrimaryScrollController) oldWidget).controller;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<ScrollController>("controller", this.controller,
+            properties.add(new DiagnosticsProperty<ScrollController>("controller", controller,
                 ifNull: "no controller", showName: false));
         }
     }

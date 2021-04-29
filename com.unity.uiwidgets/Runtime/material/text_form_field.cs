@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace UIWidgets.Runtime.material {
@@ -22,15 +24,24 @@ namespace UIWidgets.Runtime.material {
             StrutStyle strutStyle = null,
             TextDirection? textDirection = null,
             TextAlign textAlign = TextAlign.left,
+            TextAlignVertical textAlignVertical = null,
             bool autofocus = false,
+            bool readOnly = false,
+            ToolbarOptions toolbarOptions = null,
+            bool? showCursor = null,
             bool obscureText = false,
             bool autocorrect = true,
+            SmartDashesType? smartDashesType = null,
+            SmartQuotesType? smartQuotesType = null,
+            bool enableSuggestions = true,
             bool autovalidate = false,
             bool maxLengthEnforced = true,
             int? maxLines = 1,
             int? minLines = null,
             bool expands = false,
             int? maxLength = null,
+            ValueChanged<string> onChanged = null,
+            GestureTapCallback onTap = null,
             VoidCallback onEditingComplete = null,
             ValueChanged<string> onFieldSubmitted = null,
             FormFieldSetter<string> onSaved = null,
@@ -43,7 +54,8 @@ namespace UIWidgets.Runtime.material {
             Brightness? keyboardAppearance = null,
             EdgeInsets scrollPadding = null,
             bool enableInteractiveSelection = true,
-            InputCounterWidgetBuilder buildCounter = null
+            InputCounterWidgetBuilder buildCounter = null,
+            ScrollPhysics scrollPhysics = null
         ) : base(
             key: key,
             initialValue: controller != null ? controller.text : (initialValue ?? ""),
@@ -55,6 +67,15 @@ namespace UIWidgets.Runtime.material {
                 _TextFormFieldState state = (_TextFormFieldState) field;
                 InputDecoration effectiveDecoration = (decoration ?? new InputDecoration())
                     .applyDefaults(Theme.of(field.context).inputDecorationTheme);
+
+                void onChangedHandler(string value) {
+                    if (onChanged != null) {
+                        onChanged(value);
+                    }
+
+                    field.didChange(value);
+                }
+
                 return new TextField(
                     controller: state._effectiveController,
                     focusNode: focusNode,
@@ -64,17 +85,27 @@ namespace UIWidgets.Runtime.material {
                     style: style,
                     strutStyle: strutStyle,
                     textAlign: textAlign,
+                    textAlignVertical: textAlignVertical,
                     textDirection: textDirection ?? TextDirection.ltr,
                     textCapitalization: textCapitalization,
                     autofocus: autofocus,
+                    toolbarOptions: toolbarOptions,
+                    readOnly: readOnly,
+                    showCursor: showCursor,
                     obscureText: obscureText,
                     autocorrect: autocorrect,
+                    smartDashesType: smartDashesType ??
+                                     (obscureText ? SmartDashesType.disabled : SmartDashesType.enabled),
+                    smartQuotesType: smartQuotesType ??
+                                     (obscureText ? SmartQuotesType.disabled : SmartQuotesType.enabled),
+                    enableSuggestions: enableSuggestions,
                     maxLengthEnforced: maxLengthEnforced,
                     maxLines: maxLines,
                     minLines: minLines,
                     expands: expands,
                     maxLength: maxLength,
-                    onChanged: field.didChange,
+                    onChanged: onChangedHandler,
+                    onTap: onTap,
                     onEditingComplete: onEditingComplete,
                     onSubmitted: onFieldSubmitted,
                     inputFormatters: inputFormatters,
@@ -83,6 +114,7 @@ namespace UIWidgets.Runtime.material {
                     cursorRadius: cursorRadius,
                     cursorColor: cursorColor,
                     scrollPadding: scrollPadding ?? EdgeInsets.all(20.0f),
+                    scrollPhysics: scrollPhysics,
                     keyboardAppearance: keyboardAppearance,
                     enableInteractiveSelection: enableInteractiveSelection,
                     buildCounter: buildCounter
@@ -97,6 +129,7 @@ namespace UIWidgets.Runtime.material {
                 () => "minLines can't be greater than maxLines");
             D.assert(!expands || (maxLines == null && minLines == null),
                 () => "minLines and maxLines must be null when expands is true.");
+            D.assert(!obscureText || maxLines == 1, () => "Obscured fields cannot be multiline.");
             D.assert(maxLength == null || maxLength > 0);
             this.controller = controller;
         }
@@ -112,7 +145,7 @@ namespace UIWidgets.Runtime.material {
         TextEditingController _controller;
 
         public TextEditingController _effectiveController {
-            get { return this.widget.controller ?? this._controller; }
+            get { return widget.controller ?? _controller; }
         }
 
         public new TextFormField widget {
@@ -121,47 +154,47 @@ namespace UIWidgets.Runtime.material {
 
         public override void initState() {
             base.initState();
-            if (this.widget.controller == null) {
-                this._controller = new TextEditingController(text: this.widget.initialValue);
+            if (widget.controller == null) {
+                _controller = new TextEditingController(text: widget.initialValue);
             }
             else {
-                this.widget.controller.addListener(this._handleControllerChanged);
+                widget.controller.addListener(_handleControllerChanged);
             }
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             TextFormField oldWidget = _oldWidget as TextFormField;
             base.didUpdateWidget(oldWidget);
-            if (this.widget.controller != oldWidget.controller) {
-                oldWidget.controller?.removeListener(this._handleControllerChanged);
-                this.widget.controller?.addListener(this._handleControllerChanged);
+            if (widget.controller != oldWidget.controller) {
+                oldWidget.controller?.removeListener(_handleControllerChanged);
+                widget.controller?.addListener(_handleControllerChanged);
 
-                if (oldWidget.controller != null && this.widget.controller == null) {
-                    this._controller = TextEditingController.fromValue(oldWidget.controller.value);
+                if (oldWidget.controller != null && widget.controller == null) {
+                    _controller = TextEditingController.fromValue(oldWidget.controller.value);
                 }
 
-                if (this.widget.controller != null) {
-                    this.setValue(this.widget.controller.text);
+                if (widget.controller != null) {
+                    setValue(widget.controller.text);
                     if (oldWidget.controller == null) {
-                        this._controller = null;
+                        _controller = null;
                     }
                 }
             }
         }
 
         public override void dispose() {
-            this.widget.controller?.removeListener(this._handleControllerChanged);
+            widget.controller?.removeListener(_handleControllerChanged);
             base.dispose();
         }
 
         public override void reset() {
             base.reset();
-            this.setState(() => { this._effectiveController.text = (string) this.widget.initialValue; });
+            setState(() => { _effectiveController.text = (string) widget.initialValue; });
         }
 
         void _handleControllerChanged() {
-            if (this._effectiveController.text != this.value) {
-                this.didChange(this._effectiveController.text);
+            if (_effectiveController.text != value) {
+                didChange(_effectiveController.text);
             }
         }
     }

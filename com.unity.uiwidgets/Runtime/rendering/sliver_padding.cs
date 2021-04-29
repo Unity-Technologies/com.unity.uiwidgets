@@ -7,311 +7,316 @@ using UnityEngine;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.rendering {
-    public class RenderSliverPadding : RenderObjectWithChildMixinRenderSliver<RenderSliver> {
-        public RenderSliverPadding(
-            EdgeInsets padding = null,
-            RenderSliver child = null
-        ) {
-            D.assert(padding != null);
-            D.assert(padding.isNonNegative);
+    
+    public abstract class RenderSliverEdgeInsetsPadding : RenderObjectWithChildMixinRenderSliver<RenderSliver> {
 
-            this._padding = padding;
-            this.child = child;
-        }
-
-        public EdgeInsets padding {
-            get { return this._padding; }
-            set {
-                D.assert(value != null);
-                D.assert(value.isNonNegative);
-                if (this._padding == value) {
-                    return;
-                }
-
-                this._padding = value;
-                this.markNeedsLayout();
-            }
-        }
-
-        EdgeInsets _padding;
-
-        public float beforePadding {
+        protected virtual EdgeInsets resolvedPadding { get; }
+        
+        float?  beforePadding {
             get {
-                D.assert(this.constraints != null);
-
-                switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(
-                    this.constraints.axisDirection, this.constraints.growthDirection)) {
+                D.assert(constraints != null);
+                D.assert(constraints.axisDirection != null);
+                D.assert(resolvedPadding != null);
+                switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
                     case AxisDirection.up:
-                        return this._padding.bottom;
+                        return resolvedPadding.bottom;
                     case AxisDirection.right:
-                        return this._padding.left;
+                        return resolvedPadding.left;
                     case AxisDirection.down:
-                        return this._padding.top;
+                        return resolvedPadding.top;
                     case AxisDirection.left:
-                        return this._padding.right;
+                        return resolvedPadding.right;
                 }
-
-                return 0.0f;
+                return null;
             }
+
         }
-
-        public float afterPadding {
-            get {
-                D.assert(this.constraints != null);
-
-                switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(
-                    this.constraints.axisDirection, this.constraints.growthDirection)) {
+        float?  afterPadding { 
+            get { 
+                D.assert(constraints != null);
+                D.assert(constraints.axisDirection != null);
+                D.assert(resolvedPadding != null);
+                switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
                     case AxisDirection.up:
-                        return this._padding.top;
+                        return resolvedPadding.top;
                     case AxisDirection.right:
-                        return this._padding.right;
+                        return resolvedPadding.right;
                     case AxisDirection.down:
-                        return this._padding.bottom;
+                        return resolvedPadding.bottom;
                     case AxisDirection.left:
-                        return this._padding.left;
+                        return resolvedPadding.left;
                 }
-
-                return 0.0f;
+                return null;
+            }
+        }
+        float?  mainAxisPadding { 
+            get { 
+                D.assert(constraints != null);
+                D.assert(constraints.axis != null);
+                D.assert(resolvedPadding != null);
+                return resolvedPadding.along(constraints.axis);
             }
         }
 
-        public float mainAxisPadding {
-            get {
-                D.assert(this.constraints != null);
-
-                return this._padding.along(this.constraints.axis);
-            }
-        }
-
-        public float crossAxisPadding {
-            get {
-                D.assert(this.constraints != null);
-
-                switch (this.constraints.axis) {
+        float? crossAxisPadding {
+            get { 
+                D.assert(constraints != null);
+                D.assert(constraints.axis != null);
+                D.assert(resolvedPadding != null);
+                switch (constraints.axis) {
                     case Axis.horizontal:
-                        return this._padding.vertical;
+                        return resolvedPadding.vertical;
                     case Axis.vertical:
-                        return this._padding.horizontal;
+                        return resolvedPadding.horizontal;
                 }
-
-                D.assert(false);
-                return 0.0f;
+                return null;
             }
         }
-
         public override void setupParentData(RenderObject child) {
-            if (!(child.parentData is SliverPhysicalParentData)) {
+            if (!(child.parentData is SliverPhysicalParentData)) 
                 child.parentData = new SliverPhysicalParentData();
-            }
         }
-
         protected override void performLayout() {
-            float beforePadding = this.beforePadding;
-            float afterPadding = this.afterPadding;
-            float mainAxisPadding = this.mainAxisPadding;
-            float crossAxisPadding = this.crossAxisPadding;
-            if (this.child == null) {
-                this.geometry = new SliverGeometry(
-                    scrollExtent: mainAxisPadding,
-                    paintExtent: Mathf.Min(mainAxisPadding, this.constraints.remainingPaintExtent),
-                    maxPaintExtent: mainAxisPadding
-                );
-                return;
-            }
-
-            this.child.layout(
-                this.constraints.copyWith(
-                    scrollOffset: Mathf.Max(0.0f, this.constraints.scrollOffset - beforePadding),
-                    cacheOrigin: Mathf.Min(0.0f, this.constraints.cacheOrigin + beforePadding),
-                    overlap: 0.0f,
-                    remainingPaintExtent: this.constraints.remainingPaintExtent -
-                                          this.calculatePaintOffset(this.constraints, from: 0.0f, to: beforePadding),
-                    remainingCacheExtent: this.constraints.remainingCacheExtent -
-                                          this.calculateCacheOffset(this.constraints, from: 0.0f, to: beforePadding),
-                    crossAxisExtent: Mathf.Max(0.0f, this.constraints.crossAxisExtent - crossAxisPadding)
-                ),
+            SliverConstraints constraints = this.constraints; 
+            D.assert(resolvedPadding != null);
+            float? beforePadding = this.beforePadding;
+            float? afterPadding = this.afterPadding;
+            float? mainAxisPadding = this.mainAxisPadding;
+            float? crossAxisPadding = this.crossAxisPadding; 
+            if (child == null) { 
+                geometry = new SliverGeometry(
+                    scrollExtent: mainAxisPadding ?? 0.0f, 
+                    paintExtent: Mathf.Min(mainAxisPadding ?? 0.0f, constraints.remainingPaintExtent), 
+                    maxPaintExtent: mainAxisPadding ?? 0.0f
+                    ); 
+                return; 
+            } 
+            child.layout(
+                constraints.copyWith(
+                    scrollOffset: Mathf.Max(0.0f, constraints.scrollOffset - beforePadding ?? 0.0f), 
+                    cacheOrigin: Mathf.Min(0.0f, constraints.cacheOrigin + beforePadding ?? 0.0f), 
+                    overlap: 0.0f, 
+                    remainingPaintExtent: constraints.remainingPaintExtent - calculatePaintOffset(constraints, from: 0.0f, to: beforePadding ?? 0.0f), 
+                    remainingCacheExtent: constraints.remainingCacheExtent - calculateCacheOffset(constraints, from: 0.0f, to: beforePadding ?? 0.0f), 
+                    crossAxisExtent: Mathf.Max(0.0f, constraints.crossAxisExtent - crossAxisPadding ?? 0.0f), 
+                    precedingScrollExtent: beforePadding ?? 0.0f + constraints.precedingScrollExtent
+                    ), 
                 parentUsesSize: true
-            );
-
-            SliverGeometry childLayoutGeometry = this.child.geometry;
-            if (childLayoutGeometry.scrollOffsetCorrection != null) {
-                this.geometry = new SliverGeometry(
+            ); 
+            SliverGeometry childLayoutGeometry = child.geometry; 
+            if (childLayoutGeometry.scrollOffsetCorrection != null) { 
+                geometry = new SliverGeometry(
                     scrollOffsetCorrection: childLayoutGeometry.scrollOffsetCorrection
-                );
-                return;
-            }
-
-            float beforePaddingPaintExtent = this.calculatePaintOffset(
-                this.constraints,
-                from: 0.0f,
-                to: beforePadding
-            );
-
-            float afterPaddingPaintExtent = this.calculatePaintOffset(
-                this.constraints,
-                from: beforePadding + childLayoutGeometry.scrollExtent,
-                to: mainAxisPadding + childLayoutGeometry.scrollExtent
-            );
-
-            float mainAxisPaddingPaintExtent = beforePaddingPaintExtent + afterPaddingPaintExtent;
-            float beforePaddingCacheExtent = this.calculateCacheOffset(
-                this.constraints,
-                from: 0.0f,
-                to: beforePadding
-            );
-            float afterPaddingCacheExtent = this.calculateCacheOffset(
-                this.constraints,
-                from: beforePadding + childLayoutGeometry.scrollExtent,
-                to: mainAxisPadding + childLayoutGeometry.scrollExtent
-            );
-
-            float mainAxisPaddingCacheExtent = afterPaddingCacheExtent + beforePaddingCacheExtent;
+                    ); 
+                return; 
+            } 
+            float beforePaddingPaintExtent = calculatePaintOffset(
+                constraints, 
+                from: 0.0f, 
+                to: beforePadding ?? 0.0f
+                ); 
+            float afterPaddingPaintExtent = calculatePaintOffset(
+                constraints, 
+                from: beforePadding ?? 0.0f + childLayoutGeometry.scrollExtent, 
+                to: mainAxisPadding ?? 0.0f + childLayoutGeometry.scrollExtent
+                ); 
+            float mainAxisPaddingPaintExtent = beforePaddingPaintExtent + afterPaddingPaintExtent; 
+            float beforePaddingCacheExtent = calculateCacheOffset(
+                constraints, 
+                from: 0.0f, 
+                to: beforePadding ?? 0.0f
+                ); 
+            float afterPaddingCacheExtent = calculateCacheOffset(
+                constraints, 
+                from: beforePadding ?? 0.0f  + childLayoutGeometry.scrollExtent, 
+                to: mainAxisPadding ?? 0.0f + childLayoutGeometry.scrollExtent
+                ); 
+            float mainAxisPaddingCacheExtent = afterPaddingCacheExtent + beforePaddingCacheExtent; 
             float paintExtent = Mathf.Min(
-                beforePaddingPaintExtent + Mathf.Max(childLayoutGeometry.paintExtent,
-                    childLayoutGeometry.layoutExtent + afterPaddingPaintExtent),
-                this.constraints.remainingPaintExtent
-            );
-
-            this.geometry = new SliverGeometry(
-                scrollExtent: mainAxisPadding + childLayoutGeometry.scrollExtent,
-                paintExtent: paintExtent,
-                layoutExtent: Mathf.Min(mainAxisPaddingPaintExtent + childLayoutGeometry.layoutExtent,
-                    paintExtent),
-                cacheExtent: Mathf.Min(mainAxisPaddingCacheExtent + childLayoutGeometry.cacheExtent,
-                    this.constraints.remainingCacheExtent),
-                maxPaintExtent: mainAxisPadding + childLayoutGeometry.maxPaintExtent,
+                beforePaddingPaintExtent + Mathf.Max(childLayoutGeometry.paintExtent, childLayoutGeometry.layoutExtent + afterPaddingPaintExtent), 
+                constraints.remainingPaintExtent
+                ); 
+            geometry = new SliverGeometry(
+                scrollExtent: (mainAxisPadding ?? 0.0f) + childLayoutGeometry.scrollExtent, 
+                paintExtent: paintExtent, 
+                layoutExtent: Mathf.Min(mainAxisPaddingPaintExtent + childLayoutGeometry.layoutExtent, paintExtent), 
+                cacheExtent: Mathf.Min(mainAxisPaddingCacheExtent + childLayoutGeometry.cacheExtent, constraints.remainingCacheExtent), 
+                maxPaintExtent: (mainAxisPadding ?? 0.0f) + childLayoutGeometry.maxPaintExtent, 
                 hitTestExtent: Mathf.Max(
-                    mainAxisPaddingPaintExtent + childLayoutGeometry.paintExtent,
+                    mainAxisPaddingPaintExtent + childLayoutGeometry.paintExtent, 
                     beforePaddingPaintExtent + childLayoutGeometry.hitTestExtent
-                ),
+                    ), 
                 hasVisualOverflow: childLayoutGeometry.hasVisualOverflow
-            );
-
-            var childParentData = (SliverPhysicalParentData) this.child.parentData;
-            switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(this.constraints.axisDirection,
-                this.constraints.growthDirection)) {
-                case AxisDirection.up:
-                    childParentData.paintOffset = new Offset(this._padding.left,
-                        this.calculatePaintOffset(this.constraints,
-                            from: this._padding.bottom + childLayoutGeometry.scrollExtent,
-                            to: this._padding.bottom + childLayoutGeometry.scrollExtent + this._padding.top));
-                    break;
+                );
+            SliverPhysicalParentData childParentData = child.parentData as SliverPhysicalParentData;
+            switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) { 
+                case AxisDirection.up: 
+                    childParentData.paintOffset = new Offset(resolvedPadding.left, calculatePaintOffset(constraints, from: resolvedPadding.bottom + childLayoutGeometry.scrollExtent, to: resolvedPadding.bottom + childLayoutGeometry.scrollExtent + resolvedPadding.top)); 
+                    break; 
                 case AxisDirection.right:
-                    childParentData.paintOffset =
-                        new Offset(this.calculatePaintOffset(this.constraints, from: 0.0f, to: this._padding.left),
-                            this._padding.top);
-                    break;
+                    childParentData.paintOffset = new Offset(calculatePaintOffset(constraints, from: 0.0f, to: resolvedPadding.left), resolvedPadding.top);
+                    break; 
                 case AxisDirection.down:
-                    childParentData.paintOffset = new Offset(this._padding.left,
-                        this.calculatePaintOffset(this.constraints, from: 0.0f, to: this._padding.top));
-                    break;
+                    childParentData.paintOffset = new Offset(resolvedPadding.left, calculatePaintOffset(constraints, from: 0.0f, to: resolvedPadding.top));
+                    break; 
                 case AxisDirection.left:
-                    childParentData.paintOffset = new Offset(
-                        this.calculatePaintOffset(this.constraints,
-                            from: this._padding.right + childLayoutGeometry.scrollExtent,
-                            to: this._padding.right + childLayoutGeometry.scrollExtent + this._padding.left),
-                        this._padding.top);
+                    childParentData.paintOffset = new Offset(calculatePaintOffset(constraints, from: resolvedPadding.right + childLayoutGeometry.scrollExtent, to: resolvedPadding.right + childLayoutGeometry.scrollExtent + resolvedPadding.left), resolvedPadding.top);
                     break;
             }
-
             D.assert(childParentData.paintOffset != null);
             D.assert(beforePadding == this.beforePadding);
             D.assert(afterPadding == this.afterPadding);
             D.assert(mainAxisPadding == this.mainAxisPadding);
             D.assert(crossAxisPadding == this.crossAxisPadding);
         }
-
-        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f,
-            float crossAxisPosition = 0.0f) {
-            if (this.child != null && this.child.geometry.hitTestExtent > 0.0) {
-                SliverPhysicalParentData childParentData = this.child.parentData as SliverPhysicalParentData;
+        protected override bool hitTestChildren(SliverHitTestResult result,  float mainAxisPosition = 0.0f,  float crossAxisPosition  = 0.0f) { 
+            if (child != null && child.geometry.hitTestExtent > 0.0) { 
+                SliverPhysicalParentData childParentData = child.parentData as SliverPhysicalParentData; 
                 result.addWithAxisOffset(
                     mainAxisPosition: mainAxisPosition,
                     crossAxisPosition: crossAxisPosition,
-                    mainAxisOffset: this.childMainAxisPosition(this.child),
-                    crossAxisOffset: this.childCrossAxisPosition(this.child),
+                    mainAxisOffset: childMainAxisPosition(child) ?? 0.0f,
+                    crossAxisOffset: (float)childCrossAxisPosition(child),
                     paintOffset: childParentData.paintOffset,
-                    hitTest: this.child.hitTest
+                    hitTest: child.hitTest
                 );
             }
-
             return false;
         }
-
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
+            child = (RenderSliver) child;
             D.assert(child != null);
             D.assert(child == this.child);
-
-            return this.calculatePaintOffset(this.constraints, from: 0.0f, to: this.beforePadding);
+            return calculatePaintOffset(constraints, from: 0.0f, to: beforePadding ?? 0.0f);
         }
-
-        public override float childCrossAxisPosition(RenderObject child) {
+        public override float? childCrossAxisPosition(RenderObject child) {
+            child = (RenderSliver) child;
             D.assert(child != null);
             D.assert(child == this.child);
-            D.assert(this.constraints != null);
-
-            switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(
-                this.constraints.axisDirection, this.constraints.growthDirection)) {
-                case AxisDirection.up:
-                case AxisDirection.down:
-                    return this._padding.left;
-                case AxisDirection.left:
-                case AxisDirection.right:
-                    return this._padding.top;
+            D.assert(constraints != null);
+            D.assert(constraints.axisDirection != null);
+            D.assert(resolvedPadding != null);
+            switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
+              case AxisDirection.up:
+              case AxisDirection.down:
+                return resolvedPadding.left;
+              case AxisDirection.left:
+              case AxisDirection.right:
+                return resolvedPadding.top;
             }
-
-            return 0.0f;
+            return null;
         }
-
-        public override float childScrollOffset(RenderObject child) {
+        public override float? childScrollOffset(RenderObject child) {
             D.assert(child.parent == this);
-
-            return this.beforePadding;
-        }
-
+            return beforePadding;
+        } 
         public override void applyPaintTransform(RenderObject child, Matrix4 transform) {
             D.assert(child != null);
             D.assert(child == this.child);
-
-            var childParentData = (SliverPhysicalParentData) child.parentData;
+             SliverPhysicalParentData childParentData = child.parentData as SliverPhysicalParentData;
             childParentData.applyPaintTransform(transform);
         }
-
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null && this.child.geometry.visible) {
-                var childParentData = (SliverPhysicalParentData) this.child.parentData;
-                context.paintChild(this.child, offset + childParentData.paintOffset);
+            if (child != null && child.geometry.visible) {
+               SliverPhysicalParentData childParentData = child.parentData as SliverPhysicalParentData;
+              context.paintChild(child, offset + childParentData.paintOffset);
             }
         }
-
         public override void debugPaint(PaintingContext context, Offset offset) {
-            base.debugPaint(context, offset);
-            D.assert(() => {
-                if (D.debugPaintSizeEnabled) {
-                    Size parentSize = this.getAbsoluteSizeRelativeToOrigin();
+            base.debugPaint(context, offset); 
+            D.assert(()=> { 
+                if (D.debugPaintSizeEnabled) { 
+                    Size parentSize = getAbsoluteSize();
                     Rect outerRect = offset & parentSize;
-                    Size childSize = null;
+                    Size childSize;
                     Rect innerRect = null;
-                    if (this.child != null) {
-                        childSize = this.child.getAbsoluteSizeRelativeToOrigin();
-                        var childParentData = (SliverPhysicalParentData) this.child.parentData;
-                        innerRect = (offset + childParentData.paintOffset) & childSize;
+                    if (child != null) {
+                        childSize = child.getAbsoluteSize(); 
+                        SliverPhysicalParentData childParentData = child.parentData as SliverPhysicalParentData; 
+                        innerRect = (offset + childParentData.paintOffset) & childSize; 
                         D.assert(innerRect.top >= outerRect.top);
                         D.assert(innerRect.left >= outerRect.left);
                         D.assert(innerRect.right <= outerRect.right);
                         D.assert(innerRect.bottom <= outerRect.bottom);
                     }
-
                     D.debugPaintPadding(context.canvas, outerRect, innerRect);
                 }
-
                 return true;
             });
         }
 
+       
+    }
+
+    public class RenderSliverPadding : RenderSliverEdgeInsetsPadding {
+        public RenderSliverPadding(
+            EdgeInsetsGeometry padding = null,
+            TextDirection? textDirection = null,
+            RenderSliver child = null
+        ) {
+            D.assert(padding != null);
+            D.assert(padding.isNonNegative);
+
+            _padding = padding;
+            _textDirection = textDirection ?? TextDirection.ltr;
+            this.child = child;
+        }
+
+        protected override EdgeInsets resolvedPadding {
+            get { return  _resolvedPadding;}
+        }
+        EdgeInsets _resolvedPadding;
+        
+        void _resolve() {
+            if (resolvedPadding != null)
+                return;
+            _resolvedPadding = padding.resolve(textDirection);
+            D.assert(resolvedPadding.isNonNegative);
+        }
+
+        void _markNeedsResolution() {
+            _resolvedPadding = null;
+            markNeedsLayout();
+        }
+        public EdgeInsetsGeometry padding {
+            get { return _padding; }
+            set {
+                D.assert(value != null);
+                D.assert(padding.isNonNegative);
+                if (_padding == value) {
+                    return;
+                }
+
+                _padding = value;
+                markNeedsLayout();
+            }
+        }
+
+        EdgeInsetsGeometry _padding;
+
+        public TextDirection textDirection {
+            get { return _textDirection;}
+            set {
+                if (_textDirection == value)
+                    return;
+                _textDirection = value;
+                _markNeedsResolution();
+            }
+        }
+        TextDirection _textDirection;
+
+        protected override void performLayout() {
+            _resolve();
+            base.performLayout();
+        }
+
+       
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding));
+            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
         }
+
+        
     }
 }

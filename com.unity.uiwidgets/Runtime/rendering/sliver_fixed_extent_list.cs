@@ -17,20 +17,29 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected virtual int getMinChildIndexForScrollOffset(float scrollOffset, float itemExtent) {
-            return itemExtent > 0.0 ? Mathf.Max(0, (int) (scrollOffset / itemExtent)) : 0;
+            if (itemExtent > 0.0) {
+                float actual = scrollOffset / itemExtent;
+                int round = actual.round();
+                if ((actual - round).abs() < foundation_.precisionErrorTolerance) {
+                    return round;
+                }
+                return actual.floor();
+            }
+            return 0;
         }
 
         protected virtual int getMaxChildIndexForScrollOffset(float scrollOffset, float itemExtent) {
             return itemExtent > 0.0 ? Mathf.Max(0, (int) Mathf.Ceil(scrollOffset / itemExtent) - 1) : 0;
         }
 
-        protected virtual float estimateMaxScrollOffset(SliverConstraints constraints,
+        protected virtual float estimateMaxScrollOffset(
+            SliverConstraints constraints,
             int firstIndex = 0,
             int lastIndex = 0,
             float leadingScrollOffset = 0.0f,
             float trailingScrollOffset = 0.0f
         ) {
-            return this.childManager.estimateMaxScrollOffset(
+            return childManager.estimateMaxScrollOffset(
                 constraints,
                 firstIndex: firstIndex,
                 lastIndex: lastIndex,
@@ -40,83 +49,129 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected float computeMaxScrollOffset(SliverConstraints constraints, float itemExtent) {
-            return this.childManager.childCount.Value * itemExtent;
+            return childManager.childCount.Value * itemExtent;
         }
 
+        int _calculateLeadingGarbage(int firstIndex) {
+            RenderBox walker = firstChild;
+            int leadingGarbage = 0;
+            while(walker != null && indexOf(walker) < firstIndex){
+                leadingGarbage += 1;
+                walker = childAfter(walker);
+            }
+            return leadingGarbage;
+        }
+
+        int _calculateTrailingGarbage(int targetLastIndex) {
+            RenderBox walker = lastChild;
+            int trailingGarbage = 0;
+            while(walker != null && indexOf(walker) > targetLastIndex){
+                trailingGarbage += 1;
+                walker = childBefore(walker);
+            }
+            return trailingGarbage;
+        }
+
+
         protected override void performLayout() {
-            this.childManager.didStartLayout();
-            this.childManager.setDidUnderflow(false);
+            SliverConstraints constraints = this.constraints;
+            childManager.didStartLayout();
+            childManager.setDidUnderflow(false);
 
             float itemExtent = this.itemExtent;
 
-            float scrollOffset = this.constraints.scrollOffset + this.constraints.cacheOrigin;
+            float scrollOffset = constraints.scrollOffset + constraints.cacheOrigin;
             D.assert(scrollOffset >= 0.0);
-            float remainingExtent = this.constraints.remainingCacheExtent;
+            float remainingExtent = constraints.remainingCacheExtent;
             D.assert(remainingExtent >= 0.0);
             float targetEndScrollOffset = scrollOffset + remainingExtent;
 
-            BoxConstraints childConstraints = this.constraints.asBoxConstraints(
+            BoxConstraints childConstraints = constraints.asBoxConstraints(
                 minExtent: itemExtent,
                 maxExtent: itemExtent
             );
 
-            int firstIndex = this.getMinChildIndexForScrollOffset(scrollOffset, itemExtent);
+            int firstIndex = getMinChildIndexForScrollOffset(scrollOffset, itemExtent);
             int? targetLastIndex = targetEndScrollOffset.isFinite()
-                ? this.getMaxChildIndexForScrollOffset(targetEndScrollOffset, itemExtent)
+                ? getMaxChildIndexForScrollOffset(targetEndScrollOffset, itemExtent)
                 : (int?) null;
 
-            if (this.firstChild != null) {
-                int oldFirstIndex = this.indexOf(this.firstChild);
-                int oldLastIndex = this.indexOf(this.lastChild);
-                int leadingGarbage = (firstIndex - oldFirstIndex).clamp(0, this.childCount);
-                int trailingGarbage =
-                    targetLastIndex == null ? 0 : (oldLastIndex - targetLastIndex.Value).clamp(0, this.childCount);
-                this.collectGarbage(leadingGarbage, trailingGarbage);
+            if (firstChild != null) {
+                int leadingGarbage = _calculateLeadingGarbage(firstIndex);
+                int trailingGarbage = targetLastIndex == null ? 0: _calculateTrailingGarbage(targetLastIndex.Value);
+                collectGarbage(leadingGarbage, trailingGarbage);
             }
             else {
-                this.collectGarbage(0, 0);
+                collectGarbage(0, 0);
             }
 
-            if (this.firstChild == null) {
-                if (!this.addInitialChild(index: firstIndex,
-                    layoutOffset: this.indexToLayoutOffset(itemExtent, firstIndex))) {
-                    float max = this.computeMaxScrollOffset(this.constraints, itemExtent);
-                    this.geometry = new SliverGeometry(
+            if (firstChild == null) {
+                if (!addInitialChild(index: firstIndex,
+                    layoutOffset: indexToLayoutOffset(itemExtent, firstIndex))) {
+                    float max;
+
+                    if (childManager.childCount != null) {
+                        max = computeMaxScrollOffset(constraints, itemExtent);
+                    }
+                    else if (firstIndex <= 0) {
+                        max = 0.0f;
+                    }
+                    else {
+                        // We will have to find it manually.
+                        int possibleFirstIndex = firstIndex - 1;
+                        while (
+                            possibleFirstIndex > 0 &&
+                            !addInitialChild(
+                                index: possibleFirstIndex,
+                                layoutOffset: indexToLayoutOffset(itemExtent, possibleFirstIndex)
+                            )
+                        ) {
+                            possibleFirstIndex -= 1;
+                        }
+
+                        max = possibleFirstIndex * itemExtent;
+                    }
+
+                    geometry = new SliverGeometry(
                         scrollExtent: max,
                         maxPaintExtent: max
                     );
-                    this.childManager.didFinishLayout();
+                    childManager.didFinishLayout();
                     return;
                 }
             }
 
             RenderBox trailingChildWithLayout = null;
 
-            for (int index = this.indexOf(this.firstChild) - 1; index >= firstIndex; --index) {
-                RenderBox child = this.insertAndLayoutLeadingChild(childConstraints);
+            for (int index = indexOf(firstChild) - 1; index >= firstIndex; --index) {
+                RenderBox child = insertAndLayoutLeadingChild(childConstraints);
                 if (child == null) {
-                    this.geometry = new SliverGeometry(scrollOffsetCorrection: index * itemExtent);
+                    geometry = new SliverGeometry(scrollOffsetCorrection: index * itemExtent);
                     return;
                 }
 
                 var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
-                childParentData.layoutOffset = this.indexToLayoutOffset(itemExtent, index);
+                childParentData.layoutOffset = indexToLayoutOffset(itemExtent, index);
                 D.assert(childParentData.index == index);
                 trailingChildWithLayout = trailingChildWithLayout ?? child;
             }
 
             if (trailingChildWithLayout == null) {
-                this.firstChild.layout(childConstraints);
-                var childParentData = (SliverMultiBoxAdaptorParentData) this.firstChild.parentData;
-                childParentData.layoutOffset = this.indexToLayoutOffset(itemExtent, firstIndex);
-                trailingChildWithLayout = this.firstChild;
+                firstChild.layout(childConstraints);
+                var childParentData = (SliverMultiBoxAdaptorParentData) firstChild.parentData;
+                childParentData.layoutOffset = indexToLayoutOffset(itemExtent, firstIndex);
+                trailingChildWithLayout = firstChild;
             }
 
-            while (targetLastIndex == null || this.indexOf(trailingChildWithLayout) < targetLastIndex) {
-                RenderBox child = this.childAfter(trailingChildWithLayout);
-                if (child == null) {
-                    child = this.insertAndLayoutChild(childConstraints, after: trailingChildWithLayout);
+            float estimatedMaxScrollOffset = float.PositiveInfinity;
+            for (int index = indexOf(trailingChildWithLayout) + 1;
+                targetLastIndex == null || index <= targetLastIndex;
+                ++index) {
+                RenderBox child = childAfter(trailingChildWithLayout);
+                if (child == null || indexOf(child) != index) {
+                    child = insertAndLayoutChild(childConstraints, after: trailingChildWithLayout);
                     if (child == null) {
+                        estimatedMaxScrollOffset = index * itemExtent;
                         break;
                     }
                 }
@@ -125,60 +180,64 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 trailingChildWithLayout = child;
-                D.assert(child != null);
                 var childParentData = (SliverMultiBoxAdaptorParentData) child.parentData;
-                childParentData.layoutOffset = this.indexToLayoutOffset(itemExtent, childParentData.index);
+                D.assert(childParentData.index == index);
+                childParentData.layoutOffset = indexToLayoutOffset(itemExtent, childParentData.index);
             }
 
-            int lastIndex = this.indexOf(this.lastChild);
-            float leadingScrollOffset = this.indexToLayoutOffset(itemExtent, firstIndex);
-            float trailingScrollOffset = this.indexToLayoutOffset(itemExtent, lastIndex + 1);
+            int lastIndex = indexOf(lastChild);
+            float leadingScrollOffset = indexToLayoutOffset(itemExtent, firstIndex);
+            float trailingScrollOffset = indexToLayoutOffset(itemExtent, lastIndex + 1);
 
-            D.assert(firstIndex == 0 || this.childScrollOffset(this.firstChild) <= scrollOffset);
-            D.assert(this.debugAssertChildListIsNonEmptyAndContiguous());
-            D.assert(this.indexOf(this.firstChild) == firstIndex);
+            D.assert(firstIndex == 0 ||
+                     childScrollOffset(firstChild) - scrollOffset <= foundation_.precisionErrorTolerance);
+            D.assert(debugAssertChildListIsNonEmptyAndContiguous());
+            D.assert(indexOf(firstChild) == firstIndex);
             D.assert(targetLastIndex == null || lastIndex <= targetLastIndex);
 
 
-            float estimatedMaxScrollOffset = this.estimateMaxScrollOffset(
-                this.constraints,
-                firstIndex: firstIndex,
-                lastIndex: lastIndex,
-                leadingScrollOffset: leadingScrollOffset,
-                trailingScrollOffset: trailingScrollOffset
+            estimatedMaxScrollOffset = Mathf.Min(
+                estimatedMaxScrollOffset,
+                estimateMaxScrollOffset(
+                    constraints,
+                    firstIndex: firstIndex,
+                    lastIndex: lastIndex,
+                    leadingScrollOffset: leadingScrollOffset,
+                    trailingScrollOffset: trailingScrollOffset
+                )
             );
 
-            float paintExtent = this.calculatePaintOffset(
-                this.constraints,
+            float paintExtent = calculatePaintOffset(
+                constraints,
                 from: leadingScrollOffset,
                 to: trailingScrollOffset
             );
 
-            float cacheExtent = this.calculateCacheOffset(
-                this.constraints,
+            float cacheExtent = calculateCacheOffset(
+                constraints,
                 from: leadingScrollOffset,
                 to: trailingScrollOffset
             );
 
             float targetEndScrollOffsetForPaint =
-                this.constraints.scrollOffset + this.constraints.remainingPaintExtent;
+                constraints.scrollOffset + constraints.remainingPaintExtent;
             int? targetLastIndexForPaint = targetEndScrollOffsetForPaint.isFinite()
-                ? this.getMaxChildIndexForScrollOffset(targetEndScrollOffsetForPaint, itemExtent)
+                ? getMaxChildIndexForScrollOffset(targetEndScrollOffsetForPaint, itemExtent)
                 : (int?) null;
-            this.geometry = new SliverGeometry(
+            geometry = new SliverGeometry(
                 scrollExtent: estimatedMaxScrollOffset,
                 paintExtent: paintExtent,
                 cacheExtent: cacheExtent,
                 maxPaintExtent: estimatedMaxScrollOffset,
                 hasVisualOverflow: (targetLastIndexForPaint != null && lastIndex >= targetLastIndexForPaint)
-                                   || this.constraints.scrollOffset > 0.0
+                                   || constraints.scrollOffset > 0.0
             );
 
             if (estimatedMaxScrollOffset == trailingScrollOffset) {
-                this.childManager.setDidUnderflow(true);
+                childManager.setDidUnderflow(true);
             }
 
-            this.childManager.didFinishLayout();
+            childManager.didFinishLayout();
         }
     }
 
@@ -187,18 +246,18 @@ namespace Unity.UIWidgets.rendering {
             RenderSliverBoxChildManager childManager = null,
             float itemExtent = 0.0f
         ) : base(childManager: childManager) {
-            this._itemExtent = itemExtent;
+            _itemExtent = itemExtent;
         }
 
         public override float itemExtent {
-            get { return this._itemExtent; }
+            get { return _itemExtent; }
             set {
-                if (this._itemExtent == value) {
+                if (_itemExtent == value) {
                     return;
                 }
 
-                this._itemExtent = value;
-                this.markNeedsLayout();
+                _itemExtent = value;
+                markNeedsLayout();
             }
         }
 

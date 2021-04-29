@@ -1,24 +1,57 @@
 using System.Collections.Generic;
+using uiwidgets;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
+using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample {
     
-    public class MaterialTabBarSample : UIWidgetsSamplePanel {
+    public class MaterialTabBarSample : UIWidgetsPanel {
 
-        protected override Widget createWidget() {
-            return new MaterialApp(
+        protected override void main() {
+            ui_.runApp(new MaterialApp(
                 showPerformanceOverlay: false,
-                home: new MaterialTabBarWidget());
+                home: new TabBarDemo()));
         }
 
-        protected override void OnEnable() {
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/MaterialIcons-Regular"), "Material Icons");
+        protected new void OnEnable() {
             base.OnEnable();
+        }
+    }
+
+    public class TabBarDemo : StatelessWidget
+    {
+        public override Widget build(BuildContext context)
+        {
+
+            return new MaterialTabBarWidget();
+            /*
+            return new DefaultTabController(
+                    length: 3,
+                    child: new Scaffold(
+                        appBar: new AppBar(
+                            bottom: new TabBar(
+                                tabs: new List<Widget> {
+                                new Tab(icon: new Icon(Icons.directions_car)),
+                                new Tab(icon: new Icon(Icons.directions_transit)),
+                                new Tab(icon: new Icon(Icons.directions_bike)),
+                            }
+                        ),
+                        title: new Text("Tabs Demo")
+                    ),
+                    body: new TabBarView(
+                        children: new List<Widget> {
+                            new Icon(Icons.directions_car),
+                            new Icon(Icons.directions_transit),
+                            new Icon(Icons.directions_bike),
+                    }
+                    )
+                )
+                );*/
         }
     }
     

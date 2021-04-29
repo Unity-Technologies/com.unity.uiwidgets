@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -16,9 +17,43 @@ namespace Unity.UIWidgets.widgets {
 
         void didChangeLocales(List<Locale> locale);
 
-        IPromise<bool> didPopRoute();
+        Future<bool> didPopRoute();
 
-        IPromise<bool> didPushRoute(string route);
+        Future<bool> didPushRoute(string route);
+
+        void didChangeAccessibilityFeatures();
+    }
+
+    public static partial class ui_ {
+        public static void Each<T>(this IEnumerable<T> source, Action<T> fn) {
+            foreach (var item in source) {
+                fn.Invoke(item);
+            }
+        }
+
+        public static void Each<T>(this IEnumerable<T> source, Action<T, int> fn) {
+            int index = 0;
+
+            foreach (T item in source) {
+                fn.Invoke(item, index);
+                index++;
+            }
+        }
+
+        /// <summary>
+        /// Convert a variable length argument list of items to an enumerable.
+        /// </summary>
+        public static IEnumerable<T> FromItems<T>(params T[] items) {
+            foreach (var item in items) {
+                yield return item;
+            }
+        }
+
+        public static void runApp(Widget app) {
+            var instance = UiWidgetsBinding.ensureInitialized();
+            instance.scheduleAttachRootWidget(app);
+            instance.scheduleWarmUpFrame();
+        }
     }
 
     public class WidgetsBinding : RendererBinding {
@@ -27,169 +62,196 @@ namespace Unity.UIWidgets.widgets {
             set { RendererBinding.instance = value; }
         }
 
-        public WidgetsBinding(bool inEditorWindow = false) : base(inEditorWindow) {
-            this.buildOwner.onBuildScheduled = this._handleBuildScheduled;
-            Window.instance.onLocaleChanged += this.handleLocaleChanged;
-            this.widgetInspectorService = new WidgetInspectorService(this);
-            this.addPersistentFrameCallback((duration) => {
-                TextBlobMesh.tickNextFrame();
-                TessellationGenerator.tickNextFrame();
-                uiTessellationGenerator.tickNextFrame();
-                uiPathCacheManager.tickNextFrame();
+        protected override void initInstances() {
+            base.initInstances();
+            instance = this;
+
+            D.assert(() => {
+                // _debugAddStackFilters();
+                return true;
             });
+
+            _buildOwner = new BuildOwner();
+            buildOwner.onBuildScheduled = _handleBuildScheduled;
+            window.onLocaleChanged += handleLocaleChanged;
+            widgetInspectorService = new WidgetInspectorService();
+
+            // window.onAccessibilityFeaturesChanged = handleAccessibilityFeaturesChanged;
+            // SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);
+            // FlutterErrorDetails.propertiesTransformers.add(transformDebugCreator);
         }
 
         public BuildOwner buildOwner {
-            get { return this._buildOwner; }
+            get { return _buildOwner; }
         }
 
-        readonly BuildOwner _buildOwner = new BuildOwner();
+        BuildOwner _buildOwner;
 
         public FocusManager focusManager {
-            get { return this._buildOwner.focusManager; }
+            get { return _buildOwner.focusManager; }
         }
 
         readonly List<WidgetsBindingObserver> _observers = new List<WidgetsBindingObserver>();
 
         public void addObserver(WidgetsBindingObserver observer) {
-            this._observers.Add(observer);
+            _observers.Add(observer);
         }
 
         public bool removeObserver(WidgetsBindingObserver observer) {
-            return this._observers.Remove(observer);
+            return _observers.Remove(observer);
         }
 
         public void handlePopRoute() {
             var idx = -1;
-            
+
             void _handlePopRouteSub(bool result) {
                 if (!result) {
                     idx++;
-                    if (idx >= this._observers.Count) {
+                    if (idx >= _observers.Count) {
                         Application.Quit();
                         return;
                     }
-                    this._observers[idx].didPopRoute().Then((Action<bool>) _handlePopRouteSub);
+
+                    _observers[idx].didPopRoute().then_(_handlePopRouteSub);
                 }
             }
-            
+
             _handlePopRouteSub(false);
         }
 
-        public readonly WidgetInspectorService widgetInspectorService;
+        public WidgetInspectorService widgetInspectorService;
 
         protected override void handleMetricsChanged() {
             base.handleMetricsChanged();
-            foreach (WidgetsBindingObserver observer in this._observers) {
+            foreach (WidgetsBindingObserver observer in _observers) {
                 observer.didChangeMetrics();
             }
         }
 
         protected override void handleTextScaleFactorChanged() {
             base.handleTextScaleFactorChanged();
-            foreach (WidgetsBindingObserver observer in this._observers) {
+            foreach (WidgetsBindingObserver observer in _observers) {
                 observer.didChangeTextScaleFactor();
             }
         }
-        
+
         protected override void handlePlatformBrightnessChanged() {
             base.handlePlatformBrightnessChanged();
-            foreach (WidgetsBindingObserver observer in this._observers) {
+            foreach (WidgetsBindingObserver observer in _observers) {
                 observer.didChangePlatformBrightness();
             }
         }
 
         protected virtual void handleLocaleChanged() {
-            this.dispatchLocalesChanged(Window.instance.locales);
+            dispatchLocalesChanged(Window.instance.locales);
         }
 
         protected virtual void dispatchLocalesChanged(List<Locale> locales) {
-            foreach (WidgetsBindingObserver observer in this._observers) {
+            foreach (WidgetsBindingObserver observer in _observers) {
                 observer.didChangeLocales(locales);
             }
         }
 
         void _handleBuildScheduled() {
             D.assert(() => {
-                if (this.debugBuildingDirtyElements) {
-                    throw new UIWidgetsError(
-                        "Build scheduled during frame.\n" +
-                        "While the widget tree was being built, laid out, and painted, " +
-                        "a new frame was scheduled to rebuild the widget tree. " +
-                        "This might be because setState() was called from a layout or " +
-                        "paint callback. " +
-                        "If a change is needed to the widget tree, it should be applied " +
-                        "as the tree is being built. Scheduling a change for the subsequent " +
-                        "frame instead results in an interface that lags behind by one frame. " +
-                        "If this was done to make your build dependent on a size measured at " +
-                        "layout time, consider using a LayoutBuilder, CustomSingleChildLayout, " +
-                        "or CustomMultiChildLayout. If, on the other hand, the one frame delay " +
-                        "is the desired effect, for example because this is an " +
-                        "animation, consider scheduling the frame in a post-frame callback " +
-                        "using SchedulerBinding.addPostFrameCallback or " +
-                        "using an AnimationController to trigger the animation."
-                    );
+                if (debugBuildingDirtyElements) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode>{
+                        new ErrorSummary("Build scheduled during frame."),
+                        new ErrorDescription(
+                            "While the widget tree was being built, laid out, and painted, " +
+                            "a new frame was scheduled to rebuild the widget tree."
+                        ),
+                        new ErrorHint(
+                            "This might be because setState() was called from a layout or " +
+                            "paint callback. " +
+                            "If a change is needed to the widget tree, it should be applied " +
+                            "as the tree is being built. Scheduling a change for the subsequent " +
+                            "frame instead results in an interface that lags behind by one frame. " +
+                            "If this was done to make your build dependent on a size measured at " +
+                            "layout time, consider using a LayoutBuilder, CustomSingleChildLayout, " +
+                            "or CustomMultiChildLayout. If, on the other hand, the one frame delay " +
+                            "is the desired effect, for example because this is an " +
+                            "animation, consider scheduling the frame in a post-frame callback " +
+                            "using SchedulerBinding.addPostFrameCallback or " +
+                            "using an AnimationController to trigger the animation."
+                        )
+                    });
                 }
 
                 return true;
             });
 
-            this.ensureVisualUpdate();
+            ensureVisualUpdate();
         }
 
         protected bool debugBuildingDirtyElements = false;
 
         protected override void drawFrame() {
-            D.assert(!this.debugBuildingDirtyElements);
+            D.assert(!debugBuildingDirtyElements);
             D.assert(() => {
-                this.debugBuildingDirtyElements = true;
+                debugBuildingDirtyElements = true;
                 return true;
             });
             try {
-                if (this.renderViewElement != null) {
-                    this.buildOwner.buildScope(this.renderViewElement);
+                if (renderViewElement != null) {
+                    buildOwner.buildScope(renderViewElement);
                 }
 
                 base.drawFrame();
-                this.buildOwner.finalizeTree();
+                buildOwner.finalizeTree();
             }
             finally {
                 D.assert(() => {
-                    this.debugBuildingDirtyElements = false;
+                    debugBuildingDirtyElements = false;
                     return true;
                 });
             }
         }
 
+        bool _readyToProduceFrames = false;
+        
         public RenderObjectToWidgetElement<RenderBox> renderViewElement {
-            get { return this._renderViewElement; }
+            get { return _renderViewElement; }
         }
 
         RenderObjectToWidgetElement<RenderBox> _renderViewElement;
 
         public void detachRootWidget() {
-            if (this._renderViewElement == null) {
+            if (_renderViewElement == null) {
                 return;
             }
-            
+
             //The former widget tree must be layout first before its destruction
-            this.drawFrame();
-            this.attachRootWidget(null);
-            this.buildOwner.buildScope(this._renderViewElement);
-            this.buildOwner.finalizeTree();
-            
-            this.pipelineOwner.rootNode = null;
-            this._renderViewElement.deactivate();
-            this._renderViewElement.unmount();
-            this._renderViewElement = null;
+            drawFrame();
+            attachRootWidget(null);
+            buildOwner.buildScope(_renderViewElement);
+            buildOwner.finalizeTree();
+
+            pipelineOwner.rootNode = null;
+            _renderViewElement.deactivate();
+            _renderViewElement.unmount();
+            _renderViewElement = null;
+        }
+
+        internal void scheduleAttachRootWidget(Widget rootWidget) {
+            Timer.run(() => {
+                attachRootWidget(rootWidget);
+                return null;
+            });
         }
 
         public void attachRootWidget(Widget rootWidget) {
-            this._renderViewElement = new RenderObjectToWidgetAdapter<RenderBox>(
-                container: this.renderView,
+            _readyToProduceFrames = true;
+
+            _renderViewElement = new RenderObjectToWidgetAdapter<RenderBox>(
+                container: renderView,
                 debugShortDescription: "[root]",
                 child: rootWidget
-            ).attachToRenderTree(this.buildOwner, this._renderViewElement);
+            ).attachToRenderTree(buildOwner, _renderViewElement);
+        }
+        
+        bool isRootWidgetAttached {
+            get { return _renderViewElement != null; }
         }
     }
 
@@ -216,7 +278,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
-            return (RenderObject) this.container;
+            return (RenderObject) container;
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
@@ -226,11 +288,12 @@ namespace Unity.UIWidgets.widgets {
             RenderObjectToWidgetElement<T> element) {
             if (element == null) {
                 owner.lockState(() => {
-                    element = (RenderObjectToWidgetElement<T>) this.createElement();
+                    element = (RenderObjectToWidgetElement<T>) createElement();
                     D.assert(element != null);
                     element.assignOwner(owner);
                 });
                 owner.buildScope(element, () => { element.mount(null, null); });
+                SchedulerBinding.instance.ensureVisualUpdate();
             }
             else {
                 element._newWidget = this;
@@ -241,7 +304,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override string toStringShort() {
-            return this.debugShortDescription ?? base.toStringShort();
+            return debugShortDescription ?? base.toStringShort();
         }
     }
 
@@ -258,44 +321,45 @@ namespace Unity.UIWidgets.widgets {
         static readonly object _rootChildSlot = new object();
 
         public override void visitChildren(ElementVisitor visitor) {
-            if (this._child != null) {
-                visitor(this._child);
+            if (_child != null) {
+                visitor(_child);
             }
         }
 
-        protected override void forgetChild(Element child) {
-            D.assert(child == this._child);
-            this._child = null;
+        internal override void forgetChild(Element child) {
+            D.assert(child == _child);
+            _child = null;
+            base.forgetChild(child);
         }
 
         public override void mount(Element parent, object newSlot) {
             D.assert(parent == null);
             base.mount(parent, newSlot);
-            this._rebuild();
+            _rebuild();
         }
 
         public override void update(Widget newWidget) {
             base.update(newWidget);
-            D.assert(this.widget == newWidget);
-            this._rebuild();
+            D.assert(widget == newWidget);
+            _rebuild();
         }
 
         internal Widget _newWidget;
 
         protected override void performRebuild() {
-            if (this._newWidget != null) {
-                Widget newWidget = this._newWidget;
-                this._newWidget = null;
-                this.update(newWidget);
+            if (_newWidget != null) {
+                Widget newWidget = _newWidget;
+                _newWidget = null;
+                update((RenderObjectToWidgetAdapter<T>)newWidget);
             }
 
             base.performRebuild();
-            D.assert(this._newWidget == null);
+            D.assert(_newWidget == null);
         }
 
         void _rebuild() {
             try {
-                this._child = this.updateChild(this._child, this.widget.child,
+                _child = updateChild(_child, widget.child,
                     _rootChildSlot);
                 // allow 
             }
@@ -303,12 +367,12 @@ namespace Unity.UIWidgets.widgets {
                 var details = new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "widgets library",
-                    context: "attaching to the render tree"
+                    context: new ErrorDescription("attaching to the render tree")
                 );
                 UIWidgetsError.reportError(details);
 
                 Widget error = ErrorWidget.builder(details);
-                this._child = this.updateChild(null, error, _rootChildSlot);
+                _child = updateChild(null, error, _rootChildSlot);
             }
         }
 
@@ -318,8 +382,8 @@ namespace Unity.UIWidgets.widgets {
 
         protected override void insertChildRenderObject(RenderObject child, object slot) {
             D.assert(slot == _rootChildSlot);
-            D.assert(this.renderObject.debugValidateChild(child));
-            this.renderObject.child = (T) child;
+            D.assert(renderObject.debugValidateChild(child));
+            renderObject.child = (T) child;
         }
 
         protected override void moveChildRenderObject(RenderObject child, object slot) {
@@ -327,8 +391,19 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override void removeChildRenderObject(RenderObject child) {
-            D.assert(this.renderObject.child == child);
-            this.renderObject.child = null;
+            D.assert(renderObject.child == child);
+            renderObject.child = null;
+        }
+    }
+
+    public class UiWidgetsBinding : WidgetsBinding {
+        // todo 
+        public static WidgetsBinding ensureInitialized() {
+            if (WidgetsBinding.instance == null) {
+                return new UiWidgetsBinding();
+            }
+            
+            return WidgetsBinding.instance;
         }
     }
 }

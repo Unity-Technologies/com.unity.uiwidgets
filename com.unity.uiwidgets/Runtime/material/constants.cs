@@ -2,12 +2,14 @@ using System;
 using Unity.UIWidgets.painting;
 
 namespace Unity.UIWidgets.material {
-    public static class Constants {
+    public partial class material_ {
+        public const float kMinInteractiveDimension = 48.0f;
+
         public const float kToolbarHeight = 56.0f;
 
         public const float kBottomNavigationBarHeight = 56.0f;
 
-        public const float kTextTabBarHeight = 48.0f;
+        public const float kTextTabBarHeight = kMinInteractiveDimension;
 
         public static readonly TimeSpan kThemeChangeDuration = new TimeSpan(0, 0, 0, 0, 200);
 

@@ -17,25 +17,27 @@ namespace Unity.UIWidgets.rendering {
         public RenderAnimatedSize(
             TickerProvider vsync = null,
             TimeSpan? duration = null,
+            TimeSpan? reverseDuration = null,
             Curve curve = null,
-            Alignment alignment = null,
+            AlignmentGeometry alignment = null,
+            TextDirection? textDirection = null,
             RenderBox child = null
-        ) : base(child: child, alignment: alignment ?? Alignment.center) {
+        ) : base(child: child, alignment: alignment ?? Alignment.center, textDirection: textDirection) {
+            curve = curve ?? Curves.linear;
             D.assert(vsync != null);
             D.assert(duration != null);
-
-            curve = curve ?? Curves.linear;
-            this._vsync = vsync;
-            this._controller = new AnimationController(
+            _vsync = vsync;
+            _controller = new AnimationController(
                 vsync: this.vsync,
-                duration: duration);
-            this._controller.addListener(() => {
-                if (this._controller.value != this._lastValue) {
-                    this.markNeedsLayout();
+                duration: duration,
+                reverseDuration: reverseDuration);
+            _controller.addListener(() => {
+                if (_controller.value != _lastValue) {
+                    markNeedsLayout();
                 }
             });
-            this._animation = new CurvedAnimation(
-                parent: this._controller,
+            _animation = new CurvedAnimation(
+                parent: _controller,
                 curve: curve);
         }
 
@@ -46,155 +48,167 @@ namespace Unity.UIWidgets.rendering {
         float _lastValue;
 
         public RenderAnimatedSizeState state {
-            get { return this._state; }
+            get { return _state; }
         }
 
         RenderAnimatedSizeState _state = RenderAnimatedSizeState.start;
 
         public TimeSpan? duration {
-            get { return this._controller.duration; }
+            get { return _controller.duration; }
             set {
                 D.assert(value != null);
-                if (value == this._controller.duration) {
+                if (value == _controller.duration) {
                     return;
                 }
 
-                this._controller.duration = value;
+                _controller.duration = value;
             }
         }
 
+        /// The duration of the animation when running in reverse.
+        public TimeSpan? reverseDuration {
+            get { return _controller.reverseDuration; }
+            set {
+                if (value == _controller.reverseDuration) {
+                    return;
+                }
+ 
+                _controller.reverseDuration = value;
+            }
+        }
+        
         public Curve curve {
-            get { return this._animation.curve; }
+            get { return _animation.curve; }
             set {
                 D.assert(value != null);
-                if (value == this._animation.curve) {
+                if (value == _animation.curve) {
                     return;
                 }
 
-                this._animation.curve = value;
+                _animation.curve = value;
             }
         }
 
         public bool isAnimating {
-            get { return this._controller.isAnimating; }
+            get { return _controller.isAnimating; }
         }
 
         public TickerProvider vsync {
-            get { return this._vsync; }
+            get { return _vsync; }
             set {
                 D.assert(value != null);
-                if (value == this._vsync) {
+                if (value == _vsync) {
                     return;
                 }
 
-                this._vsync = value;
-                this._controller.resync(this.vsync);
+                _vsync = value;
+                _controller.resync(vsync);
             }
         }
 
         TickerProvider _vsync;
 
         public override void detach() {
-            this._controller.stop();
+            _controller.stop();
             base.detach();
         }
 
         Size _animatedSize {
-            get { return this._sizeTween.evaluate(this._animation); }
+            get { return _sizeTween.evaluate(_animation); }
         }
 
         protected override void performLayout() {
-            this._lastValue = this._controller.value;
-            this._hasVisualOverflow = false;
-
-            if (this.child == null || this.constraints.isTight) {
-                this._controller.stop();
-                this.size = this._sizeTween.begin = this._sizeTween.end = this.constraints.smallest;
-                this._state = RenderAnimatedSizeState.start;
-                this.child?.layout(this.constraints);
+            _lastValue = _controller.value;
+            _hasVisualOverflow = false;
+            BoxConstraints constraints = this.constraints;
+            if (child == null || constraints.isTight) {
+                _controller.stop();
+                size = _sizeTween.begin = _sizeTween.end = constraints.smallest;
+                _state = RenderAnimatedSizeState.start;
+                child?.layout(constraints);
                 return;
             }
 
-            this.child.layout(this.constraints, parentUsesSize: true);
-
-            switch (this._state) {
+            child.layout(constraints, parentUsesSize: true);
+            
+            switch (_state) {
                 case RenderAnimatedSizeState.start:
-                    this._layoutStart();
+                    _layoutStart();
                     break;
                 case RenderAnimatedSizeState.stable:
-                    this._layoutStable();
+                    _layoutStable();
                     break;
                 case RenderAnimatedSizeState.changed:
-                    this._layoutChanged();
+                    _layoutChanged();
                     break;
                 case RenderAnimatedSizeState.unstable:
-                    this._layoutUnstable();
+                    _layoutUnstable();
                     break;
             }
 
-            this.size = this.constraints.constrain(this._animatedSize);
-            this.alignChild();
+            size = constraints.constrain(_animatedSize);
+            alignChild();
 
-            if (this.size.width < this._sizeTween.end.width ||
-                this.size.height < this._sizeTween.end.height) {
-                this._hasVisualOverflow = true;
+            if (size.width < _sizeTween.end.width ||
+                size.height < _sizeTween.end.height) {
+                _hasVisualOverflow = true;
             }
         }
 
         void _restartAnimation() {
-            this._lastValue = 0.0f;
-            this._controller.forward(from: 0.0f);
+            _lastValue = 0.0f;
+            _controller.forward(from: 0.0f);
         }
 
         void _layoutStart() {
-            this._sizeTween.begin = this._sizeTween.end = this.debugAdoptSize(this.child.size);
-            this._state = RenderAnimatedSizeState.stable;
+            _sizeTween.begin = _sizeTween.end = debugAdoptSize(child.size);
+            _state = RenderAnimatedSizeState.stable;
         }
 
         void _layoutStable() {
-            if (this._sizeTween.end != this.child.size) {
-                this._sizeTween.begin = this.size;
-                this._sizeTween.end = this.debugAdoptSize(this.child.size);
-                this._restartAnimation();
-                this._state = RenderAnimatedSizeState.changed;
+            if (_sizeTween.end != child.size) {
+                _sizeTween.begin = size;
+                _sizeTween.end = debugAdoptSize(child.size);
+                _restartAnimation();
+                _state = RenderAnimatedSizeState.changed;
             }
-            else if (this._controller.value == this._controller.upperBound) {
-                this._sizeTween.begin = this._sizeTween.end = this.debugAdoptSize(this.child.size);
+            else if (_controller.value == _controller.upperBound) {
+                _sizeTween.begin = _sizeTween.end = debugAdoptSize(child.size);
             }
-            else if (!this._controller.isAnimating) {
-                this._controller.forward();
+            else if (!_controller.isAnimating) {
+                _controller.forward();
             }
         }
 
         void _layoutChanged() {
-            if (this._sizeTween.end != this.child.size) {
-                this._sizeTween.begin = this._sizeTween.end = this.debugAdoptSize(this.child.size);
-                this._restartAnimation();
-                this._state = RenderAnimatedSizeState.unstable;
+            if (_sizeTween.end != child.size) {
+                _sizeTween.begin = _sizeTween.end = debugAdoptSize(child.size);
+                _restartAnimation();
+                _state = RenderAnimatedSizeState.unstable;
             }
             else {
-                this._state = RenderAnimatedSizeState.stable;
-                if (!this._controller.isAnimating) {
-                    this._controller.forward();
+                _state = RenderAnimatedSizeState.stable;
+                if (!_controller.isAnimating) {
+                    _controller.forward();
                 }
             }
         }
 
         void _layoutUnstable() {
-            if (this._sizeTween.end != this.child.size) {
-                this._sizeTween.begin = this._sizeTween.end = this.debugAdoptSize(this.child.size);
-                this._restartAnimation();
+            if (_sizeTween.end != child.size) {
+                _sizeTween.begin = _sizeTween.end = debugAdoptSize(child.size);
+                _restartAnimation();
             }
             else {
-                this._controller.stop();
-                this._state = RenderAnimatedSizeState.stable;
+                _controller.stop();
+                _state = RenderAnimatedSizeState.stable;
             }
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null && this._hasVisualOverflow) {
-                Rect rect = Offset.zero & this.size;
-                context.pushClipRect(this.needsCompositing, offset, rect, base.paint);
+            if (child != null && _hasVisualOverflow) {
+                Rect rect = Offset.zero & size;
+                context.pushClipRect(needsCompositing, offset, rect, base.paint);
             }
             else {
                 base.paint(context, offset);

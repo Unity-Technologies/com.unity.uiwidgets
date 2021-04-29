@@ -1,4 +1,5 @@
 using System;
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -261,19 +262,19 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return other.primary == this.primary
-                   && other.primaryVariant == this.primaryVariant
-                   && other.secondary == this.secondary
-                   && other.secondaryVariant == this.secondaryVariant
-                   && other.surface == this.surface
-                   && other.background == this.background
-                   && other.error == this.error
-                   && other.onPrimary == this.onPrimary
-                   && other.onSecondary == this.onSecondary
-                   && other.onSurface == this.onSurface
-                   && other.onBackground == this.onBackground
-                   && other.onError == this.onError
-                   && other.brightness == this.brightness;
+            return other.primary == primary
+                   && other.primaryVariant == primaryVariant
+                   && other.secondary == secondary
+                   && other.secondaryVariant == secondaryVariant
+                   && other.surface == surface
+                   && other.background == background
+                   && other.error == error
+                   && other.onPrimary == onPrimary
+                   && other.onSecondary == onSecondary
+                   && other.onSurface == onSurface
+                   && other.onBackground == onBackground
+                   && other.onError == onError
+                   && other.brightness == brightness;
         }
 
         public override bool Equals(object obj) {
@@ -285,11 +286,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ColorScheme) obj);
+            return Equals((ColorScheme) obj);
         }
 
         public static bool operator ==(ColorScheme left, ColorScheme right) {
@@ -302,19 +303,19 @@ namespace Unity.UIWidgets.material {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.primary.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.primaryVariant.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.secondary.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.secondaryVariant.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.surface.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.background.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.error.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.onPrimary.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.onSecondary.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.onSurface.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.onBackground.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.onError.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.brightness.GetHashCode();
+                var hashCode = primary.GetHashCode();
+                hashCode = (hashCode * 397) ^ primaryVariant.GetHashCode();
+                hashCode = (hashCode * 397) ^ secondary.GetHashCode();
+                hashCode = (hashCode * 397) ^ secondaryVariant.GetHashCode();
+                hashCode = (hashCode * 397) ^ surface.GetHashCode();
+                hashCode = (hashCode * 397) ^ background.GetHashCode();
+                hashCode = (hashCode * 397) ^ error.GetHashCode();
+                hashCode = (hashCode * 397) ^ onPrimary.GetHashCode();
+                hashCode = (hashCode * 397) ^ onSecondary.GetHashCode();
+                hashCode = (hashCode * 397) ^ onSurface.GetHashCode();
+                hashCode = (hashCode * 397) ^ onBackground.GetHashCode();
+                hashCode = (hashCode * 397) ^ onError.GetHashCode();
+                hashCode = (hashCode * 397) ^ brightness.GetHashCode();
                 return hashCode;
             }
         }
@@ -322,30 +323,30 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             ColorScheme defaultScheme = light();
-            properties.add(new DiagnosticsProperty<Color>("primary", this.primary,
+            properties.add(new DiagnosticsProperty<Color>("primary", primary,
                 defaultValue: defaultScheme.primary));
-            properties.add(new DiagnosticsProperty<Color>("primaryVariant", this.primaryVariant,
+            properties.add(new DiagnosticsProperty<Color>("primaryVariant", primaryVariant,
                 defaultValue: defaultScheme.primaryVariant));
-            properties.add(new DiagnosticsProperty<Color>("secondary", this.secondary,
+            properties.add(new DiagnosticsProperty<Color>("secondary", secondary,
                 defaultValue: defaultScheme.secondary));
-            properties.add(new DiagnosticsProperty<Color>("secondaryVariant", this.secondaryVariant,
+            properties.add(new DiagnosticsProperty<Color>("secondaryVariant", secondaryVariant,
                 defaultValue: defaultScheme.secondaryVariant));
-            properties.add(new DiagnosticsProperty<Color>("surface", this.surface,
+            properties.add(new DiagnosticsProperty<Color>("surface", surface,
                 defaultValue: defaultScheme.surface));
-            properties.add(new DiagnosticsProperty<Color>("background", this.background,
+            properties.add(new DiagnosticsProperty<Color>("background", background,
                 defaultValue: defaultScheme.background));
-            properties.add(new DiagnosticsProperty<Color>("error", this.error, defaultValue: defaultScheme.error));
-            properties.add(new DiagnosticsProperty<Color>("onPrimary", this.onPrimary,
+            properties.add(new DiagnosticsProperty<Color>("error", error, defaultValue: defaultScheme.error));
+            properties.add(new DiagnosticsProperty<Color>("onPrimary", onPrimary,
                 defaultValue: defaultScheme.onPrimary));
-            properties.add(new DiagnosticsProperty<Color>("onSecondary", this.onSecondary,
+            properties.add(new DiagnosticsProperty<Color>("onSecondary", onSecondary,
                 defaultValue: defaultScheme.onSecondary));
-            properties.add(new DiagnosticsProperty<Color>("onSurface", this.onSurface,
+            properties.add(new DiagnosticsProperty<Color>("onSurface", onSurface,
                 defaultValue: defaultScheme.onSurface));
-            properties.add(new DiagnosticsProperty<Color>("onBackground", this.onBackground,
+            properties.add(new DiagnosticsProperty<Color>("onBackground", onBackground,
                 defaultValue: defaultScheme.onBackground));
-            properties.add(new DiagnosticsProperty<Color>("onError", this.onError,
+            properties.add(new DiagnosticsProperty<Color>("onError", onError,
                 defaultValue: defaultScheme.onError));
-            properties.add(new DiagnosticsProperty<Brightness>("brightness", this.brightness,
+            properties.add(new DiagnosticsProperty<Brightness>("brightness", brightness,
                 defaultValue: defaultScheme.brightness));
         }
     }

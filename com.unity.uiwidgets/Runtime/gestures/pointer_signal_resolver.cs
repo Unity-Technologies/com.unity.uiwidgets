@@ -1,10 +1,15 @@
 using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.gestures {
     public delegate void PointerSignalResolvedCallback(PointerSignalEvent evt);
 
     public class PointerSignalResolver {
+        public bool _isSameEvent(PointerSignalEvent event1, PointerSignalEvent event2) {
+            return (event1.original ?? event1) == (event2.original ?? event2);
+        }
+    
         PointerSignalResolvedCallback _firstRegisteredCallback;
 
         PointerSignalEvent _currentEvent;
@@ -12,40 +17,40 @@ namespace Unity.UIWidgets.gestures {
         public void register(PointerSignalEvent evt, PointerSignalResolvedCallback callback) {
             D.assert(evt != null);
             D.assert(callback != null);
-            D.assert(this._currentEvent == null || this._currentEvent == evt);
-            if (this._firstRegisteredCallback != null) {
+            D.assert(_currentEvent == null || _isSameEvent(_currentEvent, evt));
+            if (_firstRegisteredCallback != null) {
                 return;
             }
 
-            this._currentEvent = evt;
-            this._firstRegisteredCallback = callback;
+            _currentEvent = evt;
+            _firstRegisteredCallback = callback;
         }
 
         public void resolve(PointerSignalEvent evt) {
-            if (this._firstRegisteredCallback == null) {
-                D.assert(this._currentEvent == null);
+            if (_firstRegisteredCallback == null) {
+                D.assert(_currentEvent == null);
                 return;
             }
 
-            D.assert((_currentEvent.original ?? this._currentEvent) == evt);
+            D.assert(_isSameEvent(_currentEvent, evt));
             try {
-                this._firstRegisteredCallback(_currentEvent);
+                _firstRegisteredCallback(_currentEvent);
             }
             catch (Exception exception) {
+                IEnumerable<DiagnosticsNode> infoCollector() {
+                    yield return new DiagnosticsProperty<PointerSignalEvent>("Event", evt, style: DiagnosticsTreeStyle.errorProperty);
+                }
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "gesture library",
-                        context: "while resolving a PointerSignalEvent",
-                        informationCollector: information => {
-                            information.AppendLine("Event: ");
-                            information.AppendFormat(" {0}", evt);
-                        }
+                        context: new ErrorDescription("while resolving a PointerSignalEvent"),
+                        informationCollector: infoCollector
                     )
                 );
             }
 
-            this._firstRegisteredCallback = null;
-            this._currentEvent = null;
+            _firstRegisteredCallback = null;
+            _currentEvent = null;
         }
     }
 }

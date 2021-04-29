@@ -1,7 +1,10 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.service;
+using System.Runtime.InteropServices;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.engine {
@@ -35,7 +38,7 @@ namespace Unity.UIWidgets.engine {
         void OnEnable() {
             D.assert(_instance == null, () => "Only one instance of UIWidgetsMessageManager should exists");
             _instance = this;
-            this.UpdateNameIfNeed();
+            UpdateNameIfNeed();
         }
 
         void OnDisable() {
@@ -44,38 +47,38 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Update() {
-            this.UpdateNameIfNeed();
+            UpdateNameIfNeed();
         }
 
         void UpdateNameIfNeed() {
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL
-            var name = this.gameObject.name;
-            if (name != this._lastObjectName) {
+            var name = gameObject.name;
+            if (name != _lastObjectName) {
 
                 if (!Application.isEditor) {
                     UIWidgetsMessageSetObjectName(name);
                 }
-                this._lastObjectName = name;
+                _lastObjectName = name;
             }
 #endif
         }
 
         public void AddChannelMessageDelegate(string channel, MethodChannelMessageDelegate del) {
             MethodChannelMessageDelegate exists;
-            this._methodChannelMessageDelegates.TryGetValue(channel, out exists);
-            this._methodChannelMessageDelegates[channel] = exists + del;
+            _methodChannelMessageDelegates.TryGetValue(channel, out exists);
+            _methodChannelMessageDelegates[channel] = exists + del;
         }
         
         public void RemoveChannelMessageDelegate(string channel, MethodChannelMessageDelegate del) {
             MethodChannelMessageDelegate exists;
-            this._methodChannelMessageDelegates.TryGetValue(channel, out exists);
+            _methodChannelMessageDelegates.TryGetValue(channel, out exists);
             if (exists != null) {
-                this._methodChannelMessageDelegates[channel] = exists - del;
+                _methodChannelMessageDelegates[channel] = exists - del;
             }  
         }
 
         void OnUIWidgetsMethodMessage(string message) {
-            JSONObject jsonObject = (JSONObject)JSON.Parse(message);
+            JSONObject jsonObject = (JSONObject) JSON.Parse(message);
             string channel = jsonObject["channel"].Value;
             string method = jsonObject["method"].Value;
             var args = new List<JSONNode>(jsonObject["args"].AsArray.Children);
@@ -84,7 +87,7 @@ namespace Unity.UIWidgets.engine {
             }
             else {
                 MethodChannelMessageDelegate exists;
-                this._methodChannelMessageDelegates.TryGetValue(channel, out exists);
+                _methodChannelMessageDelegates.TryGetValue(channel, out exists);
                 exists?.Invoke(method, args);
             }
         }

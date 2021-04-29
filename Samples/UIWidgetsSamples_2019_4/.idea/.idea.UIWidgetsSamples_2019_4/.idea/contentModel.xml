@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\com.unity.uiwidgets\com.unity.uiwidgets\Editor" t="Include">
+      <e p="UIWidgetsPanelEditor.cs" t="Include" />
+      <e p="Unity.UIWidgets.Editor.asmdef" t="Include" />
+    </e>
+    <e p="C:\com.unity.uiwidgets\com.unity.uiwidgets\Runtime" t="Include">
+      <e p="animation" t="Include">
+        <e p="animation.cs" t="Include" />
+        <e p="animation_controller.cs" t="Include" />
+        <e p="animations.cs" t="Include" />
+        <e p="curves.cs" t="Include" />
+        <e p="listener_helpers.mixin.gen.cs" t="Include" />
+        <e p="tween.cs" t="Include" />
+      </e>
+      <e p="async" t="Include">
+        <e p="coroutine.cs" t="Include" />
+        <e p="microtask_queue.cs" t="Include" />
+        <e p="priority_queue.cs" t="Include" />
+        <e p="timer.cs" t="Include" />
+      </e>
+      <e p="async2" t="Include">
+        <e p="future.cs" t="Include" />
+        <e p="future_impl.cs" t="Include" />
+        <e p="schedule_microtask.cs" t="Include" />
+        <e p="timer.cs" t="Include" />
+        <e p="zone.cs" t="Include" />
+      </e>
+      <e p="cupertino" t="Include">
+        <e p="action_Sheet.cs" t="Include" />
+        <e p="activity_indicator.cs" t="Include" />
+        <e p="app.cs" t="Include" />
+        <e p="bottom_app_bar.cs" t="Include" />
+        <e p="button.cs" t="Include" />
+        <e p="color.cs" t="Include" />
+        <e p="date_picker.cs" t="Include" />
+        <e p="dialog.cs" t="Include" />
+        <e p="icons.cs" t="Include" />
+        <e p="localization.cs" t="Include" />
+        <e p="nav_bar.cs" t="Include" />
+        <e p="page_scaffold.cs" t="Include" />
+        <e p="picker.cs" t="Include" />
+        <e p="route.cs" t="Include" />
+        <e p="scrollbar.cs" t="Include" />
+        <e p="slider.cs" t="Include" />
+        <e p="switch.cs" t="Include" />
+        <e p="tab_scaffold.cs" t="Include" />
+        <e p="tab_view.cs" t="Include" />
+        <e p="text_field.cs" t="Include" />
+        <e p="text_selection.cs" t="Include" />
+        <e p="text_theme.cs" t="Include" />
+        <e p="theme.cs" t="Include" />
+        <e p="thumb_painter.cs" t="Include" />
+      </e>
+      <e p="developer" t="Include">
+        <e p="extension.cs" t="Include" />
+        <e p="timeline.cs" t="Include" />
+      </e>
+      <e p="engine" t="Include">
+        <e p="DisplayMetrics.cs" t="Include" />
+        <e p="input_utils.cs" t="Include" />
+        <e p="raycastable" t="Include">
+          <e p="RaycastableContainer.cs" t="Include" />
+          <e p="RaycastManager.cs" t="Include" />
+          <e p="UIWidgetsRaycastablePanel.cs" t="Include" />
+        </e>
+        <e p="UIWidgetsMessageManager.cs" t="Include" />
+        <e p="UIWidgetsPanel.cs" t="Include" />
+      </e>
+      <e p="engine2" t="Include">
+        <e p="UIWidgetsPanel.cs" t="Include" />
+      </e>
+      <e p="external" t="Include">
+        <e p="RTree.cs" t="Include" />
+        <e p="simplejson" t="Include">
+          <e p="SimpleJSON.cs" t="Include" />
+        </e>
+        <e p="SplayTree.cs" t="Include" />
+      </e>
+      <e p="foundation" t="Include">
+        <e p="assertions.cs" t="Include" />
+        <e p="basic_types.cs" t="Include" />
+        <e p="binding.cs" t="Include" />
+        <e p="change_notifier.cs" t="Include" />
+        <e p="collections.cs" t="Include" />
+        <e p="constants.cs" t="Include" />
+        <e p="debug.cs" t="Include" />
+        <e p="diagnostics.cs" t="Include" />
+        <e p="isolates.cs" t="Include" />
+        <e p="key.cs" t="Include" />
+        <e p="node.cs" t="Include" />
+        <e p="node.mixin.gen.cs" t="Include" />
+        <e p="object.cs" t="Include" />
+        <e p="observer_list.cs" t="Include" />
+        <e p="print.cs" t="Include" />
+        <e p="serialization.cs" t="Include" />
+        <e p="synchronous_future.cs" t="Include" />
+      </e>
+      <e p="gestures" t="Include">
+        <e p="arena.cs" t="Include" />
+        <e p="binding.cs" t="Include" />
+        <e p="constants.cs" t="Include" />
+        <e p="converter.cs" t="Include" />
+        <e p="drag.cs" t="Include" />
+        <e p="drag_details.cs" t="Include" />
+        <e p="events.cs" t="Include" />
+        <e p="hit_test.cs" t="Include" />
+        <e p="hover.cs" t="Include" />
+        <e p="long_press.cs" t="Include" />
+        <e p="lsq_resolver.cs" t="Include" />
+        <e p="monodrag.cs" t="Include" />
+        <e p="mouse_tracking.cs" t="Include" />
+        <e p="multidrag.cs" t="Include" />
+        <e p="multitap.cs" t="Include" />
+        <e p="pointer_router.cs" t="Include" />
+        <e p="pointer_signal_resolver.cs" t="Include" />
+        <e p="recognizer.cs" t="Include" />
+        <e p="scale.cs" t="Include" />
+        <e p="tap.cs" t="Include" />
+        <e p="team.cs" t="Include" />
+        <e p="velocity_tracker.cs" t="Include" />
+      </e>
+      <e p="InternalBridge" t="Include">
+        <e p="InternalBridge.asmdef" t="Include" />
+        <e p="NoAllocHelpersBridge.cs" t="Include" />
+      </e>
+      <e p="material" t="Include">
+        <e p="colors.cs" t="Include" />
+      </e>
+      <e p="painting" t="Include">
+        <e p="alignment.cs" t="Include" />
+        <e p="basic_types.cs" t="Include" />
+        <e p="beveled_rectangle_border.cs" t="Include" />
+        <e p="binding.cs" t="Include" />
+        <e p="border_radius.cs" t="Include" />
+        <e p="borders.cs" t="Include" />
+        <e p="box_border.cs" t="Include" />
+        <e p="box_decoration.cs" t="Include" />
+        <e p="box_fit.cs" t="Include" />
+        <e p="box_shadow.cs" t="Include" />
+        <e p="circle_border.cs" t="Include" />
+        <e p="clip.cs" t="Include" />
+        <e p="colors.cs" t="Include" />
+        <e p="continuous_rectangle_border.cs" t="Include" />
+        <e p="decoration.cs" t="Include" />
+        <e p="decoration_image.cs" t="Include" />
+        <e p="edge_insets.cs" t="Include" />
+        <e p="fractional_offset.cs" t="Include" />
+        <e p="geometry.cs" t="Include" />
+        <e p="gradient.cs" t="Include" />
+        <e p="image_cache.cs" t="Include" />
+        <e p="image_provider.cs" t="Include" />
+        <e p="image_resolution.cs" t="Include" />
+        <e p="image_stream.cs" t="Include" />
+        <e p="inline_span.cs" t="Include" />
+        <e p="matrix_utils.cs" t="Include" />
+        <e p="notched_shapes.cs" t="Include" />
+        <e p="paint_utilities.cs" t="Include" />
+        <e p="rounded_rectangle_border.cs" t="Include" />
+        <e p="shader_warmup.cs" t="Include" />
+        <e p="shape_decoration.cs" t="Include" />
+        <e p="stadium_border.cs" t="Include" />
+        <e p="strut_style.cs" t="Include" />
+        <e p="text_painter.cs" t="Include" />
+        <e p="text_span.cs" t="Include" />
+        <e p="text_style.cs" t="Include" />
+      </e>
+      <e p="physics" t="Include">
+        <e p="clamped_simulation.cs" t="Include" />
+        <e p="friction_simulation.cs" t="Include" />
+        <e p="gravity_simulation.cs" t="Include" />
+        <e p="simulation.cs" t="Include" />
+        <e p="spring_simulation.cs" t="Include" />
+        <e p="tolerance.cs" t="Include" />
+        <e p="utils.cs" t="Include" />
+      </e>
+      <e p="rendering" t="Include">
+        <e p="animated_size.cs" t="Include" />
+        <e p="binding.cs" t="Include" />
+        <e p="box.cs" t="Include" />
+        <e p="box.mixin.gen.cs" t="Include" />
+        <e p="custom_layout.cs" t="Include" />
+        <e p="custom_paint.cs" t="Include" />
+        <e p="debug.cs" t="Include" />
+        <e p="debug_overflow_indicator.cs" t="Include" />
+        <e p="editable.cs" t="Include" />
+        <e p="error.cs" t="Include" />
+        <e p="flex.cs" t="Include" />
+        <e p="image.cs" t="Include" />
+        <e p="layer.cs" t="Include" />
+        <e p="list_body.cs" t="Include" />
+        <e p="list_wheel_viewport.cs" t="Include" />
+        <e p="object.cs" t="Include" />
+        <e p="object.mixin.gen.cs" t="Include" />
+        <e p="paragraph.cs" t="Include" />
+        <e p="performance_overlay.cs" t="Include" />
+        <e p="proxy_box.cs" t="Include" />
+        <e p="proxy_box.mixin.gen.cs" t="Include" />
+        <e p="rotated_box.cs" t="Include" />
+        <e p="shifted_box.cs" t="Include" />
+        <e p="sliver.cs" t="Include" />
+        <e p="sliver_fill.cs" t="Include" />
+        <e p="sliver_fixed_extent_list.cs" t="Include" />
+        <e p="sliver_grid.cs" t="Include" />
+        <e p="sliver_list.cs" t="Include" />
+        <e p="sliver_multi_box_adaptor.cs" t="Include" />
+        <e p="sliver_padding.cs" t="Include" />
+        <e p="sliver_persistent_header.cs" t="Include" />
+        <e p="stack.cs" t="Include" />
+        <e p="table.cs" t="Include" />
+        <e p="table_border.cs" t="Include" />
+        <e p="texture.cs" t="Include" />
+        <e p="tweens.cs" t="Include" />
+        <e p="view.cs" t="Include" />
+        <e p="viewport.cs" t="Include" />
+        <e p="viewport_offset.cs" t="Include" />
+        <e p="wrap.cs" t="Include" />
+      </e>
+      <e p="Resources" t="Include">
+        <e p="shaders" t="Include">
+          <e p="computebuffer" t="Include">
+            <e p="UIWidgets_canvas_cb.cginc" t="Include" />
+            <e p="UIWidgets_canvas_convexFill_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_fill0_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_fill1_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_filter_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_shadowBox_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_shadowRBox_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_stencil_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_stroke0_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_stroke1_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_strokeAlpha_cb.shader" t="Include" />
+            <e p="UIWidgets_canvas_tex_cb.shader" t="Include" />
+          </e>
+          <e p="UIWidgets_canvas.cginc" t="Include" />
+          <e p="UIWidgets_canvas_convexFill.shader" t="Include" />
+          <e p="UIWidgets_canvas_fill0.shader" t="Include" />
+          <e p="UIWidgets_canvas_fill1.shader" t="Include" />
+          <e p="UIWidgets_canvas_filter.shader" t="Include" />
+          <e p="UIWidgets_canvas_shadowBox.shader" t="Include" />
+          <e p="UIWidgets_canvas_shadowRBox.shader" t="Include" />
+          <e p="UIWidgets_canvas_stencil.shader" t="Include" />
+          <e p="UIWidgets_canvas_stroke0.shader" t="Include" />
+          <e p="UIWidgets_canvas_stroke1.shader" t="Include" />
+          <e p="UIWidgets_canvas_strokeAlpha.shader" t="Include" />
+          <e p="UIWidgets_canvas_tex.shader" t="Include" />
+          <e p="UIWidgets_GUITexture.shader" t="Include" />
+          <e p="UIWidgets_UIDefault.shader" t="Include" />
+        </e>
+      </e>
+      <e p="scheduler" t="Include">
+        <e p="binding.cs" t="Include" />
+        <e p="ticker.cs" t="Include" />
+      </e>
+      <e p="scheduler2" t="Include">
+        <e p="binding.cs" t="Include" />
+        <e p="debug.cs" t="Include" />
+        <e p="priority.cs" t="Include" />
+        <e p="ticker.cs" t="Include" />
+      </e>
+      <e p="service" t="Include">
+        <e p="clipboard.cs" t="Include" />
+        <e p="keyboard.cs" t="Include" />
+        <e p="raw_keyboard.cs" t="Include" />
+        <e p="system_chrome.cs" t="Include" />
+        <e p="text_editing.cs" t="Include" />
+        <e p="text_formatter.cs" t="Include" />
+        <e p="text_input.cs" t="Include" />
+      </e>
+      <e p="services" t="Include">
+        <e p="asset_bundle.cs" t="Include" />
+        <e p="binary_messenger.cs" t="Include" />
+        <e p="binding.cs" t="Include" />
+        <e p="message_codec.cs" t="Include" />
+        <e p="message_codecs.cs" t="Include" />
+      </e>
+      <e p="ui2" t="Include">
+        <e p="channel_buffers.cs" t="Include" />
+        <e p="compositing.cs" t="Include" />
+        <e p="geometry.cs" t="Include" />
+        <e p="hooks.cs" t="Include" />
+        <e p="isolate.cs" t="Include" />
+        <e p="Matrix4.cs" t="Include" />
+        <e p="native_bindings.cs" t="Include" />
+        <e p="painting.cs" t="Include" />
+        <e p="pointer.cs" t="Include" />
+        <e p="text.cs" t="Include" />
+        <e p="window.cs" t="Include" />
+      </e>
+      <e p="Unity.UIWidgets.asmdef" t="Include" />
+      <e p="widgets" t="Include">
+        <e p="animated_cross_fade.cs" t="Include" />
+        <e p="animated_size.cs" t="Include" />
+        <e p="animated_switcher.cs" t="Include" />
+        <e p="annotated_region.cs" t="Include" />
+        <e p="app.cs" t="Include" />
+        <e p="automatic_keep_alive.cs" t="Include" />
+        <e p="banner.cs" t="Include" />
+        <e p="basic.cs" t="Include" />
+        <e p="binding.cs" t="Include" />
+        <e p="bottom_navigation_bar_item.cs" t="Include" />
+        <e p="container.cs" t="Include" />
+        <e p="debug.cs" t="Include" />
+        <e p="dismissible.cs" t="Include" />
+        <e p="drag_target.cs" t="Include" />
+        <e p="editable_text.cs" t="Include" />
+        <e p="fade_in_image.cs" t="Include" />
+        <e p="focus_manager.cs" t="Include" />
+        <e p="focus_scope.cs" t="Include" />
+        <e p="form.cs" t="Include" />
+        <e p="framework.cs" t="Include" />
+        <e p="gesture_detector.cs" t="Include" />
+        <e p="heroes.cs" t="Include" />
+        <e p="icon.cs" t="Include" />
+        <e p="icon_data.cs" t="Include" />
+        <e p="icon_theme.cs" t="Include" />
+        <e p="icon_theme_data.cs" t="Include" />
+        <e p="image.cs" t="Include" />
+        <e p="implicit_animations.cs" t="Include" />
+        <e p="layout_builder.cs" t="Include" />
+        <e p="list_wheel_scroll_view.cs" t="Include" />
+        <e p="localizations.cs" t="Include" />
+        <e p="media_query.cs" t="Include" />
+        <e p="modal_barrier.cs" t="Include" />
+        <e p="navigation_toolbar.cs" t="Include" />
+        <e p="navigator.cs" t="Include" />
+        <e p="nested_scroll_view.cs" t="Include" />
+        <e p="notification_listener.cs" t="Include" />
+        <e p="orientation_builder.cs" t="Include" />
+        <e p="overlay.cs" t="Include" />
+        <e p="overscroll_indicator.cs" t="Include" />
+        <e p="page_storage.cs" t="Include" />
+        <e p="page_view.cs" t="Include" />
+        <e p="pages.cs" t="Include" />
+        <e p="performance_overlay.cs" t="Include" />
+        <e p="placeholder.cs" t="Include" />
+        <e p="preferred_size.cs" t="Include" />
+        <e p="primary_scroll_controller.cs" t="Include" />
+        <e p="routes.cs" t="Include" />
+        <e p="safe_area.cs" t="Include" />
+        <e p="scroll_activity.cs" t="Include" />
+        <e p="scroll_configuration.cs" t="Include" />
+        <e p="scroll_context.cs" t="Include" />
+        <e p="scroll_controller.cs" t="Include" />
+        <e p="scroll_metrics.cs" t="Include" />
+        <e p="scroll_notification.cs" t="Include" />
+        <e p="scroll_notification.mixin.gen.cs" t="Include" />
+        <e p="scroll_physics.cs" t="Include" />
+        <e p="scroll_position.cs" t="Include" />
+        <e p="scroll_position_with_single_context.cs" t="Include" />
+        <e p="scroll_simulation.cs" t="Include" />
+        <e p="scroll_view.cs" t="Include" />
+        <e p="scrollable.cs" t="Include" />
+        <e p="scrollbar.cs" t="Include" />
+        <e p="selectable_text.cs" t="Include" />
+        <e p="single_child_scroll_view.cs" t="Include" />
+        <e p="sliver.cs" t="Include" />
+        <e p="sliver_persistent_header.cs" t="Include" />
+        <e p="table.cs" t="Include" />
+        <e p="text.cs" t="Include" />
+        <e p="text_selection.cs" t="Include" />
+        <e p="texture.cs" t="Include" />
+        <e p="ticker_provider.cs" t="Include" />
+        <e p="transitions.cs" t="Include" />
+        <e p="value_listenable_builder.cs" t="Include" />
+        <e p="viewport.cs" t="Include" />
+        <e p="visibility.cs" t="Include" />
+        <e p="widget_inspector.cs" t="Include" />
+        <e p="will_pop_scope.cs" t="Include" />
+      </e>
+    </e>
+    <e p="C:\com.unity.uiwidgets\Samples\UIWidgetsSamples_2019_4" t="IncludeRecursive">
+      <e p="Assets" t="Include">
+        <e p="UIWidgetsExample.cs" t="Include" />
+        <e p="UIWidgetsSample.asmdef" t="Include" />
+      </e>
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="Packages" t="ExcludeRecursive" />
+      <e p="Temp\bin" t="ExcludeRecursive" />
+      <e p="UIWidgetsSample.csproj" t="IncludeRecursive" />
+      <e p="UIWidgetsSamples_2019_4.sln" t="IncludeFlat" />
+      <e p="Unity.InternalAPIEngineBridge.024.csproj" t="IncludeRecursive" />
+      <e p="Unity.UIWidgets.csproj" t="IncludeRecursive" />
+      <e p="Unity.UIWidgets.Editor.csproj" t="IncludeRecursive" />
+    </e>
+    <e p="C:\Users\44255\AppData\Local\JetBrains\Rider2020.2\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\44255\AppData\Local\JetBrains\Rider2020.2\resharper-host\Local\Transient\Rider\v202\SolutionCaches\_UIWidgetsSamples_2019_4.-1067931337.00" t="ExcludeRecursive" />
+  </component>
+</project>

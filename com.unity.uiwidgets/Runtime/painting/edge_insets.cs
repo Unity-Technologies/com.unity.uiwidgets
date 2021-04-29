@@ -1,8 +1,571 @@
 using System;
+using JetBrains.Annotations;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
-    public class EdgeInsets : IEquatable<EdgeInsets> {
+    public abstract class EdgeInsetsGeometry {
+        internal float _bottom { get; }
+        internal float _end { get; }
+        internal float _left { get; }
+        internal float _right { get; }
+        internal float _start { get; }
+        internal float _top { get; }
+
+
+        public static EdgeInsetsGeometry infinity = _MixedEdgeInsets.fromLRSETB(
+            float.PositiveInfinity,
+            float.PositiveInfinity,
+            float.PositiveInfinity,
+            float.PositiveInfinity,
+            float.PositiveInfinity,
+            float.PositiveInfinity
+        );
+
+        /// Whether every dimension is non-negative.
+        public virtual bool isNonNegative {
+            get {
+                return _left >= 0.0
+                       && _right >= 0.0
+                       && _start >= 0.0
+                       && _end >= 0.0
+                       && _top >= 0.0
+                       && _bottom >= 0.0;
+            }
+        }
+
+
+        public float horizontal {
+            get { return _left + _right + _start + _end; }
+        }
+
+        public float vertical {
+            get { return _top + _bottom; }
+        }
+
+
+        float? along(Axis axis) {
+            D.assert(axis != null);
+            switch (axis) {
+                case Axis.horizontal:
+                    return horizontal;
+                case Axis.vertical:
+                    return vertical;
+            }
+
+            return null;
+        }
+
+
+        Size collapsedSize {
+            get { return new Size(horizontal, vertical); }
+        }
+
+
+        EdgeInsetsGeometry flipped {
+            get { return _MixedEdgeInsets.fromLRSETB(_right, _left, _end, _start, _bottom, _top); }
+        }
+
+
+        Size inflateSize(Size size) {
+            return new Size(size.width + horizontal, size.height + vertical);
+        }
+
+        Size deflateSize(Size size) {
+            return new Size(size.width - horizontal, size.height - vertical);
+        }
+
+        public virtual EdgeInsetsGeometry clamp(EdgeInsetsGeometry min, EdgeInsetsGeometry max) {
+            return _MixedEdgeInsets.fromLRSETB(
+                _left.clamp(min._left, max._left),
+                _right.clamp(min._right, max._right),
+                _start.clamp(min._start, max._start),
+                _end.clamp(min._end, max._end),
+                _top.clamp(min._top, max._top),
+                _bottom.clamp(min._bottom, max._bottom)
+            );
+        }
+
+        public virtual EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+            return _MixedEdgeInsets.fromLRSETB(
+                _left + other._left,
+                _right + other._right,
+                _start + other._start,
+                _end + other._end,
+                _top + other._top,
+                _bottom + other._bottom
+            );
+        }
+
+        public virtual EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+            return _MixedEdgeInsets.fromLRSETB(
+                _left - other._left,
+                _right - other._right,
+                _start - other._start,
+                _end - other._end,
+                _top - other._top,
+                _bottom - other._bottom
+            );
+        }
+
+        public virtual EdgeInsetsGeometry multiply(float b) {
+            return _MixedEdgeInsets.fromLRSETB(
+                _left * b,
+                _right * b,
+                _start * b,
+                _end * b,
+                _top * b,
+                _bottom * b
+            );
+        }
+
+        public virtual EdgeInsetsGeometry divide(float b) {
+            return _MixedEdgeInsets.fromLRSETB(
+                _left / b,
+                _right / b,
+                _start / b,
+                _end / b,
+                _top / b,
+                _bottom / b
+            );
+        }
+
+        public virtual EdgeInsetsGeometry remainder(float b) {
+            return _MixedEdgeInsets.fromLRSETB(
+                _left % b,
+                _right % b,
+                _start % b,
+                _end % b,
+                _top % b,
+                _bottom % b
+            );
+        }
+
+        public static EdgeInsetsGeometry operator -(EdgeInsetsGeometry a) {
+            return a.multiply(-1.0f);
+        }
+
+        public static EdgeInsetsGeometry operator +(EdgeInsetsGeometry a, EdgeInsetsGeometry b) {
+            return a.add(b);
+        }
+
+        public static EdgeInsetsGeometry operator -(EdgeInsetsGeometry a, EdgeInsetsGeometry b) {
+            return a.subtract(b);
+        }
+
+        public static EdgeInsetsGeometry operator *(EdgeInsetsGeometry a, float other) {
+            return a.multiply(other);
+        }
+
+        public static EdgeInsetsGeometry operator /(EdgeInsetsGeometry a, float other) {
+            return a.divide(other);
+        }
+
+        public static EdgeInsetsGeometry operator %(EdgeInsetsGeometry a, float other) {
+            return a.remainder(other);
+        }
+
+        public static EdgeInsetsGeometry lerp(EdgeInsetsGeometry a, EdgeInsetsGeometry b, float t) {
+            D.assert(t != null);
+            if (a == null && b == null)
+                return null;
+            if (a == null)
+                return b * t;
+            if (b == null)
+                return a * (1.0f - t);
+            if (a is EdgeInsets && b is EdgeInsets)
+                return EdgeInsets.lerp((EdgeInsets) a, (EdgeInsets) b, t);
+            if (a is EdgeInsetsDirectional && b is EdgeInsetsDirectional)
+                return EdgeInsetsDirectional.lerp(a, b, t);
+
+            return _MixedEdgeInsets.fromLRSETB(
+                MathUtils.lerpNullableFloat(a._left, b._left, t),
+                MathUtils.lerpNullableFloat(a._right, b._right, t),
+                MathUtils.lerpNullableFloat(a._start, b._start, t),
+                MathUtils.lerpNullableFloat(a._end, b._end, t),
+                MathUtils.lerpNullableFloat(a._top, b._top, t),
+                MathUtils.lerpNullableFloat(a._bottom, b._bottom, t)
+            );
+        }
+
+
+        public abstract EdgeInsets resolve(TextDirection? direction);
+
+        public bool Equals(EdgeInsetsGeometry other) {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return _left.Equals(other._left)
+                   && _right.Equals(other._right)
+                   && _top.Equals(other._top)
+                   && _bottom.Equals(other._bottom)
+                   && _start.Equals(other._top)
+                   && _end.Equals(other._bottom);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return Equals((EdgeInsetsGeometry) obj);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = _left.GetHashCode();
+                hashCode = (hashCode * 397) ^ _right.GetHashCode();
+                hashCode = (hashCode * 397) ^ _top.GetHashCode();
+                hashCode = (hashCode * 397) ^ _bottom.GetHashCode();
+                hashCode = (hashCode * 397) ^ _start.GetHashCode();
+                hashCode = (hashCode * 397) ^ _end.GetHashCode();
+                return hashCode;
+            }
+        }
+
+
+        public override string ToString() {
+            if (_start == 0.0 && _end == 0.0) {
+                if (_left == 0.0 && _right == 0.0 && _top == 0.0 && _bottom == 0.0)
+                    return "EdgeInsets.zero";
+                if (_left == _right && _right == _top && _top == _bottom)
+                    return $"EdgeInsets.all({_left: F1})";
+                return $"EdgeInsets({_left: F1}, " +
+                       $"{_top: F1}, " +
+                       $"{_right: F1}, " +
+                       $"{_bottom: F1})";
+            }
+
+            if (_left == 0.0 && _right == 0.0) {
+                return $"EdgeInsetsDirectional({_start: F1}, " +
+                       $"{_top: F1}, " +
+                       $"{_end: F1}, " +
+                       $"{_bottom: F1})";
+            }
+
+            return $"EdgeInsets({_left: F1}, " +
+                   $"{_top: F1}, " +
+                   $"{_right: F1}, " +
+                   $"{_bottom: F1})" +
+                   " + " + $"EdgeInsetsDirectional({_start: F1}, " +
+                   "0.0, " + $"{_end: F1}, " + "0.0)";
+        }
+
+
+        public static bool operator ==(EdgeInsetsGeometry a, EdgeInsetsGeometry b) {
+            return Equals(a, b);
+        }
+
+        public static bool operator !=(EdgeInsetsGeometry a, EdgeInsetsGeometry b) {
+            return !(a == b);
+        }
+    }
+
+    public class EdgeInsetsDirectional : EdgeInsetsGeometry {
+        public EdgeInsetsDirectional(float start, float top, float end, float bottom) {
+            this.start = start;
+            this.end = end;
+            this.top = top;
+            this.bottom = bottom;
+        }
+
+        public readonly float start;
+
+        float _start {
+            get { return start; }
+        }
+
+        public readonly float end;
+
+        float _end {
+            get { return end; }
+        }
+
+        public readonly float top;
+
+        float _top {
+            get { return top; }
+        }
+
+        public readonly float bottom;
+
+        float _bottom {
+            get { return bottom; }
+        }
+
+        float _left {
+            get { return 0f; }
+        }
+
+        float _right {
+            get { return 0f; }
+        }
+
+
+        public static EdgeInsetsDirectional fromSTEB(float start, float top, float end, float bottom) {
+            return new EdgeInsetsDirectional(start, top, end, bottom);
+        }
+        
+        public static EdgeInsetsDirectional only( float start = 0.0f, float top = 0.0f,float end = 0.0f,float bottom = 0.0f) {
+            return new EdgeInsetsDirectional(start,top,end,bottom);
+        }
+
+        static EdgeInsetsDirectional zero = only();
+
+        public override bool isNonNegative {
+            get { return start >= 0.0 && top >= 0.0 && end >= 0.0 && bottom >= 0.0; }
+        }
+
+        public EdgeInsetsDirectional flipped {
+            get { return fromSTEB(end, bottom, start, top); }
+        }
+
+        public override EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+            return fromSTEB(
+                start + other._start,
+                end + other._end,
+                top + other._top,
+                bottom + other._bottom
+            );
+        }
+
+        public override EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+            return fromSTEB(
+                start - other._start,
+                end - other._end,
+                top - other._top,
+                bottom - other._bottom
+            );
+        }
+
+        public override EdgeInsetsGeometry multiply(float b){
+            return fromSTEB(
+                start * b,
+                end * b,
+                top * b,
+                bottom * b
+            );
+        }
+
+        public override EdgeInsetsGeometry divide(float b){
+            return fromSTEB(
+                start / b,
+                end / b,
+                top / b,
+                bottom / b
+            );
+        }
+
+        public override EdgeInsetsGeometry remainder(float b){
+            return fromSTEB(
+                start % b,
+                end % b,
+                top % b,
+                bottom % b
+            );
+        }
+
+        public static EdgeInsetsDirectional operator -(EdgeInsetsDirectional a) {
+            return a.multiply(-1.0f) as EdgeInsetsDirectional;
+        }
+
+        public static EdgeInsetsDirectional operator +(EdgeInsetsDirectional a, EdgeInsetsDirectional b) {
+            return a.add(b) as EdgeInsetsDirectional;
+        }
+
+        public static EdgeInsetsDirectional operator -(EdgeInsetsDirectional a, EdgeInsetsDirectional b) {
+            return a.subtract(b) as EdgeInsetsDirectional;
+        }
+
+        public static EdgeInsetsDirectional operator *(EdgeInsetsDirectional a, float b) {
+            return a.multiply(b) as EdgeInsetsDirectional;
+        }
+
+        public static EdgeInsetsDirectional operator /(EdgeInsetsDirectional a, float b) {
+            return a.divide(b) as EdgeInsetsDirectional;
+        }
+
+        public static EdgeInsetsDirectional operator %(EdgeInsetsDirectional a, float b) {
+            return a.remainder(b) as EdgeInsetsDirectional;
+        }
+
+        public static EdgeInsetsDirectional lerp(EdgeInsetsDirectional a, EdgeInsetsDirectional b, float t) {
+            D.assert(t != null);
+            if (a == null && b == null)
+                return null;
+            if (a == null)
+                return b * t;
+            if (b == null)
+                return a * (1.0f - t);
+            return fromSTEB(
+                MathUtils.lerpNullableFloat(a.start, b.start, t),
+                MathUtils.lerpNullableFloat(a.top, b.top, t),
+                MathUtils.lerpNullableFloat(a.end, b.end, t),
+                MathUtils.lerpNullableFloat(a.bottom, b.bottom, t)
+            );
+        }
+
+        public override EdgeInsets resolve(TextDirection? direction) {
+            D.assert(direction != null);
+            switch (direction) {
+                case TextDirection.rtl:
+                    return EdgeInsets.fromLTRB(end, top, start, bottom);
+                case TextDirection.ltr:
+                    return EdgeInsets.fromLTRB(start, top, end, bottom);
+            }
+
+            return null;
+        }
+    }
+
+    public class _MixedEdgeInsets : EdgeInsetsGeometry {
+        public _MixedEdgeInsets(float _left, float _right, float _start, float _end, float _top, float _bottom) {
+            this._left = _left;
+            this._right = _right;
+            this._start = _start;
+            this._end = _end;
+            this._top = _top;
+            this._bottom = _bottom;
+        }
+
+        public static _MixedEdgeInsets fromLRSETB(float _left, float _right, float _start, float _end, float _top,
+            float _bottom) {
+            return new _MixedEdgeInsets(_left, _right, _start, _end, _top, _bottom);
+        }
+
+        public readonly float _left;
+
+        public readonly float _right;
+
+        public readonly float _start;
+
+        public readonly float _end;
+
+        public readonly float _top;
+
+        public readonly float _bottom;
+
+
+        public override bool isNonNegative {
+            get {
+                return _left >= 0.0
+                       && _right >= 0.0
+                       && _start >= 0.0
+                       && _end >= 0.0
+                       && _top >= 0.0
+                       && _bottom >= 0.0;
+            }
+        }
+
+        public override EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+            return fromLRSETB(
+                _left + other._left,
+                _right + other._right,
+                _start + other._start,
+                _end + other._end,
+                _top + other._top,
+                _bottom + other._bottom
+            );
+        }
+
+        public override EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+            return fromLRSETB(
+                _left - other._left,
+                _right - other._right,
+                _start - other._start,
+                _end - other._end,
+                _top - other._top,
+                _bottom - other._bottom
+            );
+        }
+
+        public override EdgeInsetsGeometry multiply(float b){
+            return fromLRSETB(
+                _left * b,
+                _right * b,
+                _start * b,
+                _end * b,
+                _top * b,
+                _bottom * b
+            );
+        }
+
+        public override EdgeInsetsGeometry divide(float b){
+            return fromLRSETB(
+                _left / b,
+                _right / b,
+                _start / b,
+                _end / b,
+                _top / b,
+                _bottom / b
+            );
+        }
+
+        public override EdgeInsetsGeometry remainder(float b){
+            return fromLRSETB(
+                _left % b,
+                _right % b,
+                _start % b,
+                _end % b,
+                _top % b,
+                _bottom % b
+            );
+        }
+
+        public static _MixedEdgeInsets operator -(_MixedEdgeInsets a) {
+            return a.multiply(-1.0f) as _MixedEdgeInsets;
+        }
+
+        public static _MixedEdgeInsets operator +(_MixedEdgeInsets a, _MixedEdgeInsets b) {
+            return a.add(b) as _MixedEdgeInsets;
+        }
+
+        public static _MixedEdgeInsets operator -(_MixedEdgeInsets a, _MixedEdgeInsets b) {
+            return a.subtract(b) as _MixedEdgeInsets;
+        }
+
+        public static _MixedEdgeInsets operator *(_MixedEdgeInsets a, float b) {
+            return a.multiply(b) as _MixedEdgeInsets;
+        }
+
+        public static _MixedEdgeInsets operator /(_MixedEdgeInsets a, float b) {
+            return a.divide(b) as _MixedEdgeInsets;
+        }
+
+        public static _MixedEdgeInsets operator %(_MixedEdgeInsets a, float b) {
+            return a.remainder(b) as _MixedEdgeInsets;
+        }
+
+        public override EdgeInsets resolve(TextDirection? direction) {
+            D.assert(direction != null);
+            switch (direction) {
+                case TextDirection.rtl:
+                    return EdgeInsets.fromLTRB(_end + _left, _top, _start + _right, _bottom);
+                case TextDirection.ltr:
+                    return EdgeInsets.fromLTRB(_start + _left, _top, _end + _right, _bottom);
+            }
+
+            return null;
+        }
+    }
+
+
+    public class EdgeInsets : EdgeInsetsGeometry {
         EdgeInsets(float left, float top, float right, float bottom) {
             this.left = left;
             this.right = right;
@@ -15,48 +578,55 @@ namespace Unity.UIWidgets.painting {
         public readonly float top;
         public readonly float bottom;
 
+        public static EdgeInsets infinity = fromLTRB(
+            float.PositiveInfinity,
+            float.PositiveInfinity,
+            float.PositiveInfinity,
+            float.PositiveInfinity
+        );
+
         public bool isNonNegative {
             get {
-                return this.left >= 0.0
-                       && this.right >= 0.0
-                       && this.top >= 0.0
-                       && this.bottom >= 0.0;
+                return left >= 0.0
+                       && right >= 0.0
+                       && top >= 0.0
+                       && bottom >= 0.0;
             }
         }
 
         public float horizontal {
-            get { return this.left + this.right; }
+            get { return left + right; }
         }
 
         public float vertical {
-            get { return this.top + this.bottom; }
+            get { return top + bottom; }
         }
 
         public float along(Axis axis) {
             switch (axis) {
                 case Axis.horizontal:
-                    return this.horizontal;
+                    return horizontal;
                 case Axis.vertical:
-                    return this.vertical;
+                    return vertical;
             }
 
             throw new Exception("unknown axis");
         }
 
         public Size collapsedSize {
-            get { return new Size(this.horizontal, this.vertical); }
+            get { return new Size(horizontal, vertical); }
         }
 
         public EdgeInsets flipped {
-            get { return fromLTRB(this.right, this.bottom, this.left, this.top); }
+            get { return fromLTRB(right, bottom, left, top); }
         }
 
         public Size inflateSize(Size size) {
-            return new Size(size.width + this.horizontal, size.height + this.vertical);
+            return new Size(size.width + horizontal, size.height + vertical);
         }
 
         public Size deflateSize(Size size) {
-            return new Size(size.width - this.horizontal, size.height - this.vertical);
+            return new Size(size.width - horizontal, size.height - vertical);
         }
 
         public static EdgeInsets fromLTRB(float left, float top, float right, float bottom) {
@@ -87,103 +657,109 @@ namespace Unity.UIWidgets.painting {
         public static readonly EdgeInsets zero = only();
 
         public Offset topLeft {
-            get { return new Offset(this.left, this.top); }
+            get { return new Offset(left, top); }
         }
 
         public Offset topRight {
-            get { return new Offset(-this.right, this.top); }
+            get { return new Offset(-right, top); }
         }
 
         public Offset bottomLeft {
-            get { return new Offset(this.left, -this.bottom); }
+            get { return new Offset(left, -bottom); }
         }
 
         public Offset bottomRight {
-            get { return new Offset(-this.right, -this.bottom); }
+            get { return new Offset(-right, -bottom); }
         }
 
         public Rect inflateRect(Rect rect) {
             return Rect.fromLTRB(
-                rect.left - this.left, rect.top - this.top,
-                rect.right + this.right, rect.bottom + this.bottom);
+                rect.left - left, rect.top - top,
+                rect.right + right, rect.bottom + bottom);
         }
 
         public Rect deflateRect(Rect rect) {
             return Rect.fromLTRB(
-                rect.left + this.left, rect.top + this.top,
-                rect.right - this.right, rect.bottom - this.bottom);
+                rect.left + left, rect.top + top,
+                rect.right - right, rect.bottom - bottom);
         }
 
-        public EdgeInsets subtract(EdgeInsets other) {
+        public override EdgeInsetsGeometry clamp(EdgeInsetsGeometry min, EdgeInsetsGeometry max) {
             return fromLTRB(
-                this.left - other.left,
-                this.top - other.top,
-                this.right - other.right,
-                this.bottom - other.bottom
+                left.clamp(min._left, max._left),
+                top.clamp(min._top, max._top),
+                right.clamp(min._right, max._right),
+                bottom.clamp(min._bottom, max._bottom)
             );
         }
 
-        public EdgeInsets add(EdgeInsets other) {
+        public override EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
             return fromLTRB(
-                this.left + other.left,
-                this.top + other.top,
-                this.right + other.right,
-                this.bottom + other.bottom
+                left + other._left,
+                top + other._top,
+                right + other._right,
+                bottom + other._bottom
             );
         }
 
-        public static EdgeInsets operator -(EdgeInsets a, EdgeInsets b) {
+        public override EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
             return fromLTRB(
-                a.left - b.left,
-                a.top - b.top,
-                a.right - b.right,
-                a.bottom - b.bottom
+                left - other._left,
+                top - other._top,
+                right - other._right,
+                bottom - other._bottom
             );
         }
 
-        public static EdgeInsets operator +(EdgeInsets a, EdgeInsets b) {
+        public override EdgeInsetsGeometry multiply(float b){
             return fromLTRB(
-                a.left + b.left,
-                a.top + b.top,
-                a.right + b.right,
-                a.bottom + b.bottom
+                left * b,
+                top * b,
+                right * b,
+                bottom * b
+            );
+        }
+
+        public override EdgeInsetsGeometry divide(float b){
+            return fromLTRB(
+                left / b,
+                top / b,
+                right / b,
+                bottom / b
+            );
+        }
+
+        public override EdgeInsetsGeometry remainder(float b){
+            return fromLTRB(
+                left % b,
+                top % b,
+                right % b,
+                bottom % b
             );
         }
 
         public static EdgeInsets operator -(EdgeInsets a) {
-            return fromLTRB(
-                -a.left,
-                -a.top,
-                -a.right,
-                -a.bottom
-            );
+            return a.multiply(-1.0f) as EdgeInsets;
+        }
+
+        public static EdgeInsets operator +(EdgeInsets a, EdgeInsets b) {
+            return a.add(b) as EdgeInsets;
+        }
+
+        public static EdgeInsets operator -(EdgeInsets a, EdgeInsets b) {
+            return a.subtract(b) as EdgeInsets;
         }
 
         public static EdgeInsets operator *(EdgeInsets a, float b) {
-            return fromLTRB(
-                a.left * b,
-                a.top * b,
-                a.right * b,
-                a.bottom * b
-            );
+            return a.multiply(b) as EdgeInsets;
         }
 
         public static EdgeInsets operator /(EdgeInsets a, float b) {
-            return fromLTRB(
-                a.left / b,
-                a.top / b,
-                a.right / b,
-                a.bottom / b
-            );
+            return a.divide(b) as EdgeInsets;
         }
 
         public static EdgeInsets operator %(EdgeInsets a, float b) {
-            return fromLTRB(
-                a.left % b,
-                a.top % b,
-                a.right % b,
-                a.bottom % b
-            );
+            return a.remainder(b) as EdgeInsets;
         }
 
         public static EdgeInsets lerp(EdgeInsets a, EdgeInsets b, float t) {
@@ -200,10 +776,10 @@ namespace Unity.UIWidgets.painting {
             }
 
             return fromLTRB(
-                MathUtils.lerpFloat(a.left, b.left, t),
-                MathUtils.lerpFloat(a.top, b.top, t),
-                MathUtils.lerpFloat(a.right, b.right, t),
-                MathUtils.lerpFloat(a.bottom, b.bottom, t)
+                MathUtils.lerpNullableFloat(a.left, b.left, t),
+                MathUtils.lerpNullableFloat(a.top, b.top, t),
+                MathUtils.lerpNullableFloat(a.right, b.right, t),
+                MathUtils.lerpNullableFloat(a.bottom, b.bottom, t)
             );
         }
 
@@ -230,10 +806,14 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.left.Equals(other.left)
-                   && this.right.Equals(other.right)
-                   && this.top.Equals(other.top)
-                   && this.bottom.Equals(other.bottom);
+            return left.Equals(other.left)
+                   && right.Equals(other.right)
+                   && top.Equals(other.top)
+                   && bottom.Equals(other.bottom);
+        }
+
+        public override EdgeInsets resolve(TextDirection? direction) {
+            return this;
         }
 
         public override bool Equals(object obj) {
@@ -245,19 +825,19 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((EdgeInsets) obj);
+            return Equals((EdgeInsets) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.left.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.right.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.top.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.bottom.GetHashCode();
+                var hashCode = left.GetHashCode();
+                hashCode = (hashCode * 397) ^ right.GetHashCode();
+                hashCode = (hashCode * 397) ^ top.GetHashCode();
+                hashCode = (hashCode * 397) ^ bottom.GetHashCode();
                 return hashCode;
             }
         }
@@ -271,18 +851,18 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            if (this.left == 0.0 && this.right == 0.0 && this.top == 0.0 && this.bottom == 0.0) {
+            if (left == 0.0 && right == 0.0 && top == 0.0 && bottom == 0.0) {
                 return "EdgeInsets.zero";
             }
 
-            if (this.left == this.right && this.right == this.top && this.top == this.bottom) {
-                return $"EdgeInsets.all({this.left:F1})";
+            if (left == right && right == top && top == bottom) {
+                return $"EdgeInsets.all({left:F1})";
             }
 
-            return $"EdgeInsets({this.left:F1}, " +
-                   $"{this.top:F1}, " +
-                   $"{this.right:F1}, " +
-                   $"{this.bottom:F1})";
+            return $"EdgeInsets({left:F1}, " +
+                   $"{top:F1}, " +
+                   $"{right:F1}, " +
+                   $"{bottom:F1})";
         }
     }
 }

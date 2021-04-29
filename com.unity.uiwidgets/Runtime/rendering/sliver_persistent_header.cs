@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -6,31 +7,51 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using AsyncCallback = Unity.UIWidgets.foundation.AsyncCallback;
 
 namespace Unity.UIWidgets.rendering {
-    public abstract class RenderSliverPersistentHeader : RenderObjectWithChildMixinRenderSliver<RenderBox> {
-        public RenderSliverPersistentHeader(RenderBox child = null) {
-            this.child = child;
+    
+    public class OverScrollHeaderStretchConfiguration {
+        public OverScrollHeaderStretchConfiguration(
+            float stretchTriggerOffset = 100.0f,
+            AsyncCallback onStretchTrigger = null
+        ) {
+            this.stretchTriggerOffset = stretchTriggerOffset;
+            this.onStretchTrigger = onStretchTrigger;
         }
 
+
+        public readonly float stretchTriggerOffset;
+        public readonly AsyncCallback onStretchTrigger;
+    }
+    public abstract class RenderSliverPersistentHeader : RenderObjectWithChildMixinRenderSliver<RenderBox> {
+        public RenderSliverPersistentHeader(
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+            ) {
+            this.child = child;
+            this.stretchConfiguration = stretchConfiguration;
+        }
+
+        float _lastStretchOffset;
         public virtual float? maxExtent { get; }
 
         public virtual float? minExtent { get; }
 
         public float childExtent {
             get {
-                if (this.child == null) {
+                if (child == null) {
                     return 0.0f;
                 }
 
-                D.assert(this.child.hasSize);
-                switch (this.constraints.axis) {
+                D.assert(child.hasSize);
+                switch (constraints.axis) {
                     case Axis.vertical:
-                        return this.child.size.height;
+                        return child.size.height;
                     case Axis.horizontal:
-                        return this.child.size.width;
+                        return child.size.width;
                     default:
-                        throw new Exception("Unknown axis: " + this.constraints.axis);
+                        throw new Exception("Unknown axis: " + constraints.axis);
                 }
             }
         }
@@ -38,55 +59,67 @@ namespace Unity.UIWidgets.rendering {
         bool _needsUpdateChild = true;
         float _lastShrinkOffset = 0.0f;
         bool _lastOverlapsContent = false;
+        public OverScrollHeaderStretchConfiguration stretchConfiguration;
 
         protected virtual void updateChild(float shrinkOffset, bool overlapsContent) {
         }
 
         public override void markNeedsLayout() {
-            this._needsUpdateChild = true;
+            _needsUpdateChild = true;
             base.markNeedsLayout();
         }
 
         protected void layoutChild(float scrollOffset, float maxExtent, bool overlapsContent = false) {
             float shrinkOffset = Mathf.Min(scrollOffset, maxExtent);
-            if (this._needsUpdateChild || this._lastShrinkOffset != shrinkOffset ||
-                this._lastOverlapsContent != overlapsContent) {
-                this.invokeLayoutCallback<SliverConstraints>((SliverConstraints constraints) => {
+            if (_needsUpdateChild || _lastShrinkOffset != shrinkOffset ||
+                _lastOverlapsContent != overlapsContent) {
+                invokeLayoutCallback<SliverConstraints>((SliverConstraints constraints) => {
                     D.assert(constraints == this.constraints);
-                    this.updateChild(shrinkOffset, overlapsContent);
+                    updateChild(shrinkOffset, overlapsContent);
                 });
-                this._lastShrinkOffset = shrinkOffset;
-                this._lastOverlapsContent = overlapsContent;
-                this._needsUpdateChild = false;
+                _lastShrinkOffset = shrinkOffset;
+                _lastOverlapsContent = overlapsContent;
+                _needsUpdateChild = false;
             }
 
-            D.assert(this.minExtent != null);
+            D.assert(minExtent != null);
             D.assert(() => {
-                if (this.minExtent <= maxExtent) {
+                if (minExtent <= maxExtent) {
                     return true;
                 }
 
-                throw new UIWidgetsError(
-                    "The maxExtent for this $runtimeType is less than its minExtent.\n" +
-                    "The specified maxExtent was: ${maxExtent.toStringAsFixed(1)}\n" +
-                    "The specified minExtent was: ${minExtent.toStringAsFixed(1)}\n"
-                );
+                throw new UIWidgetsError(new List<DiagnosticsNode>{
+                   new ErrorSummary($"The maxExtent for this {GetType()} is less than its minExtent."),
+                   new FloatProperty("The specified maxExtent was", maxExtent),
+                   new FloatProperty("The specified minExtent was", minExtent),
+                });
             });
-            this.child?.layout(
-                this.constraints.asBoxConstraints(
-                    maxExtent: Mathf.Max(this.minExtent ?? 0.0f, maxExtent - shrinkOffset)),
+            float stretchOffset = 0.0f;
+            if (stretchConfiguration != null && childMainAxisPosition(child) == 0.0)
+                stretchOffset += constraints.overlap.abs();
+            child?.layout(
+                constraints.asBoxConstraints(
+                    maxExtent: Mathf.Max(minExtent?? 0.0f, maxExtent - shrinkOffset) + stretchOffset
+                ),
                 parentUsesSize: true
             );
+            if (stretchConfiguration != null &&
+                stretchConfiguration.onStretchTrigger != null &&
+                stretchOffset >= stretchConfiguration.stretchTriggerOffset &&
+                _lastStretchOffset <= stretchConfiguration.stretchTriggerOffset) {
+                stretchConfiguration.onStretchTrigger();
+            }
+            _lastStretchOffset = stretchOffset;
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             return base.childMainAxisPosition(this.child);
         }
 
-        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition, float crossAxisPosition) {
-            D.assert(this.geometry.hitTestExtent > 0.0f);
-            if (this.child != null) {
-                return RenderSliverHelpers.hitTestBoxChild(this, new BoxHitTestResult(result), this.child, mainAxisPosition: mainAxisPosition,
+        protected override bool hitTestChildren(SliverHitTestResult result, float mainAxisPosition = 0.0f, float crossAxisPosition = 0.0f) {
+            D.assert(geometry.hitTestExtent > 0.0f);
+            if (child != null) {
+                return RenderSliverHelpers.hitTestBoxChild(this, new BoxHitTestResult(result), child, mainAxisPosition: mainAxisPosition,
                     crossAxisPosition: crossAxisPosition);
             }
 
@@ -100,105 +133,114 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null && this.geometry.visible) {
-                switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(this.constraints.axisDirection,
-                    this.constraints.growthDirection)) {
+            if (child != null && geometry.visible) {
+                switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection,
+                    constraints.growthDirection)) {
                     case AxisDirection.up:
                         offset += new Offset(0.0f,
-                            this.geometry.paintExtent - this.childMainAxisPosition(this.child) - this.childExtent);
+                            geometry.paintExtent - childMainAxisPosition(child)?? 0.0f - childExtent);
                         break;
                     case AxisDirection.down:
-                        offset += new Offset(0.0f, this.childMainAxisPosition(this.child));
+                        offset += new Offset(0.0f, childMainAxisPosition(child) ?? 0.0f);
                         break;
                     case AxisDirection.left:
                         offset += new Offset(
-                            this.geometry.paintExtent - this.childMainAxisPosition(this.child) - this.childExtent,
+                            geometry.paintExtent - childMainAxisPosition(child) ?? 0.0f - childExtent,
                             0.0f);
                         break;
                     case AxisDirection.right:
-                        offset += new Offset(this.childMainAxisPosition(this.child), 0.0f);
+                        offset += new Offset(childMainAxisPosition(child) ?? 0.0f, 0.0f);
                         break;
                 }
 
-                context.paintChild(this.child, offset);
+                context.paintChild(child, offset);
             }
         }
-
-        protected bool excludeFromSemanticsScrolling {
-            get { return this._excludeFromSemanticsScrolling; }
-            set {
-                if (this._excludeFromSemanticsScrolling == value) {
-                    return;
-                }
-
-                this._excludeFromSemanticsScrolling = value;
-            }
-        }
-
-        bool _excludeFromSemanticsScrolling = false;
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(FloatProperty.lazy("maxExtent", () => this.maxExtent));
-            properties.add(FloatProperty.lazy("child position", () => this.childMainAxisPosition(this.child)));
+            properties.add(FloatProperty.lazy("maxExtent", () => maxExtent));
+            properties.add(FloatProperty.lazy("child position", () => childMainAxisPosition(child)));
         }
     }
 
     public abstract class RenderSliverScrollingPersistentHeader : RenderSliverPersistentHeader {
         public RenderSliverScrollingPersistentHeader(
-            RenderBox child = null
-        ) : base(child: child) {
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(child: child,
+            stretchConfiguration: stretchConfiguration) {
         }
 
         float _childPosition;
 
+        protected float updateGeometry() {
+            float? stretchOffset = 0.0f;
+            if (stretchConfiguration != null && _childPosition == 0.0) {
+                stretchOffset += constraints.overlap.abs();
+            }
+            float? maxExtent = this.maxExtent;
+            float? paintExtent = maxExtent - constraints.scrollOffset;
+            geometry = new SliverGeometry(
+                scrollExtent: maxExtent ?? 0.0f,
+                paintOrigin: Mathf.Min(constraints.overlap, 0.0f),
+                paintExtent: paintExtent?.clamp(0.0f, constraints.remainingPaintExtent) ?? 0.0f,
+                maxPaintExtent: maxExtent + stretchOffset ?? 0.0f,
+                hasVisualOverflow: true// Conservatively say we do have overflow to avoid complexity.
+            );
+            return stretchOffset > 0 ? 0.0f :Mathf.Min(0.0f, paintExtent?? 0.0f - childExtent );
+        }
         protected override void performLayout() {
             float? maxExtent = this.maxExtent;
-            this.layoutChild(this.constraints.scrollOffset, maxExtent ?? 0.0f);
-            float? paintExtent = maxExtent - this.constraints.scrollOffset;
-            this.geometry = new SliverGeometry(
+            layoutChild(constraints.scrollOffset, maxExtent ?? 0.0f);
+            float? paintExtent = maxExtent - constraints.scrollOffset;
+            geometry = new SliverGeometry(
                 scrollExtent: maxExtent ?? 0.0f,
-                paintOrigin: Mathf.Min(this.constraints.overlap, 0.0f),
-                paintExtent: paintExtent?.clamp(0.0f, this.constraints.remainingPaintExtent) ?? 0.0f,
+                paintOrigin: Mathf.Min(constraints.overlap, 0.0f),
+                paintExtent: paintExtent?.clamp(0.0f, constraints.remainingPaintExtent) ?? 0.0f,
                 maxPaintExtent: maxExtent ?? 0.0f,
                 hasVisualOverflow: true
             );
-            this._childPosition = Mathf.Min(0.0f, paintExtent ?? 0.0f - this.childExtent);
+            _childPosition = updateGeometry();
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             D.assert(child == this.child);
-            return this._childPosition;
+            return _childPosition;
         }
     }
 
     public abstract class RenderSliverPinnedPersistentHeader : RenderSliverPersistentHeader {
         public RenderSliverPinnedPersistentHeader(
-            RenderBox child = null
-        ) : base(child: child) {
+            RenderBox child = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(child: child,
+            stretchConfiguration: stretchConfiguration) {
         }
-
+        
         protected override void performLayout() {
+            SliverConstraints constraints = this.constraints;
             float? maxExtent = this.maxExtent;
-            bool overlapsContent = this.constraints.overlap > 0.0f;
-            this.excludeFromSemanticsScrolling =
-                overlapsContent || (this.constraints.scrollOffset > maxExtent - this.minExtent);
-            this.layoutChild(this.constraints.scrollOffset, maxExtent ?? 0.0f, overlapsContent: overlapsContent);
-            float? layoutExtent =
-                (maxExtent - this.constraints.scrollOffset)?.clamp(0.0f, this.constraints.remainingPaintExtent);
-            this.geometry = new SliverGeometry(
+            bool overlapsContent = constraints.overlap > 0.0f;
+            layoutChild(constraints.scrollOffset, maxExtent ?? 0.0f, overlapsContent: overlapsContent);
+            float effectiveRemainingPaintExtent = Mathf.Max(0, constraints.remainingPaintExtent - constraints.overlap);
+            float? layoutExtent = (maxExtent - constraints.scrollOffset)?.clamp(0.0f, effectiveRemainingPaintExtent);
+            float stretchOffset = stretchConfiguration != null ?
+                constraints.overlap.abs() :
+                0.0f;
+            geometry = new SliverGeometry(
                 scrollExtent: maxExtent ?? 0.0f,
-                paintOrigin: this.constraints.overlap,
-                paintExtent: Mathf.Min(this.childExtent, this.constraints.remainingPaintExtent),
+                paintOrigin: constraints.overlap,
+                paintExtent: Mathf.Min(childExtent, effectiveRemainingPaintExtent),
                 layoutExtent: layoutExtent,
-                maxPaintExtent: maxExtent ?? 0.0f,
-                maxScrollObstructionExtent: this.minExtent ?? 0.0f,
-                cacheExtent: layoutExtent > 0.0f ? -this.constraints.cacheOrigin + layoutExtent : layoutExtent,
+                maxPaintExtent: (maxExtent ?? 0.0f) + stretchOffset,
+                maxScrollObstructionExtent: minExtent ?? 0.0f,
+                cacheExtent: layoutExtent > 0.0f ? -constraints.cacheOrigin + layoutExtent : layoutExtent,
                 hasVisualOverflow: true
             );
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             return 0.0f;
         }
     }
@@ -210,6 +252,8 @@ namespace Unity.UIWidgets.rendering {
             TimeSpan? duration = null
         ) {
             D.assert(vsync != null);
+            D.assert(curve != null);
+            D.assert(duration != null);
             this.vsync = vsync;
             this.curve = curve ?? Curves.ease;
             this.duration = duration ?? new TimeSpan(0, 0, 0, 0, 300);
@@ -226,9 +270,12 @@ namespace Unity.UIWidgets.rendering {
     public abstract class RenderSliverFloatingPersistentHeader : RenderSliverPersistentHeader {
         public RenderSliverFloatingPersistentHeader(
             RenderBox child = null,
-            FloatingHeaderSnapConfiguration snapConfiguration = null
-        ) : base(child: child) {
-            this._snapConfiguration = snapConfiguration;
+            FloatingHeaderSnapConfiguration snapConfiguration = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(
+            child: child,
+            stretchConfiguration: stretchConfiguration) {
+            _snapConfiguration = snapConfiguration;
         }
 
         AnimationController _controller;
@@ -239,100 +286,104 @@ namespace Unity.UIWidgets.rendering {
         float _childPosition;
 
         public override void detach() {
-            this._controller?.dispose();
-            this._controller = null;
+            _controller?.dispose();
+            _controller = null;
             base.detach();
         }
 
         public FloatingHeaderSnapConfiguration snapConfiguration {
-            get { return this._snapConfiguration; }
+            get { return _snapConfiguration; }
             set {
-                if (value == this._snapConfiguration) {
+                if (value == _snapConfiguration) {
                     return;
                 }
 
                 if (value == null) {
-                    this._controller?.dispose();
-                    this._controller = null;
+                    _controller?.dispose();
+                    _controller = null;
                 }
                 else {
-                    if (this._snapConfiguration != null && value.vsync != this._snapConfiguration.vsync) {
-                        this._controller?.resync(value.vsync);
+                    if (_snapConfiguration != null && value.vsync != _snapConfiguration.vsync) {
+                        _controller?.resync(value.vsync);
                     }
                 }
 
-                this._snapConfiguration = value;
+                _snapConfiguration = value;
             }
         }
 
-        FloatingHeaderSnapConfiguration _snapConfiguration;
+        public FloatingHeaderSnapConfiguration _snapConfiguration;
 
         protected virtual float updateGeometry() {
+            float stretchOffset = 0.0f;
+            if (stretchConfiguration != null && _childPosition == 0.0) {
+                stretchOffset += constraints.overlap.abs();
+            }
             float? maxExtent = this.maxExtent;
-            float? paintExtent = maxExtent - this._effectiveScrollOffset;
-            float? layoutExtent = maxExtent - this.constraints.scrollOffset;
-            this.geometry = new SliverGeometry(
+            float? paintExtent = maxExtent - _effectiveScrollOffset;
+            float? layoutExtent = maxExtent - constraints.scrollOffset;
+            geometry = new SliverGeometry(
                 scrollExtent: maxExtent ?? 0.0f,
-                paintOrigin: Mathf.Min(this.constraints.overlap, 0.0f),
-                paintExtent: paintExtent?.clamp(0.0f, this.constraints.remainingPaintExtent) ?? 0.0f,
-                layoutExtent: layoutExtent?.clamp(0.0f, this.constraints.remainingPaintExtent),
-                maxPaintExtent: maxExtent ?? 0.0f,
-                maxScrollObstructionExtent: maxExtent ?? 0.0f,
+                paintOrigin: Mathf.Min(constraints.overlap, 0.0f),
+                paintExtent: paintExtent?.clamp(0.0f, constraints.remainingPaintExtent) ?? 0.0f,
+                layoutExtent: layoutExtent?.clamp(0.0f, constraints.remainingPaintExtent),
+                maxPaintExtent: (maxExtent ?? 0.0f) + stretchOffset,
                 hasVisualOverflow: true
             );
-            return Mathf.Min(0.0f, paintExtent ?? 0.0f - this.childExtent);
+            return stretchOffset > 0 ? 0.0f : Mathf.Min(0.0f, paintExtent??0.0f - childExtent);
         }
 
         public void maybeStartSnapAnimation(ScrollDirection direction) {
-            if (this.snapConfiguration == null) {
+            if (snapConfiguration == null) {
                 return;
             }
 
-            if (direction == ScrollDirection.forward && this._effectiveScrollOffset <= 0.0f) {
+            if (direction == ScrollDirection.forward && _effectiveScrollOffset <= 0.0f) {
                 return;
             }
 
-            if (direction == ScrollDirection.reverse && this._effectiveScrollOffset >= this.maxExtent) {
+            if (direction == ScrollDirection.reverse && _effectiveScrollOffset >= maxExtent) {
                 return;
             }
 
-            TickerProvider vsync = this.snapConfiguration.vsync;
-            TimeSpan duration = this.snapConfiguration.duration;
-            this._controller = this._controller ?? new AnimationController(vsync: vsync, duration: duration);
-            this._controller.addListener(() => {
-                if (this._effectiveScrollOffset == this._animation.value) {
+            TickerProvider vsync = snapConfiguration.vsync;
+            TimeSpan duration = snapConfiguration.duration;
+            _controller = _controller ?? new AnimationController(vsync: vsync, duration: duration);
+            _controller.addListener(() => {
+                if (_effectiveScrollOffset == _animation.value) {
                     return;
                 }
 
-                this._effectiveScrollOffset = this._animation.value;
-                this.markNeedsLayout();
+                _effectiveScrollOffset = _animation.value;
+                markNeedsLayout();
             });
 
-            this._animation = this._controller.drive(
+            _animation = _controller.drive(
                 new FloatTween(
-                    begin: this._effectiveScrollOffset,
-                    end: direction == ScrollDirection.forward ? 0.0f : this.maxExtent ?? 0.0f
+                    begin: _effectiveScrollOffset,
+                    end: direction == ScrollDirection.forward ? 0.0f : maxExtent ?? 0.0f
                 ).chain(new CurveTween(
-                    curve: this.snapConfiguration.curve
+                    curve: snapConfiguration.curve
                 ))
             );
 
-            this._controller.forward(from: 0.0f);
+            _controller.forward(from: 0.0f);
         }
 
         public void maybeStopSnapAnimation(ScrollDirection direction) {
-            this._controller?.stop();
+            _controller?.stop();
         }
 
         protected override void performLayout() {
+            SliverConstraints constraints = this.constraints;
             float? maxExtent = this.maxExtent;
-            if (((this.constraints.scrollOffset < this._lastActualScrollOffset) ||
-                 (this._effectiveScrollOffset < maxExtent))) {
-                float delta = this._lastActualScrollOffset - this.constraints.scrollOffset;
-                bool allowFloatingExpansion = this.constraints.userScrollDirection == ScrollDirection.forward;
+            if (((constraints.scrollOffset < _lastActualScrollOffset) ||
+                 (_effectiveScrollOffset < maxExtent))) {
+                float delta = _lastActualScrollOffset - constraints.scrollOffset;
+                bool allowFloatingExpansion = constraints.userScrollDirection == ScrollDirection.forward;
                 if (allowFloatingExpansion) {
-                    if (this._effectiveScrollOffset > maxExtent) {
-                        this._effectiveScrollOffset = maxExtent ?? 0.0f;
+                    if (_effectiveScrollOffset > maxExtent) {
+                        _effectiveScrollOffset = maxExtent ?? 0.0f;
                     }
                 }
                 else {
@@ -341,53 +392,61 @@ namespace Unity.UIWidgets.rendering {
                     }
                 }
 
-                this._effectiveScrollOffset =
-                    (this._effectiveScrollOffset - delta).clamp(0.0f, this.constraints.scrollOffset);
+                _effectiveScrollOffset =
+                    (_effectiveScrollOffset - delta).clamp(0.0f, constraints.scrollOffset);
             }
             else {
-                this._effectiveScrollOffset = this.constraints.scrollOffset;
+                _effectiveScrollOffset = constraints.scrollOffset;
             }
-
-            bool overlapsContent = this._effectiveScrollOffset < this.constraints.scrollOffset;
-            this.excludeFromSemanticsScrolling = overlapsContent;
-            this.layoutChild(this._effectiveScrollOffset, maxExtent ?? 0.0f, overlapsContent: overlapsContent);
-            this._childPosition = this.updateGeometry();
-            this._lastActualScrollOffset = this.constraints.scrollOffset;
+            bool overlapsContent = _effectiveScrollOffset < constraints.scrollOffset;
+            layoutChild(
+                _effectiveScrollOffset,
+                maxExtent ?? 0.0f, 
+                overlapsContent: overlapsContent
+            );
+            _childPosition = updateGeometry();
+            _lastActualScrollOffset = constraints.scrollOffset;
         }
 
-        public override float childMainAxisPosition(RenderObject child) {
+        public override float? childMainAxisPosition(RenderObject child) {
             D.assert(child == this.child);
-            return this._childPosition;
+            return _childPosition;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FloatProperty("effective scroll offset", this._effectiveScrollOffset));
+            properties.add(new FloatProperty("effective scroll offset", _effectiveScrollOffset));
         }
     }
 
     public abstract class RenderSliverFloatingPinnedPersistentHeader : RenderSliverFloatingPersistentHeader {
         public RenderSliverFloatingPinnedPersistentHeader(
             RenderBox child = null,
-            FloatingHeaderSnapConfiguration snapConfiguration = null
-        ) : base(child: child, snapConfiguration: snapConfiguration) {
+            FloatingHeaderSnapConfiguration snapConfiguration = null,
+            OverScrollHeaderStretchConfiguration stretchConfiguration = null
+        ) : base(child: child,
+            snapConfiguration: snapConfiguration,
+            stretchConfiguration: stretchConfiguration) {
         }
 
         protected override float updateGeometry() {
             float? minExtent = this.minExtent;
-            float? minAllowedExtent = this.constraints.remainingPaintExtent > minExtent
+            float? minAllowedExtent = constraints.remainingPaintExtent > minExtent
                 ? minExtent
-                : this.constraints.remainingPaintExtent;
+                : constraints.remainingPaintExtent;
             float? maxExtent = this.maxExtent;
-            float? paintExtent = maxExtent - this._effectiveScrollOffset;
+            float? paintExtent = maxExtent - _effectiveScrollOffset;
             float? clampedPaintExtent =
-                paintExtent?.clamp(minAllowedExtent ?? 0.0f, this.constraints.remainingPaintExtent);
-            float? layoutExtent = maxExtent - this.constraints.scrollOffset;
-            this.geometry = new SliverGeometry(
+                paintExtent?.clamp(minAllowedExtent ?? 0.0f, constraints.remainingPaintExtent);
+            float? layoutExtent = maxExtent - constraints.scrollOffset;
+            float? stretchOffset = stretchConfiguration != null ?
+                constraints.overlap.abs() :
+                0.0f;
+            geometry = new SliverGeometry(
                 scrollExtent: maxExtent ?? 0.0f,
                 paintExtent: clampedPaintExtent ?? 0.0f,
                 layoutExtent: layoutExtent?.clamp(0.0f, clampedPaintExtent ?? 0.0f),
-                maxPaintExtent: maxExtent ?? 0.0f,
+                maxPaintExtent: (maxExtent ?? 0.0f) + (stretchOffset ?? 0.0f),
                 maxScrollObstructionExtent: maxExtent ?? 0.0f,
                 hasVisualOverflow: true
             );

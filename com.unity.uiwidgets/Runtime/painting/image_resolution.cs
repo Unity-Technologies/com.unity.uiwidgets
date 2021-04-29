@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using System.Text.RegularExpressions;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -11,28 +13,81 @@ namespace Unity.UIWidgets.painting {
     public class AssetImage : AssetBundleImageProvider, IEquatable<AssetImage> {
         public AssetImage(string assetName,
             AssetBundle bundle = null) {
+            D.assert(false,() => "AssetImage is currently not supported, you can use FileImage instead");
             D.assert(assetName != null);
             this.assetName = assetName;
             this.bundle = bundle;
         }
 
         public readonly string assetName;
-        public readonly AssetBundle bundle;
 
-        protected override IPromise<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
-            AssetImageConfiguration assetConfig = new AssetImageConfiguration(configuration, this.assetName);
+        public string keyName {
+            get { return package == null ? assetName : "packages/$package/$assetName"; }
+        }
+
+        public readonly AssetBundle bundle;
+        public readonly string package;
+        public const float _naturalResolution = 1.0f;
+
+        public override Future<AssetBundleImageKey> obtainKey(ImageConfiguration configuration) {
+            AssetImageConfiguration assetConfig = new AssetImageConfiguration(configuration, assetName);
             AssetBundleImageKey key;
             var cache = AssetBundleCache.instance.get(configuration.bundle);
             if (cache.TryGetValue(assetConfig, out key)) {
-                return Promise<AssetBundleImageKey>.Resolved(key);
+                return new SynchronousFuture<AssetBundleImageKey>(key);
             }
 
-            AssetBundle chosenBundle = this.bundle ? this.bundle : configuration.bundle;
+            AssetBundle chosenBundle = bundle ? bundle : configuration.bundle;
             var devicePixelRatio = configuration.devicePixelRatio ?? Window.instance.devicePixelRatio;
-            key = this._loadAsset(chosenBundle, devicePixelRatio);
+            key = _loadAsset(chosenBundle, devicePixelRatio);
             cache[assetConfig] = key;
-            
-            return Promise<AssetBundleImageKey>.Resolved(key);
+
+            return new SynchronousFuture<AssetBundleImageKey>(key);
+        }
+
+        internal string _chooseVariant(string main, ImageConfiguration config, List<string> candidates) {
+            if (config.devicePixelRatio == null || candidates == null || candidates.isEmpty())
+                return main;
+            SplayTree<float, string> mapping = new SplayTree<float, string>();
+            foreach (string candidate in candidates) {
+                mapping[_parseScale(candidate)] = candidate;
+            }
+
+            return _findNearest(mapping, config.devicePixelRatio ?? 0);
+        }
+
+        string _findNearest(SplayTree<float, string> candidates, float value) {
+            if (candidates.ContainsKey(value))
+                return candidates[value];
+            float lower = candidates.lastKeyBefore(value);
+            float upper = candidates.firstKeyAfter(value);
+            if (lower == null)
+                return candidates[upper];
+            if (upper == null)
+                return candidates[lower];
+            if (value > (lower + upper) / 2)
+                return candidates[upper];
+            else
+                return candidates[lower];
+        }
+
+        internal static readonly Regex _extractRatioRegExp = new Regex(@"/?(\d+(\.\d*)?)x$");
+
+        float _parseScale(string key) {
+            if (key == assetName) {
+                return _naturalResolution;
+            }
+
+            Uri assetUri = new Uri(key);
+            string directoryPath = "";
+            if (assetUri.Segments.Length > 1) {
+                directoryPath = assetUri.Segments[assetUri.Segments.Length - 2];
+            }
+
+            Match match = _extractRatioRegExp.Match(directoryPath);
+            if (match != null && match.Groups.Count > 0)
+                return float.Parse(match.Groups[1].Value);
+            return _naturalResolution;
         }
 
         AssetBundleImageKey _loadAsset(AssetBundle bundle, float devicePixelRatio) {
@@ -46,14 +101,16 @@ namespace Unity.UIWidgets.painting {
                 Object asset;
                 if (bundle == null) {
                     asset = Resources.Load(assetName);
-                } else {
+                }
+                else {
                     asset = bundle.LoadAsset(assetName);
                 }
 
                 if (asset != null) {
                     if (bundle == null) {
                         Resources.UnloadAsset(asset);
-                    } else {
+                    }
+                    else {
                         bundle.Unload(asset);
                     }
 
@@ -81,7 +138,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return string.Equals(this.assetName, other.assetName) && Equals(this.bundle, other.bundle);
+            return string.Equals(assetName, other.assetName) && Equals(bundle, other.bundle);
         }
 
         public override bool Equals(object obj) {
@@ -93,17 +150,17 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((AssetImage) obj);
+            return Equals((AssetImage) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.assetName != null ? this.assetName.GetHashCode() : 0) * 397) ^
-                       (this.bundle != null ? this.bundle.GetHashCode() : 0);
+                return ((assetName != null ? assetName.GetHashCode() : 0) * 397) ^
+                       (bundle != null ? bundle.GetHashCode() : 0);
             }
         }
 
@@ -116,7 +173,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(bundle: {this.bundle}, name: \"{this.assetName}\")";
+            return $"{foundation_.objectRuntimeType(this, "AssetImage")}(bundle: {bundle}, name: \"{assetName}\")";
         }
     }
 
@@ -138,7 +195,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.configuration, other.configuration) && string.Equals(this.assetName, other.assetName);
+            return Equals(configuration, other.configuration) && string.Equals(assetName, other.assetName);
         }
 
         public override bool Equals(object obj) {
@@ -150,17 +207,17 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((AssetImageConfiguration) obj);
+            return Equals((AssetImageConfiguration) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.configuration != null ? this.configuration.GetHashCode() : 0) * 397) ^
-                       (this.assetName != null ? this.assetName.GetHashCode() : 0);
+                return ((configuration != null ? configuration.GetHashCode() : 0) * 397) ^
+                       (assetName != null ? assetName.GetHashCode() : 0);
             }
         }
 
@@ -186,12 +243,12 @@ namespace Unity.UIWidgets.painting {
         public Dictionary<AssetImageConfiguration, AssetBundleImageKey> get(AssetBundle bundle) {
             Dictionary<AssetImageConfiguration, AssetBundleImageKey> result;
             int id = bundle == null ? 0 : bundle.GetInstanceID();
-            if (this._bundleCaches.TryGetValue(id, out result)) {
+            if (_bundleCaches.TryGetValue(id, out result)) {
                 return result;
             }
 
             result = new Dictionary<AssetImageConfiguration, AssetBundleImageKey>();
-            this._bundleCaches[id] = result;
+            _bundleCaches[id] = result;
             return result;
         }
     }

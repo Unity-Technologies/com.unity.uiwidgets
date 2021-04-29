@@ -1,5 +1,7 @@
 using System;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.widgets {
@@ -72,9 +74,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public static float extentInside(this ScrollMetrics it) {
-            return Mathf.Min(it.pixels, it.maxScrollExtent) -
-                   Mathf.Max(it.pixels, it.minScrollExtent) +
-                   Mathf.Min(it.viewportDimension, it.maxScrollExtent - it.minScrollExtent);
+            D.assert(it.minScrollExtent <= it.maxScrollExtent);
+            return it.viewportDimension 
+                   - (it.minScrollExtent - it.pixels).clamp(0, it.viewportDimension) 
+                   - (it.pixels  - it.maxScrollExtent).clamp(0, it.viewportDimension);
         }
 
         public static float extentAfter(this ScrollMetrics it) {
@@ -108,7 +111,7 @@ namespace Unity.UIWidgets.widgets {
         public AxisDirection axisDirection { get; private set; }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.extentBefore():F1})..[{this.extentInside():F1}]..{this.extentAfter():F1})";
+            return $"{GetType()}({this.extentBefore():F1})..[{this.extentInside():F1}]..{this.extentAfter():F1})";
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -6,6 +7,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class ExpandIcon : StatefulWidget {
@@ -14,11 +16,18 @@ namespace Unity.UIWidgets.material {
             bool isExpanded = false,
             float size = 24.0f,
             ValueChanged<bool> onPressed = null,
-            EdgeInsets padding = null) : base(key: key) {
+            EdgeInsetsGeometry padding = null,
+            Color color = null,
+            Color disabledColor = null,
+            Color expandedColor = null
+        ) : base(key: key) {
             this.isExpanded = isExpanded;
             this.size = size;
             this.onPressed = onPressed;
             this.padding = padding ?? EdgeInsets.all(8.0f);
+            this.color = color;
+            this.disabledColor = disabledColor;
+            this.expandedColor = expandedColor;
         }
 
         public readonly bool isExpanded;
@@ -27,7 +36,13 @@ namespace Unity.UIWidgets.material {
 
         public readonly ValueChanged<bool> onPressed;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
+
+        public readonly Color color;
+
+        public readonly Color disabledColor;
+
+        public readonly Color expandedColor;
 
         public override State createState() {
             return new _ExpandIconState();
@@ -44,15 +59,15 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(duration: ThemeUtils.kThemeAnimationDuration, vsync: this);
-            this._iconTurns = this._controller.drive(_iconTurnTween);
-            if (this.widget.isExpanded) {
-                this._controller.setValue(Mathf.PI);
+            _controller = new AnimationController(duration: ThemeUtils.kThemeAnimationDuration, vsync: this);
+            _iconTurns = _controller.drive(_iconTurnTween);
+            if (widget.isExpanded) {
+                _controller.setValue(Mathf.PI);
             }
         }
 
         public override void dispose() {
-            this._controller.dispose();
+            _controller.dispose();
             base.dispose();
         }
 
@@ -60,33 +75,57 @@ namespace Unity.UIWidgets.material {
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             ExpandIcon _oldWidget = (ExpandIcon) oldWidget;
-            if (this.widget.isExpanded != _oldWidget.isExpanded) {
-                if (this.widget.isExpanded) {
-                    this._controller.forward();
+            if (widget.isExpanded != _oldWidget.isExpanded) {
+                if (widget.isExpanded) {
+                    _controller.forward();
                 }
                 else {
-                    this._controller.reverse();
+                    _controller.reverse();
                 }
             }
         }
 
 
         void _handlePressed() {
-            if (this.widget.onPressed != null) {
-                this.widget.onPressed(this.widget.isExpanded);
+            if (widget.onPressed != null) {
+                widget.onPressed(widget.isExpanded);
+            }
+        }
+
+        Color _iconColor {
+            get {
+                if (widget.isExpanded && widget.expandedColor != null) {
+                    return widget.expandedColor;
+                }
+
+                if (widget.color != null) {
+                    return widget.color;
+                }
+
+                switch (Theme.of(context).brightness) {
+                    case Brightness.light:
+                        return Colors.black54;
+                    case Brightness.dark:
+                        return Colors.white60;
+                }
+
+                D.assert(false);
+                return null;
             }
         }
 
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
-            ThemeData theme = Theme.of(context);
+            D.assert(material_.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             return new IconButton(
-                padding: this.widget.padding,
-                color: theme.brightness == Brightness.dark ? Colors.white54 : Colors.black54,
-                onPressed: this.widget.onPressed == null ? (VoidCallback) null : this._handlePressed,
+                padding: widget.padding,
+                iconSize: widget.size,
+                color: _iconColor,
+                disabledColor: widget.disabledColor,
+                onPressed: widget.onPressed == null ? (VoidCallback) null : _handlePressed,
                 icon: new RotationTransition(
-                    turns: this._iconTurns,
+                    turns: _iconTurns,
                     child: new Icon(Icons.expand_more))
             );
         }

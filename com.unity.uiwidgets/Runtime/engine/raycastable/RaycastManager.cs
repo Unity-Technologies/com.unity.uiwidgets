@@ -8,7 +8,7 @@ namespace Unity.UIWidgets.engine.raycast {
         bool _isDirty = true;
 
         public bool isDirty {
-            get { return this._isDirty; }
+            get { return _isDirty; }
         }
 
         public float left;
@@ -17,25 +17,25 @@ namespace Unity.UIWidgets.engine.raycast {
         public float bottom;
 
         public void MarkDirty() {
-            this._isDirty = true;
+            _isDirty = true;
         }
 
         public void UnmarkDirty() {
-            this._isDirty = false;
+            _isDirty = false;
         }
 
         public void UpdateRect(float left, float top, float width, float height) {
             this.left = left;
-            this.right = left + width;
+            right = left + width;
             this.top = top;
-            this.bottom = top + height;
+            bottom = top + height;
         }
 
         public bool CheckInRect(Vector2 pos) {
-            return pos.x >= this.left &&
-                   pos.x < this.right &&
-                   pos.y >= this.top &&
-                   pos.y < this.bottom;
+            return pos.x >= left &&
+                   pos.x < right &&
+                   pos.y >= top &&
+                   pos.y < bottom;
         }
     }
 

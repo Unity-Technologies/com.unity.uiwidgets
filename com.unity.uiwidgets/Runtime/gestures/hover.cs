@@ -19,8 +19,8 @@ namespace Unity.UIWidgets.gestures {
         
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<object>("debugOwner", this.debugOwner,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<object>("debugOwner", debugOwner,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 }

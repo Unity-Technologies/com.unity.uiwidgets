@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -49,32 +48,6 @@ namespace UIWidgets.Runtime.rendering {
         const float _indicatorFontSizePixels = 7.5f;
         const float _indicatorLabelPaddingPixels = 1.0f;
 
-        static readonly TextStyle _indicatorTextStyle = new TextStyle(
-            color: new Color(0xFF900000),
-            fontSize: _indicatorFontSizePixels,
-            fontWeight: FontWeight.w800
-        );
-
-        static readonly Paint _indicatorPaint = new Paint();
-
-        static readonly Paint _labelBackgroundPaint = new Paint();
-
-        static readonly List<TextPainter> _indicatorLabel = new List<TextPainter>(4);
-
-        static DebugOverflowIndicatorMixin() {
-            _indicatorPaint.shader = Gradient.linear(
-                new Offset(0.0f, 0.0f),
-                new Offset(10.0f, 10.0f),
-                new List<Color> {_black, _yellow, _yellow, _black},
-                new List<float> {0.25f, 0.25f, 0.75f, 0.75f},
-                TileMode.repeated
-            );
-            _labelBackgroundPaint.color = new Color(0xFFFFFFFF);
-            for (int i = 0; i < 4; i++) {
-                _indicatorLabel.Add(new TextPainter(new TextSpan(""), textDirection: TextDirection.ltr));
-            }
-        }
-
         static readonly Dictionary<RenderObject, bool> _overflowReportNeeded = new Dictionary<RenderObject, Boolean>();
 
         static string _formatPixels(float value) {
@@ -104,7 +77,7 @@ namespace UIWidgets.Runtime.rendering {
                 );
                 regions.Add(new _OverflowRegionData(
                     rect: markerRect,
-                    label: "LEFT OVERFLOWED BY ${_formatPixels(overflow.left)} PIXELS",
+                    label: $"LEFT OVERFLOWED BY {_formatPixels(overflow.left)} PIXELS",
                     labelOffset: markerRect.centerLeft +
                                  new Offset(_indicatorFontSizePixels + _indicatorLabelPaddingPixels, 0.0f),
                     rotation: Mathf.PI / 2.0f,
@@ -165,18 +138,26 @@ namespace UIWidgets.Runtime.rendering {
             return regions;
         }
 
-        static void _reportOverflow(RenderObject renderObject, RelativeRect overflow, string overflowHints) {
-            overflowHints = overflowHints ?? $"The edge of the {renderObject.GetType()} that is " +
-                            "overflowing has been marked in the rendering with a yellow and black " +
-                            "striped pattern. This is usually caused by the contents being too big " +
-                            $"for the {renderObject.GetType()}.\n" +
-                            "This is considered an error condition because it indicates that there " +
-                            "is content that cannot be seen. If the content is legitimately bigger " +
-                            "than the available space, consider clipping it with a ClipRect widget " +
-                            $"before putting it in the {renderObject.GetType()}, or using a scrollable " +
-                            "container, like a ListView.";
+        static void _reportOverflow(RenderObject renderObject, RelativeRect overflow, List<DiagnosticsNode> overflowHints) {
+            overflowHints = overflowHints ?? new List<DiagnosticsNode>();
+            if (overflowHints.isEmpty()) {
+                overflowHints.Add(
+                    new ErrorDescription(
+                        $"The edge of the {renderObject.GetType()} that is " +
+                        "overflowing has been marked in the rendering with a yellow and black " +
+                        "striped pattern. This is usually caused by the contents being too big " +
+                        $"for the {renderObject.GetType()}."));
+                
+                overflowHints.Add(
+                    new ErrorHint(
+                        "This is considered an error condition because it indicates that there " +
+                        "is content that cannot be seen. If the content is legitimately bigger " +
+                        "than the available space, consider clipping it with a ClipRect widget " +
+                        $"before putting it in the {renderObject.GetType()}, or using a scrollable " +
+                        "container, like a ListView."));
+            }
 
-            List<string> overflows = new List<string> { };
+            List<string> overflows = new List<string>();
             if (overflow.left > 0.0f) {
                 overflows.Add($"{_formatPixels(overflow.left)} pixels on the left");
             }
@@ -209,17 +190,21 @@ namespace UIWidgets.Runtime.rendering {
                     break;
             }
 
+            IEnumerable<DiagnosticsNode> infoCollector() {
+                foreach (var hint in overflowHints) {
+                    yield return hint;
+                }
+
+                yield return DiagnosticsNode.message($"The specific {renderObject.GetType()} in question is: {renderObject.toStringShallow(joiner: "\n  ")}");
+                yield return DiagnosticsNode.message(string.Concat(Enumerable.Repeat("◢◤", 32)),allowWrap: false);
+            }
+
             UIWidgetsError.reportError(
                 new UIWidgetsErrorDetails(
                     exception: new Exception($"A {renderObject.GetType()} overflowed by {overflowText}."),
                     library: "rendering library",
-                    context: "during layout",
-                    informationCollector: (information) => {
-                        information.AppendLine(overflowHints);
-                        information.AppendLine($"The specific {renderObject.GetType()} in question is:");
-                        information.AppendLine($"  {renderObject.toStringShallow(joiner: "\n  ")}");
-                        information.AppendLine(string.Concat(Enumerable.Repeat("◢◤", 32)));
-                    }
+                    context: new ErrorDescription("during layout"),
+                    informationCollector: infoCollector
                 )
             );
         }
@@ -230,7 +215,7 @@ namespace UIWidgets.Runtime.rendering {
             Offset offset,
             Rect containerRect,
             Rect childRect,
-            string overflowHints = null
+            List<DiagnosticsNode> overflowHints = null
         ) {
             RelativeRect overflow = RelativeRect.fromRect(containerRect, childRect);
 
@@ -241,26 +226,41 @@ namespace UIWidgets.Runtime.rendering {
                 return;
             }
 
+            TextStyle _indicatorTextStyle = new TextStyle(
+                color: new Color(0xFF900000),
+                fontSize: _indicatorFontSizePixels,
+                fontWeight: FontWeight.w800
+            );
+            
+            Paint _indicatorPaint = new Paint{ shader = Gradient.linear(
+                new Offset(0.0f, 0.0f),
+                new Offset(10.0f, 10.0f),
+                new List<Color> {_black, _yellow, _yellow, _black},
+                new List<float> {0.25f, 0.25f, 0.75f, 0.75f},
+                TileMode.repeated
+            )};
+            
+            Paint _labelBackgroundPaint = new Paint{color = new Color(0xFFFFFFFF)};
+
             List<_OverflowRegionData> overflowRegions = _calculateOverflowRegions(overflow, containerRect);
             foreach (_OverflowRegionData region in overflowRegions) {
                 context.canvas.drawRect(region.rect.shift(offset), _indicatorPaint);
 
-                if (_indicatorLabel[(int) region.side].text?.text != region.label) {
-                    _indicatorLabel[(int) region.side].text = new TextSpan(
+                var textPainter = new TextPainter(textDirection: TextDirection.ltr) {
+                    text = new TextSpan(
                         text: region.label,
-                        style: _indicatorTextStyle
-                    );
-                    _indicatorLabel[(int) region.side].layout();
-                }
+                        style: _indicatorTextStyle)
+                };
+                textPainter.layout();
 
                 Offset labelOffset = region.labelOffset + offset;
-                Offset centerOffset = new Offset(-_indicatorLabel[(int) region.side].width / 2.0f, 0.0f);
-                Rect textBackgroundRect = centerOffset & _indicatorLabel[(int) region.side].size;
+                Offset centerOffset = new Offset(-textPainter.width / 2.0f, 0.0f);
+                Rect textBackgroundRect = centerOffset & textPainter.size;
                 context.canvas.save();
                 context.canvas.translate(labelOffset.dx, labelOffset.dy);
                 context.canvas.rotate(region.rotation);
                 context.canvas.drawRect(textBackgroundRect, _labelBackgroundPaint);
-                _indicatorLabel[(int) region.side].paint(context.canvas, centerOffset);
+                textPainter.paint(context.canvas, centerOffset);
                 context.canvas.restore();
             }
 

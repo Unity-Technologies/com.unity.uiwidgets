@@ -10,8 +10,10 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace Unity.UIWidgets.widgets {
     public abstract class AnimatedWidget : StatefulWidget {
         public readonly Listenable listenable;
-
-        protected AnimatedWidget(Key key = null, Listenable listenable = null) : base(key) {
+        protected AnimatedWidget(
+            Key key = null,
+            Listenable listenable = null
+            ) : base(key) {
             D.assert(listenable != null);
             this.listenable = listenable;
         }
@@ -24,46 +26,48 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Listenable>("animation", this.listenable));
+            properties.add(new DiagnosticsProperty<Listenable>("animation", listenable));
         }
     }
 
     public class _AnimatedState : State<AnimatedWidget> {
         public override void initState() {
             base.initState();
-            this.widget.listenable.addListener(this._handleChange);
+            widget.listenable.addListener(_handleChange);
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (this.widget.listenable != ((AnimatedWidget) oldWidget).listenable) {
-                ((AnimatedWidget) oldWidget).listenable.removeListener(this._handleChange);
-                this.widget.listenable.addListener(this._handleChange);
+            if (widget.listenable != ((AnimatedWidget) oldWidget).listenable) {
+                ((AnimatedWidget) oldWidget).listenable.removeListener(_handleChange);
+                widget.listenable.addListener(_handleChange);
             }
         }
 
         public override void dispose() {
-            this.widget.listenable.removeListener(this._handleChange);
+            widget.listenable.removeListener(_handleChange);
             base.dispose();
         }
 
         void _handleChange() {
-            this.setState(() => {
+            setState(() => {
                 // The listenable's state is our build state, and it changed already.
             });
         }
 
         public override Widget build(BuildContext context) {
-            return this.widget.build(context);
+            return widget.build(context);
         }
     }
 
     public class SlideTransition : AnimatedWidget {
-        public SlideTransition(Key key = null,
+        public SlideTransition(
+            Key key = null,
             Animation<Offset> position = null,
             bool transformHitTests = true,
             TextDirection? textDirection = null,
-            Widget child = null) : base(key: key, listenable: position) {
+            Widget child = null
+            ) : base(key: key, listenable: position) {
             D.assert(position != null);
             this.transformHitTests = transformHitTests;
             this.textDirection = textDirection;
@@ -71,7 +75,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Animation<Offset> position {
-            get { return (Animation<Offset>) this.listenable; }
+            get { return (Animation<Offset>) listenable; }
         }
 
         public readonly TextDirection? textDirection;
@@ -81,15 +85,15 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         protected internal override Widget build(BuildContext context) {
-            var offset = this.position.value;
-            if (this.textDirection == TextDirection.rtl) {
+            var offset = position.value;
+            if (textDirection == TextDirection.rtl) {
                 offset = new Offset(-offset.dx, offset.dy);
             }
 
             return new FractionalTranslation(
                 translation: offset,
-                transformHitTests: this.transformHitTests,
-                child: this.child
+                transformHitTests: transformHitTests,
+                child: child
             );
         }
     }
@@ -109,7 +113,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Animation<float> scale {
-            get { return (Animation<float>) this.listenable; }
+            get { return (Animation<float>) listenable; }
         }
 
         public readonly Alignment alignment;
@@ -117,12 +121,13 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         protected internal override Widget build(BuildContext context) {
-            float scaleValue = this.scale.value;
-            Matrix4 transform = new Matrix4().diagonal3Values(scaleValue, scaleValue, 1);
+            float scaleValue = scale.value;
+            Matrix4 transform = Matrix4.identity();
+            transform.scale(scaleValue, scaleValue, 1.0f);
             return new Transform(
                 transform: transform,
-                alignment: this.alignment,
-                child: this.child
+                alignment: alignment,
+                child: child
             );
         }
     }
@@ -133,14 +138,15 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             Animation<float> turns = null,
             Alignment alignment = null,
-            Widget child = null) : base(key: key, listenable: turns) {
+            Widget child = null) : 
+            base(key: key, listenable: turns) {
             D.assert(turns != null);
             this.alignment = alignment ?? Alignment.center;
             this.child = child;
         }
 
         public Animation<float> turns {
-            get { return (Animation<float>) this.listenable; }
+            get { return (Animation<float>) listenable; }
         }
 
         public readonly Alignment alignment;
@@ -148,12 +154,12 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         protected internal override Widget build(BuildContext context) {
-            float turnsValue = this.turns.value;
-            Matrix4 transform = new Matrix4().rotationZ((turnsValue * Mathf.PI * 2.0f));
+            float turnsValue = turns.value;
+            Matrix4 transform = Matrix4.rotationZ((turnsValue * Mathf.PI * 2.0f));
             return new Transform(
                 transform: transform,
-                alignment: this.alignment,
-                child: this.child);
+                alignment: alignment,
+                child: child);
         }
     }
 
@@ -163,7 +169,8 @@ namespace Unity.UIWidgets.widgets {
             Axis axis = Axis.vertical,
             Animation<float> sizeFactor = null,
             float axisAlignment = 0.0f,
-            Widget child = null) : base(key: key, listenable: sizeFactor) {
+            Widget child = null) 
+            : base(key: key, listenable: sizeFactor) {
             D.assert(sizeFactor != null);
             this.axis = axis;
             this.axisAlignment = axisAlignment;
@@ -175,99 +182,131 @@ namespace Unity.UIWidgets.widgets {
         public readonly float axisAlignment;
 
         Animation<float> sizeFactor {
-            get { return (Animation<float>) this.listenable; }
+            get { return (Animation<float>) listenable; }
         }
 
         public readonly Widget child;
 
         protected internal override Widget build(BuildContext context) {
             Alignment alignment;
-            if (this.axis == Axis.vertical) {
-                alignment = new Alignment(-1.0f, this.axisAlignment);
+            if (axis == Axis.vertical) {
+                alignment = new Alignment(-1.0f, axisAlignment);
             }
             else {
-                alignment = new Alignment(this.axisAlignment, -1.0f);
+                alignment = new Alignment(axisAlignment, -1.0f);
             }
 
             return new ClipRect(
                 child: new Align(
                     alignment: alignment,
-                    widthFactor: this.axis == Axis.horizontal ? (float?) Mathf.Max(this.sizeFactor.value, 0.0f) : null,
-                    heightFactor: this.axis == Axis.vertical ? (float?) Mathf.Max(this.sizeFactor.value, 0.0f) : null,
-                    child: this.child
+                    widthFactor: axis == Axis.horizontal ? (float?) Mathf.Max(sizeFactor.value, 0.0f) : null,
+                    heightFactor: axis == Axis.vertical ? (float?) Mathf.Max(sizeFactor.value, 0.0f) : null,
+                    child: child
                 )
             );
         }
     }
 
     public class FadeTransition : SingleChildRenderObjectWidget {
-        public FadeTransition(Key key = null, Animation<float> opacity = null,
-            Widget child = null) : base(key: key, child: child) {
+        public FadeTransition(
+            Key key = null, 
+            Animation<float> opacity = null,
+            bool alwaysIncludeSemantics = false,
+            Widget child = null
+            ) : base(key: key, child: child) {
             D.assert(opacity != null);
             this.opacity = opacity;
+            this.alwaysIncludeSemantics = alwaysIncludeSemantics;
         }
 
         public readonly Animation<float> opacity;
-
+        public readonly bool alwaysIncludeSemantics;
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderAnimatedOpacity(
-                opacity: this.opacity
+                opacity: opacity
+                //alwaysIncludeSemantics: alwaysIncludeSemantics
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            ((RenderAnimatedOpacity) renderObject).opacity = this.opacity;
+            ((RenderAnimatedOpacity) renderObject).opacity = opacity;
+            //((RenderAnimatedOpacity) renderObject).alwaysIncludeSemantics = alwaysIncludeSemantics;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Animation<float>>("opacity", this.opacity));
+            properties.add(new DiagnosticsProperty<Animation<float>>("opacity", opacity));
+            properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
     }
 
+    public class SliverFadeTransition : SingleChildRenderObjectWidget {
+        public SliverFadeTransition(
+            Animation<float> opacity = null,
+            Key key = null,
+            Widget sliver = null
+        ) : base(key: key, child: sliver) {
+            D.assert(opacity != null);
+            this.opacity = opacity;
+        }
+        public readonly Animation<float> opacity;
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new RenderSliverAnimatedOpacity(
+                opacity: opacity
+            );
+        }
+        
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            renderObject = (RenderSliverAnimatedOpacity)renderObject;
+            ((RenderSliverAnimatedOpacity)renderObject).opacity = opacity;
+
+        }
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<Animation<float>>("opacity", opacity));
+        }
+    }
     public class RelativeRectTween : Tween<RelativeRect> {
-        public RelativeRectTween(RelativeRect begin = null, RelativeRect end = null) : base(begin: begin, end: end) {
+        public RelativeRectTween(
+            RelativeRect begin = null, 
+            RelativeRect end = null) : base(begin: begin, end: end) {
         }
 
         public override RelativeRect lerp(float t) {
-            return RelativeRect.lerp(this.begin, this.end, t);
+            return RelativeRect.lerp(begin, end, t);
         }
     }
 
 
     public class PositionedTransition : AnimatedWidget {
         public PositionedTransition(
+            Animation<RelativeRect> rect ,
             Key key = null,
-            Animation<RelativeRect> rect = null,
             Widget child = null
         ) : base(key: key, listenable: rect) {
             D.assert(rect != null);
-            D.assert(child != null);
             this.child = child;
         }
 
         Animation<RelativeRect> rect {
-            get { return (Animation<RelativeRect>) this.listenable; }
+            get { return (Animation<RelativeRect>) listenable; }
         }
-
-
         public readonly Widget child;
-
-
         protected internal override Widget build(BuildContext context) {
             return Positioned.fromRelativeRect(
-                rect: this.rect.value,
-                child: this.child
+                rect: rect.value,
+                child: child
             );
         }
     }
 
     public class RelativePositionedTransition : AnimatedWidget {
         public RelativePositionedTransition(
-            Key key = null,
-            Animation<Rect> rect = null,
-            Size size = null,
-            Widget child = null
+            Animation<Rect> rect,
+            Size size,
+            Widget child ,
+            Key key = null
         ) : base(key: key, listenable: rect) {
             D.assert(rect != null);
             D.assert(size != null);
@@ -277,7 +316,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         Animation<Rect> rect {
-            get { return (Animation<Rect>) this.listenable; }
+            get { return (Animation<Rect>) listenable; }
         }
 
         public readonly Size size;
@@ -285,13 +324,13 @@ namespace Unity.UIWidgets.widgets {
         public readonly Widget child;
 
         protected internal override Widget build(BuildContext context) {
-            RelativeRect offsets = RelativeRect.fromSize(this.rect.value, this.size);
+            RelativeRect offsets = RelativeRect.fromSize(rect.value, size);
             return new Positioned(
                 top: offsets.top,
                 right: offsets.right,
                 bottom: offsets.bottom,
                 left: offsets.left,
-                child: this.child
+                child: child
             );
         }
     }
@@ -299,10 +338,10 @@ namespace Unity.UIWidgets.widgets {
 
     public class DecoratedBoxTransition : AnimatedWidget {
         public DecoratedBoxTransition(
-            Key key = null,
-            Animation<Decoration> decoration = null,
-            DecorationPosition position = DecorationPosition.background,
-            Widget child = null
+            Animation<Decoration> decoration ,
+            Widget child ,
+            Key key = null, 
+            DecorationPosition position = DecorationPosition.background
         ) : base(key: key, listenable: decoration) {
             D.assert(decoration != null);
             D.assert(child != null);
@@ -319,18 +358,18 @@ namespace Unity.UIWidgets.widgets {
 
         protected internal override Widget build(BuildContext context) {
             return new DecoratedBox(
-                decoration: this.decoration.value,
-                position: this.position,
-                child: this.child
+                decoration: decoration.value,
+                position: position,
+                child: child
             );
         }
     }
 
     public class AlignTransition : AnimatedWidget {
         public AlignTransition(
+            Animation<AlignmentGeometry> alignment,
+            Widget child,
             Key key = null,
-            Animation<Alignment> alignment = null,
-            Widget child = null,
             float? widthFactor = null,
             float? heightFactor = null
         ) : base(key: key, listenable: alignment) {
@@ -341,8 +380,8 @@ namespace Unity.UIWidgets.widgets {
             this.heightFactor = heightFactor;
         }
 
-        Animation<Alignment> alignment {
-            get { return (Animation<Alignment>) this.listenable; }
+        Animation<AlignmentGeometry> alignment {
+            get { return (Animation<AlignmentGeometry>) listenable; }
         }
 
         public readonly float? widthFactor;
@@ -354,19 +393,19 @@ namespace Unity.UIWidgets.widgets {
 
         protected internal override Widget build(BuildContext context) {
             return new Align(
-                alignment: this.alignment.value,
-                widthFactor: this.widthFactor,
-                heightFactor: this.heightFactor,
-                child: this.child
+                alignment: alignment.value,
+                widthFactor: widthFactor,
+                heightFactor: heightFactor,
+                child: child
             );
         }
     }
 
     public class DefaultTextStyleTransition : AnimatedWidget {
         public DefaultTextStyleTransition(
+            Animation<TextStyle> style,
+            Widget child,
             Key key = null,
-            Animation<TextStyle> style = null,
-            Widget child = null,
             TextAlign? textAlign = null,
             bool softWrap = true,
             TextOverflow overflow = TextOverflow.clip,
@@ -382,7 +421,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         Animation<TextStyle> style {
-            get { return (Animation<TextStyle>) this.listenable; }
+            get { return (Animation<TextStyle>) listenable; }
         }
 
         public readonly TextAlign? textAlign;
@@ -394,12 +433,12 @@ namespace Unity.UIWidgets.widgets {
 
         protected internal override Widget build(BuildContext context) {
             return new DefaultTextStyle(
-                style: this.style.value,
-                textAlign: this.textAlign,
-                softWrap: this.softWrap,
-                overflow: this.overflow,
-                maxLines: this.maxLines,
-                child: this.child
+                style: style.value,
+                textAlign: textAlign,
+                softWrap: softWrap,
+                overflow: overflow,
+                maxLines: maxLines,
+                child: child
             );
         }
     }
@@ -407,12 +446,12 @@ namespace Unity.UIWidgets.widgets {
 
     public class AnimatedBuilder : AnimatedWidget {
         public readonly TransitionBuilder builder;
-
         public readonly Widget child;
-
-        public AnimatedBuilder(Key key = null, Listenable animation = null, TransitionBuilder builder = null,
-            Widget child = null) :
-            base(key, animation) {
+        public AnimatedBuilder(
+            Listenable animation, 
+            TransitionBuilder builder,
+            Key key = null, 
+            Widget child = null) : base(key, animation) {
             D.assert(builder != null);
             D.assert(animation != null);
             this.builder = builder;
@@ -420,7 +459,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected internal override Widget build(BuildContext context) {
-            return this.builder(context, this.child);
+            return builder(context, child);
         }
     }
 }

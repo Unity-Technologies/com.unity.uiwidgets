@@ -1,18 +1,28 @@
 using System;
+using System.Collections.Generic;
+using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.widgets {
     public class IconData : IEquatable<IconData> {
         public IconData(
             int codePoint,
-            string fontFamily = null
+            string fontFamily = null,
+            string fontPackage = null,
+            bool matchTextDirection = false
         ) {
             this.codePoint = codePoint;
             this.fontFamily = fontFamily;
+            this.fontPackage = fontPackage;
+            this.matchTextDirection = matchTextDirection;
         }
 
         public readonly int codePoint;
 
         public readonly string fontFamily;
+
+        public readonly string fontPackage;
+
+        public readonly bool matchTextDirection;
 
         public bool Equals(IconData other) {
             if (ReferenceEquals(null, other)) {
@@ -23,8 +33,10 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return this.codePoint == other.codePoint &&
-                   string.Equals(this.fontFamily, other.fontFamily);
+            return codePoint == other.codePoint &&
+                   string.Equals(fontFamily, other.fontFamily) && 
+                   string.Equals(fontPackage, other.fontPackage) && 
+                matchTextDirection == other.matchTextDirection;
         }
 
         public override bool Equals(object obj) {
@@ -36,29 +48,63 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((IconData) obj);
+            return Equals((IconData) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return (this.codePoint * 397) ^ (this.fontFamily != null ? this.fontFamily.GetHashCode() : 0);
+                var hashCode = 
+                     (codePoint * 397) ^ (fontFamily != null ? fontFamily.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (fontPackage != null ? fontPackage.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ matchTextDirection.GetHashCode();
+                return hashCode;
             }
         }
 
         public static bool operator ==(IconData left, IconData right) {
             return Equals(left, right);
         }
-
         public static bool operator !=(IconData left, IconData right) {
             return !Equals(left, right);
         }
 
         public override string ToString() {
-            return "IconData(U+" + this.codePoint.ToString("X5") + ")";
+            return "IconData(U+" + codePoint.ToString("X5") + ")";
         }
+    }
+    
+    public class IconDataProperty : DiagnosticsProperty<IconData> {
+        public IconDataProperty(
+            string name,
+            IconData value,
+            string ifNull = null,
+            bool showName = true,
+            DiagnosticsTreeStyle style = DiagnosticsTreeStyle.singleLine,
+            DiagnosticLevel level = DiagnosticLevel.info
+        ) : base(name, 
+            value,
+            showName: showName,
+            ifNull: ifNull,
+            style: style,
+            level: level
+        ) {
+           
+           
+        }
+
+
+        public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate _delegate) {
+            Dictionary<string, object> json = base.toJsonMap(_delegate);
+        if (value != null) {
+            json["valueProperties"] = new Dictionary<string, object>(){
+                {"codePoint", value.codePoint},
+            };
+        }
+        return json;
+    }
     }
 }

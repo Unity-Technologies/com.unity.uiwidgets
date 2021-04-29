@@ -1,107 +1,125 @@
 ﻿using System;
 using System.Collections.Generic;
-using RSG;
+using System.Linq;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     public abstract class OverlayRoute : Route {
-        readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
+       
 
         public OverlayRoute(
             RouteSettings settings = null
-        ) : base(settings) {
+        ) : base(settings : settings) {
         }
-
         public override List<OverlayEntry> overlayEntries {
-            get { return this._overlayEntries; }
+            get { return _overlayEntries; }
         }
+        public readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
 
         protected virtual bool finishedWhenPopped {
             get { return true; }
         }
 
-        public abstract ICollection<OverlayEntry> createOverlayEntries();
+        public abstract IEnumerable<OverlayEntry> createOverlayEntries();
 
-        protected internal override void install(OverlayEntry insertionPoint) {
-            D.assert(this._overlayEntries.isEmpty());
-            this._overlayEntries.AddRange(this.createOverlayEntries());
-            this.navigator.overlay?.insertAll(this._overlayEntries, above: insertionPoint);
-            base.install(insertionPoint);
-        }
-
+        protected internal override void install(){
+            D.assert(_overlayEntries.isEmpty());
+            _overlayEntries.AddRange(createOverlayEntries());
+            base.install();
+        } 
         protected internal override bool didPop(object result) {
             var returnValue = base.didPop(result);
             D.assert(returnValue);
-            if (this.finishedWhenPopped) {
-                this.navigator.finalizeRoute(this);
+            if (finishedWhenPopped) {
+                navigator.finalizeRoute(this);
             }
-
             return returnValue;
         }
 
-        protected internal override void dispose() {
-            foreach (var entry in this._overlayEntries) {
-                entry.remove();
-            }
-
-            this._overlayEntries.Clear();
+        public override void dispose() {
+            _overlayEntries.Clear();
             base.dispose();
         }
+    }
+
+    public abstract class OverlayRoute<T> : OverlayRoute {
+        public readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
+        public OverlayRoute(
+            RouteSettings settings = null
+        ) : base(settings : settings) {
+        }
+        protected internal new bool didPop(T result) {
+            var returnValue = base.didPop(result);
+            D.assert(returnValue);
+            if (finishedWhenPopped) {
+                navigator.finalizeRoute(this);
+            }
+            return returnValue;
+        }
+      
     }
 
     public abstract class TransitionRoute : OverlayRoute {
         public TransitionRoute(
             RouteSettings settings = null
-        ) : base(settings) {
+            ) : base(settings) {
         }
 
-        public IPromise<object> completed {
-            get { return this._transitionCompleter; }
+        public Future completed {
+            get { return _transitionCompleter.future; }
         }
-
-        internal readonly Promise<object> _transitionCompleter = new Promise<object>();
+        internal readonly Completer _transitionCompleter = Completer.create();
 
         public virtual TimeSpan transitionDuration { get; }
 
+        public virtual TimeSpan reverseTransitionDuration {
+            get { return transitionDuration; }
+        }
         public virtual bool opaque { get; }
 
 
         protected override bool finishedWhenPopped {
-            get { return this.controller.status == AnimationStatus.dismissed; }
+            get { return controller.status == AnimationStatus.dismissed; }
         }
 
         public virtual Animation<float> animation {
-            get { return this._animation; }
+            get { return _animation; }
         }
-
         internal Animation<float> _animation;
 
         public AnimationController controller {
-            get { return this._controller; }
+            get { return _controller; }
         }
-
         internal AnimationController _controller;
 
+        public virtual Animation<float> secondaryAnimation {
+            get { return _secondaryAnimation; }
+        }
+        readonly ProxyAnimation _secondaryAnimation = new ProxyAnimation(Animations.kAlwaysDismissedAnimation);
+
         public virtual AnimationController createAnimationController() {
-            D.assert(this._transitionCompleter.CurState == PromiseState.Pending,
-                () => $"Cannot reuse a {this.GetType()} after disposing it.");
-            TimeSpan duration = this.transitionDuration;
-            D.assert(duration >= TimeSpan.Zero);
+            D.assert(!_transitionCompleter.isCompleted,
+                () => $"Cannot reuse a {GetType()} after disposing it.");
+            TimeSpan duration = transitionDuration;
+            TimeSpan reverseDuration = reverseTransitionDuration;
+            D.assert(duration >= TimeSpan.Zero && duration != null);
             return new AnimationController(
                 duration: duration,
-                debugLabel: this.debugLabel,
-                vsync: this.navigator
+                reverseDuration: reverseDuration, 
+                debugLabel: debugLabel,
+                vsync: navigator
             );
         }
 
         public virtual Animation<float> createAnimation() {
-            D.assert(this._transitionCompleter.CurState == PromiseState.Pending,
-                () => $"Cannot reuse a {this.GetType()} after disposing it.");
-            D.assert(this._controller != null);
-            return this._controller.view;
+            D.assert(!_transitionCompleter.isCompleted,
+                () => $"Cannot reuse a {GetType()} after disposing it.");
+            D.assert(_controller != null);
+            return _controller.view;
         }
 
         object _result;
@@ -109,127 +127,175 @@ namespace Unity.UIWidgets.widgets {
         internal void _handleStatusChanged(AnimationStatus status) {
             switch (status) {
                 case AnimationStatus.completed:
-                    if (this.overlayEntries.isNotEmpty()) {
-                        this.overlayEntries.first().opaque = this.opaque;
+                    if (overlayEntries.isNotEmpty()) {
+                        overlayEntries.first().opaque = opaque;
                     }
-
                     break;
+                
                 case AnimationStatus.forward:
                 case AnimationStatus.reverse:
-                    if (this.overlayEntries.isNotEmpty()) {
-                        this.overlayEntries.first().opaque = false;
+                    if (overlayEntries.isNotEmpty()) {
+                        overlayEntries.first().opaque = false;
                     }
 
                     break;
                 case AnimationStatus.dismissed:
-                    // We might still be an active route if a subclass is controlling the
-                    // the transition and hits the dismissed status. For example, the iOS
-                    // back gesture drives this animation to the dismissed status before
-                    // popping the navigator.
-                    if (!this.isActive) {
-                        this.navigator.finalizeRoute(this);
-                        D.assert(this.overlayEntries.isEmpty());
+                    
+                    if (!isActive) {
+                        navigator.finalizeRoute(this);
+                        D.assert(overlayEntries.isEmpty());
                     }
 
                     break;
             }
 
-            this.changedInternalState();
+            changedInternalState();
         }
 
-        public virtual Animation<float> secondaryAnimation {
-            get { return this._secondaryAnimation; }
-        }
-
-        readonly ProxyAnimation _secondaryAnimation = new ProxyAnimation(Animations.kAlwaysDismissedAnimation);
-
-        protected internal override void install(OverlayEntry insertionPoint) {
-            D.assert(!this._transitionCompleter.isCompleted, () => $"Cannot install a {this.GetType()} after disposing it.");
-            this._controller = this.createAnimationController();
-            D.assert(this._controller != null, () => $"{this.GetType()}.createAnimationController() returned null.");
-            this._animation = this.createAnimation();
-            D.assert(this._animation != null, () => $"{this.GetType()}.createAnimation() returned null.");
-            base.install(insertionPoint);
+       
+        protected internal override void install() {
+            D.assert(!_transitionCompleter.isCompleted, () => $"Cannot install a {GetType()} after disposing it.");
+            _controller = createAnimationController();
+            D.assert(_controller != null, () => $"{GetType()}.createAnimationController() returned null.");
+            _animation = createAnimation();
+            D.assert(_animation != null, () => $"{GetType()}.createAnimation() returned null.");
+            base.install();
         }
 
         protected internal override TickerFuture didPush() {
-            D.assert(this._controller != null,
-                () => $"{this.GetType()}.didPush called before calling install() or after calling dispose().");
-            D.assert(!this._transitionCompleter.isCompleted, () => $"Cannot reuse a {this.GetType()} after disposing it.");
-            this._animation.addStatusListener(this._handleStatusChanged);
-            return this._controller.forward();
+            D.assert(_controller != null,
+                () => $"{GetType()}.didPush called before calling install() or after calling dispose().");
+            D.assert(!_transitionCompleter.isCompleted, () => $"Cannot reuse a {GetType()} after disposing it.");
+            _didPushOrReplace();
+            base.didPush();
+            return _controller.forward();
         }
-
+        protected internal override void didAdd() {
+            D.assert(_controller != null,
+                () => $"{GetType()}.didPush called before calling install() or after calling dispose().");
+            D.assert(!_transitionCompleter.isCompleted, () => $"Cannot reuse a {GetType()} after disposing it.");
+            _didPushOrReplace();
+            base.didAdd();
+            _controller.setValue(_controller.upperBound); 
+        }
         protected internal override void didReplace(Route oldRoute) {
-            D.assert(this._controller != null,
-                () => $"{this.GetType()}.didReplace called before calling install() or after calling dispose().");
-            D.assert(!this._transitionCompleter.isCompleted, () => $"Cannot reuse a {this.GetType()} after disposing it.");
-            if (oldRoute is TransitionRoute route) {
-                this._controller.setValue(route._controller.value);
+            D.assert(_controller != null,
+                () => $"{GetType()}.didReplace called before calling install() or after calling dispose().");
+            D.assert(!_transitionCompleter.isCompleted, () => $"Cannot reuse a {GetType()} after disposing it.");
+            if (oldRoute is TransitionRoute) {
+                _controller.setValue(((TransitionRoute)oldRoute)._controller.value);
             }
-
-            this._animation.addStatusListener(this._handleStatusChanged);
+            _didPushOrReplace();
             base.didReplace(oldRoute);
         }
-
+        public void _didPushOrReplace() {
+            _animation.addStatusListener(_handleStatusChanged);
+           if (_animation.isCompleted && overlayEntries.isNotEmpty()) {
+                overlayEntries[0].opaque = opaque;
+            }
+        }
         protected internal override bool didPop(object result) {
-            D.assert(this._controller != null,
-                () => $"{this.GetType()}.didPop called before calling install() or after calling dispose().");
-            D.assert(!this._transitionCompleter.isCompleted, () => $"Cannot reuse a {this.GetType()} after disposing it.");
-            this._result = result;
-            this._controller.reverse();
+            D.assert(_controller != null,
+                () => $"{GetType()}.didPop called before calling install() or after calling dispose().");
+            D.assert(!_transitionCompleter.isCompleted, () => $"Cannot reuse a {GetType()} after disposing it.");
+            _result = result;
+            _controller.reverse();
             return base.didPop(result);
         }
 
         protected internal override void didPopNext(Route nextRoute) {
-            D.assert(this._controller != null,
-                () => $"{this.GetType()}.didPopNext called before calling install() or after calling dispose().");
-            D.assert(!this._transitionCompleter.isCompleted, () => $"Cannot reuse a {this.GetType()} after disposing it.");
-            this._updateSecondaryAnimation(nextRoute);
+            D.assert(_controller != null,
+                () => $"{GetType()}.didPopNext called before calling install() or after calling dispose().");
+            D.assert(!_transitionCompleter.isCompleted, () => $"Cannot reuse a {GetType()} after disposing it.");
+            _updateSecondaryAnimation(nextRoute);
             base.didPopNext(nextRoute);
         }
 
         protected internal override void didChangeNext(Route nextRoute) {
-            D.assert(this._controller != null,
-                () => $"{this.GetType()}.didChangeNext called before calling install() or after calling dispose().");
-            D.assert(!this._transitionCompleter.isCompleted, () => $"Cannot reuse a {this.GetType()} after disposing it.");
-            this._updateSecondaryAnimation(nextRoute);
+            D.assert(_controller != null,
+                () => $"{GetType()}.didChangeNext called before calling install() or after calling dispose().");
+            D.assert(!_transitionCompleter.isCompleted, () => $"Cannot reuse a {GetType()} after disposing it.");
+            _updateSecondaryAnimation(nextRoute);
             base.didChangeNext(nextRoute);
         }
-
+        VoidCallback _trainHoppingListenerRemover;
         void _updateSecondaryAnimation(Route nextRoute) {
-            if (nextRoute is TransitionRoute && this.canTransitionTo((TransitionRoute) nextRoute) &&
-                ((TransitionRoute) nextRoute).canTransitionFrom(this)) {
-                Animation<float> current = this._secondaryAnimation.parent;
+            VoidCallback previousTrainHoppingListenerRemover = _trainHoppingListenerRemover;
+            _trainHoppingListenerRemover = null;
+            if (nextRoute is TransitionRoute && canTransitionTo((TransitionRoute)nextRoute) &&
+                ((TransitionRoute) nextRoute).canTransitionFrom((TransitionRoute)this)) {
+                Animation<float> current = _secondaryAnimation.parent;
                 if (current != null) {
-                    if (current is TrainHoppingAnimation) {
+                    Animation<float> currentTrain = current is TrainHoppingAnimation ? ((TrainHoppingAnimation)current).currentTrain : current;
+                    Animation<float> nextTrain = ((TransitionRoute)nextRoute)._animation;
+                    if (
+                        currentTrain.value == nextTrain.value ||
+                        nextTrain.status == AnimationStatus.completed ||
+                        nextTrain.status == AnimationStatus.dismissed
+                    ) { 
+                        _setSecondaryAnimation(nextTrain, ((TransitionRoute)nextRoute).completed);
+                    } else {
+                        
                         TrainHoppingAnimation newAnimation = null;
+                        void _jumpOnAnimationEnd(AnimationStatus status) { 
+                            switch (status) { 
+                                case AnimationStatus.completed:
+                                case AnimationStatus.dismissed:
+                                    _setSecondaryAnimation(nextTrain, ((TransitionRoute)nextRoute).completed); 
+                                    if (_trainHoppingListenerRemover != null) {
+                                        _trainHoppingListenerRemover();
+                                        _trainHoppingListenerRemover = null;
+                                    } 
+                                    break;
+                                case AnimationStatus.forward:
+                                case AnimationStatus.reverse: 
+                                    break; 
+                            } 
+                        } 
+                        _trainHoppingListenerRemover = ()=> {
+                            nextTrain.removeStatusListener(_jumpOnAnimationEnd);
+                            newAnimation?.dispose();
+                        };
+                        nextTrain.addStatusListener(_jumpOnAnimationEnd);
                         newAnimation = new TrainHoppingAnimation(
-                            ((TrainHoppingAnimation) current).currentTrain,
-                            ((TransitionRoute) nextRoute)._animation,
-                            onSwitchedTrain: () => {
-                                D.assert(this._secondaryAnimation.parent == newAnimation);
-                                D.assert(newAnimation.currentTrain == ((TransitionRoute) nextRoute)._animation);
-                                this._secondaryAnimation.parent = newAnimation.currentTrain;
-                                newAnimation.dispose();
+                            currentTrain,
+                            nextTrain,
+                            onSwitchedTrain: ()=> { 
+                                D.assert(_secondaryAnimation.parent == newAnimation); 
+                                D.assert(newAnimation.currentTrain == ((TransitionRoute)nextRoute)._animation); 
+                                _setSecondaryAnimation(newAnimation.currentTrain, ((TransitionRoute)nextRoute).completed); 
+                                if (_trainHoppingListenerRemover != null) { 
+                                    _trainHoppingListenerRemover(); 
+                                    _trainHoppingListenerRemover = null; 
+                                } 
                             }
-                        );
-                        this._secondaryAnimation.parent = newAnimation;
-                        ((TrainHoppingAnimation) current).dispose();
+                      );
+                      _setSecondaryAnimation(newAnimation, ((TransitionRoute)nextRoute).completed);
                     }
-                    else {
-                        this._secondaryAnimation.parent =
-                            new TrainHoppingAnimation(current, ((TransitionRoute) nextRoute)._animation);
-                    }
+                } else {
+                    _setSecondaryAnimation(((TransitionRoute)nextRoute)._animation, ((TransitionRoute)nextRoute).completed);
                 }
-                else {
-                    this._secondaryAnimation.parent = ((TransitionRoute) nextRoute)._animation;
-                }
+            } else {
+                _setSecondaryAnimation(Animations.kAlwaysDismissedAnimation);
             }
-            else {
-                this._secondaryAnimation.parent = Animations.kAlwaysDismissedAnimation;
+               
+            if (previousTrainHoppingListenerRemover != null) {
+                previousTrainHoppingListenerRemover();
             }
         }
+
+        public void _setSecondaryAnimation(Animation<float> animation, Future disposed = null) {
+            _secondaryAnimation.parent = animation;
+            disposed?.then(( _) =>{
+                if (_secondaryAnimation.parent == animation) {
+                    _secondaryAnimation.parent = Animations.kAlwaysDismissedAnimation;
+                    if (animation is TrainHoppingAnimation) {
+                        ((TrainHoppingAnimation)animation).dispose();
+                    }
+                }
+            });
+        }
+
 
 
         public virtual bool canTransitionTo(TransitionRoute nextRoute) {
@@ -240,21 +306,23 @@ namespace Unity.UIWidgets.widgets {
             return true;
         }
 
-        protected internal override void dispose() {
-            D.assert(!this._transitionCompleter.isCompleted, () => $"Cannot dispose a {this.GetType()} twice.");
-            this._controller?.dispose();
-            this._transitionCompleter.Resolve(this._result);
+        public override void dispose() {
+            D.assert(!_transitionCompleter.isCompleted, () => $"Cannot dispose a {GetType()} twice.");
+            _controller?.dispose();
+            _transitionCompleter.complete(FutureOr.value(_result));
             base.dispose();
         }
 
         public string debugLabel {
-            get { return $"{this.GetType()}"; }
+            get { return $"{GetType()}"; }
         }
 
         public override string ToString() {
-            return $"{this.GetType()}(animation: {this._controller}";
+            return $"{GetType()}(animation: {_controller}";
         }
     }
+
+    
 
     public class LocalHistoryEntry {
         public LocalHistoryEntry(VoidCallback onRemove = null) {
@@ -266,16 +334,15 @@ namespace Unity.UIWidgets.widgets {
         internal LocalHistoryRoute _owner;
 
         public void remove() {
-            this._owner.removeLocalHistoryEntry(this);
-            D.assert(this._owner == null);
+            _owner.removeLocalHistoryEntry(this);
+            D.assert(_owner == null);
         }
 
         internal void _notifyRemoved() {
-            this.onRemove?.Invoke();
+            onRemove?.Invoke();
         }
     }
-
-
+    
     public interface LocalHistoryRoute {
         void addLocalHistoryEntry(LocalHistoryEntry entry);
         void removeLocalHistoryEntry(LocalHistoryEntry entry);
@@ -293,42 +360,48 @@ namespace Unity.UIWidgets.widgets {
         public void addLocalHistoryEntry(LocalHistoryEntry entry) {
             D.assert(entry._owner == null);
             entry._owner = this;
-            this._localHistory = this._localHistory ?? new List<LocalHistoryEntry>();
-            var wasEmpty = this._localHistory.isEmpty();
-            this._localHistory.Add(entry);
+            _localHistory = _localHistory ?? new List<LocalHistoryEntry>();
+            var wasEmpty = _localHistory.isEmpty();
+            _localHistory.Add(entry);
             if (wasEmpty) {
-                this.changedInternalState();
+                changedInternalState();
             }
         }
 
         public void removeLocalHistoryEntry(LocalHistoryEntry entry) {
             D.assert(entry != null);
             D.assert(entry._owner == this);
-            D.assert(this._localHistory.Contains(entry));
-            this._localHistory.Remove(entry);
+            D.assert(_localHistory.Contains(entry));
+            _localHistory.Remove(entry);
             entry._owner = null;
             entry._notifyRemoved();
-            if (this._localHistory.isEmpty()) {
-                this.changedInternalState();
+            if (_localHistory.isEmpty()) {
+                if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+                    SchedulerBinding.instance.addPostFrameCallback((TimeSpan timestamp) =>{
+                        changedInternalState();
+                    });
+                } else {
+                    changedInternalState();
+                }
             }
         }
 
-        public override IPromise<RoutePopDisposition> willPop() {
-            if (this.willHandlePopInternally) {
-                return Promise<RoutePopDisposition>.Resolved(RoutePopDisposition.pop);
+        public override Future<RoutePopDisposition> willPop() {
+            //async
+            if (willHandlePopInternally) {
+                return Future.value(RoutePopDisposition.pop).to<RoutePopDisposition>();
             }
-
             return base.willPop();
         }
 
         protected internal override bool didPop(object result) {
-            if (this._localHistory != null && this._localHistory.isNotEmpty()) {
-                var entry = this._localHistory.removeLast();
+            if (_localHistory != null && _localHistory.isNotEmpty()) {
+                var entry = _localHistory.removeLast();
                 D.assert(entry._owner == this);
                 entry._owner = null;
                 entry._notifyRemoved();
-                if (this._localHistory.isEmpty()) {
-                    this.changedInternalState();
+                if (_localHistory.isEmpty()) {
+                    changedInternalState();
                 }
 
                 return false;
@@ -338,7 +411,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override bool willHandlePopInternally {
-            get { return this._localHistory != null && this._localHistory.isNotEmpty(); }
+            get { return _localHistory != null && _localHistory.isNotEmpty(); }
         }
 
         public Route route {
@@ -348,8 +421,13 @@ namespace Unity.UIWidgets.widgets {
 
 
     public class _ModalScopeStatus : InheritedWidget {
-        public _ModalScopeStatus(Key key = null, bool isCurrent = false,
-            bool canPop = false, Route route = null, Widget child = null) : base(key: key, child: child) {
+        public _ModalScopeStatus(
+            Key key = null, 
+            bool isCurrent = false,
+            bool canPop = false, 
+            Route route = null, 
+            Widget child = null) 
+            : base(key: key, child: child) {
             D.assert(route != null);
             D.assert(child != null);
 
@@ -363,21 +441,24 @@ namespace Unity.UIWidgets.widgets {
         public readonly Route route;
 
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.isCurrent != ((_ModalScopeStatus) oldWidget).isCurrent ||
-                   this.canPop != ((_ModalScopeStatus) oldWidget).canPop ||
-                   this.route != ((_ModalScopeStatus) oldWidget).route;
+            return isCurrent != ((_ModalScopeStatus) oldWidget).isCurrent ||
+                   canPop != ((_ModalScopeStatus) oldWidget).canPop ||
+                   route != ((_ModalScopeStatus) oldWidget).route;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
-            description.add(new FlagProperty("isCurrent", value: this.isCurrent, ifTrue: "active",
+            description.add(new FlagProperty("isCurrent", value: isCurrent, ifTrue: "active",
                 ifFalse: "inactive"));
-            description.add(new FlagProperty("canPop", value: this.canPop, ifTrue: "can pop"));
+            description.add(new FlagProperty("canPop", value: canPop, ifTrue: "can pop"));
         }
     }
 
     public class _ModalScope : StatefulWidget {
-        public _ModalScope(Key key = null, ModalRoute route = null) : base(key) {
+        public _ModalScope(
+            Key key = null, 
+            ModalRoute route = null) 
+            : base(key) {
             this.route = route;
         }
 
@@ -387,80 +468,131 @@ namespace Unity.UIWidgets.widgets {
             return new _ModalScopeState();
         }
     }
+    public class _ModalScope<T> : _ModalScope {
+        public _ModalScope(
+            Key key = null, 
+            ModalRoute<T> route = null) 
+            : base(key, route) {
+            this.route = route;
+        }
+
+        public new readonly ModalRoute<T> route;
+
+        public override State createState() {
+            return new _ModalScopeState<T>();
+        }
+    }
+    
 
     public class _ModalScopeState : State<_ModalScope> {
         Widget _page;
 
         Listenable _listenable;
 
+        public readonly FocusScopeNode focusScopeNode = new FocusScopeNode(debugLabel: $"{typeof(_ModalScopeState)} Focus Scope");
         public override void initState() {
             base.initState();
-            var animations = new List<Listenable> { };
-            if (this.widget.route.animation != null) {
-                animations.Add(this.widget.route.animation);
+            var animations = new List<Listenable>();
+            if (widget.route.animation != null) {
+                animations.Add(widget.route.animation);
             }
 
-            if (this.widget.route.secondaryAnimation != null) {
-                animations.Add(this.widget.route.secondaryAnimation);
+            if (widget.route.secondaryAnimation != null) {
+                animations.Add(widget.route.secondaryAnimation);
             }
-
-            this._listenable = ListenableUtils.merge(animations);
+            _listenable = ListenableUtils.merge(animations);
+            if (widget.route.isCurrent) {
+                widget.route.navigator.focusScopeNode.setFirstFocus(focusScopeNode);
+            }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            D.assert(this.widget.route == ((_ModalScope) oldWidget).route);
+            D.assert(widget.route == ((_ModalScope) oldWidget).route);
+            if (widget.route.isCurrent) {
+                widget.route.navigator.focusScopeNode.setFirstFocus(focusScopeNode);
+            }
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            this._page = null;
+            _page = null;
         }
 
         internal void _forceRebuildPage() {
-            this.setState(() => { this._page = null; });
+            setState(() => { _page = null; });
         }
-
+        public override void dispose() {
+            focusScopeNode.dispose();
+            base.dispose();
+        }
+        bool _shouldIgnoreFocusRequest {
+            get {
+                return widget.route.animation?.status == AnimationStatus.reverse ||
+                       (widget.route.navigator?.userGestureInProgress ?? false);
+            }
+        }
         internal void _routeSetState(VoidCallback fn) {
-            this.setState(fn);
+            if (widget.route.isCurrent && !_shouldIgnoreFocusRequest) {
+                widget.route.navigator.focusScopeNode.setFirstFocus(focusScopeNode);
+            }
+            setState(fn);
         }
 
         public override Widget build(BuildContext context) {
-            this._page = this._page ?? new RepaintBoundary(
-                             key: this.widget.route._subtreeKey, // immutable
-                             child: new Builder(
-                                 builder: (BuildContext _context) => this.widget.route.buildPage(
-                                     _context,
-                                     this.widget.route.animation,
-                                     this.widget.route.secondaryAnimation
-                                 ))
-                         );
+            _page = _page ?? new RepaintBoundary(
+                key: widget.route._subtreeKey, // immutable
+                child: new Builder(
+                    builder: (BuildContext _context) => widget.route.buildPage(
+                        _context,
+                        widget.route.animation,
+                        widget.route.secondaryAnimation
+                    ))
+            );
 
             return new _ModalScopeStatus(
-                route: this.widget.route,
-                isCurrent: this.widget.route.isCurrent,
-                canPop: this.widget.route.canPop,
+                route: widget.route,
+                isCurrent: widget.route.isCurrent,
+                canPop: widget.route.canPop,
                 child: new Offstage(
-                    offstage: this.widget.route.offstage,
+                    offstage: widget.route.offstage,
                     child: new PageStorage(
-                        bucket: this.widget.route._storageBucket,
+                        bucket: widget.route._storageBucket,
                         child: new FocusScope(
-                            node: this.widget.route.focusScopeNode,
+                            node: focusScopeNode,
                             child: new RepaintBoundary(
                                 child: new AnimatedBuilder(
-                                    animation: this._listenable, // immutable
+                                    animation: _listenable, // immutable
                                     builder: (BuildContext _context, Widget child) =>
-                                        this.widget.route.buildTransitions(
+                                        widget.route.buildTransitions(
                                             _context,
-                                            this.widget.route.animation,
-                                            this.widget.route.secondaryAnimation,
-                                            new IgnorePointer(
-                                                ignoring: this.widget.route.animation?.status ==
-                                                          AnimationStatus.reverse,
+                                            widget.route.animation,
+                                            widget.route.secondaryAnimation,
+                                            new AnimatedBuilder(
+                                                animation: widget.route.navigator?.userGestureInProgressNotifier ?? new ValueNotifier<bool>(false),
+                                                builder: (BuildContext context1, Widget child1) =>{
+                                                    bool ignoreEvents = _shouldIgnoreFocusRequest;
+                                                    focusScopeNode.canRequestFocus = !ignoreEvents; 
+                                                    return new IgnorePointer(
+                                                        ignoring: ignoreEvents,
+                                                        child: child1
+                                                    );
+                                                },
                                                 child: child
-                                            )
+                                             )
                                         ),
-                                    child: this._page
+                                    child: _page  = _page ?? new RepaintBoundary(
+                                        key: widget.route._subtreeKey, // immutable
+                                        child: new Builder(
+                                            builder: (BuildContext context2) =>{
+                                                return widget.route.buildPage(
+                                                    context2,
+                                                    widget.route.animation,
+                                                    widget.route.secondaryAnimation
+                                                );
+                                            }
+                                        )
+                                    )
                                 )
                             )
                         )
@@ -470,22 +602,38 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    public class _ModalScopeState<T> : _ModalScopeState {
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            base.didUpdateWidget(oldWidget);
+            D.assert(widget.route == ((_ModalScope<T>) oldWidget).route);
+            if (widget.route.isCurrent) {
+                widget.route.navigator.focusScopeNode.setFirstFocus(focusScopeNode);
+            }
+        }
+    }
+
+
+
     public abstract class ModalRoute : LocalHistoryRouteTransitionRoute {
         
-        protected ModalRoute() {}
-        protected ModalRoute(RouteSettings settings) : base(settings) { }
+        protected ModalRoute(
+            RouteSettings settings = null,
+            ImageFilter filter = null
+            ) : base(settings) {
+            _filter = filter;
+        }
 
+        public ImageFilter _filter;
         public static Color _kTransparent = new Color(0x00000000);
 
         public static ModalRoute of(BuildContext context) {
-            _ModalScopeStatus widget =
-                (_ModalScopeStatus) context.inheritFromWidgetOfExactType(typeof(_ModalScopeStatus));
-            return (ModalRoute) widget?.route;
+            _ModalScopeStatus widget = context.dependOnInheritedWidgetOfExactType<_ModalScopeStatus>();
+            return widget?.route as ModalRoute;
         }
 
         protected virtual void setState(VoidCallback fn) {
-            if (this._scopeKey.currentState != null) {
-                this._scopeKey.currentState._routeSetState(fn);
+            if (_scopeKey.currentState != null) {
+                _scopeKey.currentState._routeSetState(fn);
             }
             else {
                 fn();
@@ -512,187 +660,234 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly FocusScopeNode focusScopeNode = new FocusScopeNode();
 
-        protected internal override void install(OverlayEntry insertionPoint) {
-            base.install(insertionPoint);
-            this._animationProxy = new ProxyAnimation(base.animation);
-            this._secondaryAnimationProxy = new ProxyAnimation(base.secondaryAnimation);
+        protected internal override void install() {
+            base.install();
+            _animationProxy = new ProxyAnimation(base.animation);
+            _secondaryAnimationProxy = new ProxyAnimation(base.secondaryAnimation);
         }
 
         protected internal override TickerFuture didPush() {
-            this.navigator.focusScopeNode.setFirstFocus(this.focusScopeNode);
+            if (_scopeKey.currentState != null) {
+                navigator.focusScopeNode.setFirstFocus(_scopeKey.currentState.focusScopeNode);
+            }
             return base.didPush();
         }
-
-        protected internal override void dispose() {
-            this.focusScopeNode.detach();
-            base.dispose();
+        protected internal override void didAdd() {
+            if (_scopeKey.currentState != null) {
+                navigator.focusScopeNode.setFirstFocus(_scopeKey.currentState.focusScopeNode);
+            }
+            base.didAdd();
         }
+        
 
         public virtual bool barrierDismissible { get; }
+        
+        public virtual bool semanticsDismissible {
+            get { return true; }
+        }
 
         public virtual Color barrierColor { get; }
+        public virtual string barrierLabel { get; }
 
+        public virtual Curve barrierCurve {
+            get { return  Curves.ease;}
+        }
         public virtual bool maintainState { get; }
 
-        public bool offstage {
-            get { return this._offstage; }
+        public virtual bool offstage {
+            get { return _offstage; }
             set {
-                if (this._offstage == value) {
+                if (_offstage == value) {
                     return;
                 }
 
-                this.setState(() => { this._offstage = value; });
-                this._animationProxy.parent = this._offstage ? Animations.kAlwaysCompleteAnimation : base.animation;
-                this._secondaryAnimationProxy.parent =
-                    this._offstage ? Animations.kAlwaysDismissedAnimation : base.secondaryAnimation;
+                setState(() => { _offstage = value; });
+                _animationProxy.parent = _offstage ? Animations.kAlwaysCompleteAnimation : base.animation;
+                _secondaryAnimationProxy.parent =
+                    _offstage ? Animations.kAlwaysDismissedAnimation : base.secondaryAnimation;
             }
         }
 
         bool _offstage = false;
 
         public BuildContext subtreeContext {
-            get { return this._subtreeKey.currentContext; }
+            get { return _subtreeKey.currentContext; }
         }
 
         public override Animation<float> animation {
-            get { return this._animationProxy; }
+            get { return _animationProxy; }
         }
-
         ProxyAnimation _animationProxy;
 
         public override Animation<float> secondaryAnimation {
-            get { return this._secondaryAnimationProxy; }
+            get { return _secondaryAnimationProxy; }
         }
-
         ProxyAnimation _secondaryAnimationProxy;
 
-        readonly List<WillPopCallback> _willPopCallbacks = new List<WillPopCallback>();
+        public readonly List<WillPopCallback> _willPopCallbacks = new List<WillPopCallback>();
 
-        public override IPromise<RoutePopDisposition> willPop() {
-            _ModalScopeState scope = this._scopeKey.currentState;
+        public override Future<RoutePopDisposition> willPop() {
+            //async
+            _ModalScopeState scope = _scopeKey.currentState as _ModalScopeState ;
             D.assert(scope != null);
 
-            var callbacks = new List<WillPopCallback>(this._willPopCallbacks);
-            Promise<RoutePopDisposition> result = new Promise<RoutePopDisposition>();
-            Action<int> fn = null;
-            fn = (int index) => {
-                if (index < callbacks.Count) {
-                    callbacks[index]().Then((pop) => {
-                        if (!pop) {
-                            result.Resolve(RoutePopDisposition.doNotPop);
-                        }
-                        else {
-                            fn(index + 1);
-                        }
-                    });
+            Future InvokePopCallbacks(int index) {
+                if (index == _willPopCallbacks.Count) {
+                    return base.willPop();
                 }
-                else {
-                    base.willPop().Then((pop) => result.Resolve(pop));
-                }
-            };
-            fn(0);
-            return result;
+                var callback = _willPopCallbacks[index];
+                return callback.Invoke().then(v => {
+                    if (!(bool) v) {
+                        return Future.value(RoutePopDisposition.doNotPop);
+                    }
+
+                    return InvokePopCallbacks(index + 1);
+                });
+            }
+
+            return InvokePopCallbacks(0).to<RoutePopDisposition>();
         }
 
         public void addScopedWillPopCallback(WillPopCallback callback) {
-            D.assert(this._scopeKey.currentState != null,
+            D.assert(_scopeKey.currentState != null,
                 () => "Tried to add a willPop callback to a route that is not currently in the tree.");
-            this._willPopCallbacks.Add(callback);
+            _willPopCallbacks.Add(callback);
         }
 
         public void removeScopedWillPopCallback(WillPopCallback callback) {
-            D.assert(this._scopeKey.currentState != null,
+            D.assert(_scopeKey.currentState != null,
                 () => "Tried to remove a willPop callback from a route that is not currently in the tree.");
-            this._willPopCallbacks.Remove(callback);
+            _willPopCallbacks.Remove(callback);
         }
 
         public bool hasScopedWillPopCallback {
-            get { return this._willPopCallbacks.isNotEmpty(); }
+            get { return _willPopCallbacks.isNotEmpty(); }
         }
 
         protected internal override void didChangePrevious(Route previousRoute) {
             base.didChangePrevious(previousRoute);
-            this.changedInternalState();
+            changedInternalState();
         }
 
         protected internal override void changedInternalState() {
             base.changedInternalState();
-            this.setState(() => { });
-            this._modalBarrier.markNeedsBuild();
+            setState(() => { });
+            _modalBarrier.markNeedsBuild();
         }
 
         protected internal override void changedExternalState() {
             base.changedExternalState();
-            this._scopeKey.currentState?._forceRebuildPage();
+            if (_scopeKey.currentState != null)
+                _scopeKey.currentState._forceRebuildPage();
         }
 
         public bool canPop {
-            get { return !this.isFirst || this.willHandlePopInternally; }
+            get { return !isFirst || willHandlePopInternally; }
         }
 
 
-        readonly GlobalKey<_ModalScopeState> _scopeKey = new LabeledGlobalKey<_ModalScopeState>();
-        internal readonly GlobalKey _subtreeKey = new LabeledGlobalKey<_ModalScopeState>();
+        public readonly GlobalKey<_ModalScopeState> _scopeKey = new LabeledGlobalKey<_ModalScopeState>();
+        internal readonly GlobalKey _subtreeKey = GlobalKey.key();
         internal readonly PageStorageBucket _storageBucket = new PageStorageBucket();
-
-        static readonly Animatable<float> _easeCurveTween = new CurveTween(curve: Curves.ease);
+        
         OverlayEntry _modalBarrier;
 
         Widget _buildModalBarrier(BuildContext context) {
             Widget barrier;
-            if (this.barrierColor != null && !this.offstage) {
+            if (barrierColor != null && !offstage) {
                 // changedInternalState is called if these update
-                D.assert(this.barrierColor != _kTransparent);
+                D.assert(barrierColor != _kTransparent);
                 Animation<Color> color =
-                    new ColorTween(
+                    animation.drive(new ColorTween(
                         begin: _kTransparent,
-                        end: this.barrierColor // changedInternalState is called if this updates
-                    ).chain(_easeCurveTween).animate(this.animation);
+                        end: barrierColor // changedInternalState is called if this updates
+                    ).chain(new CurveTween(curve: barrierCurve)));
                 barrier = new AnimatedModalBarrier(
                     color: color,
-                    dismissible: this.barrierDismissible
+                    dismissible: barrierDismissible
+                   
                 );
             }
             else {
                 barrier = new ModalBarrier(
-                    dismissible: this.barrierDismissible
+                    dismissible: barrierDismissible
+               
                 );
             }
-
+            if (_filter != null) {
+                barrier = new BackdropFilter(
+                    filter: _filter,
+                    child: barrier
+                );
+            }
             return new IgnorePointer(
-                ignoring: this.animation.status == AnimationStatus.reverse ||
-                          this.animation.status == AnimationStatus.dismissed,
+                ignoring: animation.status == AnimationStatus.reverse ||
+                          animation.status == AnimationStatus.dismissed,
                 child: barrier
             );
         }
 
-        Widget _modalScopeCache;
+        public Widget _modalScopeCache;
 
-        Widget _buildModalScope(BuildContext context) {
-            return this._modalScopeCache = this._modalScopeCache ?? new _ModalScope(
-                                               key: this._scopeKey,
-                                               route: this
-                                               // _ModalScope calls buildTransitions() and buildChild(), defined above
-                                           );
+        public virtual Widget _buildModalScope(BuildContext context) {
+            return _modalScopeCache = _modalScopeCache ?? new _ModalScope(key: _scopeKey, route: this);
         }
 
-        public override ICollection<OverlayEntry> createOverlayEntries() {
-            this._modalBarrier = new OverlayEntry(builder: this._buildModalBarrier);
+        public override IEnumerable<OverlayEntry> createOverlayEntries() {
+            _modalBarrier = new OverlayEntry(builder: _buildModalBarrier);
             var content = new OverlayEntry(
-                builder: this._buildModalScope, maintainState: this.maintainState
+                builder: _buildModalScope, maintainState: maintainState
             );
-            return new List<OverlayEntry> {this._modalBarrier, content};
+            return new List<OverlayEntry> {_modalBarrier, content};
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.settings}, animation: {this._animation})";
+            return $"{GetType()}({settings}, animation: {_animation})";
         }
+    }
+    
+    public abstract class ModalRoute<T> : ModalRoute {
+
+        public ModalRoute(
+            RouteSettings settings = null,
+            ImageFilter filter = null
+        ) : base(settings) {
+            _filter = filter;
+        }
+        
+        public static ModalRoute<T> of<T>(BuildContext context) {
+            _ModalScopeStatus widget = context.dependOnInheritedWidgetOfExactType<_ModalScopeStatus>();
+            return widget?.route as ModalRoute<T>;
+        }
+        public new GlobalKey<_ModalScopeState<T>> _scopeKey = new LabeledGlobalKey<_ModalScopeState<T>>();
+
+        public override Future<RoutePopDisposition> willPop() {
+            //async
+            _ModalScopeState<T> scope = _scopeKey.currentState as _ModalScopeState<T> ;
+            D.assert(scope != null);
+
+            bool result = false;
+            foreach (WillPopCallback callback in _willPopCallbacks) {
+                callback.Invoke().then(v => result = !(bool)v);
+                if (result) {
+                    return Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
+                }
+            }
+            return base.willPop();
+            
+        }
+        public override Widget _buildModalScope(BuildContext context) {
+            return _modalScopeCache = _modalScopeCache ?? new _ModalScope<T>(key: _scopeKey, route: this);
+        }
+
+        
     }
 
     public abstract class PopupRoute : ModalRoute {
-        protected PopupRoute(
-            RouteSettings settings = null
-        ) : base(settings: settings) {
+        public PopupRoute(
+            RouteSettings settings = null,
+            ImageFilter filter = null
+        ) : base(settings: settings,filter:filter) {
         }
 
         public override bool opaque {
@@ -704,13 +899,30 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    public abstract class PopupRoute<T> : ModalRoute<T> {
+        public PopupRoute(
+            RouteSettings settings = null,
+            ImageFilter filter = null
+        ) : base(settings: settings,filter:filter) {
+        }
+
+        public override bool opaque {
+            get { return false; }
+        }
+
+        public override bool maintainState {
+            get { return true; }
+        }
+    }
+
+
     public class RouteObserve<R> : NavigatorObserver where R : Route {
         readonly Dictionary<R, HashSet<RouteAware>> _listeners = new Dictionary<R, HashSet<RouteAware>>();
 
         public void subscribe(RouteAware routeAware, R route) {
             D.assert(routeAware != null);
             D.assert(route != null);
-            HashSet<RouteAware> subscribers = this._listeners.putIfAbsent(route, () => new HashSet<RouteAware>());
+            HashSet<RouteAware> subscribers = _listeners.putIfAbsent(route, () => new HashSet<RouteAware>());
             if (subscribers.Add(routeAware)) {
                 routeAware.didPush();
             }
@@ -718,15 +930,15 @@ namespace Unity.UIWidgets.widgets {
 
         public void unsubscribe(RouteAware routeAware) {
             D.assert(routeAware != null);
-            foreach (R route in this._listeners.Keys) {
-                HashSet<RouteAware> subscribers = this._listeners[route];
+            foreach (R route in _listeners.Keys) {
+                HashSet<RouteAware> subscribers = _listeners[route];
                 subscribers?.Remove(routeAware);
             }
         }
 
         public override void didPop(Route route, Route previousRoute) {
             if (route is R && previousRoute is R) {
-                var previousSubscribers = this._listeners.getOrDefault((R) previousRoute);
+                var previousSubscribers = _listeners.getOrDefault((R) previousRoute);
 
                 if (previousSubscribers != null) {
                     foreach (RouteAware routeAware in previousSubscribers) {
@@ -734,8 +946,8 @@ namespace Unity.UIWidgets.widgets {
                     }
                 }
 
-                var subscribers = this._listeners.getOrDefault((R) route);
-
+                var subscribers =_listeners.getOrDefault((R) route).ToList();
+               
                 if (subscribers != null) {
                     foreach (RouteAware routeAware in subscribers) {
                         routeAware.didPop();
@@ -746,7 +958,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void didPush(Route route, Route previousRoute) {
             if (route is R && previousRoute is R) {
-                var previousSubscribers = this._listeners.getOrDefault((R) previousRoute);
+                var previousSubscribers = _listeners.getOrDefault((R) previousRoute);
 
                 if (previousSubscribers != null) {
                     foreach (RouteAware routeAware in previousSubscribers) {
@@ -768,36 +980,63 @@ namespace Unity.UIWidgets.widgets {
     }
 
     class _DialogRoute : PopupRoute {
-        internal _DialogRoute(RoutePageBuilder pageBuilder = null, bool barrierDismissible = true,
+        internal _DialogRoute(
+            RoutePageBuilder pageBuilder = null, 
+            bool barrierDismissible = true,
+            string barrierLabel = null,
             Color barrierColor = null,
             TimeSpan? transitionDuration = null,
             RouteTransitionsBuilder transitionBuilder = null,
-            RouteSettings setting = null) : base(settings: setting) {
-            this._pageBuilder = pageBuilder;
-            this.barrierDismissible = barrierDismissible;
-            this.barrierColor = barrierColor ?? new Color(0x80000000);
-            this.transitionDuration = transitionDuration ?? TimeSpan.FromMilliseconds(200);
-            this._transitionBuilder = transitionBuilder;
+            RouteSettings settings = null
+            ) : base(settings: settings) {
+            D.assert(barrierDismissible != null);
+            _pageBuilder = pageBuilder;
+            _barrierLabel = barrierLabel;
+            _barrierDismissible = barrierDismissible;
+            _barrierColor = barrierColor ?? new Color(0x80000000);
+            _transitionDuration = transitionDuration ?? TimeSpan.FromMilliseconds(200);
+            _transitionBuilder = transitionBuilder;
         }
 
         readonly RoutePageBuilder _pageBuilder;
 
-        public override bool barrierDismissible { get; }
+          
+        public override bool barrierDismissible {
+            get { return _barrierDismissible; }
+        }
+        public readonly bool _barrierDismissible;
 
-        public override Color barrierColor { get; }
+        public override string barrierLabel {
+            get { return _barrierLabel;}
+        }
+        public readonly string _barrierLabel;
 
-        public override TimeSpan transitionDuration { get; }
+        public override Color barrierColor {
+            get { return _barrierColor; }
+        }
+        public readonly Color _barrierColor;
+
+        public override TimeSpan transitionDuration {
+            get { return _transitionDuration; }
+        }
+        public readonly TimeSpan _transitionDuration;
 
         readonly RouteTransitionsBuilder _transitionBuilder;
 
-        public override Widget buildPage(BuildContext context, Animation<float> animation,
+        public override Widget buildPage(
+            BuildContext context,
+            Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            return this._pageBuilder(context, animation, secondaryAnimation);
+            
+            return _pageBuilder(context, animation, secondaryAnimation);
         }
 
-        public override Widget buildTransitions(BuildContext context, Animation<float> animation,
-            Animation<float> secondaryAnimation, Widget child) {
-            if (this._transitionBuilder == null) {
+        public override Widget buildTransitions(
+            BuildContext context,
+            Animation<float> animation,
+            Animation<float> secondaryAnimation,
+            Widget child) {
+            if (_transitionBuilder == null) {
                 return new FadeTransition(
                     opacity: new CurvedAnimation(
                         parent: animation,
@@ -806,27 +1045,34 @@ namespace Unity.UIWidgets.widgets {
                     child: child);
             }
 
-            return this._transitionBuilder(context, animation, secondaryAnimation, child);
+            return _transitionBuilder(context, animation, secondaryAnimation, child);
         }
     }
 
     public static class DialogUtils {
-        public static IPromise<object> showGeneralDialog(
+        public static Future<T> showGeneralDialog<T>(
             BuildContext context = null,
             RoutePageBuilder pageBuilder = null,
-            bool barrierDismissible = false,
+            bool? barrierDismissible = null,
+            string barrierLabel = null,
             Color barrierColor = null,
             TimeSpan? transitionDuration = null,
-            RouteTransitionsBuilder transitionBuilder = null
+            RouteTransitionsBuilder transitionBuilder = null,
+            bool useRootNavigator = true,
+            RouteSettings routeSettings = null
         ) {
+            //D.assert(!barrierDismissible || barrierLabel != null);
             D.assert(pageBuilder != null);
-            return Navigator.of(context, rootNavigator: true).push(new _DialogRoute(
-                pageBuilder: pageBuilder,
-                barrierDismissible: barrierDismissible,
-                barrierColor: barrierColor,
-                transitionDuration: transitionDuration,
-                transitionBuilder: transitionBuilder
-            ));
+            return Navigator.of(context, rootNavigator: true).push(
+                new _DialogRoute(
+                    pageBuilder: pageBuilder,
+                    barrierDismissible: barrierDismissible ?? false,
+                    barrierLabel: barrierLabel,
+                    barrierColor: barrierColor,
+                    transitionDuration: transitionDuration,
+                    transitionBuilder: transitionBuilder,
+                    settings: routeSettings)  as Route
+            ).to<T>();
         }
     }
 

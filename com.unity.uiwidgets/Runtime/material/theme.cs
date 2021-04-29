@@ -1,6 +1,7 @@
 using System;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.material {
@@ -31,8 +32,7 @@ namespace Unity.UIWidgets.material {
         static readonly ThemeData _kFallbackTheme = ThemeData.fallback();
 
         public static ThemeData of(BuildContext context, bool shadowThemeOnly = false) {
-            _InheritedTheme inheritedTheme =
-                (_InheritedTheme) context.inheritFromWidgetOfExactType(typeof(_InheritedTheme));
+            _InheritedTheme inheritedTheme = context.dependOnInheritedWidgetOfExactType<_InheritedTheme>();
             if (shadowThemeOnly) {
                 if (inheritedTheme == null || inheritedTheme.theme.isMaterialAppTheme) {
                     return null;
@@ -51,20 +51,20 @@ namespace Unity.UIWidgets.material {
             return new _InheritedTheme(
                 theme: this,
                 child: new IconTheme(
-                    data: this.data.iconTheme,
-                    child: this.child
+                    data: data.iconTheme,
+                    child: child
                 )
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<ThemeData>("data", this.data, showName: false));
+            properties.add(new DiagnosticsProperty<ThemeData>("data", data, showName: false));
         }
     }
 
 
-    class _InheritedTheme : InheritedWidget {
+    class _InheritedTheme : InheritedTheme {
         public _InheritedTheme(
             Key key = null,
             Theme theme = null,
@@ -76,8 +76,13 @@ namespace Unity.UIWidgets.material {
 
         public readonly Theme theme;
 
+        public override Widget wrap(BuildContext context, Widget child) {
+            _InheritedTheme ancestorTheme = context.findAncestorWidgetOfExactType<_InheritedTheme>();
+            return ReferenceEquals(this, ancestorTheme) ? child : new Theme(data: theme.data, child: child);
+        }
+
         public override bool updateShouldNotify(InheritedWidget old) {
-            return this.theme.data != ((_InheritedTheme) old).theme.data;
+            return theme.data != ((_InheritedTheme) old).theme.data;
         }
     }
 
@@ -89,7 +94,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override ThemeData lerp(float t) {
-            return ThemeData.lerp(this.begin, this.end, t);
+            return ThemeData.lerp(begin, end, t);
         }
     }
 
@@ -100,8 +105,9 @@ namespace Unity.UIWidgets.material {
             bool isMaterialAppTheme = false,
             Curve curve = null,
             TimeSpan? duration = null,
+            VoidCallback onEnd = null,
             Widget child = null
-        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration ?? ThemeUtils.kThemeAnimationDuration) {
+        ) : base(key: key, curve: curve ?? Curves.linear, duration: duration ?? ThemeUtils.kThemeAnimationDuration, onEnd: onEnd) {
             D.assert(child != null);
             D.assert(data != null);
             this.data = data;
@@ -126,22 +132,22 @@ namespace Unity.UIWidgets.material {
         ThemeDataTween _data;
 
         protected override void forEachTween(TweenVisitor visitor) {
-            this._data = (ThemeDataTween) visitor.visit(this, this._data, this.widget.data,
+            _data = (ThemeDataTween) visitor.visit(this, _data, widget.data,
                 (ThemeData value) => new ThemeDataTween(begin: value));
         }
 
         public override Widget build(BuildContext context) {
             return new Theme(
-                isMaterialAppTheme: this.widget.isMaterialAppTheme,
-                child: this.widget.child,
-                data: this._data.evaluate(this.animation)
+                isMaterialAppTheme: widget.isMaterialAppTheme,
+                child: widget.child,
+                data: _data.evaluate(animation)
             );
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder description) {
             base.debugFillProperties(description);
             description.add(
-                new DiagnosticsProperty<ThemeDataTween>("data", this._data, showName: false, defaultValue: null));
+                new DiagnosticsProperty<ThemeDataTween>("data", _data, showName: false, defaultValue: null));
         }
     }
 }

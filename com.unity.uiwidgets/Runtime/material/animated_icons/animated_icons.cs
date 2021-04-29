@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -7,20 +6,47 @@ using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 
+/**
+ * In the animated icon data files, we have made some changes to optimize the compilation speed for il2cpp
+ * Specifically, we change all instance of Offsets to 2 separate floats throughout the file
+ *
+ * In this file, we change the codes a bit to support these changes. Please think twice and test on the Gallery sample
+ * if you want to make further changes here
+ */
+
 namespace Unity.UIWidgets.material {
+    
     static class AnimatedIconUtils {
-        public static T _interpolate<T>(List<T> values, float progress, _Interpolator<T> interpolator) {
+        public static float _interpolate(float[] values, float progress) {
             D.assert(progress <= 1.0f);
             D.assert(progress >= 0.0f);
-            if (values.Count == 1) {
+            if (values.Length == 2) {
                 return values[0];
             }
 
-            float targetIdx = MathUtils.lerpFloat(0, values.Count - 1, progress);
+            float targetIdx = Mathf.Lerp(0, values.Length - 1, progress);
             int lowIdx = targetIdx.floor();
             int highIdx = targetIdx.ceil();
             float t = targetIdx - lowIdx;
-            return interpolator(values[lowIdx], values[highIdx], t);
+            return Mathf.Lerp(values[lowIdx], values[highIdx], t);
+        }
+
+        public static void _interpolateOffset(float[] values, float progress, ref float x, ref float y) {
+            D.assert(progress <= 1.0f);
+            D.assert(progress >= 0.0f);
+            D.assert(values.Length % 2 == 0);
+            if (values.Length == 2) {
+                x = values[0];
+                y = values[1];
+                return;
+            }
+
+            float targetIdx = Mathf.Lerp(0, values.Length / 2 - 1, progress);
+            int lowIdx = targetIdx.floor();
+            int highIdx = targetIdx.ceil();
+            float t = targetIdx - lowIdx;
+            x = Mathf.Lerp(values[lowIdx * 2], values[highIdx * 2], t);
+            y = Mathf.Lerp(values[lowIdx * 2 + 1], values[highIdx * 2 + 1], t);
         }
     }
 
@@ -51,11 +77,11 @@ namespace Unity.UIWidgets.material {
         public static readonly _UiPathFactory _pathFactory = () => new Path();
 
         public override Widget build(BuildContext context) {
-            _AnimatedIconData iconData = (_AnimatedIconData) this.icon;
+            _AnimatedIconData iconData = (_AnimatedIconData) icon;
             IconThemeData iconTheme = IconTheme.of(context);
-            float iconSize = this.size ?? iconTheme.size ?? 0.0f;
+            float iconSize = size ?? iconTheme.size ?? 0.0f;
             float? iconOpacity = iconTheme.opacity;
-            Color iconColor = this.color ?? iconTheme.color;
+            Color iconColor = color ?? iconTheme.color;
             if (iconOpacity != 1.0f) {
                 iconColor = iconColor.withOpacity(iconColor.opacity * (iconOpacity ?? 1.0f));
             }
@@ -64,7 +90,7 @@ namespace Unity.UIWidgets.material {
                 size: new Size(iconSize, iconSize),
                 painter: new _AnimatedIconPainter(
                     paths: iconData.paths,
-                    progress: this.progress,
+                    progress: progress,
                     color: iconColor,
                     scale: iconSize / iconData.size.width,
                     uiPathFactory: _pathFactory
@@ -77,7 +103,7 @@ namespace Unity.UIWidgets.material {
 
     class _AnimatedIconPainter : AbstractCustomPainter {
         public _AnimatedIconPainter(
-            List<_PathFrames> paths = null,
+            _PathFrames[] paths = null,
             Animation<float> progress = null,
             Color color = null,
             float? scale = null,
@@ -92,7 +118,7 @@ namespace Unity.UIWidgets.material {
             this.uiPathFactory = uiPathFactory;
         }
 
-        public readonly List<_PathFrames> paths;
+        public readonly _PathFrames[] paths;
         public readonly Animation<float> progress;
         public readonly Color color;
         public readonly float? scale;
@@ -100,26 +126,26 @@ namespace Unity.UIWidgets.material {
         public readonly _UiPathFactory uiPathFactory;
 
         public override void paint(Canvas canvas, Size size) {
-            canvas.scale(this.scale ?? 1.0f, this.scale ?? 1.0f);
-            if (this.shouldMirror == true) {
+            canvas.scale(scale ?? 1.0f, scale ?? 1.0f);
+            if (shouldMirror == true) {
                 canvas.rotate(Mathf.PI);
                 canvas.translate(-size.width, -size.height);
             }
 
-            float clampedProgress = this.progress.value.clamp(0.0f, 1.0f);
-            foreach (_PathFrames path in this.paths) {
-                path.paint(canvas, this.color, this.uiPathFactory, clampedProgress);
+            float clampedProgress = progress.value.clamp(0.0f, 1.0f);
+            foreach (_PathFrames path in paths) {
+                path.paint(canvas, color, uiPathFactory, clampedProgress);
             }
         }
 
 
         public override bool shouldRepaint(CustomPainter _oldDelegate) {
             _AnimatedIconPainter oldDelegate = _oldDelegate as _AnimatedIconPainter;
-            return oldDelegate.progress.value != this.progress.value
-                   || oldDelegate.color != this.color
-                   || oldDelegate.paths != this.paths
-                   || oldDelegate.scale != this.scale
-                   || oldDelegate.uiPathFactory != this.uiPathFactory;
+            return oldDelegate.progress.value != progress.value
+                   || oldDelegate.color != color
+                   || oldDelegate.paths != paths
+                   || oldDelegate.scale != scale
+                   || oldDelegate.uiPathFactory != uiPathFactory;
         }
 
         public override bool? hitTest(Offset position) {
@@ -127,25 +153,39 @@ namespace Unity.UIWidgets.material {
         }
     }
 
+    struct _PathOffset {
+
+        public float dx;
+        public float dy;
+        public _PathOffset(float x, float y) {
+            dx = x;
+            dy = y;
+        }
+
+        public static _PathOffset lerp(_PathOffset a, _PathOffset b, float t) {
+            return new _PathOffset(Mathf.Lerp(a.dx, b.dx, t), Mathf.Lerp(a.dy, b.dy, t));
+        }
+    }
+
     class _PathFrames {
         public _PathFrames(
-            List<_PathCommand> commands,
-            List<float> opacities
+            _PathCommand[] commands,
+            float[] opacities
         ) {
             this.commands = commands;
             this.opacities = opacities;
         }
 
-        public readonly List<_PathCommand> commands;
-        public readonly List<float> opacities;
+        public readonly _PathCommand[] commands;
+        public readonly float[] opacities;
 
         public void paint(Canvas canvas, Color color, _UiPathFactory uiPathFactory, float progress) {
-            float opacity = AnimatedIconUtils._interpolate<float>(this.opacities, progress, MathUtils.lerpFloat);
+            float opacity = AnimatedIconUtils._interpolate(opacities, progress);
             Paint paint = new Paint();
             paint.style = PaintingStyle.fill;
             paint.color = color.withOpacity(color.opacity * opacity);
             Path path = uiPathFactory();
-            foreach (_PathCommand command in this.commands) {
+            foreach (_PathCommand command in commands) {
                 command.apply(path, progress);
             }
 
@@ -161,51 +201,54 @@ namespace Unity.UIWidgets.material {
     }
 
     class _PathMoveTo : _PathCommand {
-        public _PathMoveTo(List<Offset> points) {
+        public _PathMoveTo(float[] points) {
             this.points = points;
         }
 
-        public readonly List<Offset> points;
+        public readonly float[] points;
 
         public override void apply(Path path, float progress) {
-            Offset offset = AnimatedIconUtils._interpolate<Offset>(this.points, progress, Offset.lerp);
-            path.moveTo(offset.dx, offset.dy);
+            float dx = 0f, dy = 0f;
+            AnimatedIconUtils._interpolateOffset(points, progress, ref dx, ref dy);
+            path.moveTo(dx, dy);
         }
     }
 
     class _PathCubicTo : _PathCommand {
-        public _PathCubicTo(List<Offset> controlPoints1, List<Offset> controlPoints2, List<Offset> targetPoints) {
+        public _PathCubicTo(float[] controlPoints1, float[] controlPoints2, float[] targetPoints) {
             this.controlPoints1 = controlPoints1;
             this.controlPoints2 = controlPoints2;
             this.targetPoints = targetPoints;
         }
 
-        public readonly List<Offset> controlPoints2;
-        public readonly List<Offset> controlPoints1;
-        public readonly List<Offset> targetPoints;
+        public readonly float[] controlPoints2;
+        public readonly float[] controlPoints1;
+        public readonly float[] targetPoints;
 
         public override void apply(Path path, float progress) {
-            Offset controlPoint1 = AnimatedIconUtils._interpolate<Offset>(this.controlPoints1, progress, Offset.lerp);
-            Offset controlPoint2 = AnimatedIconUtils._interpolate<Offset>(this.controlPoints2, progress, Offset.lerp);
-            Offset targetPoint = AnimatedIconUtils._interpolate<Offset>(this.targetPoints, progress, Offset.lerp);
+            float dx1 = 0f, dy1 = 0f, dx2 = 0f, dy2 = 0f, dx = 0f, dy = 0f;
+            AnimatedIconUtils._interpolateOffset(controlPoints1, progress, ref dx1, ref dy1);
+            AnimatedIconUtils._interpolateOffset(controlPoints2, progress, ref dx2, ref dy2);
+            AnimatedIconUtils._interpolateOffset(targetPoints, progress, ref dx, ref dy);
             path.cubicTo(
-                controlPoint1.dx, controlPoint1.dy,
-                controlPoint2.dx, controlPoint2.dy,
-                targetPoint.dx, targetPoint.dy
+                dx1, dy1,
+                dx2, dy2,
+                dx, dy
             );
         }
     }
 
     class _PathLineTo : _PathCommand {
-        public _PathLineTo(List<Offset> points) {
+        public _PathLineTo(float[] points) {
             this.points = points;
         }
 
-        List<Offset> points;
+        float[] points;
 
         public override void apply(Path path, float progress) {
-            Offset point = AnimatedIconUtils._interpolate<Offset>(this.points, progress, Offset.lerp);
-            path.lineTo(point.dx, point.dy);
+            float dx = 0f, dy = 0f;
+            AnimatedIconUtils._interpolateOffset(points, progress, ref dx, ref dy);
+            path.lineTo(dx, dy);
         }
     }
 

@@ -8,6 +8,8 @@ using UnityEngine;
 namespace Unity.UIWidgets.gestures {
     public delegate T RecognizerCallback<T>();
 
+    public delegate void RecognizerVoidCallvack();
+
     public enum DragStartBehavior {
         down,
         start
@@ -16,7 +18,7 @@ namespace Unity.UIWidgets.gestures {
     public abstract class GestureRecognizer : DiagnosticableTree, GestureArenaMember {
         protected GestureRecognizer(object debugOwner = null, PointerDeviceKind? kind = null) {
             this.debugOwner = debugOwner;
-            this._kindFilter = kind;
+            _kindFilter = kind;
         }
 
         public readonly object debugOwner;
@@ -26,12 +28,12 @@ namespace Unity.UIWidgets.gestures {
         readonly Dictionary<int, PointerDeviceKind> _pointerToKind = new Dictionary<int, PointerDeviceKind>{};
 
         public void addPointer(PointerDownEvent evt) {
-            this._pointerToKind[evt.pointer] = evt.kind;
-            if (this.isPointerAllowed(evt)) {
-                this.addAllowedPointer(evt);
+            _pointerToKind[evt.pointer] = evt.kind;
+            if (isPointerAllowed(evt)) {
+                addAllowedPointer(evt);
             }
             else {
-                this.handleNonAllowedPointer(evt);
+                handleNonAllowedPointer(evt);
             }
         }
 
@@ -41,12 +43,12 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected virtual bool isPointerAllowed(PointerDownEvent evt) {
-            return this._kindFilter == null || this._kindFilter == evt.kind;
+            return _kindFilter == null || _kindFilter == evt.kind;
         }
 
         protected virtual PointerDeviceKind getKindForPointer(int pointer) {
-            D.assert(this._pointerToKind.ContainsKey(pointer));
-            return this._pointerToKind[pointer];
+            D.assert(_pointerToKind.ContainsKey(pointer));
+            return _pointerToKind[pointer];
         }
 
         public virtual void addScrollPointer(PointerScrollEvent evt) {
@@ -78,28 +80,62 @@ namespace Unity.UIWidgets.gestures {
                 result = callback();
             }
             catch (Exception ex) {
+                IEnumerable<DiagnosticsNode> infoCollector() {
+                    yield return new StringProperty("Handler", name);
+                    yield return new DiagnosticsProperty<GestureRecognizer>("Recognizer", this, style: DiagnosticsTreeStyle.errorProperty);
+                }
+                
                 UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                     exception: ex,
                     library: "gesture",
-                    context: "while handling a gesture",
-                    informationCollector: information => {
-                        information.AppendLine("Handler: " + name);
-                        information.AppendLine("Recognizer:");
-                        information.AppendLine("  " + this);
-                    }
+                    context: new ErrorDescription("while handling a gesture"),
+                    informationCollector: infoCollector
                 ));
             }
 
             return result;
         }
+        protected void invokeCallback(string name, RecognizerVoidCallvack callback, Func<string> debugReport = null) {
+            D.assert(callback != null);
+            try {
+                D.assert(() => {
+                    if (D.debugPrintRecognizerCallbacksTrace) {
+                        var report = debugReport != null ? debugReport() : null;
+                        var prefix = D.debugPrintGestureArenaDiagnostics ? new string(' ', 19) + "❙ " : "";
+                        Debug.LogFormat("{0}this calling {1} callback.{2}",
+                            prefix, name, report.isNotEmpty() ? " " + report : "");
+                    }
+
+                    return true;
+                });
+
+                
+            }
+            catch (Exception ex) {
+                IEnumerable<DiagnosticsNode> infoCollector() {
+                    yield return new StringProperty("Handler", name);
+                    yield return new DiagnosticsProperty<GestureRecognizer>("Recognizer", this, style: DiagnosticsTreeStyle.errorProperty);
+                }
+                
+                UIWidgetsError.reportError(new UIWidgetsErrorDetails(
+                    exception: ex,
+                    library: "gesture",
+                    context: new ErrorDescription("while handling a gesture"),
+                    informationCollector: infoCollector
+                ));
+            }
+
+            
+        }
+
 
         public abstract void acceptGesture(int pointer);
         public abstract void rejectGesture(int pointer);
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<object>("debugOwner", this.debugOwner,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<object>("debugOwner", debugOwner,
+                defaultValue: foundation_.kNullDefaultValue));
         }
     }
 
@@ -126,8 +162,8 @@ namespace Unity.UIWidgets.gestures {
         }
 
         protected virtual void resolve(GestureDisposition disposition) {
-            var localEntries = new List<GestureArenaEntry>(this._entries.Values);
-            this._entries.Clear();
+            var localEntries = new List<GestureArenaEntry>(_entries.Values);
+            _entries.Clear();
             foreach (GestureArenaEntry entry in localEntries) {
                 entry.resolve(disposition);
             }
@@ -136,73 +172,73 @@ namespace Unity.UIWidgets.gestures {
         protected virtual void resolvePointer(int pointer, GestureDisposition disposition) {
             GestureArenaEntry entry = _entries[pointer];
             if (entry != null) {
-            entry.resolve(disposition);
-            _entries.Remove(pointer);
+                entry.resolve(disposition);
+                _entries.Remove(pointer);
             }
         }
 
         public override void dispose() {
-            this.resolve(GestureDisposition.rejected);
-            foreach (int pointer in this._trackedPointers) {
-                GestureBinding.instance.pointerRouter.removeRoute(pointer, this.handleEvent);
+            resolve(GestureDisposition.rejected);
+            foreach (int pointer in _trackedPointers) {
+                GestureBinding.instance.pointerRouter.removeRoute(pointer, handleEvent);
             }
 
-            this._trackedPointers.Clear();
-            D.assert(this._entries.isEmpty());
+            _trackedPointers.Clear();
+            D.assert(_entries.isEmpty());
             base.dispose();
         }
 
         public GestureArenaTeam team {
-            get { return this._team; }
+            get { return _team; }
             set {
                 D.assert(value != null);
-                D.assert(this._entries.isEmpty());
-                D.assert(this._trackedPointers.isEmpty());
-                D.assert(this._team == null);
-                this._team = value;
+                D.assert(_entries.isEmpty());
+                D.assert(_trackedPointers.isEmpty());
+                D.assert(_team == null);
+                _team = value;
             }
         }
 
         GestureArenaTeam _team;
 
         GestureArenaEntry _addPointerToArena(int pointer) {
-            if (this._team != null) {
-                return this._team.add(pointer, this);
+            if (_team != null) {
+                return _team.add(pointer, this);
             }
 
             return GestureBinding.instance.gestureArena.add(pointer, this);
         }
 
         protected void startTrackingScrollerPointer(int pointer) {
-            GestureBinding.instance.pointerRouter.addRoute(pointer, this.handleEvent);
+            GestureBinding.instance.pointerRouter.addRoute(pointer, handleEvent);
         }
 
         protected void stopTrackingScrollerPointer(int pointer) {
-            if (this._trackedPointers.isEmpty()) {
-                this.didStopTrackingLastScrollerPointer(pointer);
+            if (_trackedPointers.isEmpty()) {
+                didStopTrackingLastScrollerPointer(pointer);
             }
         }
 
         protected void startTrackingPointer(int pointer, Matrix4 transform = null) {
-            GestureBinding.instance.pointerRouter.addRoute(pointer, this.handleEvent, transform);
-            this._trackedPointers.Add(pointer);
-            D.assert(!this._entries.ContainsKey(pointer));
-            this._entries[pointer] = this._addPointerToArena(pointer);
+            GestureBinding.instance.pointerRouter.addRoute(pointer, handleEvent, transform);
+            _trackedPointers.Add(pointer);
+            D.assert(!_entries.ContainsKey(pointer));
+            _entries[pointer] = _addPointerToArena(pointer);
         }
 
         protected void stopTrackingPointer(int pointer) {
-            if (this._trackedPointers.Contains(pointer)) {
-                GestureBinding.instance.pointerRouter.removeRoute(pointer, this.handleEvent);
-                this._trackedPointers.Remove(pointer);
-                if (this._trackedPointers.isEmpty()) {
-                    this.didStopTrackingLastPointer(pointer);
+            if (_trackedPointers.Contains(pointer)) {
+                GestureBinding.instance.pointerRouter.removeRoute(pointer, handleEvent);
+                _trackedPointers.Remove(pointer);
+                if (_trackedPointers.isEmpty()) {
+                    didStopTrackingLastPointer(pointer);
                 }
             }
         }
 
         protected void stopTrackingIfPointerNoLongerDown(PointerEvent evt) {
             if (evt is PointerUpEvent || evt is PointerCancelEvent) {
-                this.stopTrackingPointer(evt.pointer);
+                stopTrackingPointer(evt.pointer);
             }
         }
     }
@@ -248,90 +284,90 @@ namespace Unity.UIWidgets.gestures {
         Timer _timer;
 
         public override void addAllowedPointer(PointerDownEvent evt) {
-            this.startTrackingPointer(evt.pointer, evt.transform);
-            if (this.state == GestureRecognizerState.ready) {
-                this.state = GestureRecognizerState.possible;
-                this.primaryPointer = evt.pointer;
-                this.initialPosition = new OffsetPair(local: evt.localPosition, global: evt.position);
-                if (this.deadline != null) {
-                    this._timer = Window.instance.run(this.deadline.Value, () => didExceedDeadlineWithEvent(evt));
+            startTrackingPointer(evt.pointer, evt.transform);
+            if (state == GestureRecognizerState.ready) {
+                state = GestureRecognizerState.possible;
+                primaryPointer = evt.pointer;
+                initialPosition = new OffsetPair(local: evt.localPosition, global: evt.position);
+                if (deadline != null) {
+                    _timer = Timer.create(deadline.Value, () => didExceedDeadlineWithEvent(evt));
                 }
             }
         }
 
         protected override void handleEvent(PointerEvent evt) {
-            D.assert(this.state != GestureRecognizerState.ready);
+            D.assert(state != GestureRecognizerState.ready);
 
-            if (evt.pointer == this.primaryPointer) {
-                bool isPreAcceptSlopPastTolerance = this.state == GestureRecognizerState.possible &&
-                                                    this.preAcceptSlopTolerance != null &&
-                                                    this._getGlobalDistance(evt) > this.preAcceptSlopTolerance;
-                bool isPostAcceptSlopPastTolerance = this.state == GestureRecognizerState.accepted &&
-                                                     this.postAcceptSlopTolerance != null &&
-                                                     this._getGlobalDistance(evt) > this.postAcceptSlopTolerance;
+            if (evt.pointer == primaryPointer) {
+                bool isPreAcceptSlopPastTolerance = state == GestureRecognizerState.possible &&
+                                                    preAcceptSlopTolerance != null &&
+                                                    _getGlobalDistance(evt) > preAcceptSlopTolerance;
+                bool isPostAcceptSlopPastTolerance = state == GestureRecognizerState.accepted &&
+                                                     postAcceptSlopTolerance != null &&
+                                                     _getGlobalDistance(evt) > postAcceptSlopTolerance;
 
                 if (evt is PointerMoveEvent && (isPreAcceptSlopPastTolerance || isPostAcceptSlopPastTolerance)) {
-                    this.resolve(GestureDisposition.rejected);
-                    this.stopTrackingPointer(this.primaryPointer);
+                    resolve(GestureDisposition.rejected);
+                    stopTrackingPointer(primaryPointer);
                 }
                 else {
-                    this.handlePrimaryPointer(evt);
+                    handlePrimaryPointer(evt);
                 }
             }
 
-            this.stopTrackingIfPointerNoLongerDown(evt);
+            stopTrackingIfPointerNoLongerDown(evt);
         }
 
         protected abstract void handlePrimaryPointer(PointerEvent evt);
 
         protected virtual void didExceedDeadline() {
-            D.assert(this.deadline == null);
+            D.assert(deadline == null);
         }
 
         protected virtual void didExceedDeadlineWithEvent(PointerDownEvent evt) {
-            this.didExceedDeadline();
+            didExceedDeadline();
         }
 
         public override void acceptGesture(int pointer) {
-            if (pointer == this.primaryPointer && this.state == GestureRecognizerState.possible) {
-                this._stopTimer();
-                this.state = GestureRecognizerState.accepted;
+            if (pointer == primaryPointer && state == GestureRecognizerState.possible) {
+                _stopTimer();
+                state = GestureRecognizerState.accepted;
             }
         }
 
         public override void rejectGesture(int pointer) {
-            if (pointer == this.primaryPointer && (this.state == GestureRecognizerState.possible ||
-                                                   this.state == GestureRecognizerState.accepted)) {
-                this._stopTimer();
-                this.state = GestureRecognizerState.defunct;
+            if (pointer == primaryPointer && (state == GestureRecognizerState.possible ||
+                                                   state == GestureRecognizerState.accepted)) {
+                _stopTimer();
+                state = GestureRecognizerState.defunct;
             }
         }
 
         protected override void didStopTrackingLastPointer(int pointer) {
-            this._stopTimer();
-            this.state = GestureRecognizerState.ready;
+            _stopTimer();
+            state = GestureRecognizerState.ready;
         }
 
         public override void dispose() {
-            this._stopTimer();
+            _stopTimer();
             base.dispose();
         }
 
         void _stopTimer() {
-            if (this._timer != null) {
-                this._timer.cancel();
-                this._timer = null;
+            if (_timer != null) {
+                _timer.cancel();
+                _timer = null;
             }
         }
 
         float _getGlobalDistance(PointerEvent evt) {
-            Offset offset = evt.position - this.initialPosition.global;
+            Offset offset = evt.position - initialPosition.global;
             return offset.distance;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<GestureRecognizerState>("state", this.state));
+            properties.add(new EnumProperty<GestureRecognizerState>("state", state));
         }
     }
 
@@ -384,7 +420,7 @@ namespace Unity.UIWidgets.gestures {
         }
 
         public override string ToString() {
-            return $"runtimeType(local: ${this.local}, global: ${this.global})";
+            return $"runtimeType(local: ${local}, global: ${global})";
         }
     }
 }

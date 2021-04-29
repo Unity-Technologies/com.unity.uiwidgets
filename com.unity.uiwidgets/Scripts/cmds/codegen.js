@@ -5,13 +5,17 @@ var fs = require('fs');
 var nunjucks = require('nunjucks');
 var chokidar = require('chokidar');
 
-exports.command = 'codegen [dir]';
+exports.command = 'codegen [dir] [file]';
 exports.desc = "generate mixin code";
 exports.builder = function (yargs) {
     return yargs.positional('dir', {
         describe: 'the working directory',
         type: 'string',
         default: '.'
+    }).positional('file', {
+        describe: 'the target file if specified',
+        type: 'string',
+        default: ''
     }).option('watch', {
         alias: 'w',
         describe: 'Watch for file changes',
@@ -21,6 +25,10 @@ exports.builder = function (yargs) {
 
 exports.handler = function (argv) {
     var cwd = path.resolve(__dirname, '../..', argv.dir);
+    var file = ''
+    if (argv.file != '') {
+        file = argv.file;
+    }
     var data = {};
     var env = nunjucks.configure(cwd, {
         trimBlocks: true,
@@ -36,8 +44,12 @@ exports.handler = function (argv) {
         if (err) {
             return console.error(chalk.red(err));
         }
-
-        renderAll(env, cwd, files, data);
+        if (files.indexOf(file) >=0) {
+            render(env, cwd, file, data);
+        }
+        else {
+            renderAll(env, cwd, files, data);
+        }
     });
     
     if (argv.watch) {

@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
+//using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Color = Unity.UIWidgets.ui.Color;
 using Constants = Unity.UIWidgets.gestures.Constants;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.widgets {
-    public class SelectableText : StatefulWidget {
+    /*public class SelectableText : StatefulWidget {
         public SelectableText(string data,
             Key key = null,
             TextStyle style = null,
@@ -28,7 +29,7 @@ namespace Unity.UIWidgets.widgets {
             GestureTapUpCallback onTapUp = null,
             GestureTapCancelCallback onTapCancel = null) : base(key) {
             D.assert(data != null);
-            this.textSpan = null;
+            textSpan = null;
             this.data = data;
             this.style = style;
             this.textAlign = textAlign;
@@ -58,7 +59,7 @@ namespace Unity.UIWidgets.widgets {
             GestureTapCancelCallback onTapCancel = null) : base(key) {
             D.assert(textSpan != null);
             this.textSpan = textSpan;
-            this.data = null;
+            data = null;
             this.style = style;
             this.textAlign = textAlign;
             this.softWrap = softWrap;
@@ -136,12 +137,12 @@ namespace Unity.UIWidgets.widgets {
         readonly GlobalKey _richTextKey = GlobalKey.key();
 
         RenderParagraph _renderParagragh {
-            get { return (RenderParagraph) this._richTextKey.currentContext.findRenderObject(); }
+            get { return (RenderParagraph) _richTextKey.currentContext.findRenderObject(); }
         }
 
         public override void initState() {
             base.initState();
-            this.widget.focusNode.addListener(this._handleFocusChanged);
+            widget.focusNode.addListener(_handleFocusChanged);
         }
 
 
@@ -149,29 +150,29 @@ namespace Unity.UIWidgets.widgets {
             SelectableText oldWidget = (SelectableText) old;
             base.didUpdateWidget(oldWidget);
 
-            if (oldWidget.focusNode != this.widget.focusNode) {
-                oldWidget.focusNode.removeListener(this._handleFocusChanged);
-                this.widget.focusNode.addListener(this._handleFocusChanged);
+            if (oldWidget.focusNode != widget.focusNode) {
+                oldWidget.focusNode.removeListener(_handleFocusChanged);
+                widget.focusNode.addListener(_handleFocusChanged);
             }
         }
 
         public override void dispose() {
-            this.widget.focusNode.removeListener(this._handleFocusChanged);
+            widget.focusNode.removeListener(_handleFocusChanged);
             base.dispose();
         }
 
         bool _hasFocus {
-            get { return this.widget.focusNode.hasFocus; }
+            get { return widget.focusNode.hasFocus; }
         }
 
         void _handleFocusChanged() {
-            if (this._hasFocus) {
+            if (_hasFocus) {
                 WidgetsBinding.instance.addObserver(this);
-                this._renderParagragh.hasFocus = true;
+                _renderParagragh.hasFocus = true;
             }
             else {
                 WidgetsBinding.instance.removeObserver(this);
-                this._renderParagragh.hasFocus = false;
+                _renderParagragh.hasFocus = false;
             }
         }
 
@@ -181,89 +182,90 @@ namespace Unity.UIWidgets.widgets {
 
         public void didChangeTextScaleFactor() {
         }
-        
+
         public void didChangePlatformBrightness() {
         }
 
         public void didChangeLocales(List<Locale> locale) {
         }
 
-        public IPromise<bool> didPopRoute() {
-            return Promise<bool>.Resolved(false);
+        public Future<bool> didPopRoute() {
+            return Future.value(false).to<bool>();
         }
 
-        public IPromise<bool> didPushRoute(string route) {
-            return Promise<bool>.Resolved(false);
+        public Future<bool> didPushRoute(string route) {
+            return Future.value(false).to<bool>();
         }
 
         void _handleTapDown(TapDownDetails details) {
-            this.widget.onTapDown?.Invoke(details);
+            widget.onTapDown?.Invoke(details);
         }
 
         void _handleSingleTapUp(TapUpDetails details) {
-            this.widget.onTapUp?.Invoke(details);
+            widget.onTapUp?.Invoke(details);
         }
 
         void _handleSingleTapCancel() {
-            this.widget.onTapCancel?.Invoke();
+            widget.onTapCancel?.Invoke();
         }
 
         void _handleLongPress() {
         }
 
         void _handleDragSelectionStart(DragStartDetails details) {
-            this._renderParagragh.selectPositionAt(
+            _renderParagragh.selectPositionAt(
                 from: details.globalPosition,
                 cause: SelectionChangedCause.drag);
         }
 
         void _handleDragSelectionUpdate(DragStartDetails startDetails,
             DragUpdateDetails updateDetails) {
-            this._renderParagragh.selectPositionAt(
+            _renderParagragh.selectPositionAt(
                 from: startDetails.globalPosition,
                 to: updateDetails.globalPosition,
                 cause: SelectionChangedCause.drag);
         }
 
         public override Widget build(BuildContext context) {
-            FocusScope.of(context).reparentIfNeeded(this.widget.focusNode);
+            
+            FocusScope.of(context).reparentIfNeeded(widget.focusNode);
 
             DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
-            TextStyle effectiveTextStyle = this.widget.style;
-            if (this.widget.style == null || this.widget.style.inherit) {
-                effectiveTextStyle = defaultTextStyle.style.merge(this.widget.style);
+            TextStyle effectiveTextStyle = widget.style;
+            if (widget.style == null || widget.style.inherit) {
+                effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
             }
 
             Widget child = new RichText(
-                key: this._richTextKey,
-                textAlign: this.widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.left,
-                softWrap: this.widget.softWrap ?? defaultTextStyle.softWrap,
-                overflow: this.widget.overflow ?? defaultTextStyle.overflow,
-                textScaleFactor: this.widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context),
-                maxLines: this.widget.maxLines ?? defaultTextStyle.maxLines,
+                key: _richTextKey,
+                textAlign: widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.left,
+                softWrap: widget.softWrap ?? defaultTextStyle.softWrap,
+                overflow: widget.overflow ?? defaultTextStyle.overflow,
+                textScaleFactor: widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context),
+                maxLines: widget.maxLines ?? defaultTextStyle.maxLines,
                 text: new TextSpan(
                     style: effectiveTextStyle,
-                    text: this.widget.data,
-                    children: this.widget.textSpan != null ? new List<TextSpan> {this.widget.textSpan} : null
+                    text: widget.data,
+                    children: widget.textSpan != null ? new List<InlineSpan> {widget.textSpan} : null
                 ),
                 onSelectionChanged: () => {
-                    if (this._hasFocus) {
+                    if (_hasFocus) {
                         return;
                     }
 
-                    FocusScope.of(this.context).requestFocus(this.widget.focusNode);
+                    FocusScope.of(this.context).requestFocus(widget.focusNode);
                 },
-                selectionColor: this.widget.selectionColor ?? Colors.blue);
+                selectionColor: widget.selectionColor ?? Colors.blue);
 
             return new IgnorePointer(
                 ignoring: false,
                 child: new RichTextSelectionGestureDetector(
-                    onTapDown: this._handleTapDown,
-                    onSingleTapUp: this._handleSingleTapUp,
-                    onSingleTapCancel: this._handleSingleTapCancel,
-                    onSingleLongTapStart: this._handleLongPress,
-                    onDragSelectionStart: this._handleDragSelectionStart,
-                    onDragSelectionUpdate: this._handleDragSelectionUpdate,
+                    onTapDown: _handleTapDown,
+                    onSingleTapUp: _handleSingleTapUp,
+                    onSingleTapCancel: _handleSingleTapCancel,
+                    onSingleLongTapStart: _handleLongPress,
+                    onDragSelectionStart: _handleDragSelectionStart,
+                    onDragSelectionUpdate: _handleDragSelectionUpdate,
                     behavior: HitTestBehavior.translucent,
                     child: child
                 )
@@ -330,44 +332,44 @@ namespace Unity.UIWidgets.widgets {
         bool _isDoubleTap = false;
 
         public override void dispose() {
-            this._doubleTapTimer?.cancel();
-            this._dragUpdateThrottleTimer?.cancel();
+            _doubleTapTimer?.cancel();
+            _dragUpdateThrottleTimer?.cancel();
             base.dispose();
         }
 
         void _handleTapDown(TapDownDetails details) {
-            if (this.widget.onTapDown != null) {
-                this.widget.onTapDown(details);
+            if (widget.onTapDown != null) {
+                widget.onTapDown(details);
             }
 
-            if (this._doubleTapTimer != null &&
-                this._isWithinDoubleTapTolerance(details.globalPosition)) {
-                if (this.widget.onDoubleTapDown != null) {
-                    this.widget.onDoubleTapDown(details);
+            if (_doubleTapTimer != null &&
+                _isWithinDoubleTapTolerance(details.globalPosition)) {
+                if (widget.onDoubleTapDown != null) {
+                    widget.onDoubleTapDown(details);
                 }
 
-                this._doubleTapTimer.cancel();
-                this._doubleTapTimeout();
-                this._isDoubleTap = true;
+                _doubleTapTimer.cancel();
+                _doubleTapTimeout();
+                _isDoubleTap = true;
             }
         }
 
         void _handleTapUp(TapUpDetails details) {
-            if (!this._isDoubleTap) {
-                if (this.widget.onSingleTapUp != null) {
-                    this.widget.onSingleTapUp(details);
+            if (!_isDoubleTap) {
+                if (widget.onSingleTapUp != null) {
+                    widget.onSingleTapUp(details);
                 }
 
-                this._lastTapOffset = details.globalPosition;
-                this._doubleTapTimer = Window.instance.run(Constants.kDoubleTapTimeout, this._doubleTapTimeout);
+                _lastTapOffset = details.globalPosition;
+                _doubleTapTimer = Timer.create(Constants.kDoubleTapTimeout, _doubleTapTimeout);
             }
 
-            this._isDoubleTap = false;
+            _isDoubleTap = false;
         }
 
         void _handleTapCancel() {
-            if (this.widget.onSingleTapCancel != null) {
-                this.widget.onSingleTapCancel();
+            if (widget.onSingleTapCancel != null) {
+                widget.onSingleTapCancel();
             }
         }
 
@@ -376,65 +378,65 @@ namespace Unity.UIWidgets.widgets {
         Timer _dragUpdateThrottleTimer;
 
         void _handleDragStart(DragStartDetails details) {
-            D.assert(this._lastDragStartDetails == null);
-            this._lastDragStartDetails = details;
-            if (this.widget.onDragSelectionStart != null) {
-                this.widget.onDragSelectionStart(details);
+            D.assert(_lastDragStartDetails == null);
+            _lastDragStartDetails = details;
+            if (widget.onDragSelectionStart != null) {
+                widget.onDragSelectionStart(details);
             }
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            this._lastDragUpdateDetails = details;
-            this._dragUpdateThrottleTimer = this._dragUpdateThrottleTimer ??
-                                            Window.instance.run(TextSelectionUtils._kDragSelectionUpdateThrottle,
-                                                this._handleDragUpdateThrottled);
+            _lastDragUpdateDetails = details; 
+            _dragUpdateThrottleTimer = _dragUpdateThrottleTimer ?? Timer.create(TextSelectionUtils._kDragSelectionUpdateThrottle, _handleDragUpdateThrottled);
         }
 
-        void _handleDragUpdateThrottled() {
-            D.assert(this._lastDragStartDetails != null);
-            D.assert(this._lastDragUpdateDetails != null);
-            if (this.widget.onDragSelectionUpdate != null) {
-                this.widget.onDragSelectionUpdate(this._lastDragStartDetails, this._lastDragUpdateDetails);
+        object _handleDragUpdateThrottled() {
+            D.assert(_lastDragStartDetails != null);
+            D.assert(_lastDragUpdateDetails != null);
+            if (widget.onDragSelectionUpdate != null) {
+                widget.onDragSelectionUpdate(_lastDragStartDetails, _lastDragUpdateDetails);
             }
 
-            this._dragUpdateThrottleTimer = null;
-            this._lastDragUpdateDetails = null;
+            _dragUpdateThrottleTimer = null;
+            _lastDragUpdateDetails = null;
+            return null;
         }
 
         void _handleDragEnd(DragEndDetails details) {
-            D.assert(this._lastDragStartDetails != null);
-            if (this._lastDragUpdateDetails != null) {
-                this._dragUpdateThrottleTimer.cancel();
-                this._handleDragUpdateThrottled();
+            D.assert(_lastDragStartDetails != null);
+            if (_lastDragUpdateDetails != null) {
+                _dragUpdateThrottleTimer.cancel();
+                _handleDragUpdateThrottled();
             }
 
-            if (this.widget.onDragSelectionEnd != null) {
-                this.widget.onDragSelectionEnd(details);
+            if (widget.onDragSelectionEnd != null) {
+                widget.onDragSelectionEnd(details);
             }
 
-            this._dragUpdateThrottleTimer = null;
-            this._lastDragStartDetails = null;
-            this._lastDragUpdateDetails = null;
+            _dragUpdateThrottleTimer = null;
+            _lastDragStartDetails = null;
+            _lastDragUpdateDetails = null;
         }
 
         void _handleLongPressStart() {
-            if (!this._isDoubleTap && this.widget.onSingleLongTapStart != null) {
-                this.widget.onSingleLongTapStart();
+            if (!_isDoubleTap && widget.onSingleLongTapStart != null) {
+                widget.onSingleLongTapStart();
             }
         }
 
-        void _doubleTapTimeout() {
-            this._doubleTapTimer = null;
-            this._lastTapOffset = null;
+        object _doubleTapTimeout() {
+            _doubleTapTimer = null;
+            _lastTapOffset = null;
+            return null;
         }
 
         bool _isWithinDoubleTapTolerance(Offset secondTapOffset) {
             D.assert(secondTapOffset != null);
-            if (this._lastTapOffset == null) {
+            if (_lastTapOffset == null) {
                 return false;
             }
 
-            Offset difference = secondTapOffset - this._lastTapOffset;
+            Offset difference = secondTapOffset - _lastTapOffset;
             return difference.distance <= Constants.kDoubleTapSlop;
         }
 
@@ -444,31 +446,31 @@ namespace Unity.UIWidgets.widgets {
             gestures.Add(typeof(TapGestureRecognizer), new GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
                     () => new TapGestureRecognizer(debugOwner: this),
                     instance => {
-                        instance.onTapDown = this._handleTapDown;
-                        instance.onTapUp = this._handleTapUp;
-                        instance.onTapCancel = this._handleTapCancel;
+                        instance.onTapDown = _handleTapDown;
+                        instance.onTapUp = _handleTapUp;
+                        instance.onTapCancel = _handleTapCancel;
                     }
                 )
             );
 
-            if (this.widget.onSingleLongTapStart != null) {
+            if (widget.onSingleLongTapStart != null) {
                 gestures[typeof(LongPressGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
                         () => new LongPressGestureRecognizer(debugOwner: this, kind: PointerDeviceKind.touch),
-                        instance => { instance.onLongPress = this._handleLongPressStart; });
+                        instance => { instance.onLongPress = _handleLongPressStart; });
             }
 
-            if (this.widget.onDragSelectionStart != null ||
-                this.widget.onDragSelectionUpdate != null ||
-                this.widget.onDragSelectionEnd != null) {
+            if (widget.onDragSelectionStart != null ||
+                widget.onDragSelectionUpdate != null ||
+                widget.onDragSelectionEnd != null) {
                 gestures.Add(typeof(PanGestureRecognizer),
                     new GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
                         () => new PanGestureRecognizer(debugOwner: this, kind: PointerDeviceKind.mouse),
                         instance => {
                             instance.dragStartBehavior = DragStartBehavior.down;
-                            instance.onStart = this._handleDragStart;
-                            instance.onUpdate = this._handleDragUpdate;
-                            instance.onEnd = this._handleDragEnd;
+                            instance.onStart = _handleDragStart;
+                            instance.onUpdate = _handleDragUpdate;
+                            instance.onEnd = _handleDragEnd;
                         }
                     )
                 );
@@ -476,9 +478,9 @@ namespace Unity.UIWidgets.widgets {
 
             return new RawGestureDetector(
                 gestures: gestures,
-                behavior: this.widget.behavior,
-                child: this.widget.child
+                behavior: widget.behavior,
+                child: widget.child
             );
         }
-    }
+    }*/
 }

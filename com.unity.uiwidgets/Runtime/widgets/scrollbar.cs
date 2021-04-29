@@ -8,184 +8,273 @@ using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.widgets {
+
+    static class ScrollbarPainterUtils {
+        
+        public const float _kMinThumbExtent = 18.0f;
+        public const float _kMinInteractiveSize = 48.0f;
+    }
     public class ScrollbarPainter : ChangeNotifier, CustomPainter {
         public ScrollbarPainter(
             Color color,
             TextDirection textDirection,
             float thickness,
             Animation<float> fadeoutOpacityAnimation,
+            EdgeInsets padding = null,
             float mainAxisMargin = 0.0f,
             float crossAxisMargin = 0.0f,
             Radius radius = null,
-            float minLength = _kMinThumbExtent,
-            float minOverscrollLength = _kMinThumbExtent
+            float minLength = ScrollbarPainterUtils._kMinThumbExtent,
+            float? minOverscrollLength = null
         ) {
-            this.color = color;
-            this.textDirection = textDirection;
+            D.assert(color != null);
+            D.assert(fadeoutOpacityAnimation != null);
+            D.assert(minLength >= 0);
+            D.assert(minOverscrollLength == null || minOverscrollLength.Value <= minLength);
+            D.assert(minOverscrollLength == null || minOverscrollLength.Value >= 0);
+            padding = padding ?? EdgeInsets.zero;
+            
+            D.assert(padding.isNonNegative);
+            _color = color;
+            _textDirection = textDirection;
+            _padding = padding;
             this.thickness = thickness;
             this.fadeoutOpacityAnimation = fadeoutOpacityAnimation;
             this.mainAxisMargin = mainAxisMargin;
             this.crossAxisMargin = crossAxisMargin;
             this.radius = radius;
             this.minLength = minLength;
-            this.minOverscrollLength = minOverscrollLength;
-            fadeoutOpacityAnimation.addListener(this.notifyListeners);
+            this.minOverscrollLength = minOverscrollLength ?? minLength;
+            fadeoutOpacityAnimation.addListener(notifyListeners);
         }
 
-        const float _kMinThumbExtent = 18.0f;
+        public Color color {
+            get { return _color; }
+            set {
+                D.assert(value != null);
+                if (color == value) {
+                    return;
+                }
 
-        public Color color;
-        public TextDirection? textDirection;
+                _color = value;
+                notifyListeners();
+            }
+        }
+        Color _color;
+
+        public TextDirection textDirection {
+            get { return _textDirection; }
+            set {
+                if (textDirection == value) {
+                    return;
+                }
+
+                _textDirection = value;
+                notifyListeners();
+            }
+        }
+
+        TextDirection _textDirection;
+        
         public float thickness;
-        public Animation<float> fadeoutOpacityAnimation;
-        public float mainAxisMargin;
-        public float crossAxisMargin;
+        public readonly Animation<float> fadeoutOpacityAnimation;
+        public readonly float mainAxisMargin;
+        public readonly float crossAxisMargin;
         public Radius radius;
-        public float minLength;
-        public float minOverscrollLength;
+
+        public EdgeInsets padding {
+            get { return _padding; }
+            set {
+                D.assert(value != null);
+                if (padding == value) {
+                    return;
+                }
+
+                _padding = value;
+                notifyListeners();
+            }
+        }
+        EdgeInsets _padding;
+        
+        public readonly float minLength;
+        public readonly float minOverscrollLength;
 
         ScrollMetrics _lastMetrics;
         AxisDirection? _lastAxisDirection;
+        Rect _thumbRect;
 
         public void update(ScrollMetrics metrics, AxisDirection axisDirection) {
-            this._lastMetrics = metrics;
-            this._lastAxisDirection = axisDirection;
-            this.notifyListeners();
+            _lastMetrics = metrics;
+            _lastAxisDirection = axisDirection;
+            notifyListeners();
+        }
+
+        public void updateThickness(float nextThickness, Radius nextRadius) {
+            thickness = nextThickness;
+            radius = nextRadius;
+            notifyListeners();
         }
 
         Paint _paint {
             get {
                 var paint = new Paint();
-                paint.color = this.color.withOpacity(this.color.opacity * this.fadeoutOpacityAnimation.value);
+                paint.color = color.withOpacity(color.opacity * fadeoutOpacityAnimation.value);
                 return paint;
             }
         }
+        
+        void _paintThumbCrossAxis(Canvas canvas, Size size, float thumbOffset, float thumbExtent, AxisDirection direction) {
+            float x = 0;
+            float y = 0;
+            Size thumbSize = Size.zero;
 
-        float _getThumbX(Size size) {
-            D.assert(this.textDirection != null);
-            switch (this.textDirection) {
-                case TextDirection.rtl:
-                    return this.crossAxisMargin;
-                case TextDirection.ltr:
-                    return size.width - this.thickness - this.crossAxisMargin;
+            switch (direction) {
+                case AxisDirection.down:
+                    thumbSize = new Size(thickness, thumbExtent);
+                    x = textDirection == TextDirection.rtl
+                        ? crossAxisMargin + padding.left
+                        : size.width - thickness - crossAxisMargin - padding.right;
+                    y = thumbOffset;
+                    break;
+                case AxisDirection.up:
+                    thumbSize = new Size(thickness, thumbExtent);
+                    x = textDirection == TextDirection.rtl
+                        ? crossAxisMargin + padding.left
+                        : size.width - thickness - crossAxisMargin - padding.right;
+                    y = thumbOffset;
+                    break;
+                case AxisDirection.left:
+                    thumbSize = new Size(thumbExtent, thickness);
+                    x = thumbOffset;
+                    y = size.height - thickness - crossAxisMargin - padding.bottom;
+                    break;
+                case AxisDirection.right:
+                    thumbSize = new Size(thumbExtent, thickness);
+                    x = thumbOffset;
+                    y = size.height - thickness - crossAxisMargin - padding.bottom;
+                    break;
             }
 
-            return 0;
-        }
-
-        void _paintVerticalThumb(Canvas canvas, Size size, float thumbOffset, float thumbExtent) {
-            Offset thumbOrigin = new Offset(this._getThumbX(size), thumbOffset);
-            Size thumbSize = new Size(this.thickness, thumbExtent);
-            Rect thumbRect = thumbOrigin & thumbSize;
-            if (this.radius == null) {
-                canvas.drawRect(thumbRect, this._paint);
+            _thumbRect = new Offset(x, y) & thumbSize;
+            if (radius == null) {
+                canvas.drawRect(_thumbRect, _paint);
             }
             else {
-                canvas.drawRRect(RRect.fromRectAndRadius(thumbRect, this.radius), this._paint);
+                canvas.drawRRect(RRect.fromRectAndRadius(_thumbRect, radius), _paint);
             }
         }
+        
+        float _thumbExtent() {
+            float fractionVisible = ((_lastMetrics.extentInside() - _mainAxisPadding) / (_totalContentExtent - _mainAxisPadding))
+                .clamp(0.0f, 1.0f);
 
-        void _paintHorizontalThumb(Canvas canvas, Size size, float thumbOffset, float thumbExtent) {
-            Offset thumbOrigin = new Offset(thumbOffset, size.height - this.thickness);
-            Size thumbSize = new Size(thumbExtent, this.thickness);
-            Rect thumbRect = thumbOrigin & thumbSize;
-            if (this.radius == null) {
-                canvas.drawRect(thumbRect, this._paint);
-            }
-            else {
-                canvas.drawRRect(RRect.fromRectAndRadius(thumbRect, this.radius), this._paint);
-            }
-        }
+            float thumbExtent = Mathf.Max(
+                Mathf.Min(_trackExtent, minOverscrollLength),
+                _trackExtent * fractionVisible
+            );
 
-        public delegate void painterDelegate(Canvas canvas, Size size, float thumbOffset, float thumbExtent);
-
-        void _paintThumb(
-            float before,
-            float inside,
-            float after,
-            float viewport,
-            Canvas canvas,
-            Size size,
-            painterDelegate painter
-        ) {
-            float thumbExtent = Mathf.Min(viewport, this.minOverscrollLength);
-
-            if (before + inside + after > 0.0) {
-                float fractionVisible = inside / (before + inside + after);
-                thumbExtent = Mathf.Max(
-                    thumbExtent,
-                    viewport * fractionVisible - 2 * this.mainAxisMargin
-                );
-
-                if (before != 0.0 && after != 0.0) {
-                    thumbExtent = Mathf.Max(
-                        this.minLength,
-                        thumbExtent
-                    );
-                }
-                else {
-                    thumbExtent = Mathf.Max(
-                        thumbExtent,
-                        this.minLength * (((inside / viewport) - 0.8f) / 0.2f)
-                    );
-                }
-
-                float fractionPast = before / (before + after);
-                float thumbOffset = (before + after > 0.0)
-                    ? fractionPast * (viewport - thumbExtent - 2 * this.mainAxisMargin) + this.mainAxisMargin
-                    : this.mainAxisMargin;
-
-                painter(canvas, size, thumbOffset, thumbExtent);
-            }
+            float fractionOverscrolled = 1.0f - _lastMetrics.extentInside() / _lastMetrics.viewportDimension;
+            float safeMinLength = Mathf.Min(minLength, _trackExtent);
+            float newMinLength = (_beforeExtent > 0 && _afterExtent > 0)
+                ? safeMinLength
+                : safeMinLength * (1.0f - fractionOverscrolled.clamp(0.0f, 0.2f) / 0.2f);
+            
+            return thumbExtent.clamp(newMinLength, _trackExtent);
         }
 
         public override void dispose() {
-            this.fadeoutOpacityAnimation.removeListener(this.notifyListeners);
+            fadeoutOpacityAnimation.removeListener(notifyListeners);
             base.dispose();
         }
+        
+        bool _isVertical => _lastAxisDirection == AxisDirection.down || _lastAxisDirection == AxisDirection.up;
+        bool _isReversed => _lastAxisDirection == AxisDirection.up || _lastAxisDirection == AxisDirection.left;
+        float _beforeExtent => _isReversed ? _lastMetrics.extentAfter() : _lastMetrics.extentBefore();
+        float _afterExtent => _isReversed ? _lastMetrics.extentBefore() : _lastMetrics.extentAfter();
+        float _mainAxisPadding => _isVertical ? padding.vertical : padding.horizontal;
+        float _trackExtent => _lastMetrics.viewportDimension - 2 * mainAxisMargin - _mainAxisPadding;
+        
+        float _totalContentExtent {
+            get {
+                return _lastMetrics.maxScrollExtent
+                       - _lastMetrics.minScrollExtent
+                       + _lastMetrics.viewportDimension;
+            }
+        }
 
+        public float getTrackToScroll(float thumbOffsetLocal) {
+            float scrollableExtent = _lastMetrics.maxScrollExtent - _lastMetrics.minScrollExtent;
+            float thumbMovableExtent = _trackExtent - _thumbExtent();
+
+            return scrollableExtent * thumbOffsetLocal / thumbMovableExtent;
+        }
+        
+        float _getScrollToTrack(ScrollMetrics metrics, float thumbExtent) {
+            float scrollableExtent = metrics.maxScrollExtent - metrics.minScrollExtent;
+
+            float fractionPast = (scrollableExtent > 0)
+                ? ((metrics.pixels - metrics.minScrollExtent) / scrollableExtent).clamp(0.0f, 1.0f)
+                : 0;
+
+            return (_isReversed ? 1 - fractionPast : fractionPast) * (_trackExtent - thumbExtent);
+        }
 
         public void paint(Canvas canvas, Size size) {
-            if (this._lastAxisDirection == null
-                || this._lastMetrics == null
-                || this.fadeoutOpacityAnimation.value == 0.0) {
+            if (_lastAxisDirection == null
+                || _lastMetrics == null
+                || fadeoutOpacityAnimation.value == 0.0f) {
                 return;
             }
 
-            switch (this._lastAxisDirection) {
-                case AxisDirection.down:
-                    this._paintThumb(this._lastMetrics.extentBefore(), this._lastMetrics.extentInside(),
-                        this._lastMetrics.extentAfter(), size.height, canvas, size, this._paintVerticalThumb);
-                    break;
-                case AxisDirection.up:
-                    this._paintThumb(this._lastMetrics.extentAfter(), this._lastMetrics.extentInside(),
-                        this._lastMetrics.extentBefore(), size.height, canvas, size, this._paintVerticalThumb);
-                    break;
-                case AxisDirection.right:
-                    this._paintThumb(this._lastMetrics.extentBefore(), this._lastMetrics.extentInside(),
-                        this._lastMetrics.extentAfter(), size.width, canvas, size, this._paintHorizontalThumb);
-                    break;
-                case AxisDirection.left:
-                    this._paintThumb(this._lastMetrics.extentAfter(), this._lastMetrics.extentInside(),
-                        this._lastMetrics.extentBefore(), size.width, canvas, size, this._paintHorizontalThumb);
-                    break;
+            if (_lastMetrics.viewportDimension <= _mainAxisPadding || _trackExtent <= 0) {
+                return;
             }
+            
+            float beforePadding = _isVertical ? padding.top : padding.left;
+            float thumbExtent = _thumbExtent();
+            float thumbOffsetLocal = _getScrollToTrack(_lastMetrics, thumbExtent);
+            float thumbOffset = thumbOffsetLocal + mainAxisMargin + beforePadding;
+
+            _paintThumbCrossAxis(canvas, size, thumbOffset, thumbExtent, _lastAxisDirection.Value);
+        }
+
+        public bool hitTestInteractive(Offset position) {
+            if (_thumbRect == null) {
+                return false;
+            }
+
+            if (fadeoutOpacityAnimation.value == 0.0f) {
+                return false;
+            }
+            Rect interactiveThumbRect = _thumbRect.expandToInclude(
+                Rect.fromCircle(center: _thumbRect.center, radius: ScrollbarPainterUtils._kMinInteractiveSize / 2)
+            );
+            return interactiveThumbRect.contains(position);
         }
 
         public bool? hitTest(Offset position) {
-            return false;
+            if (_thumbRect == null) {
+                return null;
+            }
+
+            if (fadeoutOpacityAnimation.value == 0.0f) {
+                return false;
+            }
+
+            return _thumbRect.contains(position);
         }
 
         public bool shouldRepaint(CustomPainter oldRaw) {
             if (oldRaw is ScrollbarPainter old) {
-                return this.color != old.color
-                       || this.textDirection != old.textDirection
-                       || this.thickness != old.thickness
-                       || this.fadeoutOpacityAnimation != old.fadeoutOpacityAnimation
-                       || this.mainAxisMargin != old.mainAxisMargin
-                       || this.crossAxisMargin != old.crossAxisMargin
-                       || this.radius != old.radius
-                       || this.minLength != old.minLength;
+                return color != old.color
+                       || textDirection != old.textDirection
+                       || thickness != old.thickness
+                       || fadeoutOpacityAnimation != old.fadeoutOpacityAnimation
+                       || mainAxisMargin != old.mainAxisMargin
+                       || crossAxisMargin != old.crossAxisMargin
+                       || radius != old.radius
+                       || minLength != old.minLength
+                       || padding != old.padding;
             }
 
             return false;

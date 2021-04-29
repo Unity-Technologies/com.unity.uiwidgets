@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using RSG;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -12,6 +12,7 @@ namespace Unity.UIWidgets.material {
         public abstract string backButtonTooltip { get; }
         public abstract string closeButtonTooltip { get; }
         public abstract string deleteButtonTooltip { get; }
+        public abstract string moreButtonTooltip { get; }
         public abstract string nextMonthTooltip { get; }
         public abstract string previousMonthTooltip { get; }
         public abstract string nextPageTooltip { get; }
@@ -37,6 +38,8 @@ namespace Unity.UIWidgets.material {
 
         public abstract string postMeridiemAbbreviation { get; }
 
+        public abstract string dialogLabel { get; }
+
         public abstract string searchFieldLabel { get; }
 
         public abstract TimeOfDayFormat timeOfDayFormat(bool alwaysUse24HourFormat = false);
@@ -53,6 +56,14 @@ namespace Unity.UIWidgets.material {
 
         public abstract string formatYear(DateTime date);
 
+        public abstract string formatCompactDate(DateTime date);
+
+        public abstract string formatShortDate(DateTime date);
+
+        public abstract string formatShortMonthDay(DateTime date);
+
+        public abstract DateTime? parseCompactDate(string inputString);
+
         public abstract string formatMediumDate(DateTime date);
 
         public abstract string formatFullDate(DateTime date);
@@ -62,7 +73,7 @@ namespace Unity.UIWidgets.material {
         public abstract List<string> narrowWeekdays { get; }
 
         public abstract int firstDayOfWeekIndex { get; }
-        
+
         public abstract string modalBarrierDismissLabel { get; }
 
         public static MaterialLocalizations of(BuildContext context) {
@@ -78,8 +89,8 @@ namespace Unity.UIWidgets.material {
             return locale.languageCode == "en";
         }
 
-        public override IPromise<object> load(Locale locale) {
-            return DefaultMaterialLocalizations.load(locale);
+        public override Future<WidgetsLocalizations> load(Locale locale) {
+            return DefaultMaterialLocalizations.load(locale).to<WidgetsLocalizations>();
         }
 
         public override bool shouldReload(LocalizationsDelegate old) {
@@ -105,7 +116,7 @@ namespace Unity.UIWidgets.material {
             "Sun",
         };
 
-        static readonly List<String> _weekdays = new List<string>() {
+        static readonly List<string> _weekdays = new List<string>() {
             "Monday",
             "Tuesday",
             "Wednesday",
@@ -115,7 +126,7 @@ namespace Unity.UIWidgets.material {
             "Sunday",
         };
 
-        static readonly List<String> _narrowWeekdays = new List<string>() {
+        static readonly List<string> _narrowWeekdays = new List<string>() {
             "S",
             "M",
             "T",
@@ -125,7 +136,7 @@ namespace Unity.UIWidgets.material {
             "S",
         };
 
-        static readonly List<String> _shortMonths = new List<string>() {
+        static readonly List<string> _shortMonths = new List<string>() {
             "Jan",
             "Feb",
             "Mar",
@@ -140,7 +151,7 @@ namespace Unity.UIWidgets.material {
             "Dec",
         };
 
-        static readonly List<String> _months = new List<string>() {
+        static readonly List<string> _months = new List<string>() {
             "January",
             "February",
             "March",
@@ -155,13 +166,28 @@ namespace Unity.UIWidgets.material {
             "December",
         };
 
+        static int _getDaysInMonth(int year, int month) {
+            if (month == 2) {
+                bool isLeapYear = (year % 4 == 0) && (year % 100 != 0) ||
+                                  (year % 400 == 0);
+                if (isLeapYear) {
+                    return 29;
+                }
+
+                return 28;
+            }
+
+            int[] daysInMonth = new int[] {31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+            return daysInMonth[month - 1];
+        }
+
         public override string formatHour(TimeOfDay timeOfDay, bool alwaysUse24HourFormat = false) {
-            TimeOfDayFormat format = this.timeOfDayFormat(alwaysUse24HourFormat: alwaysUse24HourFormat);
+            TimeOfDayFormat format = timeOfDayFormat(alwaysUse24HourFormat: alwaysUse24HourFormat);
             switch (format) {
                 case TimeOfDayFormat.h_colon_mm_space_a:
-                    return this.formatDecimal(timeOfDay.hourOfPeriod == 0 ? 12 : timeOfDay.hourOfPeriod);
+                    return formatDecimal(timeOfDay.hourOfPeriod == 0 ? 12 : timeOfDay.hourOfPeriod);
                 case TimeOfDayFormat.HH_colon_mm:
-                    return this._formatTwoDigitZeroPad(timeOfDay.hour);
+                    return _formatTwoDigitZeroPad(timeOfDay.hour);
                 default:
                     throw new AssertionError($"runtimeType does not support {format}.");
             }
@@ -186,6 +212,18 @@ namespace Unity.UIWidgets.material {
             return date.Year.ToString();
         }
 
+        public override string formatCompactDate(DateTime date) {
+            string month = _formatTwoDigitZeroPad(date.Month);
+            string day = _formatTwoDigitZeroPad(date.Day);
+            string year = date.Year.ToString().PadLeft(4, '0');
+            return $"{month}/{day}/{year}";
+        }
+
+        public override string formatShortDate(DateTime date) {
+            string month = _shortMonths[date.Month - 1];
+            return $"{month} {date.Day}, {date.Year}";
+        }
+
         public override string formatMediumDate(DateTime date) {
             string day = _shortWeekdays[((int) date.DayOfWeek + 6) % 7];
             string month = _shortMonths[date.Month - 1];
@@ -198,9 +236,38 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string formatMonthYear(DateTime date) {
-            string year = this.formatYear(date);
+            string year = formatYear(date);
             string month = _months[date.Month - 1];
             return $"{month} {year}";
+        }
+
+        public override string formatShortMonthDay(DateTime date) {
+            string month = _shortMonths[date.Month - 1];
+            return $"{month} {date.Day}";
+        }
+
+        public override DateTime? parseCompactDate(string inputString) {
+            string[] inputParts = inputString.Split('/');
+            if (inputParts.Length != 3) {
+                return null;
+            }
+
+            bool success = int.TryParse(inputParts[2], out int year);
+            if (!success || year < 1) {
+                return null;
+            }
+
+            success = int.TryParse(inputParts[0], out int month);
+            if (!success || month < 1 || month > 12) {
+                return null;
+            }
+
+            success = int.TryParse(inputParts[1], out int day);
+            if (!success || day < 1 || day > _getDaysInMonth(year, month)) {
+                return null;
+            }
+
+            return new DateTime(year, month, day);
         }
 
         public override List<string> narrowWeekdays {
@@ -214,10 +281,11 @@ namespace Unity.UIWidgets.material {
         string _formatDayPeriod(TimeOfDay timeOfDay) {
             switch (timeOfDay.period) {
                 case DayPeriod.am:
-                    return this.anteMeridiemAbbreviation;
+                    return anteMeridiemAbbreviation;
                 case DayPeriod.pm:
-                    return this.postMeridiemAbbreviation;
+                    return postMeridiemAbbreviation;
             }
+
             return null;
         }
 
@@ -235,22 +303,23 @@ namespace Unity.UIWidgets.material {
                     result.Append(',');
                 }
             }
+
             return result.ToString();
         }
 
         public override string formatTimeOfDay(TimeOfDay timeOfDay, bool alwaysUse24HourFormat = false) {
             StringBuilder buffer = new StringBuilder();
 
-            buffer.Append(this.formatHour(timeOfDay, alwaysUse24HourFormat: alwaysUse24HourFormat));
+            buffer.Append(formatHour(timeOfDay, alwaysUse24HourFormat: alwaysUse24HourFormat));
             buffer.Append(":");
-            buffer.Append(this.formatMinute(timeOfDay));
+            buffer.Append(formatMinute(timeOfDay));
 
             if (alwaysUse24HourFormat) {
                 return buffer.ToString();
             }
 
             buffer.Append(" ");
-            buffer.Append(this._formatDayPeriod(timeOfDay));
+            buffer.Append(_formatDayPeriod(timeOfDay));
             return buffer.ToString();
         }
 
@@ -268,6 +337,10 @@ namespace Unity.UIWidgets.material {
 
         public override string deleteButtonTooltip {
             get { return "Delete"; }
+        }
+
+        public override string moreButtonTooltip {
+            get { return "More"; }
         }
 
         public override string nextMonthTooltip {
@@ -288,6 +361,12 @@ namespace Unity.UIWidgets.material {
 
         public override string showMenuTooltip {
             get { return "Show menu"; }
+        }
+
+        public override string dialogLabel {
+            get {
+                return "Dialog";
+            }
         }
 
         public override string searchFieldLabel {
@@ -374,7 +453,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override string modalBarrierDismissLabel {
-            get { return "Dismiss";  }
+            get { return "Dismiss"; }
         }
 
         public override ScriptCategory scriptCategory {
@@ -387,8 +466,8 @@ namespace Unity.UIWidgets.material {
                 : TimeOfDayFormat.h_colon_mm_space_a;
         }
 
-        public static IPromise<object> load(Locale locale) {
-            return Promise<object>.Resolved(new DefaultMaterialLocalizations());
+        public static Future<MaterialLocalizations> load(Locale locale) {
+            return new SynchronousFuture<MaterialLocalizations>(new DefaultMaterialLocalizations());
         }
 
         public static readonly LocalizationsDelegate<MaterialLocalizations> del = new _MaterialLocalizationsDelegate();

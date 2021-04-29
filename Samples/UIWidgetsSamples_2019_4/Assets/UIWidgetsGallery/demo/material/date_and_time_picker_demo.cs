@@ -1,27 +1,33 @@
 using System;
 using System.Collections.Generic;
-using RSG;
+using System.Linq;
+using uiwidgets;
+using UIWidgetsGallery.gallery;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace UIWidgetsGallery.gallery {
-    class _InputDropdown : StatelessWidget {
+namespace UIWidgetsGallery.demo.material
+{
+    internal class _InputDropdown : StatelessWidget
+    {
         public _InputDropdown(
             Key key = null,
+            Widget child = null,
             string labelText = null,
             string valueText = null,
             TextStyle valueStyle = null,
-            VoidCallback onPressed = null,
-            Widget child = null
-        ) : base(key: key) {
+            VoidCallback onPressed = null
+        ) : base(key: key)
+        {
             this.labelText = labelText;
-            this.valueText = valueText;
             this.valueStyle = valueStyle;
+            this.valueText = valueText;
             this.onPressed = onPressed;
             this.child = child;
         }
@@ -32,9 +38,11 @@ namespace UIWidgetsGallery.gallery {
         public readonly VoidCallback onPressed;
         public readonly Widget child;
 
-        public override Widget build(BuildContext context) {
+
+        public override Widget build(BuildContext context)
+        {
             return new InkWell(
-                onTap: () => this.onPressed(),
+                onTap: () => this.onPressed?.Invoke(),
                 child: new InputDecorator(
                     decoration: new InputDecoration(
                         labelText: this.labelText
@@ -43,7 +51,8 @@ namespace UIWidgetsGallery.gallery {
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         mainAxisSize: MainAxisSize.min,
-                        children: new List<Widget> {
+                        children: new List<Widget>
+                        {
                             new Text(this.valueText, style: this.valueStyle),
                             new Icon(Icons.arrow_drop_down,
                                 color: Theme.of(context).brightness == Brightness.light
@@ -57,110 +66,111 @@ namespace UIWidgetsGallery.gallery {
         }
     }
 
-    class _DateTimePicker : StatelessWidget {
+    internal class _DateTimePicker : StatelessWidget
+    {
         public _DateTimePicker(
-            DateTime selectedDate,
             Key key = null,
             string labelText = null,
+            DateTime? selectedDate = null,
             TimeOfDay selectedTime = null,
-            ValueChanged<DateTime> selectDate = null,
+            ValueChanged<DateTime?> selectDate = null,
             ValueChanged<TimeOfDay> selectTime = null
-        ) : base(key: key) {
+        ) : base(key: key)
+        {
             this.labelText = labelText;
-            this.selectedDate = selectedDate;
+            this.selectDate = selectDate;
             this.selectedTime = selectedTime;
             this.selectDate = selectDate;
             this.selectTime = selectTime;
         }
 
         public readonly string labelText;
-        public readonly DateTime selectedDate;
+        public readonly DateTime? selectedDate;
         public readonly TimeOfDay selectedTime;
-        public readonly ValueChanged<DateTime> selectDate;
+        public readonly ValueChanged<DateTime?> selectDate;
         public readonly ValueChanged<TimeOfDay> selectTime;
 
-        IPromise _selectDate(BuildContext context) {
-            return DatePickerUtils.showDatePicker(
+        private Future _selectDate(BuildContext context)
+        {
+            material_.showDatePicker(
                 context: context,
-                initialDate: this.selectedDate,
-                firstDate: new DateTime(2015, 8, 1),
-                lastDate: new DateTime(2101, 1, 1)
-            ).Then((date) => {
-                if (date == null) {
-                    return;
-                }
-
-                DateTime picked = (DateTime) date;
-                if (picked != null && picked != this.selectedDate) {
-                    this.selectDate(picked);
-                }
+                initialDate: this.selectedDate.Value,
+                firstDate: new DateTime(2015, 8, 0),
+                lastDate: new DateTime(2101, 0, 0)
+            ).then((object value) =>
+            {
+                var picked = (DateTime) value;
+                if (picked != null && picked != this.selectedDate) this.selectDate(picked);
             });
+
+            return null;
         }
 
-        // Future<void> _selectTime(BuildContext context) async {
-        //     final TimeOfDay picked = await showTimePicker(
-        //         context: context,
-        //         initialTime: selectedTime,
-        //     );
-        //     if (picked != null && picked != selectedTime)
-        //         selectTime(picked);
-        // }
+        private Future _selectTime(BuildContext context)
+        {
+            TimePickerUtils.showTimePicker(
+                context: context,
+                initialTime: this.selectedTime
+            ).then((object value) =>
+            {
+                var picked = (TimeOfDay) value;
+                if (picked != null && picked != this.selectedTime) this.selectTime(picked);
+            });
 
-        public override Widget build(BuildContext context) {
-            TextStyle valueStyle = Theme.of(context).textTheme.title;
+            return null;
+        }
+
+        public override Widget build(BuildContext context)
+        {
+            TextStyle valueStyle = Theme.of(context).textTheme.headline6;
             return new Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: new List<Widget> {
+                children: new List<Widget>
+                {
                     new Expanded(
                         flex: 4,
                         child: new _InputDropdown(
                             labelText: this.labelText,
-                            valueText: this.selectedDate.ToString("MM/dd/yyyy"),
+                            valueText: this.selectedDate.Value.ToString("yyyyMMdd"),
                             valueStyle: valueStyle,
                             onPressed: () => { this._selectDate(context); }
                         )
                     ),
                     new SizedBox(width: 12.0f),
-                    // new Expanded(
-                    //     flex: 3,
-                    //     child: new _InputDropdown(
-                    //         valueText: this.selectedTime.format(context),
-                    //         valueStyle: valueStyle,
-                    //         onPressed: () => { this._selectTime(context); }
-                    //     )
-                    // )
+                    new Expanded(
+                        flex: 3,
+                        child: new _InputDropdown(
+                            valueText: this.selectedTime.format(context),
+                            valueStyle: valueStyle,
+                            onPressed: () => { this._selectTime(context); }
+                        )
+                    )
                 }
             );
         }
     }
 
-    public class DateAndTimePickerDemo : StatefulWidget {
-        public const string routeName = "/material/date-and-time-pickers";
+    internal class DateAndTimePickerDemo : StatefulWidget
+    {
+        public static readonly string routeName = "/material/date-and-time-pickers";
 
-        public override State createState() {
+        public override State createState()
+        {
             return new _DateAndTimePickerDemoState();
         }
     }
 
-    class _DateAndTimePickerDemoState : State<DateAndTimePickerDemo> {
-        DateTime _fromDate = DateTime.Now;
-        TimeOfDay _fromTime = new TimeOfDay(hour: 7, minute: 28);
-        DateTime _toDate = DateTime.Now;
-        TimeOfDay _toTime = new TimeOfDay(hour: 7, minute: 28);
-        readonly List<string> _allActivities = new List<string> {"hiking", "swimming", "boating", "fishing"};
-        string _activity = "fishing";
+    internal class _DateAndTimePickerDemoState : State<DateAndTimePickerDemo>
+    {
+        private DateTime _fromDate = DateTime.Now;
+        private TimeOfDay _fromTime = new TimeOfDay(hour: 7, minute: 28);
+        private DateTime _toDate = DateTime.Now;
+        private TimeOfDay _toTime = new TimeOfDay(hour: 7, minute: 28);
+        public readonly List<string> _allActivities = new List<string> {"hiking", "swimming", "boating", "fishing"};
+        private string _activity = "fishing";
 
-        public override Widget build(BuildContext context) {
-            var allActiviesList = new List<DropdownMenuItem<string>>();
-            foreach (var item in this._allActivities) {
-                allActiviesList.Add(
-                    new DropdownMenuItem<string>(
-                        value: item,
-                        child: new Text(item)
-                    )
-                );
-            }
-
+        public override Widget build(BuildContext context)
+        {
             return new Scaffold(
                 appBar: new AppBar(
                     title: new Text("Date and time pickers"),
@@ -172,33 +182,40 @@ namespace UIWidgetsGallery.gallery {
                         bottom: false,
                         child: new ListView(
                             padding: EdgeInsets.all(16.0f),
-                            children: new List<Widget> {
+                            children: new List<Widget>
+                            {
                                 new TextField(
                                     enabled: true,
                                     decoration: new InputDecoration(
                                         labelText: "Event name",
                                         border: new OutlineInputBorder()
                                     ),
-                                    style: Theme.of(context).textTheme.display1
+                                    style: Theme.of(context).textTheme.headline4
                                 ),
                                 new TextField(
                                     decoration: new InputDecoration(
                                         labelText: "Location"
                                     ),
-                                    style: Theme.of(context).textTheme.display1.copyWith(fontSize: 20.0f)
+                                    style: Theme.of(context).textTheme.headline4.copyWith(fontSize: 20.0f)
                                 ),
                                 new _DateTimePicker(
                                     labelText: "From",
                                     selectedDate: this._fromDate,
                                     selectedTime: this._fromTime,
-                                    selectDate: (DateTime date) => { this.setState(() => { this._fromDate = date; }); },
+                                    selectDate: (DateTime? date) =>
+                                    {
+                                        this.setState(() => { this._fromDate = date.Value; });
+                                    },
                                     selectTime: (TimeOfDay time) => { this.setState(() => { this._fromTime = time; }); }
                                 ),
                                 new _DateTimePicker(
                                     labelText: "To",
                                     selectedDate: this._toDate,
                                     selectedTime: this._toTime,
-                                    selectDate: (DateTime date) => { this.setState(() => { this._toDate = date; }); },
+                                    selectDate: (DateTime? date) =>
+                                    {
+                                        this.setState(() => { this._toDate = date.Value; });
+                                    },
                                     selectTime: (TimeOfDay time) => { this.setState(() => { this._toTime = time; }); }
                                 ),
                                 new SizedBox(height: 8.0f),
@@ -211,10 +228,18 @@ namespace UIWidgetsGallery.gallery {
                                     isEmpty: this._activity == null,
                                     child: new DropdownButton<string>(
                                         value: this._activity,
-                                        onChanged: (string newValue) => {
+                                        onChanged: (string newValue) =>
+                                        {
                                             this.setState(() => { this._activity = newValue; });
                                         },
-                                        items: allActiviesList
+                                        items: this._allActivities.Select<string, DropdownMenuItem<string>>(
+                                            (string value) =>
+                                            {
+                                                return new DropdownMenuItem<string>(
+                                                    value: value,
+                                                    child: new Text(value)
+                                                );
+                                            }).ToList()
                                     )
                                 )
                             }

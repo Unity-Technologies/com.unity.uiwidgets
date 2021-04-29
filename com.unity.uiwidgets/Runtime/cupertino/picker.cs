@@ -7,81 +7,92 @@ using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.cupertino {
     static class CupertinoPickerUtils {
-        public static Color _kHighlighterBorder = new Color(0xFF7F7F7F);
+        public static Color _kHighlighterBorder = CupertinoDynamicColor.withBrightness(
+            color: new Color(0x33000000),
+            darkColor: new Color(0x33FFFFFF)
+        );
+        public const float _kDefaultDiameterRatio = 1.07f;
+        public const float _kDefaultPerspective = 0.003f;
+        public const float _kSqueeze = 1.45f;
+        public const float _kOverAndUnderCenterOpacity = 0.447f;
+        
         public static Color _kDefaultBackground = new Color(0xFFD2D4DB);
-        public const float _kDefaultDiameterRatio = 1.35f;
-        public const float _kDefaultPerspective = 0.004f;
         public const float _kForegroundScreenOpacityFraction = 0.7f;
+       
     }
 
     public class CupertinoPicker : StatefulWidget {
         public CupertinoPicker(
+            List<Widget> children,
             float itemExtent,
-            ValueChanged<int> onSelectedItemChanged,
-            List<Widget> children = null,
             Key key = null,
-            float diameterRatio = CupertinoPickerUtils._kDefaultDiameterRatio,
+            float? diameterRatio = null,
             Color backgroundColor = null,
             float offAxisFraction = 0.0f,
             bool useMagnifier = false,
             float magnification = 1.0f,
             FixedExtentScrollController scrollController = null,
-            bool looping = false,
-            ListWheelChildDelegate childDelegate = null
+            float? squeeze = null,
+            ValueChanged<int> onSelectedItemChanged = null,
+            bool looping = false
         ) : base(key: key) {
-            D.assert(children != null || childDelegate != null);
-            D.assert(diameterRatio > 0.0, () => RenderListWheelViewport.diameterRatioZeroMessage);
+            diameterRatio = diameterRatio == null ? CupertinoPickerUtils._kDefaultDiameterRatio : diameterRatio;
+            squeeze = squeeze == null ? CupertinoPickerUtils._kSqueeze : squeeze;
+           // D.assert(children != null);
+            D.assert(diameterRatio > 0.0f, ()=>RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(magnification > 0);
             D.assert(itemExtent > 0);
-
-            this.childDelegate = childDelegate ?? (looping
-                                     ? (ListWheelChildDelegate) new ListWheelChildLoopingListDelegate(
-                                         children: children)
-                                     : (ListWheelChildDelegate) new ListWheelChildListDelegate(children: children));
-
-            this.itemExtent = itemExtent;
-            this.onSelectedItemChanged = onSelectedItemChanged;
+            D.assert(squeeze > 0);
             this.diameterRatio = diameterRatio;
-            this.backgroundColor = backgroundColor ?? CupertinoPickerUtils._kDefaultBackground;
+            this.backgroundColor = backgroundColor;
             this.offAxisFraction = offAxisFraction;
             this.useMagnifier = useMagnifier;
             this.magnification = magnification;
             this.scrollController = scrollController;
+            this.squeeze = squeeze;
+            this.itemExtent = itemExtent;
+            this.onSelectedItemChanged = onSelectedItemChanged;
+            childDelegate = looping
+                ? (ListWheelChildDelegate) new ListWheelChildLoopingListDelegate(children: children)
+                : new ListWheelChildListDelegate(children: children);
         }
 
-        public static CupertinoPicker builder(
+        public CupertinoPicker(
             float itemExtent,
-            ValueChanged<int> onSelectedItemChanged,
-            IndexedWidgetBuilder itemBuilder,
             Key key = null,
-            float diameterRatio = CupertinoPickerUtils._kDefaultDiameterRatio,
+            float? diameterRatio = null,
             Color backgroundColor = null,
             float offAxisFraction = 0.0f,
             bool useMagnifier = false,
             float magnification = 1.0f,
             FixedExtentScrollController scrollController = null,
+            float? squeeze = null,
+            
+            ValueChanged<int> onSelectedItemChanged = null,
+            IndexedWidgetBuilder itemBuilder = null,
             int? childCount = null
         ) {
+            diameterRatio = diameterRatio == null ? CupertinoPickerUtils._kDefaultDiameterRatio : diameterRatio;
+            squeeze = squeeze == null ?  CupertinoPickerUtils._kSqueeze : squeeze;
             D.assert(itemBuilder != null);
-            D.assert(diameterRatio > 0.0f, () => RenderListWheelViewport.diameterRatioZeroMessage);
+            D.assert(diameterRatio > 0.0f,()=> RenderListWheelViewport.diameterRatioZeroMessage);
             D.assert(magnification > 0);
             D.assert(itemExtent > 0);
-
-            return new CupertinoPicker(
-                itemExtent: itemExtent,
-                onSelectedItemChanged: onSelectedItemChanged,
-                key: key,
-                diameterRatio: diameterRatio,
-                backgroundColor: backgroundColor,
-                offAxisFraction: offAxisFraction,
-                useMagnifier: useMagnifier,
-                magnification: magnification,
-                scrollController: scrollController,
-                childDelegate: new ListWheelChildBuilderDelegate(builder: itemBuilder, childCount: childCount)
-            );
+            D.assert(squeeze > 0);
+            this.diameterRatio = diameterRatio;
+            this.backgroundColor = backgroundColor;
+            this.offAxisFraction = offAxisFraction;
+            this.useMagnifier = useMagnifier;
+            this.magnification = magnification;
+            this.scrollController = scrollController;
+            this.squeeze = squeeze;
+            this.itemExtent = itemExtent;
+            this.onSelectedItemChanged = onSelectedItemChanged;
+            childDelegate =new ListWheelChildBuilderDelegate(builder: itemBuilder, childCount: childCount);
+            
         }
 
-        public readonly float diameterRatio;
+        public readonly float? diameterRatio;
         public readonly Color backgroundColor;
         public readonly float offAxisFraction;
         public readonly bool useMagnifier;
@@ -89,7 +100,8 @@ namespace Unity.UIWidgets.cupertino {
         public readonly FixedExtentScrollController scrollController;
         public readonly float itemExtent;
         public readonly ValueChanged<int> onSelectedItemChanged;
-        public readonly ListWheelChildDelegate childDelegate;
+        public ListWheelChildDelegate childDelegate;
+        public readonly float? squeeze;
 
         public override State createState() {
             return new _CupertinoPickerState();
@@ -98,165 +110,187 @@ namespace Unity.UIWidgets.cupertino {
 
     class _CupertinoPickerState : State<CupertinoPicker> {
         FixedExtentScrollController _controller;
-
+        int _lastHapticIndex;
         public override void initState() {
             base.initState();
-            if (this.widget.scrollController == null) {
-                this._controller = new FixedExtentScrollController();
+            if (widget.scrollController == null) {
+                _controller = new FixedExtentScrollController();
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            if (this.widget.scrollController != null && ((CupertinoPicker) oldWidget).scrollController == null) {
-                this._controller = null;
+            oldWidget = (CupertinoPicker) oldWidget;
+            if (widget.scrollController != null && ((CupertinoPicker) oldWidget).scrollController == null) {
+                _controller = null;
             }
-            else if (this.widget.scrollController == null && ((CupertinoPicker) oldWidget).scrollController != null) {
-                D.assert(this._controller == null);
-                this._controller = new FixedExtentScrollController();
+            else if (widget.scrollController == null && ((CupertinoPicker) oldWidget).scrollController != null) {
+                D.assert(_controller == null);
+                _controller = new FixedExtentScrollController();
             }
 
             base.didUpdateWidget(oldWidget);
         }
 
         public override void dispose() {
-            this._controller?.dispose();
+            _controller?.dispose();
             base.dispose();
         }
 
         void _handleSelectedItemChanged(int index) {
-            if (this.widget.onSelectedItemChanged != null) {
-                this.widget.onSelectedItemChanged(index);
+            //bool hasSuitableHapticHardware;
+            /*switch (defaultTargetPlatform) {
+                case TargetPlatform.iOS:
+                    hasSuitableHapticHardware = true;
+                    break;
+                case TargetPlatform.android:
+                case TargetPlatform.fuchsia:
+                case TargetPlatform.linux:
+                case TargetPlatform.macOS:
+                case TargetPlatform.windows:
+                    hasSuitableHapticHardware = false;
+                    break;
+            }*/
+            /*D.assert(hasSuitableHapticHardware != null);
+            if (hasSuitableHapticHardware && index != _lastHapticIndex) {
+                _lastHapticIndex = index;
+                HapticFeedback.selectionClick();
+            }*/
+
+            if (widget.onSelectedItemChanged != null) {
+                widget.onSelectedItemChanged(index);
             }
         }
+        Widget _buildMagnifierScreen() {
+            Color resolvedBorderColor = CupertinoDynamicColor.resolve(CupertinoPickerUtils._kHighlighterBorder, context);
 
-        Widget _buildGradientScreen() {
-            if (this.widget.backgroundColor != null && this.widget.backgroundColor.alpha < 255) {
-                return new Container();
-            }
-
-            Color widgetBackgroundColor = this.widget.backgroundColor ?? new Color(0xFFFFFFFF);
-            return Positioned.fill(
-                child: new IgnorePointer(
+            return new IgnorePointer(
+                child: new Center(
                     child: new Container(
                         decoration: new BoxDecoration(
-                            gradient: new LinearGradient(
-                                colors: new List<Color> {
-                                    widgetBackgroundColor,
-                                    widgetBackgroundColor.withAlpha(0xF2),
-                                    widgetBackgroundColor.withAlpha(0xDD),
-                                    widgetBackgroundColor.withAlpha(0),
-                                    widgetBackgroundColor.withAlpha(0),
-                                    widgetBackgroundColor.withAlpha(0xDD),
-                                    widgetBackgroundColor.withAlpha(0xF2),
-                                    widgetBackgroundColor,
-                                },
-                                stops: new List<float> {
-                                    0.0f, 0.05f, 0.09f, 0.22f, 0.78f, 0.91f, 0.95f, 1.0f
-                                },
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter
+                            border: new Border(
+                                top: new BorderSide(width: 0.0f, color: resolvedBorderColor),
+                                bottom: new BorderSide(width: 0.0f, color: resolvedBorderColor)
                             )
+                        ),
+                        constraints: BoxConstraints.expand(
+                            height: widget.itemExtent * widget.magnification
                         )
                     )
                 )
             );
         }
-
-        Widget _buildMagnifierScreen() {
-            Color foreground = this.widget.backgroundColor?.withAlpha(
-                (int) (this.widget.backgroundColor.alpha * CupertinoPickerUtils._kForegroundScreenOpacityFraction)
-            );
-
-            return new IgnorePointer(
-                child: new Column(
-                    children: new List<Widget> {
-                        new Expanded(
-                            child: new Container(
-                                color: foreground
-                            )
-                        ),
-                        new Container(
-                            decoration: new BoxDecoration(
-                                border: new Border(
-                                    top: new BorderSide(width: 0.0f, color: CupertinoPickerUtils._kHighlighterBorder),
-                                    bottom: new BorderSide(width: 0.0f, color: CupertinoPickerUtils._kHighlighterBorder)
-                                )
-                            ),
-                            constraints: BoxConstraints.expand(
-                                height: this.widget.itemExtent * this.widget.magnification
-                            )
-                        ),
-                        new Expanded(
-                            child: new Container(
-                                color: foreground
-                            )
-                        ),
-                    }
-                )
-            );
-        }
-
-        Widget _buildUnderMagnifierScreen() {
-            Color foreground = this.widget.backgroundColor?.withAlpha(
-                (int) (this.widget.backgroundColor.alpha * CupertinoPickerUtils._kForegroundScreenOpacityFraction)
-            );
-
-            return new Column(
-                children: new List<Widget> {
-                    new Expanded(child: new Container()),
-                    new Container(
-                        color: foreground,
-                        constraints: BoxConstraints.expand(
-                            height: this.widget.itemExtent * this.widget.magnification
-                        )
-                    ),
-                    new Expanded(child: new Container())
-                }
-            );
-        }
-
-        Widget _addBackgroundToChild(Widget child) {
-            return new DecoratedBox(
-                decoration: new BoxDecoration(
-                    color: this.widget.backgroundColor
-                ),
-                child: child
-            );
-        }
-
         public override Widget build(BuildContext context) {
-            Widget result = new Stack(
-                children: new List<Widget> {
-                    Positioned.fill(
-                        child: ListWheelScrollView.useDelegate(
-                            controller: this.widget.scrollController ?? this._controller,
-                            physics: new FixedExtentScrollPhysics(),
-                            diameterRatio: this.widget.diameterRatio,
-                            perspective: CupertinoPickerUtils._kDefaultPerspective,
-                            offAxisFraction: this.widget.offAxisFraction,
-                            useMagnifier: this.widget.useMagnifier,
-                            magnification: this.widget.magnification,
-                            itemExtent: this.widget.itemExtent,
-                            onSelectedItemChanged: this._handleSelectedItemChanged,
-                            childDelegate: this.widget.childDelegate
-                        )
-                    ),
-                    this._buildGradientScreen(),
-                    this._buildMagnifierScreen()
-                }
-            );
-            if (this.widget.backgroundColor != null && this.widget.backgroundColor.alpha < 255) {
-                result = new Stack(
-                    children: new List<Widget> {
-                        this._buildUnderMagnifierScreen(), this._addBackgroundToChild(result),
-                    }
-                );
-            }
-            else {
-                result = this._addBackgroundToChild(result);
-            }
+            Color resolvedBackgroundColor = CupertinoDynamicColor.resolve(widget.backgroundColor, context);
 
-            return result;
+            Widget result = new DefaultTextStyle(
+                style: CupertinoTheme.of(context).textTheme.pickerTextStyle,
+                child: new Stack(
+                    children: new List<Widget>{
+                Positioned.fill(
+                    child: new _CupertinoPickerSemantics(
+                        scrollController: widget.scrollController ?? _controller,
+                        child: new ListWheelScrollView(
+                            controller: widget.scrollController ?? _controller,
+                            physics: new FixedExtentScrollPhysics(), 
+                            diameterRatio: widget.diameterRatio ?? RenderListWheelViewport.defaultDiameterRatio ,
+                            perspective: CupertinoPickerUtils._kDefaultPerspective,
+                            offAxisFraction: widget.offAxisFraction,
+                            useMagnifier: widget.useMagnifier,
+                            magnification: widget.magnification,
+                            overAndUnderCenterOpacity: CupertinoPickerUtils._kOverAndUnderCenterOpacity,
+                            itemExtent: widget.itemExtent ,
+                            squeeze: widget.squeeze ?? CupertinoPickerUtils._kSqueeze,
+                            onSelectedItemChanged: _handleSelectedItemChanged,
+                            childDelegate: widget.childDelegate
+                            )
+                        )
+                    ), 
+                _buildMagnifierScreen(),
+                
+                    }
+                    )
+                );
+            return new DecoratedBox(
+                decoration: new BoxDecoration(color: resolvedBackgroundColor),
+                child: result
+            );
+        }
+
+
+        
+    }
+    public class _CupertinoPickerSemantics : SingleChildRenderObjectWidget { 
+        public _CupertinoPickerSemantics(
+            Key key = null,
+            Widget child = null,
+            FixedExtentScrollController scrollController = null
+            ) : base(key: key, child: child) {
+            this.scrollController = scrollController;
+        }
+    
+        
+        public readonly FixedExtentScrollController scrollController;
+
+        public override RenderObject createRenderObject(BuildContext context) {
+            return new _RenderCupertinoPickerSemantics(scrollController, Directionality.of(context));
+        }
+
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            renderObject = (_RenderCupertinoPickerSemantics) renderObject;
+            ((_RenderCupertinoPickerSemantics)renderObject).textDirection = Directionality.of(context);
+            ((_RenderCupertinoPickerSemantics)renderObject).controller = scrollController;
         }
     }
+    public class _RenderCupertinoPickerSemantics : RenderProxyBox { 
+        public _RenderCupertinoPickerSemantics(FixedExtentScrollController controller, TextDirection textDirection) { 
+            this.controller = controller;
+            _textDirection = textDirection;
+        }
+
+        public FixedExtentScrollController controller {
+            get { return _controller; }
+            set {
+                if (value == _controller)
+                    return;
+                if (_controller != null)
+                    _controller.removeListener(_handleScrollUpdate);
+                else
+                    _currentIndex = value.initialItem == 0 ? 0 : value.initialItem ;
+                value.addListener(_handleScrollUpdate);
+                _controller = value;
+            }
+        }
+        FixedExtentScrollController _controller;
+
+        public TextDirection textDirection {
+            get { return _textDirection; }
+            set {
+                if (textDirection == value)
+                    return;
+                _textDirection = value;
+                //markNeedsSemanticsUpdate();
+            }
+        }
+        TextDirection _textDirection;
+
+        int _currentIndex = 0;
+        void _handleIncrease() {
+            controller.jumpToItem(_currentIndex + 1);
+        }
+        void _handleDecrease() { 
+            if (_currentIndex == 0) 
+                return; 
+            controller.jumpToItem(_currentIndex - 1);
+        }
+        void _handleScrollUpdate() {
+            if (controller.selectedItem == _currentIndex)
+                return;
+            _currentIndex = controller.selectedItem;
+            //markNeedsSemanticsUpdate();
+        } 
+        
+        
+       
+    }
+
 }

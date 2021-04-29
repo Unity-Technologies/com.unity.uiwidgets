@@ -2,6 +2,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.material {
     public class BottomAppBarTheme : Diagnosticable {
@@ -40,22 +42,22 @@ namespace Unity.UIWidgets.material {
         public static BottomAppBarTheme lerp(BottomAppBarTheme a, BottomAppBarTheme b, float t) {
             return new BottomAppBarTheme(
                 color: Color.lerp(a?.color, b?.color, t),
-                elevation: MathUtils.lerpFloat(a?.elevation ?? 0.0f, b?.elevation ?? 0.0f, t),
+                elevation: MathUtils.lerpNullableFloat(a?.elevation, b?.elevation, t),
                 shape: t < 0.5f ? a?.shape : b?.shape
             );
         }
 
         public override int GetHashCode() {
-            var hashCode = this.color?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.elevation?.GetHashCode() ?? 0;
-            hashCode = (hashCode * 397) ^ this.shape?.GetHashCode() ?? 0;
+            var hashCode = color?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ elevation?.GetHashCode() ?? 0;
+            hashCode = (hashCode * 397) ^ shape?.GetHashCode() ?? 0;
             return hashCode;
         }
 
         public bool Equals(BottomAppBarTheme other) {
-            return other.color == this.color
-                   && other.elevation == this.elevation
-                   && other.shape == this.shape;
+            return other.color == color
+                   && other.elevation == elevation
+                   && other.shape == shape;
         }
 
         public override bool Equals(object obj) {
@@ -67,11 +69,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((BottomAppBarTheme) obj);
+            return Equals((BottomAppBarTheme) obj);
         }
 
         public static bool operator ==(BottomAppBarTheme left, BottomAppBarTheme right) {
@@ -84,9 +86,9 @@ namespace Unity.UIWidgets.material {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Color>("color", this.color, defaultValue: null));
-            properties.add(new DiagnosticsProperty<float?>("elevation", this.elevation, defaultValue: null));
-            properties.add(new DiagnosticsProperty<NotchedShape>("shape", this.shape, defaultValue: null));
+            properties.add(new ColorProperty("color", color, defaultValue: null));
+            properties.add(new DiagnosticsProperty<float?>("elevation", elevation, defaultValue: null));
+            properties.add(new DiagnosticsProperty<NotchedShape>("shape", shape, defaultValue: null));
         }
     }
 }

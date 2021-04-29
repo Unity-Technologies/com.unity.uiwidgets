@@ -1,5 +1,7 @@
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
     public class FractionalOffset : Alignment {
@@ -24,11 +26,11 @@ namespace Unity.UIWidgets.painting {
         }
 
         public float dx {
-            get { return (this.x + 1.0f) / 2.0f; }
+            get { return (x + 1.0f) / 2.0f; }
         }
 
         public float dy {
-            get { return (this.y + 1.0f) / 2.0f; }
+            get { return (y + 1.0f) / 2.0f; }
         }
 
 #pragma warning disable 0108
@@ -91,19 +93,19 @@ namespace Unity.UIWidgets.painting {
             }
 
             if (a == null) {
-                return new FractionalOffset(MathUtils.lerpFloat(0.5f, b.dx, t), MathUtils.lerpFloat(0.5f, b.dy, t));
+                return new FractionalOffset(MathUtils.lerpNullableFloat(0.5f, b.dx, t), MathUtils.lerpNullableFloat(0.5f, b.dy, t));
             }
 
             if (b == null) {
-                return new FractionalOffset(MathUtils.lerpFloat(a.dx, 0.5f, t), MathUtils.lerpFloat(a.dy, 0.5f, t));
+                return new FractionalOffset(MathUtils.lerpNullableFloat(a.dx, 0.5f, t), MathUtils.lerpNullableFloat(a.dy, 0.5f, t));
             }
 
-            return new FractionalOffset(MathUtils.lerpFloat(a.dx, b.dx, t), MathUtils.lerpFloat(a.dy, b.dy, t));
+            return new FractionalOffset(MathUtils.lerpNullableFloat(a.dx, b.dx, t), MathUtils.lerpNullableFloat(a.dy, b.dy, t));
         }
 
         public override string ToString() {
-            return $"FractionalOffset({this.dx:0.0}, " +
-                   $"{this.dy:0.0})";
+            return $"FractionalOffset({dx:0.0}, " +
+                   $"{dy:0.0})";
         }
     }
 }

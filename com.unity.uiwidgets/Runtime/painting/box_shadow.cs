@@ -28,22 +28,22 @@ namespace Unity.UIWidgets.painting {
         }
 
         public float blurSigma {
-            get { return convertRadiusToSigma(this.blurRadius); }
+            get { return convertRadiusToSigma(blurRadius); }
         }
 
         public Paint toPaint() {
             return new Paint {
-                color = this.color,
-                maskFilter = MaskFilter.blur(BlurStyle.normal, this.blurSigma)
+                color = color,
+                maskFilter = MaskFilter.blur(BlurStyle.normal, blurSigma)
             };
         }
 
         public BoxShadow scale(float factor) {
             return new BoxShadow(
-                color: this.color,
-                offset: this.offset * factor,
-                blurRadius: this.blurRadius * factor,
-                spreadRadius: this.spreadRadius * factor
+                color: color,
+                offset: offset * factor,
+                blurRadius: blurRadius * factor,
+                spreadRadius: spreadRadius * factor
             );
         }
 
@@ -63,8 +63,8 @@ namespace Unity.UIWidgets.painting {
             return new BoxShadow(
                 color: Color.lerp(a.color, b.color, t),
                 offset: Offset.lerp(a.offset, b.offset, t),
-                blurRadius: MathUtils.lerpFloat(a.blurRadius, b.blurRadius, t),
-                spreadRadius: MathUtils.lerpFloat(a.spreadRadius, b.spreadRadius, t)
+                blurRadius: MathUtils.lerpNullableFloat(a.blurRadius, b.blurRadius, t),
+                spreadRadius: MathUtils.lerpNullableFloat(a.spreadRadius, b.spreadRadius, t)
             );
         }
 
@@ -101,10 +101,10 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.color, other.color)
-                   && Equals(this.offset, other.offset)
-                   && this.blurRadius.Equals(other.blurRadius)
-                   && this.spreadRadius.Equals(other.spreadRadius);
+            return Equals(color, other.color)
+                   && Equals(offset, other.offset)
+                   && blurRadius.Equals(other.blurRadius)
+                   && spreadRadius.Equals(other.spreadRadius);
         }
 
         public override bool Equals(object obj) {
@@ -116,19 +116,19 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((BoxShadow) obj);
+            return Equals((BoxShadow) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (this.color != null ? this.color.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this.offset != null ? this.offset.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.blurRadius.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.spreadRadius.GetHashCode();
+                var hashCode = (color != null ? color.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (offset != null ? offset.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ blurRadius.GetHashCode();
+                hashCode = (hashCode * 397) ^ spreadRadius.GetHashCode();
                 return hashCode;
             }
         }
@@ -142,7 +142,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"BoxShadow({this.color}, {this.offset}, {this.blurRadius}, {this.spreadRadius})";
+            return $"BoxShadow({color}, {offset}, {blurRadius}, {spreadRadius})";
         }
     }
 }

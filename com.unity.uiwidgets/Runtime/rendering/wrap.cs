@@ -50,110 +50,110 @@ namespace Unity.UIWidgets.rendering {
             TextDirection? textDirection = null,
             VerticalDirection verticalDirection = VerticalDirection.down
         ) {
-            this._direction = direction;
-            this._alignment = alignment;
-            this._spacing = spacing;
-            this._runAlignment = runAlignment;
-            this._runSpacing = runSpacing;
-            this._crossAxisAlignment = crossAxisAlignment;
-            this._textDirection = textDirection;
-            this._verticalDirection = verticalDirection;
+            _direction = direction;
+            _alignment = alignment;
+            _spacing = spacing;
+            _runAlignment = runAlignment;
+            _runSpacing = runSpacing;
+            _crossAxisAlignment = crossAxisAlignment;
+            _textDirection = textDirection;
+            _verticalDirection = verticalDirection;
 
-            this.addAll(children);
+            addAll(children);
         }
 
         Axis _direction;
 
         public Axis direction {
-            get { return this._direction; }
+            get { return _direction; }
             set {
-                if (this._direction == value) {
+                if (_direction == value) {
                     return;
                 }
 
-                this._direction = value;
-                this.markNeedsLayout();
+                _direction = value;
+                markNeedsLayout();
             }
         }
 
         WrapAlignment _alignment;
 
         public WrapAlignment alignment {
-            get { return this._alignment; }
+            get { return _alignment; }
             set {
-                if (this._alignment == value) {
+                if (_alignment == value) {
                     return;
                 }
 
-                this._alignment = value;
-                this.markNeedsLayout();
+                _alignment = value;
+                markNeedsLayout();
             }
         }
 
         float _spacing;
 
         public float spacing {
-            get { return this._spacing; }
+            get { return _spacing; }
             set {
-                if (this._spacing == value) {
+                if (_spacing == value) {
                     return;
                 }
 
-                this._spacing = value;
-                this.markNeedsLayout();
+                _spacing = value;
+                markNeedsLayout();
             }
         }
 
         WrapAlignment _runAlignment;
 
         public WrapAlignment runAlignment {
-            get { return this._runAlignment; }
+            get { return _runAlignment; }
             set {
-                if (this._runAlignment == value) {
+                if (_runAlignment == value) {
                     return;
                 }
 
-                this._runAlignment = value;
-                this.markNeedsLayout();
+                _runAlignment = value;
+                markNeedsLayout();
             }
         }
 
         float _runSpacing;
 
         public float runSpacing {
-            get { return this._runSpacing; }
+            get { return _runSpacing; }
             set {
-                if (this._runSpacing == value) {
+                if (_runSpacing == value) {
                     return;
                 }
 
-                this._runSpacing = value;
-                this.markNeedsLayout();
+                _runSpacing = value;
+                markNeedsLayout();
             }
         }
 
         WrapCrossAlignment _crossAxisAlignment;
 
         public WrapCrossAlignment crossAxisAlignment {
-            get { return this._crossAxisAlignment; }
+            get { return _crossAxisAlignment; }
             set {
-                if (this._crossAxisAlignment == value) {
+                if (_crossAxisAlignment == value) {
                     return;
                 }
 
-                this._crossAxisAlignment = value;
-                this.markNeedsLayout();
+                _crossAxisAlignment = value;
+                markNeedsLayout();
             }
         }
 
         TextDirection? _textDirection;
 
         public TextDirection? textDirection {
-            get { return this._textDirection; }
+            get { return _textDirection; }
             set {
-                if (this._textDirection != value) {
-                    this._textDirection = value;
-                    this.markNeedsLayout();
+                if (_textDirection != value) {
+                    _textDirection = value;
+                    markNeedsLayout();
                 }
             }
         }
@@ -161,59 +161,59 @@ namespace Unity.UIWidgets.rendering {
         VerticalDirection _verticalDirection;
 
         public VerticalDirection verticalDirection {
-            get { return this._verticalDirection; }
+            get { return _verticalDirection; }
             set {
-                if (this._verticalDirection != value) {
-                    this._verticalDirection = value;
-                    this.markNeedsLayout();
+                if (_verticalDirection != value) {
+                    _verticalDirection = value;
+                    markNeedsLayout();
                 }
             }
         }
 
         bool _debugHasNecessaryDirections {
             get {
-                if (this.firstChild != null && this.lastChild != this.firstChild) {
+                if (firstChild != null && lastChild != firstChild) {
                     // i.e. there"s more than one child
-                    switch (this.direction) {
+                    switch (direction) {
                         case Axis.horizontal:
-                            D.assert(this.textDirection != null,
-                                () => $"Horizontal {this.GetType()} with multiple children has a null textDirection, so the layout order is undefined.");
+                            D.assert(textDirection != null,
+                                () => $"Horizontal {GetType()} with multiple children has a null textDirection, so the layout order is undefined.");
                             break;
                         case Axis.vertical:
                             break;
                     }
                 }
 
-                if (this.alignment == WrapAlignment.start || this.alignment == WrapAlignment.end) {
-                    switch (this.direction) {
+                if (alignment == WrapAlignment.start || alignment == WrapAlignment.end) {
+                    switch (direction) {
                         case Axis.horizontal:
-                            D.assert(this.textDirection != null,
-                                () => $"Horizontal {this.GetType()} with alignment {this.alignment} has a null textDirection, so the alignment cannot be resolved.");
+                            D.assert(textDirection != null,
+                                () => $"Horizontal {GetType()} with alignment {alignment} has a null textDirection, so the alignment cannot be resolved.");
                             break;
                         case Axis.vertical:
                             break;
                     }
                 }
 
-                if (this.runAlignment == WrapAlignment.start || this.runAlignment == WrapAlignment.end) {
-                    switch (this.direction) {
+                if (runAlignment == WrapAlignment.start || runAlignment == WrapAlignment.end) {
+                    switch (direction) {
                         case Axis.horizontal:
                             break;
                         case Axis.vertical:
-                            D.assert(this.textDirection != null,
-                                () => $"Vertical {this.GetType()} with runAlignment {this.runAlignment} has a null textDirection, so the alignment cannot be resolved.");
+                            D.assert(textDirection != null,
+                                () => $"Vertical {GetType()} with runAlignment {runAlignment} has a null textDirection, so the alignment cannot be resolved.");
                             break;
                     }
                 }
 
-                if (this.crossAxisAlignment == WrapCrossAlignment.start ||
-                    this.crossAxisAlignment == WrapCrossAlignment.end) {
-                    switch (this.direction) {
+                if (crossAxisAlignment == WrapCrossAlignment.start ||
+                    crossAxisAlignment == WrapCrossAlignment.end) {
+                    switch (direction) {
                         case Axis.horizontal:
                             break;
                         case Axis.vertical:
-                            D.assert(this.textDirection != null,
-                                () => $"Vertical {this.GetType()} with crossAxisAlignment {this.crossAxisAlignment} has a null textDirection, so the alignment cannot be resolved.");
+                            D.assert(textDirection != null,
+                                () => $"Vertical {GetType()} with crossAxisAlignment {crossAxisAlignment} has a null textDirection, so the alignment cannot be resolved.");
                             break;
                     }
                 }
@@ -229,20 +229,20 @@ namespace Unity.UIWidgets.rendering {
         }
 
         float _computeIntrinsicHeightForWidth(float width) {
-            D.assert(this.direction == Axis.horizontal);
+            D.assert(direction == Axis.horizontal);
             int runCount = 0;
             float height = 0.0f;
             float runWidth = 0.0f;
             float runHeight = 0.0f;
             int childCount = 0;
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             while (child != null) {
                 float childWidth = child.getMaxIntrinsicWidth(float.PositiveInfinity);
                 float childHeight = child.getMaxIntrinsicHeight(childWidth);
                 if (runWidth + childWidth > width) {
                     height += runHeight;
                     if (runCount > 0) {
-                        height += this.runSpacing;
+                        height += runSpacing;
                     }
 
                     runCount += 1;
@@ -254,35 +254,35 @@ namespace Unity.UIWidgets.rendering {
                 runWidth += childWidth;
                 runHeight = Mathf.Max(runHeight, childHeight);
                 if (childCount > 0) {
-                    runWidth += this.spacing;
+                    runWidth += spacing;
                 }
 
                 childCount += 1;
-                child = this.childAfter(child);
+                child = childAfter(child);
             }
 
             if (childCount > 0) {
-                height += runHeight + this.runSpacing;
+                height += runHeight + runSpacing;
             }
 
             return height;
         }
 
         float _computeIntrinsicWidthForHeight(float height) {
-            D.assert(this.direction == Axis.vertical);
+            D.assert(direction == Axis.vertical);
             int runCount = 0;
             float width = 0.0f;
             float runHeight = 0.0f;
             float runWidth = 0.0f;
             int childCount = 0;
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             while (child != null) {
                 float childHeight = child.getMaxIntrinsicHeight(float.PositiveInfinity);
                 float childWidth = child.getMaxIntrinsicWidth(childHeight);
                 if (runHeight + childHeight > height) {
                     width += runWidth;
                     if (runCount > 0) {
-                        width += this.runSpacing;
+                        width += runSpacing;
                     }
 
                     runCount += 1;
@@ -294,98 +294,98 @@ namespace Unity.UIWidgets.rendering {
                 runHeight += childHeight;
                 runWidth = Mathf.Max(runWidth, childWidth);
                 if (childCount > 0) {
-                    runHeight += this.spacing;
+                    runHeight += spacing;
                 }
 
                 childCount += 1;
-                child = this.childAfter(child);
+                child = childAfter(child);
             }
 
             if (childCount > 0) {
-                width += runWidth + this.runSpacing;
+                width += runWidth + runSpacing;
             }
 
             return width;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
-            switch (this.direction) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
+            switch (direction) {
                 case Axis.horizontal:
                     float width = 0.0f;
-                    RenderBox child = this.firstChild;
+                    RenderBox child = firstChild;
                     while (child != null) {
                         width = Mathf.Max(width, child.getMinIntrinsicWidth(float.PositiveInfinity));
-                        child = this.childAfter(child);
+                        child = childAfter(child);
                     }
 
                     return width;
                 case Axis.vertical:
-                    return this._computeIntrinsicWidthForHeight(height);
+                    return _computeIntrinsicWidthForHeight(height);
             }
 
-            throw new Exception("Unknown axis: " + this.direction);
+            throw new Exception("Unknown axis: " + direction);
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
-            switch (this.direction) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
+            switch (direction) {
                 case Axis.horizontal:
                     float width = 0.0f;
-                    RenderBox child = this.firstChild;
+                    RenderBox child = firstChild;
                     while (child != null) {
                         width += child.getMaxIntrinsicWidth(float.PositiveInfinity);
-                        child = this.childAfter(child);
+                        child = childAfter(child);
                     }
 
                     return width;
                 case Axis.vertical:
-                    return this._computeIntrinsicWidthForHeight(height);
+                    return _computeIntrinsicWidthForHeight(height);
             }
 
-            throw new Exception("Unknown axis: " + this.direction);
+            throw new Exception("Unknown axis: " + direction);
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
-            switch (this.direction) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
+            switch (direction) {
                 case Axis.horizontal:
-                    return this._computeIntrinsicHeightForWidth(width);
+                    return _computeIntrinsicHeightForWidth(width);
                 case Axis.vertical:
                     float height = 0.0f;
-                    RenderBox child = this.firstChild;
+                    RenderBox child = firstChild;
                     while (child != null) {
                         height = Mathf.Max(height, child.getMinIntrinsicHeight(float.PositiveInfinity));
-                        child = this.childAfter(child);
+                        child = childAfter(child);
                     }
 
                     return height;
             }
 
-            throw new Exception("Unknown axis: " + this.direction);
+            throw new Exception("Unknown axis: " + direction);
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            switch (this.direction) {
+            switch (direction) {
                 case Axis.horizontal:
-                    return this._computeIntrinsicHeightForWidth(width);
+                    return _computeIntrinsicHeightForWidth(width);
                 case Axis.vertical:
                     float height = 0.0f;
-                    RenderBox child = this.firstChild;
+                    RenderBox child = firstChild;
                     while (child != null) {
                         height += child.getMaxIntrinsicHeight(float.PositiveInfinity);
-                        child = this.childAfter(child);
+                        child = childAfter(child);
                     }
 
                     return height;
             }
 
-            throw new Exception("Unknown axis: " + this.direction);
+            throw new Exception("Unknown axis: " + direction);
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            return this.defaultComputeDistanceToHighestActualBaseline(baseline);
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+            return defaultComputeDistanceToHighestActualBaseline(baseline);
         }
 
         float _getMainAxisExtent(RenderBox child) {
-            switch (this.direction) {
+            switch (direction) {
                 case Axis.horizontal:
                     return child.size.width;
                 case Axis.vertical:
@@ -396,7 +396,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         float _getCrossAxisExtent(RenderBox child) {
-            switch (this.direction) {
+            switch (direction) {
                 case Axis.horizontal:
                     return child.size.height;
                 case Axis.vertical:
@@ -407,7 +407,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         Offset _getOffset(float mainAxisOffset, float crossAxisOffset) {
-            switch (this.direction) {
+            switch (direction) {
                 case Axis.horizontal:
                     return new Offset(mainAxisOffset, crossAxisOffset);
                 case Axis.vertical:
@@ -419,7 +419,7 @@ namespace Unity.UIWidgets.rendering {
 
         float _getChildCrossAxisOffset(bool flipCrossAxis, float runCrossAxisExtent, float childCrossAxisExtent) {
             float freeSpace = runCrossAxisExtent - childCrossAxisExtent;
-            switch (this.crossAxisAlignment) {
+            switch (crossAxisAlignment) {
                 case WrapCrossAlignment.start:
                     return flipCrossAxis ? freeSpace : 0.0f;
                 case WrapCrossAlignment.end:
@@ -434,11 +434,11 @@ namespace Unity.UIWidgets.rendering {
         bool _hasVisualOverflow = false;
 
         protected override void performLayout() {
-            D.assert(this._debugHasNecessaryDirections);
-            this._hasVisualOverflow = false;
-            RenderBox child = this.firstChild;
+            D.assert(_debugHasNecessaryDirections);
+            _hasVisualOverflow = false;
+            RenderBox child = firstChild;
             if (child == null) {
-                this.size = this.constraints.smallest;
+                size = constraints.smallest;
                 return;
             }
 
@@ -446,36 +446,35 @@ namespace Unity.UIWidgets.rendering {
             float mainAxisLimit = 0.0f;
             bool flipMainAxis = false;
             bool flipCrossAxis = false;
-            switch (this.direction) {
+            switch (direction) {
                 case Axis.horizontal:
-                    childConstraints = new BoxConstraints(maxWidth: this.constraints.maxWidth);
-                    mainAxisLimit = this.constraints.maxWidth;
-                    if (this.textDirection == TextDirection.rtl) {
+                    childConstraints = new BoxConstraints(maxWidth: constraints.maxWidth);
+                    mainAxisLimit = constraints.maxWidth;
+                    if (textDirection == TextDirection.rtl) {
                         flipMainAxis = true;
                     }
 
-                    if (this.verticalDirection == VerticalDirection.up) {
+                    if (verticalDirection == VerticalDirection.up) {
                         flipCrossAxis = true;
                     }
 
                     break;
                 case Axis.vertical:
-                    childConstraints = new BoxConstraints(maxHeight: this.constraints.maxHeight);
-                    mainAxisLimit = this.constraints.maxHeight;
-                    if (this.verticalDirection == VerticalDirection.up) {
+                    childConstraints = new BoxConstraints(maxHeight: constraints.maxHeight);
+                    mainAxisLimit = constraints.maxHeight;
+                    if (verticalDirection == VerticalDirection.up) {
                         flipMainAxis = true;
                     }
 
-                    if (this.textDirection == TextDirection.rtl) {
+                    if (textDirection == TextDirection.rtl) {
                         flipCrossAxis = true;
                     }
 
                     break;
                 default:
-                    throw new Exception("Unknown axis: " + this.direction);
+                    throw new Exception("Unknown axis: " + direction);
             }
 
-            D.assert(childConstraints != null);
             float spacing = this.spacing;
             float runSpacing = this.runSpacing;
             List<_RunMetrics> runMetrics = new List<_RunMetrics> { };
@@ -486,8 +485,8 @@ namespace Unity.UIWidgets.rendering {
             int childCount = 0;
             while (child != null) {
                 child.layout(childConstraints, parentUsesSize: true);
-                float childMainAxisExtent = this._getMainAxisExtent(child);
-                float childCrossAxisExtent = this._getCrossAxisExtent(child);
+                float childMainAxisExtent = _getMainAxisExtent(child);
+                float childCrossAxisExtent = _getCrossAxisExtent(child);
                 if (childCount > 0 && runMainAxisExtent + spacing + childMainAxisExtent > mainAxisLimit) {
                     mainAxisExtent = Mathf.Max(mainAxisExtent, runMainAxisExtent);
                     crossAxisExtent += runCrossAxisExtent;
@@ -530,26 +529,26 @@ namespace Unity.UIWidgets.rendering {
             float containerMainAxisExtent = 0.0f;
             float containerCrossAxisExtent = 0.0f;
 
-            switch (this.direction) {
+            switch (direction) {
                 case Axis.horizontal:
-                    this.size = this.constraints.constrain(new Size(mainAxisExtent, crossAxisExtent));
-                    containerMainAxisExtent = this.size.width;
-                    containerCrossAxisExtent = this.size.height;
+                    size = constraints.constrain(new Size(mainAxisExtent, crossAxisExtent));
+                    containerMainAxisExtent = size.width;
+                    containerCrossAxisExtent = size.height;
                     break;
                 case Axis.vertical:
-                    this.size = this.constraints.constrain(new Size(crossAxisExtent, mainAxisExtent));
-                    containerMainAxisExtent = this.size.height;
-                    containerCrossAxisExtent = this.size.width;
+                    size = constraints.constrain(new Size(crossAxisExtent, mainAxisExtent));
+                    containerMainAxisExtent = size.height;
+                    containerCrossAxisExtent = size.width;
                     break;
             }
 
-            this._hasVisualOverflow =
+            _hasVisualOverflow =
                 containerMainAxisExtent < mainAxisExtent || containerCrossAxisExtent < crossAxisExtent;
 
             float crossAxisFreeSpace = Mathf.Max(0.0f, containerCrossAxisExtent - crossAxisExtent);
             float runLeadingSpace = 0.0f;
             float runBetweenSpace = 0.0f;
-            switch (this.runAlignment) {
+            switch (runAlignment) {
                 case WrapAlignment.start:
                     break;
                 case WrapAlignment.end:
@@ -574,18 +573,18 @@ namespace Unity.UIWidgets.rendering {
             runBetweenSpace += runSpacing;
             float crossAxisOffset = flipCrossAxis ? containerCrossAxisExtent - runLeadingSpace : runLeadingSpace;
 
-            child = this.firstChild;
+            child = firstChild;
             for (int i = 0; i < runCount; ++i) {
                 _RunMetrics metrics = runMetrics[i];
-                runMainAxisExtent = metrics.mainAxisExtent;
-                runCrossAxisExtent = metrics.crossAxisExtent;
-                childCount = metrics.childCount;
+                float runMainAxisExtent2 = metrics.mainAxisExtent;
+                float runCrossAxisExtent2 = metrics.crossAxisExtent;
+                float childCount2 = metrics.childCount;
 
-                float mainAxisFreeSpace = Mathf.Max(0.0f, containerMainAxisExtent - runMainAxisExtent);
+                float mainAxisFreeSpace = Mathf.Max(0.0f, containerMainAxisExtent - runMainAxisExtent2);
                 float childLeadingSpace = 0.0f;
                 float childBetweenSpace = 0.0f;
 
-                switch (this.alignment) {
+                switch (alignment) {
                     case WrapAlignment.start:
                         break;
                     case WrapAlignment.end:
@@ -595,14 +594,14 @@ namespace Unity.UIWidgets.rendering {
                         childLeadingSpace = mainAxisFreeSpace / 2.0f;
                         break;
                     case WrapAlignment.spaceBetween:
-                        childBetweenSpace = childCount > 1 ? mainAxisFreeSpace / (childCount - 1) : 0.0f;
+                        childBetweenSpace = childCount2 > 1 ? mainAxisFreeSpace / (childCount2 - 1) : 0.0f;
                         break;
                     case WrapAlignment.spaceAround:
-                        childBetweenSpace = mainAxisFreeSpace / childCount;
+                        childBetweenSpace = mainAxisFreeSpace / childCount2;
                         childLeadingSpace = childBetweenSpace / 2.0f;
                         break;
                     case WrapAlignment.spaceEvenly:
-                        childBetweenSpace = mainAxisFreeSpace / (childCount + 1);
+                        childBetweenSpace = mainAxisFreeSpace / (childCount2 + 1);
                         childLeadingSpace = childBetweenSpace;
                         break;
                 }
@@ -612,7 +611,7 @@ namespace Unity.UIWidgets.rendering {
                     flipMainAxis ? containerMainAxisExtent - childLeadingSpace : childLeadingSpace;
 
                 if (flipCrossAxis) {
-                    crossAxisOffset -= runCrossAxisExtent;
+                    crossAxisOffset -= runCrossAxisExtent2;
                 }
 
                 while (child != null) {
@@ -622,15 +621,15 @@ namespace Unity.UIWidgets.rendering {
                         break;
                     }
 
-                    float childMainAxisExtent = this._getMainAxisExtent(child);
-                    float childCrossAxisExtent = this._getCrossAxisExtent(child);
+                    float childMainAxisExtent = _getMainAxisExtent(child);
+                    float childCrossAxisExtent = _getCrossAxisExtent(child);
                     float childCrossAxisOffset =
-                        this._getChildCrossAxisOffset(flipCrossAxis, runCrossAxisExtent, childCrossAxisExtent);
+                        _getChildCrossAxisOffset(flipCrossAxis, runCrossAxisExtent2, childCrossAxisExtent);
                     if (flipMainAxis) {
                         childMainPosition -= childMainAxisExtent;
                     }
 
-                    childParentData.offset = this._getOffset(childMainPosition, crossAxisOffset + childCrossAxisOffset);
+                    childParentData.offset = _getOffset(childMainPosition, crossAxisOffset + childCrossAxisOffset);
                     if (flipMainAxis) {
                         childMainPosition -= childBetweenSpace;
                     }
@@ -645,34 +644,34 @@ namespace Unity.UIWidgets.rendering {
                     crossAxisOffset -= runBetweenSpace;
                 }
                 else {
-                    crossAxisOffset += runCrossAxisExtent + runBetweenSpace;
+                    crossAxisOffset += runCrossAxisExtent2 + runBetweenSpace;
                 }
             }
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            return this.defaultHitTestChildren(result, position: position);
+            return defaultHitTestChildren(result, position: position);
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this._hasVisualOverflow) {
-                context.pushClipRect(this.needsCompositing, offset, Offset.zero & this.size, this.defaultPaint);
+            if (_hasVisualOverflow) {
+                context.pushClipRect(needsCompositing, offset, Offset.zero & size, defaultPaint);
             }
             else {
-                this.defaultPaint(context, offset);
+                defaultPaint(context, offset);
             }
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<Axis>("direction", this.direction));
-            properties.add(new EnumProperty<WrapAlignment>("alignment", this.alignment));
-            properties.add(new FloatProperty("spacing", this.spacing));
-            properties.add(new EnumProperty<WrapAlignment>("runAlignment", this.runAlignment));
-            properties.add(new FloatProperty("runSpacing", this.runSpacing));
-            properties.add(new FloatProperty("crossAxisAlignment", this.runSpacing));
-            properties.add(new EnumProperty<TextDirection?>("textDirection", this.textDirection, defaultValue: null));
-            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", this.verticalDirection,
+            properties.add(new EnumProperty<Axis>("direction", direction));
+            properties.add(new EnumProperty<WrapAlignment>("alignment", alignment));
+            properties.add(new FloatProperty("spacing", spacing));
+            properties.add(new EnumProperty<WrapAlignment>("runAlignment", runAlignment));
+            properties.add(new FloatProperty("runSpacing", runSpacing));
+            properties.add(new FloatProperty("crossAxisAlignment", runSpacing));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", verticalDirection,
                 defaultValue: VerticalDirection.down));
         }
     }

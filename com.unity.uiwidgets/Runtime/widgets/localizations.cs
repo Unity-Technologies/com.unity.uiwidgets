@@ -1,21 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
     class _Pending {
-        public _Pending(LocalizationsDelegate del, IPromise<object> futureValue) {
+        public _Pending(
+            LocalizationsDelegate del, 
+            Future<object> futureValue) {
             this.del = del;
             this.futureValue = futureValue;
         }
 
         public readonly LocalizationsDelegate del;
-        public readonly IPromise<object> futureValue;
+        public readonly Future<object> futureValue;
 
-        internal static IPromise<Dictionary<Type, object>> _loadAll(Locale locale,
+        internal static Future<Dictionary<Type, object>> _loadAll(
+            Locale locale,
             IEnumerable<LocalizationsDelegate> allDelegates) {
             Dictionary<Type, object> output = new Dictionary<Type, object>();
             List<_Pending> pendingList = null;
@@ -30,9 +35,14 @@ namespace Unity.UIWidgets.widgets {
             }
 
             foreach (LocalizationsDelegate del in delegates) {
-                IPromise<object> inputValue = del.load(locale);
+                
+                Future<object> inputValue = del.load(locale).to<object>();
                 object completedValue = null;
-                IPromise<object> futureValue = inputValue.Then(value => { return completedValue = value; });
+                Future<object> futureValue = inputValue.then_(value => {
+                     completedValue = value;
+                     return FutureOr.value(completedValue);
+                }).to<object>();
+                
                 if (completedValue != null) {
                     Type type = del.type;
                     D.assert(!output.ContainsKey(type));
@@ -45,12 +55,12 @@ namespace Unity.UIWidgets.widgets {
             }
 
             if (pendingList == null) {
-                return Promise<Dictionary<Type, object>>.Resolved(output);
+                return new SynchronousFuture<Dictionary<Type, object>>(output);
             }
-
-            return Promise<object>.All(pendingList.Select(p => p.futureValue))
-                .Then(values => {
-                    var list = values.ToList();
+            return Future.wait<object>(LinqUtils<Future<object>, _Pending>.SelectList(pendingList, (p => p.futureValue)))
+                .then(values => {
+                    
+                    var list = (List<object>)values;
                     D.assert(list.Count == pendingList.Count);
                     for (int i = 0; i < list.Count; i += 1) {
                         Type type = pendingList[i].del.type;
@@ -59,7 +69,7 @@ namespace Unity.UIWidgets.widgets {
                     }
 
                     return output;
-                });
+                }).to<Dictionary<Type, object>>();
         }
     }
 
@@ -69,14 +79,14 @@ namespace Unity.UIWidgets.widgets {
 
         public abstract bool isSupported(Locale locale);
 
-        public abstract IPromise<object> load(Locale locale);
+        public abstract Future<WidgetsLocalizations> load(Locale locale);
 
         public abstract bool shouldReload(LocalizationsDelegate old);
 
         public abstract Type type { get; }
 
         public override string ToString() {
-            return $"{this.GetType()}[{this.type}]";
+            return $"{GetType()}[{type}]";
         }
     }
 
@@ -87,6 +97,8 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public abstract class WidgetsLocalizations {
+        public TextDirection textDirection { get; }
+
         static WidgetsLocalizations of(BuildContext context) {
             return Localizations.of<WidgetsLocalizations>(context, typeof(WidgetsLocalizations));
         }
@@ -100,7 +112,7 @@ namespace Unity.UIWidgets.widgets {
             return true;
         }
 
-        public override IPromise<object> load(Locale locale) {
+        public override Future<WidgetsLocalizations> load(Locale locale) {
             return DefaultWidgetsLocalizations.load(locale);
         }
 
@@ -117,8 +129,8 @@ namespace Unity.UIWidgets.widgets {
         public DefaultWidgetsLocalizations() {
         }
 
-        public static IPromise<object> load(Locale locale) {
-            return Promise<object>.Resolved(new DefaultWidgetsLocalizations());
+        public static Future<WidgetsLocalizations> load(Locale locale) {
+            return new SynchronousFuture<WidgetsLocalizations>(new DefaultWidgetsLocalizations());
         }
 
         public static readonly LocalizationsDelegate<WidgetsLocalizations> del = new _WidgetsLocalizationsDelegate();
@@ -126,11 +138,11 @@ namespace Unity.UIWidgets.widgets {
 
     class _LocalizationsScope : InheritedWidget {
         public _LocalizationsScope(
-            Key key,
-            Locale locale,
-            _LocalizationsState localizationsState,
-            Dictionary<Type, object> typeToResources,
-            Widget child
+            Key key = null,
+            Locale locale = null,
+            _LocalizationsState localizationsState = null,
+            Dictionary<Type, object> typeToResources = null,
+            Widget child = null
         ) : base(key: key, child: child) {
             D.assert(locale != null);
             D.assert(localizationsState != null);
@@ -147,7 +159,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly Dictionary<Type, object> typeToResources;
 
         public override bool updateShouldNotify(InheritedWidget old) {
-            return this.typeToResources != ((_LocalizationsScope) old).typeToResources;
+            return typeToResources != ((_LocalizationsScope) old).typeToResources;
         }
     }
 
@@ -195,7 +207,7 @@ namespace Unity.UIWidgets.widgets {
         public static Locale localeOf(BuildContext context, bool nullOk = false) {
             D.assert(context != null);
             _LocalizationsScope scope =
-                (_LocalizationsScope) context.inheritFromWidgetOfExactType(typeof(_LocalizationsScope));
+                (_LocalizationsScope) context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
             if (nullOk && scope == null) {
                 return null;
             }
@@ -207,7 +219,7 @@ namespace Unity.UIWidgets.widgets {
         public static List<LocalizationsDelegate> _delegatesOf(BuildContext context) {
             D.assert(context != null);
             _LocalizationsScope scope =
-                (_LocalizationsScope) context.inheritFromWidgetOfExactType(typeof(_LocalizationsScope));
+                (_LocalizationsScope) context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
             D.assert(scope != null, () => "a Localizations ancestor was not found");
             return new List<LocalizationsDelegate>(scope.localizationsState.widget.delegates);
         }
@@ -216,7 +228,7 @@ namespace Unity.UIWidgets.widgets {
             D.assert(context != null);
             D.assert(type != null);
             _LocalizationsScope scope =
-                (_LocalizationsScope) context.inheritFromWidgetOfExactType(typeof(_LocalizationsScope));
+                (_LocalizationsScope) context.dependOnInheritedWidgetOfExactType<_LocalizationsScope>();
             if (scope != null && scope.localizationsState != null) {
                 return scope.localizationsState.resourcesFor<T>(type);
             }
@@ -230,8 +242,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Locale>("locale", this.locale));
-            properties.add(new EnumerableProperty<LocalizationsDelegate>("delegates", this.delegates));
+            properties.add(new DiagnosticsProperty<Locale>("locale", locale));
+            properties.add(new EnumerableProperty<LocalizationsDelegate>("delegates", delegates));
         }
     }
 
@@ -241,22 +253,21 @@ namespace Unity.UIWidgets.widgets {
         Dictionary<Type, object> _typeToResources = new Dictionary<Type, object>();
 
         public Locale locale {
-            get { return this._locale; }
+            get { return _locale; }
         }
-
         Locale _locale;
 
         public override void initState() {
             base.initState();
-            this.load(this.widget.locale);
+            load(widget.locale);
         }
 
         bool _anyDelegatesShouldReload(Localizations old) {
-            if (this.widget.delegates.Count != old.delegates.Count) {
+            if (widget.delegates.Count != old.delegates.Count) {
                 return true;
             }
 
-            List<LocalizationsDelegate> delegates = this.widget.delegates.ToList();
+            List<LocalizationsDelegate> delegates = widget.delegates.ToList();
             List<LocalizationsDelegate> oldDelegates = old.delegates.ToList();
             for (int i = 0; i < delegates.Count; i += 1) {
                 LocalizationsDelegate del = delegates[i];
@@ -272,62 +283,68 @@ namespace Unity.UIWidgets.widgets {
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             Localizations old = (Localizations) oldWidget;
             base.didUpdateWidget(old);
-            if (this.widget.locale != old.locale
-                || (this.widget.delegates == null && old.delegates != null)
-                || (this.widget.delegates != null && old.delegates == null)
-                || (this.widget.delegates != null && this._anyDelegatesShouldReload(old))) {
-                this.load(this.widget.locale);
+            if (widget.locale != old.locale
+                || (widget.delegates == null && old.delegates != null)
+                || (widget.delegates != null && old.delegates == null)
+                || (widget.delegates != null && _anyDelegatesShouldReload(old))) {
+                load(widget.locale);
             }
         }
 
         void load(Locale locale) {
-            var delegates = this.widget.delegates;
+            var delegates = widget.delegates;
             if (delegates == null || delegates.isEmpty()) {
-                this._locale = locale;
+                _locale = locale;
                 return;
             }
 
             Dictionary<Type, object> typeToResources = null;
-            IPromise<Dictionary<Type, object>> typeToResourcesFuture = _Pending._loadAll(locale, delegates)
-                .Then(value => { return typeToResources = value; });
+            Future<Dictionary<Type, object>> typeToResourcesFuture = _Pending._loadAll(locale, delegates)
+                .then(value => { return FutureOr.value(typeToResources = (Dictionary<Type, object>)value); }).to<Dictionary<Type, object>>();
 
             if (typeToResources != null) {
-                this._typeToResources = typeToResources;
-                this._locale = locale;
+                _typeToResources = typeToResources;
+                _locale = locale;
             }
             else {
-                // WidgetsBinding.instance.deferFirstFrameReport();
-                typeToResourcesFuture.Then(value => {
-                    // WidgetsBinding.instance.allowFirstFrameReport();
-                    if (!this.mounted) {
-                        return;
+                typeToResourcesFuture.then(value => {
+                    if (mounted) {
+                        setState(() => {
+                            _typeToResources = (Dictionary<Type, object>) value;
+                            _locale = locale;
+                        });
                     }
-
-                    this.setState(() => {
-                        this._typeToResources = value;
-                        this._locale = locale;
-                    });
                 });
             }
         }
 
         public T resourcesFor<T>(Type type) {
             D.assert(type != null);
-            T resources = (T) this._typeToResources.getOrDefault(type);
+            T resources = (T) _typeToResources.getOrDefault(type);
             return resources;
         }
 
+        TextDirection _textDirection {
+            get {
+                WidgetsLocalizations resources = (WidgetsLocalizations)_typeToResources.getOrDefault(typeof(WidgetsLocalizations)) ;
+                D.assert(resources != null);
+                return resources.textDirection;
+            }
+        }
         public override Widget build(BuildContext context) {
-            if (this._locale == null) {
+            if (_locale == null) {
                 return new Container();
             }
 
             return new _LocalizationsScope(
-                key: this._localizedResourcesScopeKey,
-                locale: this._locale,
+                key: _localizedResourcesScopeKey,
+                locale: _locale,
                 localizationsState: this,
-                typeToResources: this._typeToResources,
-                child: this.widget.child
+                typeToResources: _typeToResources,
+                child: new Directionality(
+                    textDirection: _textDirection,
+                    child: widget.child
+                )
             );
         }
     }

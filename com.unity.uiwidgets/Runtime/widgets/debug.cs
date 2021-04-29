@@ -11,6 +11,10 @@ namespace Unity.UIWidgets.widgets {
         public static bool debugPrintGlobalKeyedWidgetLifecycle = false;
 
         public static bool debugPrintScheduleBuildForStacks = false;
+        
+        public static bool debugProfileBuildsEnabled = false;
+
+        public static bool debugHighlightDeprecatedWidgets = false;
 
         static Key _firstNonUniqueKey(IEnumerable<Widget> widgets) {
             var keySet = new HashSet<Key>();
@@ -35,7 +39,7 @@ namespace Unity.UIWidgets.widgets {
                     throw new UIWidgetsError(
                         "Duplicate keys found.\n" +
                         "If multiple keyed nodes exist as children of another node, they must have unique keys.\n" +
-                        parent + " has multiple children with key " + children + "."
+                        parent + " has multiple children with key " + nonUniqueKey + "."
                     );
                 }
 
@@ -56,6 +60,22 @@ namespace Unity.UIWidgets.widgets {
             return false;
         }
 
+        public static bool debugCheckHasTable(BuildContext context) {
+            D.assert(() => {
+                if (!(context.widget is Table) && context.findAncestorWidgetOfExactType<Table>() == null) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary("No Table widget found."),
+                        new ErrorDescription($"{context.widget.GetType()} widgets require a Table widget ancestor."),
+                        context.describeWidget("The specific widget that could not find a Table ancestor was"),
+                        context.describeOwnershipChain("The ownership chain for the affected widget is")
+                    });
+                }
+
+                return true;
+            });
+            return true;
+        }
+
         public static void debugWidgetBuilderValue(Widget widget, Widget built) {
             D.assert(() => {
                 if (built == null) {
@@ -70,7 +90,7 @@ namespace Unity.UIWidgets.widgets {
                 if (widget == built) {
                     throw new UIWidgetsError(
                         "A build function returned context.widget.\n" +
-                        "The offending widget is: $widget\n" +
+                        $"The offending widget is: {widget}\n" +
                         "Build functions must never return their BuildContext parameter\'s widget or a child that contains 'context.widget'. " +
                         "Doing so introduces a loop in the widget tree that can cause the app to crash."
                     );
@@ -82,18 +102,18 @@ namespace Unity.UIWidgets.widgets {
 
         public static bool debugCheckHasMediaQuery(BuildContext context) {
             D.assert(() => {
-                if (!(context.widget is MediaQuery) && context.ancestorWidgetOfExactType(typeof(MediaQuery)) == null) {
-                    Element element = (Element) context;
-                    throw new UIWidgetsError(
-                        "No MediaQuery widget found.\n" +
-                        context.widget.GetType() + " widgets require a MediaQuery widget ancestor.\n" +
-                        "The specific widget that could not find a MediaQuery ancestor was:\n" +
-                        "  " + context.widget + "\n" +
-                        "The ownership chain for the affected widget is:\n" +
-                        "  " + element.debugGetCreatorChain(10) + "\n" +
-                        "Typically, the MediaQuery widget is introduced by the MaterialApp or " +
-                        "WidgetsApp widget at the top of your application widget tree."
-                    );
+                if (!(context.widget is MediaQuery) && context.findAncestorWidgetOfExactType<MediaQuery>() == null) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary("No MediaQuery widget found."),
+                        new ErrorDescription(
+                            $"{context.widget.GetType()} widgets require a MediaQuery widget ancestor."),
+                        context.describeWidget("The specific widget that could not find a MediaQuery ancestor was"),
+                        context.describeOwnershipChain("The ownership chain for the affected widget is"),
+                        new ErrorHint(
+                            "Typically, the MediaQuery widget is introduced by the MaterialApp or " +
+                            "WidgetsApp widget at the top of your application widget tree."
+                        )
+                    });
                 }
 
                 return true;
@@ -104,21 +124,22 @@ namespace Unity.UIWidgets.widgets {
         public static bool debugCheckHasDirectionality(BuildContext context) {
             D.assert(() => {
                 if (!(context.widget is Directionality) &&
-                    context.ancestorWidgetOfExactType(typeof(Directionality)) == null) {
-                    Element element = (Element) context;
-                    throw new UIWidgetsError(
-                        "No Directionality widget found.\n" +
-                        context.widget.GetType() + " widgets require a Directionality widget ancestor.\n" +
-                        "The specific widget that could not find a Directionality ancestor was:\n" +
-                        "  " + context.widget + "\n" +
-                        "The ownership chain for the affected widget is:\n" +
-                        "  " + element.debugGetCreatorChain(10) + "\n" +
-                        "Typically, the Directionality widget is introduced by the MaterialApp " +
-                        "or WidgetsApp widget at the top of your application widget tree. It " +
-                        "determines the ambient reading direction and is used, for example, to " +
-                        "determine how to lay out text, how to interpret \"start\" and \"end\" " +
-                        "values, and to resolve EdgeInsetsDirectional, " +
-                        "AlignmentDirectional, and other *Directional objects.");
+                    context.findAncestorWidgetOfExactType<Directionality>() == null) {
+                    throw new UIWidgetsError(new List<DiagnosticsNode> {
+                        new ErrorSummary("No Directionality widget found."),
+                        new ErrorDescription(
+                            $"{context.widget.GetType()} widgets require a Directionality widget ancestor.\n"),
+                        context.describeWidget("The specific widget that could not find a Directionality ancestor was"),
+                        context.describeOwnershipChain("The ownership chain for the affected widget is"),
+                        new ErrorHint(
+                            "Typically, the Directionality widget is introduced by the MaterialApp " +
+                            "or WidgetsApp widget at the top of your application widget tree. It " +
+                            "determines the ambient reading direction and is used, for example, to " +
+                            "determine how to lay out text, how to interpret \"start\" and \"end\" " +
+                            "values, and to resolve EdgeInsetsDirectional, " +
+                            "AlignmentDirectional, and other *Directional objects."
+                        )
+                    });
                 }
 
                 return true;
@@ -127,7 +148,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         internal static UIWidgetsErrorDetails _debugReportException(
-            string context,
+            DiagnosticsNode context,
             Exception exception,
             InformationCollector informationCollector = null
         ) {
@@ -139,6 +160,37 @@ namespace Unity.UIWidgets.widgets {
             );
             UIWidgetsError.reportError(details);
             return details;
+        }
+
+        internal static UIWidgetsErrorDetails _debugReportException(
+            string context,
+            Exception exception,
+            InformationCollector informationCollector = null
+        ) {
+            var details = new UIWidgetsErrorDetails(
+                exception: exception,
+                library: "widgets library",
+                context: new ErrorDescription(context),
+                informationCollector: informationCollector
+            );
+            UIWidgetsError.reportError(details);
+            return details;
+        }
+
+        /// See [the widgets library](widgets/widgets-library.html) for a complete list.
+        public static bool debugAssertAllWidgetVarsUnset(string reason) {
+            D.assert(() => {
+                if (debugPrintRebuildDirtyWidgets ||
+                    debugPrintBuildScope ||
+                    debugPrintScheduleBuildForStacks ||
+                    debugPrintGlobalKeyedWidgetLifecycle ||
+                    debugProfileBuildsEnabled ||
+                    debugHighlightDeprecatedWidgets) {
+                    throw new UIWidgetsError(reason);
+                }
+                return true;
+            });
+            return true;
         }
     }
 }

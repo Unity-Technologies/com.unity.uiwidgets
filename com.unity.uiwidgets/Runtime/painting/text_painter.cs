@@ -1,4 +1,4 @@
-﻿﻿using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -7,6 +7,40 @@ using Canvas = Unity.UIWidgets.ui.Canvas;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
+    public class PlaceholderDimensions {
+        public PlaceholderDimensions(
+            Size size,
+            PlaceholderAlignment alignment,
+            TextBaseline baseline,
+            float baselineOffset
+        ) {
+            D.assert(size != null);
+            D.assert(alignment != null);
+            this.size = size;
+            this.alignment = alignment;
+            this.baseline = baseline;
+            this.baselineOffset = baselineOffset;
+        }
+
+        public readonly Size size;
+
+        public readonly PlaceholderAlignment alignment;
+
+        public readonly float baselineOffset;
+
+        public readonly TextBaseline baseline;
+
+        public override string ToString() {
+            return $"PlaceholderDimensions({size}, {baseline})";
+        }
+    }
+
+    public enum TextWidthBasis {
+        parent,
+
+        longestLine,
+    }
+
     class _CaretMetrics {
         public _CaretMetrics(Offset offset, float? fullHeight) {
             this.offset = offset;
@@ -18,7 +52,7 @@ namespace Unity.UIWidgets.painting {
     }
 
     public class TextPainter {
-        TextSpan _text;
+        InlineSpan _text;
         TextAlign _textAlign;
         TextDirection? _textDirection;
         float _textScaleFactor;
@@ -29,217 +63,304 @@ namespace Unity.UIWidgets.painting {
         string _ellipsis;
         float _lastMinWidth;
         float _lastMaxWidth;
+        TextWidthBasis _textWidthBasis;
+        TextHeightBehavior _textHeightBehavior;
 
-        public TextPainter(TextSpan text = null,
+        public TextPainter(InlineSpan text = null,
             TextAlign textAlign = TextAlign.left,
             TextDirection textDirection = TextDirection.ltr,
             float textScaleFactor = 1.0f,
             int? maxLines = null,
-            string ellipsis = "",
-            StrutStyle strutStyle = null) {
-            this._text = text;
-            this._textAlign = textAlign;
-            this._textDirection = textDirection;
-            this._textScaleFactor = textScaleFactor;
-            this._maxLines = maxLines;
-            this._ellipsis = ellipsis;
-            this._strutStyle = strutStyle;
+            string ellipsis = null,
+            Locale locale = null,
+            StrutStyle strutStyle = null,
+            TextWidthBasis textWidthBasis = TextWidthBasis.parent,
+            TextHeightBehavior textHeightBehavior = null) {
+            D.assert(text == null || text.debugAssertIsValid());
+            D.assert(maxLines == null || maxLines > 0);
+            _text = text;
+            _textAlign = textAlign;
+            _textDirection = textDirection;
+            _textScaleFactor = textScaleFactor;
+            _maxLines = maxLines;
+            _ellipsis = ellipsis;
+            _locale = locale;
+            _strutStyle = strutStyle;
+            _textWidthBasis = textWidthBasis;
+            _textHeightBehavior = textHeightBehavior;
+        }
+
+        public void markNeedsLayout() {
+            _paragraph = null;
+            _needsLayout = true;
+            _previousCaretPosition = null;
+            _previousCaretPrototype = null;
         }
 
         public float textScaleFactor {
-            get { return this._textScaleFactor; }
+            get { return _textScaleFactor; }
             set {
-                if (this._textScaleFactor == value) {
+                if (_textScaleFactor == value) {
                     return;
                 }
 
-                this._textScaleFactor = value;
-                this._layoutTemplate = null;
-                this._needsLayout = true;
-                Paragraph.release(ref this._paragraph);
+                _textScaleFactor = value;
+                markNeedsLayout();
+                _layoutTemplate = null;
             }
         }
 
         public string ellipsis {
-            get { return this._ellipsis; }
+            get { return _ellipsis; }
             set {
-                if (this._ellipsis == value) {
+                if (_ellipsis == value) {
                     return;
                 }
 
-                this._ellipsis = value;
-                Paragraph.release(ref this._paragraph);
-                this._needsLayout = true;
+                _ellipsis = value;
+                markNeedsLayout();
             }
         }
 
-        public TextSpan text {
-            get { return this._text; }
+        public InlineSpan text {
+            get { return _text; }
             set {
-                if ((this._text == null && value == null) || (this._text != null && this.text.Equals(value))) {
+                D.assert(value == null || value.debugAssertIsValid());
+                if (_text == value) {
                     return;
                 }
 
-                if (!Equals(this._text == null ? null : this._text.style, value == null ? null : value.style)) {
-                    this._layoutTemplate = null;
+                if (!Equals(_text == null ? null : _text.style, value == null ? null : value.style)) {
+                    _layoutTemplate = null;
                 }
 
-                this._text = value;
-                Paragraph.release(ref this._paragraph);
-                this._needsLayout = true;
+                _text = value;
+                markNeedsLayout();
             }
         }
 
         public Size size {
             get {
-                Debug.Assert(!this._needsLayout);
-                return new Size(this.width, this.height);
+                Debug.Assert(!_needsLayout);
+                return new Size(width, height);
             }
         }
 
         public TextDirection? textDirection {
-            get { return this._textDirection; }
+            get { return _textDirection; }
             set {
-                if (this.textDirection == value) {
+                if (textDirection == value) {
                     return;
                 }
 
-                this._textDirection = value;
-                Paragraph.release(ref this._paragraph);
-                this._layoutTemplate = null;
-                this._needsLayout = true;
+                _textDirection = value;
+                markNeedsLayout();
+                _layoutTemplate = null;
             }
         }
 
         public TextAlign textAlign {
-            get { return this._textAlign; }
+            get { return _textAlign; }
             set {
-                if (this._textAlign == value) {
+                if (_textAlign == value) {
                     return;
                 }
 
-                this._textAlign = value;
-                Paragraph.release(ref this._paragraph);
-                this._needsLayout = true;
+                _textAlign = value;
+                markNeedsLayout();
             }
         }
 
         public bool didExceedMaxLines {
             get {
-                Debug.Assert(!this._needsLayout);
-                return this._paragraph.didExceedMaxLines;
+                Debug.Assert(!_needsLayout);
+                return _paragraph.didExceedMaxLines();
             }
         }
 
         public int? maxLines {
-            get { return this._maxLines; }
+            get { return _maxLines; }
             set {
-                if (this._maxLines == value) {
+                if (_maxLines == value) {
                     return;
                 }
 
-                this._maxLines = value;
-                Paragraph.release(ref this._paragraph);
-                this._needsLayout = true;
+                _maxLines = value;
+                markNeedsLayout();
             }
         }
 
         public StrutStyle strutStyle {
-            get { return this._strutStyle; }
+            get { return _strutStyle; }
             set {
-                if (this._strutStyle == value) {
+                if (_strutStyle == value) {
                     return;
                 }
 
-                this._strutStyle = value;
-                this._paragraph = null;
-                this._needsLayout = true;
+                _strutStyle = value;
+                markNeedsLayout();
             }
         }
 
         StrutStyle _strutStyle;
 
-        public float minIntrinsicWidth {
-            get {
-                Debug.Assert(!this._needsLayout);
-                return this._applyFloatingPointHack(this._paragraph.minIntrinsicWidth);
+        public Locale locale {
+            get { return _locale; }
+            set {
+                if (_locale == value)
+                    return;
+                _locale = value;
+                markNeedsLayout();
             }
         }
 
+        Locale _locale;
+
+        public TextWidthBasis textWidthBasis {
+            get { return _textWidthBasis; }
+            set {
+                D.assert(value != null);
+                if (_textWidthBasis == value)
+                    return;
+                _textWidthBasis = value;
+                markNeedsLayout();
+            }
+        }
+
+        public TextHeightBehavior textHeightBehavior {
+            get { return _textHeightBehavior; }
+            set {
+                if (_textHeightBehavior == value)
+                    return;
+                _textHeightBehavior = value;
+                markNeedsLayout();
+            }
+        }
+
+        public List<TextBox> inlinePlaceholderBoxes {
+            get {
+                return _inlinePlaceholderBoxes;
+            }
+        }
+
+        List<TextBox> _inlinePlaceholderBoxes;
+
+        public List<float> inlinePlaceholderScales {
+            get {
+                return _inlinePlaceholderScales;
+            }
+        }
+
+        List<float> _inlinePlaceholderScales;
+
+        public float minIntrinsicWidth {
+            get {
+                Debug.Assert(!_needsLayout);
+                return _applyFloatingPointHack(_paragraph.minIntrinsicWidth());
+            }
+        }
+
+        public void setPlaceholderDimensions(List<PlaceholderDimensions> value) {
+            if (value == null || value.isEmpty() || value.equalsList(_placeholderDimensions)) {
+                return;
+            }
+
+            D.assert(() => {
+                int placeholderCount = 0;
+                text.visitChildren((InlineSpan span) => {
+                    if (span is PlaceholderSpan) {
+                        placeholderCount += 1;
+                    }
+
+                    return true;
+                });
+                return placeholderCount == value.Count;
+            });
+            _placeholderDimensions = value;
+            markNeedsLayout();
+        }
+
+        List<PlaceholderDimensions> _placeholderDimensions;
+
         public float maxIntrinsicWidth {
             get {
-                Debug.Assert(!this._needsLayout);
-                return this._applyFloatingPointHack(this._paragraph.maxIntrinsicWidth);
+                Debug.Assert(!_needsLayout);
+                return _applyFloatingPointHack(_paragraph.maxIntrinsicWidth());
             }
         }
 
         public float height {
             get {
-                Debug.Assert(!this._needsLayout);
-                return this._applyFloatingPointHack(this._paragraph.height);
+                Debug.Assert(!_needsLayout);
+                return _applyFloatingPointHack(_paragraph.height());
             }
         }
 
         public float width {
             get {
-                Debug.Assert(!this._needsLayout);
-                return this._applyFloatingPointHack(this._paragraph.width);
+                Debug.Assert(!_needsLayout);
+                return _applyFloatingPointHack(textWidthBasis == TextWidthBasis.longestLine
+                    ? _paragraph.longestLine()
+                    : _paragraph.width());
             }
         }
 
         public float computeDistanceToActualBaseline(TextBaseline baseline) {
-            Debug.Assert(!this._needsLayout);
+            Debug.Assert(!_needsLayout);
             switch (baseline) {
                 case TextBaseline.alphabetic:
-                    return this._paragraph.alphabeticBaseline;
+                    return _paragraph.alphabeticBaseline();
                 case TextBaseline.ideographic:
-                    return this._paragraph.ideographicBaseline;
+                    return _paragraph.ideographicBaseline();
             }
 
             return 0.0f;
         }
 
         public void layout(float minWidth = 0.0f, float maxWidth = float.PositiveInfinity) {
-            Debug.Assert(this.text != null,
+            Debug.Assert(text != null,
                 "TextPainter.text must be set to a non-null value before using the TextPainter.");
-            Debug.Assert(this.textDirection != null,
+            Debug.Assert(textDirection != null,
                 "TextPainter.textDirection must be set to a non-null value before using the TextPainter.");
-            if (!this._needsLayout && minWidth == this._lastMinWidth && maxWidth == this._lastMaxWidth) {
+            if (!_needsLayout && minWidth == _lastMinWidth && maxWidth == _lastMaxWidth) {
                 return;
             }
 
-            this._needsLayout = false;
-            if (this._paragraph == null) {
-                var builder = new ParagraphBuilder(this._createParagraphStyle());
-                this._text.build(builder, this.textScaleFactor);
-                this._paragraph = builder.build();
+            _needsLayout = false;
+            if (_paragraph == null) {
+                var builder = new ParagraphBuilder(_createParagraphStyle());
+                _text.build(builder, textScaleFactor: textScaleFactor,
+                    dimensions: _placeholderDimensions);
+                _inlinePlaceholderScales = builder.placeholderScales;
+                _paragraph = builder.build();
             }
 
-            this._lastMinWidth = minWidth;
-            this._lastMaxWidth = maxWidth;
-            this._paragraph.layout(new ParagraphConstraints(maxWidth));
+            _lastMinWidth = minWidth;
+            _lastMaxWidth = maxWidth;
+            _paragraph.layout(new ParagraphConstraints(maxWidth));
 
             if (minWidth != maxWidth) {
-                var newWidth = MathUtils.clamp(this.maxIntrinsicWidth, minWidth, maxWidth);
-                if (newWidth != this.width) {
-                    this._paragraph.layout(new ParagraphConstraints(newWidth));
+                var newWidth = MathUtils.clamp(maxIntrinsicWidth, minWidth, maxWidth);
+                if (newWidth != width) {
+                    _paragraph.layout(new ParagraphConstraints(newWidth));
                 }
             }
+            _inlinePlaceholderBoxes = _paragraph.getBoxesForPlaceholders();
         }
 
         public void paint(Canvas canvas, Offset offset) {
-            Debug.Assert(!this._needsLayout);
-            this._paragraph.paint(canvas, offset);
+            Debug.Assert(!_needsLayout);
+            canvas.drawParagraph(_paragraph, offset);
         }
 
         public Offset getOffsetForCaret(TextPosition position, Rect caretPrototype) {
-            this._computeCaretMetrics(position, caretPrototype);
-            return this._caretMetrics.offset;
+            _computeCaretMetrics(position, caretPrototype);
+            return _caretMetrics.offset;
         }
 
         public float? getFullHeightForCaret(TextPosition position, Rect caretPrototype) {
-            this._computeCaretMetrics(position, caretPrototype);
-            return this._caretMetrics.fullHeight;
+            _computeCaretMetrics(position, caretPrototype);
+            return _caretMetrics.fullHeight;
         }
 
         _CaretMetrics _caretMetrics;
@@ -248,8 +369,8 @@ namespace Unity.UIWidgets.painting {
         Rect _previousCaretPrototype;
 
         void _computeCaretMetrics(TextPosition position, Rect caretPrototype) {
-            D.assert(!this._needsLayout);
-            if (position == this._previousCaretPosition && caretPrototype == this._previousCaretPrototype) {
+            D.assert(!_needsLayout);
+            if (position == _previousCaretPosition && caretPrototype == _previousCaretPrototype) {
                 return;
             }
 
@@ -257,140 +378,97 @@ namespace Unity.UIWidgets.painting {
             Rect rect;
             switch (position.affinity) {
                 case TextAffinity.upstream:
-                    rect = this._getRectFromUpstream(offset, caretPrototype) ??
-                           this._getRectFromDownStream(offset, caretPrototype);
+                    rect = _getRectFromUpstream(offset, caretPrototype) ??
+                           _getRectFromDownStream(offset, caretPrototype);
                     break;
                 case TextAffinity.downstream:
-                    rect = this._getRectFromDownStream(offset, caretPrototype) ??
-                           this._getRectFromUpstream(offset, caretPrototype);
+                    rect = _getRectFromDownStream(offset, caretPrototype) ??
+                           _getRectFromUpstream(offset, caretPrototype);
                     break;
                 default:
                     throw new UIWidgetsError("Unknown Position Affinity");
             }
 
-            this._caretMetrics = new _CaretMetrics(
-                offset: rect != null ? new Offset(rect.left, rect.top) : this._emptyOffset,
+            _caretMetrics = new _CaretMetrics(
+                offset: rect != null ? new Offset(rect.left, rect.top) : _emptyOffset,
                 fullHeight: rect != null ? (float?) (rect.bottom - rect.top) : null);
-            
+
             // Cache the caret position. This was forgot in flutter until https://github.com/flutter/flutter/pull/38821
-            this._previousCaretPosition = position;
-            this._previousCaretPrototype = caretPrototype;
+            _previousCaretPosition = position;
+            _previousCaretPrototype = caretPrototype;
         }
 
-        public Paragraph.LineRange getLineRange(int lineNumber) {
-            D.assert(!this._needsLayout);
-            return this._paragraph.getLineRange(lineNumber);
-        }
-
-        public Paragraph.LineRange getLineRange(TextPosition textPosition) {
-            return this.getLineRange(this.getLineIndex(textPosition));
-        }
-
-        public List<TextBox> getBoxesForSelection(TextSelection selection) {
-            D.assert(!this._needsLayout);
-            var results = this._paragraph.getRectsForRange(selection.start, selection.end);
+        public List<TextBox> getBoxesForSelection(
+            TextSelection selection,
+            BoxHeightStyle boxHeightStyle = BoxHeightStyle.tight,
+            BoxWidthStyle boxWidthStyle = BoxWidthStyle.tight) {
+            D.assert(!_needsLayout);
+            var results = _paragraph.getBoxesForRange(
+                selection.start,
+                selection.end,
+                boxHeightStyle: boxHeightStyle,
+                boxWidthStyle: boxWidthStyle);
             return results;
         }
 
         public TextPosition getPositionForOffset(Offset offset) {
-            D.assert(!this._needsLayout);
-            var result = this._paragraph.getGlyphPositionAtCoordinate(offset.dx, offset.dy);
-            return new TextPosition(result.position, result.affinity);
+            D.assert(!_needsLayout);
+            return _paragraph.getPositionForOffset(offset);
         }
 
         public TextRange getWordBoundary(TextPosition position) {
-            D.assert(!this._needsLayout);
-            var range = this._paragraph.getWordBoundary(position.offset);
-            return new TextRange(range.start, range.end);
+            D.assert(!_needsLayout);
+            return _paragraph.getWordBoundary(position);
         }
 
-        public TextPosition getPositionVerticalMove(TextPosition position, int move) {
-            D.assert(!this._needsLayout);
-            var offset = this.getOffsetForCaret(position, Rect.zero);
-            var lineIndex = Mathf.Min(Mathf.Max(this._paragraph.getLine(position) + move, 0),
-                this._paragraph.getLineCount() - 1);
-            var targetLineStart = this._paragraph.getLineRange(lineIndex).start;
-            var newLineOffset = this.getOffsetForCaret(new TextPosition(targetLineStart), Rect.zero);
-            return this.getPositionForOffset(new Offset(offset.dx, newLineOffset.dy));
+        public TextRange getLineBoundary(TextPosition position) {
+            D.assert(!_needsLayout);
+            return _paragraph.getLineBoundary(position);
         }
-
-        public int getLineIndex(TextPosition position) {
-            D.assert(!this._needsLayout);
-            return this._paragraph.getLine(position);
-        }
-
-        public int getLineCount() {
-            D.assert(!this._needsLayout);
-            return this._paragraph.getLineCount();
-        }
-
-        public TextPosition getWordRight(TextPosition position) {
-            D.assert(!this._needsLayout);
-            var offset = position.offset;
-            while (true) {
-                var range = this._paragraph.getWordBoundary(offset);
-                if (range.end == range.start) {
-                    break;
-                }
-
-                if (!char.IsWhiteSpace((char) (this.text.codeUnitAt(range.start) ?? 0))) {
-                    return new TextPosition(range.end);
-                }
-
-                offset = range.end;
-            }
-
-            return new TextPosition(offset, position.affinity);
-        }
-
-        public TextPosition getWordLeft(TextPosition position) {
-            D.assert(!this._needsLayout);
-            var offset = Mathf.Max(position.offset - 1, 0);
-            while (true) {
-                var range = this._paragraph.getWordBoundary(offset);
-                if (!char.IsWhiteSpace((char) (this.text.codeUnitAt(range.start) ?? 0))) {
-                    return new TextPosition(range.start);
-                }
-
-                offset = Mathf.Max(range.start - 1, 0);
-                if (offset == 0) {
-                    break;
-                }
-            }
-
-            return new TextPosition(offset, position.affinity);
+        
+        List<ui.LineMetrics> computeLineMetrics() {
+            D.assert(!_needsLayout);
+            return _paragraph.computeLineMetrics();
         }
 
         ParagraphStyle _createParagraphStyle(TextDirection defaultTextDirection = TextDirection.ltr) {
-            if (this._text.style == null) {
-                return new ParagraphStyle(
-                    textAlign: this.textAlign,
-                    textDirection: this.textDirection ?? defaultTextDirection,
-                    maxLines: this.maxLines,
-                    ellipsis: this.ellipsis,
-                    strutStyle: this._strutStyle
-                );
-            }
-
-            return this._text.style.getParagraphStyle(this.textAlign, this.textDirection ?? defaultTextDirection,
-                this.ellipsis, this.maxLines, this.textScaleFactor);
+            D.assert(textAlign != null);
+            D.assert(textDirection != null,
+                () => "TextPainter.textDirection must be set to a non-null value before using the TextPainter.");
+            return _text.style?.getParagraphStyle(
+                textAlign: textAlign,
+                textDirection: textDirection ?? defaultTextDirection,
+                textScaleFactor: textScaleFactor,
+                maxLines: _maxLines,
+                textHeightBehavior: _textHeightBehavior,
+                ellipsis: _ellipsis,
+                locale: _locale,
+                strutStyle: _strutStyle
+            ) ?? new ParagraphStyle(
+                textAlign: textAlign,
+                textDirection: textDirection ?? defaultTextDirection,
+                maxLines: maxLines,
+                textHeightBehavior: _textHeightBehavior,
+                ellipsis: ellipsis,
+                locale: locale
+            );
         }
 
         public float preferredLineHeight {
             get {
-                if (this._layoutTemplate == null) {
-                    var builder = new ParagraphBuilder(this._createParagraphStyle(TextDirection.ltr)
+                if (_layoutTemplate == null) {
+                    var builder = new ParagraphBuilder(_createParagraphStyle(TextDirection.ltr)
                     ); // direction doesn't matter, text is just a space
-                    if (this.text != null && this.text.style != null) {
-                        builder.pushStyle(this.text.style, this.textScaleFactor);
+                    if (text != null && text.style != null) {
+                        builder.pushStyle(text.style.getTextStyle(textScaleFactor: textScaleFactor));
                     }
 
                     builder.addText(" ");
-                    this._layoutTemplate = builder.build();
-                    this._layoutTemplate.layout(new ParagraphConstraints(float.PositiveInfinity));
+                    _layoutTemplate = builder.build();
+                    _layoutTemplate.layout(new ParagraphConstraints(float.PositiveInfinity));
                 }
 
-                return this._layoutTemplate.height;
+                return _layoutTemplate.height();
             }
         }
 
@@ -401,18 +479,19 @@ namespace Unity.UIWidgets.painting {
         const int _zwjUtf16 = 0x200d;
 
         Rect _getRectFromUpstream(int offset, Rect caretPrototype) {
-            string flattenedText = this._text.toPlainText();
-            var prevCodeUnit = this._text.codeUnitAt(Mathf.Max(0, offset - 1));
+            string flattenedText = _text.toPlainText(includePlaceholders: false);
+            var prevCodeUnit = _text.codeUnitAt(Mathf.Max(0, offset - 1));
             if (prevCodeUnit == null) {
                 return null;
             }
 
-            bool needsSearch = _isUtf16Surrogate(prevCodeUnit.Value) || this._text.codeUnitAt(offset) == _zwjUtf16;
+            bool needsSearch = _isUtf16Surrogate(prevCodeUnit.Value) || _text.codeUnitAt(offset) == _zwjUtf16 ||
+                               _isUnicodeDirectionality(prevCodeUnit);
             int graphemeClusterLength = needsSearch ? 2 : 1;
             List<TextBox> boxes = null;
             while ((boxes == null || boxes.isEmpty()) && flattenedText != null) {
                 int prevRuneOffset = offset - graphemeClusterLength;
-                boxes = this._paragraph.getRectsForRange(prevRuneOffset, offset);
+                boxes = _paragraph.getBoxesForRange(prevRuneOffset, offset, boxHeightStyle: BoxHeightStyle.strut);
                 if (boxes.isEmpty()) {
                     if (!needsSearch) {
                         break;
@@ -429,23 +508,23 @@ namespace Unity.UIWidgets.painting {
                 TextBox box = boxes[0];
                 const int NEWLINE_CODE_UNIT = 10;
                 if (prevCodeUnit == NEWLINE_CODE_UNIT) {
-                    return Rect.fromLTRB(this._emptyOffset.dx, box.bottom,
-                        this._emptyOffset.dx, box.bottom + box.bottom - box.top);
+                    return Rect.fromLTRB(_emptyOffset.dx, box.bottom,
+                        _emptyOffset.dx, box.bottom + box.bottom - box.top);
                 }
 
                 float caretEnd = box.end;
                 float dx = box.direction == TextDirection.rtl ? caretEnd - caretPrototype.width : caretEnd;
-                return Rect.fromLTRB(Mathf.Min(dx, this.width), box.top,
-                    Mathf.Min(dx, this.width), box.bottom);
+                return Rect.fromLTRB(Mathf.Min(dx, _paragraph.width()), box.top,
+                    Mathf.Min(dx, _paragraph.width()), box.bottom);
             }
 
             return null;
         }
 
         Rect _getRectFromDownStream(int offset, Rect caretPrototype) {
-            string flattenedText = this._text.toPlainText();
+            string flattenedText = _text.toPlainText(includePlaceholders: false);
             var nextCodeUnit =
-                this._text.codeUnitAt(Mathf.Min(offset, flattenedText == null ? 0 : flattenedText.Length - 1));
+                _text.codeUnitAt(Mathf.Min(offset, flattenedText == null ? 0 : flattenedText.Length - 1));
             if (nextCodeUnit == null) {
                 return null;
             }
@@ -455,7 +534,7 @@ namespace Unity.UIWidgets.painting {
             List<TextBox> boxes = null;
             while ((boxes == null || boxes.isEmpty()) && flattenedText != null) {
                 int nextRuneOffset = offset + graphemeClusterLength;
-                boxes = this._paragraph.getRectsForRange(offset, nextRuneOffset);
+                boxes = _paragraph.getBoxesForRange(offset, nextRuneOffset, boxHeightStyle: BoxHeightStyle.strut);
                 if (boxes.isEmpty()) {
                     if (!needsSearch) {
                         break;
@@ -472,8 +551,8 @@ namespace Unity.UIWidgets.painting {
                 TextBox box = boxes[boxes.Count - 1];
                 float caretStart = box.start;
                 float dx = box.direction == TextDirection.rtl ? caretStart - caretPrototype.width : caretStart;
-                return Rect.fromLTRB(Mathf.Min(dx, this.width), box.top,
-                    Mathf.Min(dx, this.width), box.bottom);
+                return Rect.fromLTRB(Mathf.Min(dx, _paragraph.width()), box.top,
+                    Mathf.Min(dx, _paragraph.width()), box.bottom);
             }
 
             return null;
@@ -481,17 +560,17 @@ namespace Unity.UIWidgets.painting {
 
         Offset _emptyOffset {
             get {
-                D.assert(!this._needsLayout);
-                switch (this.textAlign) {
+                D.assert(!_needsLayout);
+                switch (textAlign) {
                     case TextAlign.left:
                         return Offset.zero;
                     case TextAlign.right:
-                        return new Offset(this.width, 0.0f);
+                        return new Offset(width, 0.0f);
                     case TextAlign.center:
-                        return new Offset(this.width / 2.0f, 0.0f);
+                        return new Offset(width / 2.0f, 0.0f);
                     case TextAlign.justify:
-                        if (this.textDirection == TextDirection.rtl) {
-                            return new Offset(this.width, 0.0f);
+                        if (textDirection == TextDirection.rtl) {
+                            return new Offset(width, 0.0f);
                         }
 
                         return Offset.zero;
@@ -504,5 +583,26 @@ namespace Unity.UIWidgets.painting {
         static bool _isUtf16Surrogate(int value) {
             return (value & 0xF800) == 0xD800;
         }
+
+        bool _isUnicodeDirectionality(int? value) {
+            return value == 0x200F || value == 0x200E;
+        }
+        
+         public int getOffsetAfter(int offset) {
+            int? nextCodeUnit = _text.codeUnitAt(offset);
+            if (nextCodeUnit == null)
+                return 0;
+            // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
+            return _isUtf16Surrogate(nextCodeUnit.Value) ? offset + 2 : offset + 1;
+        }
+         
+         public int getOffsetBefore(int offset) {
+             int? prevCodeUnit = _text.codeUnitAt(offset - 1);
+             if (prevCodeUnit == null)
+                 return 0;
+             // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
+             return _isUtf16Surrogate(prevCodeUnit.Value) ? offset - 2 : offset - 1;
+         }
+        
     }
 }

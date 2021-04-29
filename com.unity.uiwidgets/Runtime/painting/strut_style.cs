@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.painting {
             D.assert(fontSize == null || fontSize > 0);
             D.assert(leading == null || leading >= 0);
             this.fontFamily = fontFamily;
-            this._fontFamilyFallback = fontFamilyFallback;
+            _fontFamilyFallback = fontFamilyFallback;
             this.fontSize = fontSize;
             this.height = height;
             this.fontWeight = fontWeight;
@@ -63,7 +63,7 @@ namespace Unity.UIWidgets.painting {
         public readonly string fontFamily;
 
         public List<string> fontFamilyFallback {
-            get { return this._fontFamilyFallback; }
+            get { return _fontFamilyFallback; }
         }
 
         readonly List<string> _fontFamilyFallback;
@@ -85,14 +85,14 @@ namespace Unity.UIWidgets.painting {
                 return RenderComparison.layout;
             }
 
-            if (this.fontFamily != other.fontFamily ||
-                this.fontSize != other.fontSize ||
-                this.fontWeight != other.fontWeight ||
-                this.fontStyle != other.fontStyle ||
-                this.height != other.height ||
-                this.leading != other.leading ||
-                this.forceStrutHeight != other.forceStrutHeight ||
-                !CollectionUtils.equalsList(this.fontFamilyFallback, other.fontFamilyFallback)) {
+            if (fontFamily != other.fontFamily ||
+                fontSize != other.fontSize ||
+                fontWeight != other.fontWeight ||
+                fontStyle != other.fontStyle ||
+                height != other.height ||
+                leading != other.leading ||
+                forceStrutHeight != other.forceStrutHeight ||
+                !CollectionUtils.equalsList(fontFamilyFallback, other.fontFamilyFallback)) {
                 return RenderComparison.layout;
             }
 
@@ -105,15 +105,15 @@ namespace Unity.UIWidgets.painting {
             }
 
             return new StrutStyle(
-                fontFamily: this.fontFamily ?? other.fontFamily,
-                fontFamilyFallback: this.fontFamilyFallback ?? other.fontFamilyFallback,
-                height: this.height ?? other.height,
-                leading: this.leading,
-                fontSize: this.fontSize ?? other.fontSize,
-                fontWeight: this.fontWeight ?? other.fontWeight,
-                fontStyle: this.fontStyle ?? other.fontStyle,
-                forceStrutHeight: this.forceStrutHeight,
-                debugLabel: this.debugLabel ?? other.debugLabel
+                fontFamily: fontFamily ?? other.fontFamily,
+                fontFamilyFallback: fontFamilyFallback ?? other.fontFamilyFallback,
+                height: height ?? other.height,
+                leading: leading,
+                fontSize: fontSize ?? other.fontSize,
+                fontWeight: fontWeight ?? other.fontWeight,
+                fontStyle: fontStyle ?? other.fontStyle,
+                forceStrutHeight: forceStrutHeight,
+                debugLabel: debugLabel ?? other.debugLabel
             );
         }
 
@@ -126,13 +126,13 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return this.fontFamily == other.fontFamily &&
-                   this.fontSize == other.fontSize &&
-                   this.fontWeight == other.fontWeight &&
-                   this.fontStyle == other.fontStyle &&
-                   this.height == other.height &&
-                   this.leading == other.leading &&
-                   this.forceStrutHeight == other.forceStrutHeight;
+            return fontFamily == other.fontFamily &&
+                   fontSize == other.fontSize &&
+                   fontWeight == other.fontWeight &&
+                   fontStyle == other.fontStyle &&
+                   height == other.height &&
+                   leading == other.leading &&
+                   forceStrutHeight == other.forceStrutHeight;
         }
 
         public override bool Equals(object obj) {
@@ -144,11 +144,11 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((StrutStyle) obj);
+            return Equals((StrutStyle) obj);
         }
 
         public static bool operator ==(StrutStyle left, StrutStyle right) {
@@ -161,49 +161,54 @@ namespace Unity.UIWidgets.painting {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.fontFamily?.GetHashCode() ?? 0;
-                hashCode = (hashCode * 397) ^ (this.fontSize?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (this.fontWeight?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (this.fontStyle?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (this.height?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (this.leading?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ this.forceStrutHeight.GetHashCode();
+                var hashCode = fontFamily?.GetHashCode() ?? 0;
+                hashCode = (hashCode * 397) ^ (fontSize?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (fontWeight?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (fontStyle?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (height?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (leading?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ forceStrutHeight.GetHashCode();
                 return hashCode;
             }
         }
 
         public override string toStringShort() {
-            return $"{this.GetType()}";
+            return $"{foundation_.objectRuntimeType(this, "StrutStyle")}";
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            debugFillProperties(properties, "");
+        }
+
+        public void debugFillProperties(DiagnosticPropertiesBuilder properties, string prefix = "") {
             base.debugFillProperties(properties);
-            if (this.debugLabel != null) {
-                properties.add(new MessageProperty("debugLabel", this.debugLabel));
+            if (debugLabel != null) {
+                properties.add(new MessageProperty($"{prefix}debugLabel", debugLabel));
             }
 
             List<DiagnosticsNode> styles = new List<DiagnosticsNode>();
-            styles.Add(new StringProperty("family", this.fontFamily, defaultValue: Diagnostics.kNullDefaultValue,
+            styles.Add(new StringProperty($"{prefix}family", fontFamily, defaultValue: foundation_.kNullDefaultValue,
                 quoted: false));
-            styles.Add(new EnumerableProperty<string>("familyFallback", this.fontFamilyFallback));
-            styles.Add(new DiagnosticsProperty<float?>("size", this.fontSize,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            styles.Add(new EnumerableProperty<string>($"{prefix}familyFallback", fontFamilyFallback));
+            styles.Add(new DiagnosticsProperty<float?>($"{prefix}size", fontSize,
+                defaultValue: foundation_.kNullDefaultValue));
             string weightDescription = "";
-            if (this.fontWeight != null) {
-                weightDescription = this.fontWeight.weightValue.ToString();
+            if (fontWeight != null) {
+                weightDescription = $"w${fontWeight.index + 1}00";
             }
 
             styles.Add(new DiagnosticsProperty<FontWeight>(
-                "weight", this.fontWeight,
+                $"{prefix}weight", fontWeight,
                 description: weightDescription,
-                defaultValue: Diagnostics.kNullDefaultValue
+                defaultValue: foundation_.kNullDefaultValue
             ));
-            styles.Add(new EnumProperty<FontStyle?>("style", this.fontStyle,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new DiagnosticsProperty<float?>("height", this.height,
-                defaultValue: Diagnostics.kNullDefaultValue));
-            styles.Add(new FlagProperty("forceStrutHeight", value: this.forceStrutHeight,
-                defaultValue: Diagnostics.kNullDefaultValue));
+            styles.Add(new EnumProperty<FontStyle?>($"{prefix}style", fontStyle,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new DiagnosticsProperty<float?>($"{prefix}height", height,
+                defaultValue: foundation_.kNullDefaultValue));
+            styles.Add(new FlagProperty($"{prefix}forceStrutHeight", value: forceStrutHeight,
+                defaultValue: foundation_.kNullDefaultValue, ifTrue: $"{prefix}<strut height forced>",
+                ifFalse: $"{prefix}<strut height normal>"));
 
             bool styleSpecified = styles.Any((DiagnosticsNode n) => !n.isFiltered(DiagnosticLevel.info));
             foreach (var style in styles) {
@@ -211,9 +216,9 @@ namespace Unity.UIWidgets.painting {
             }
 
             if (!styleSpecified) {
-                properties.add(new FlagProperty("forceStrutHeight", value: this.forceStrutHeight,
-                    ifTrue: "<strut height forced>",
-                    ifFalse: "<strut height normal>"));
+                properties.add(new FlagProperty("forceStrutHeight", value: forceStrutHeight,
+                    ifTrue: $"{prefix}<strut height forced>",
+                    ifFalse: $"{prefix}<strut height normal>"));
             }
         }
     }

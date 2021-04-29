@@ -28,8 +28,8 @@ namespace Unity.UIWidgets.material {
             float gapPercentage = 0.0f
         );
 
-        public override void paint(Canvas canvas, Rect rect) {
-            this.paint(canvas, rect, 0.0f);
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection) {
+            paint(canvas, rect, 0.0f);
         }
     }
 
@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.material {
             get { return false; }
         }
 
-        public override EdgeInsets dimensions {
+        public override EdgeInsetsGeometry dimensions {
             get { return EdgeInsets.zero; }
         }
 
@@ -53,13 +53,17 @@ namespace Unity.UIWidgets.material {
             return new _NoInputBorder();
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRect(rect);
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection) {
+            throw new System.NotImplementedException();
+        }
+
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRect(rect);
             return path;
@@ -103,32 +107,32 @@ namespace Unity.UIWidgets.material {
             );
         }
 
-        public override EdgeInsets dimensions {
-            get { return EdgeInsets.only(bottom: this.borderSide.width); }
+        public override EdgeInsetsGeometry dimensions {
+            get { return EdgeInsets.only(bottom: borderSide.width); }
         }
 
         public override ShapeBorder scale(float t) {
-            return new UnderlineInputBorder(borderSide: this.borderSide.scale(t));
+            return new UnderlineInputBorder(borderSide: borderSide.scale(t));
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
             path.addRect(Rect.fromLTWH(rect.left, rect.top, rect.width,
-                Mathf.Max(0.0f, rect.height - this.borderSide.width)));
+                Mathf.Max(0.0f, rect.height - borderSide.width)));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
-            path.addRRect(this.borderRadius.toRRect(rect));
+            path.addRRect(borderRadius.toRRect(rect));
             return path;
         }
 
         public override ShapeBorder lerpFrom(ShapeBorder a, float t) {
             if (a is UnderlineInputBorder) {
                 return new UnderlineInputBorder(
-                    borderSide: BorderSide.lerp((a as UnderlineInputBorder).borderSide, this.borderSide, t),
-                    borderRadius: BorderRadius.lerp((a as UnderlineInputBorder).borderRadius, this.borderRadius, t)
+                    borderSide: BorderSide.lerp((a as UnderlineInputBorder).borderSide, borderSide, t),
+                    borderRadius: BorderRadius.lerp((a as UnderlineInputBorder).borderRadius, borderRadius, t)
                 );
             }
 
@@ -138,8 +142,8 @@ namespace Unity.UIWidgets.material {
         public override ShapeBorder lerpTo(ShapeBorder b, float t) {
             if (b is UnderlineInputBorder) {
                 return new UnderlineInputBorder(
-                    borderSide: BorderSide.lerp(this.borderSide, (b as UnderlineInputBorder).borderSide, t),
-                    borderRadius: BorderRadius.lerp(this.borderRadius, (b as UnderlineInputBorder).borderRadius, t)
+                    borderSide: BorderSide.lerp(borderSide, (b as UnderlineInputBorder).borderSide, t),
+                    borderRadius: BorderRadius.lerp(borderRadius, (b as UnderlineInputBorder).borderRadius, t)
                 );
             }
 
@@ -151,11 +155,11 @@ namespace Unity.UIWidgets.material {
             float gapExtent = 0.0f,
             float gapPercentage = 0.0f
         ) {
-            if (this.borderRadius.bottomLeft != Radius.zero || this.borderRadius.bottomRight != Radius.zero) {
-                canvas.clipPath(this.getOuterPath(rect));
+            if (borderRadius.bottomLeft != Radius.zero || borderRadius.bottomRight != Radius.zero) {
+                canvas.clipPath(getOuterPath(rect, null));
             }
 
-            canvas.drawLine(rect.bottomLeft, rect.bottomRight, this.borderSide.toPaint());
+            canvas.drawLine(rect.bottomLeft, rect.bottomRight, borderSide.toPaint());
         }
 
         public static bool operator ==(UnderlineInputBorder left, UnderlineInputBorder right) {
@@ -167,7 +171,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public bool Equals(UnderlineInputBorder other) {
-            return this.borderSide == other.borderSide;
+            return borderSide == other.borderSide;
         }
         
         public override bool Equals(object obj) {
@@ -177,14 +181,14 @@ namespace Unity.UIWidgets.material {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
-            return this.Equals((UnderlineInputBorder) obj);
+            return Equals((UnderlineInputBorder) obj);
         }
 
         public override int GetHashCode() {
-            return this.borderSide.GetHashCode();
+            return borderSide.GetHashCode();
         }
     }
 
@@ -229,20 +233,20 @@ namespace Unity.UIWidgets.material {
         public override InputBorder copyWith(BorderSide borderSide) {
             return new OutlineInputBorder(
                 borderSide: borderSide ?? this.borderSide,
-                borderRadius: this.borderRadius,
-                gapPadding: this.gapPadding
+                borderRadius: borderRadius,
+                gapPadding: gapPadding
             );
         }
 
-        public override EdgeInsets dimensions {
-            get { return EdgeInsets.all(this.borderSide.width); }
+        public override EdgeInsetsGeometry dimensions {
+            get { return EdgeInsets.all(borderSide.width); }
         }
 
         public override ShapeBorder scale(float t) {
             return new OutlineInputBorder(
-                borderSide: this.borderSide.scale(t),
-                borderRadius: this.borderRadius * t,
-                gapPadding: this.gapPadding * t
+                borderSide: borderSide.scale(t),
+                borderRadius: (BorderRadius)(borderRadius * t),
+                gapPadding: gapPadding * t
             );
         }
 
@@ -250,8 +254,8 @@ namespace Unity.UIWidgets.material {
             if (a is OutlineInputBorder) {
                 OutlineInputBorder outline = a as OutlineInputBorder;
                 return new OutlineInputBorder(
-                    borderRadius: BorderRadius.lerp(outline.borderRadius, this.borderRadius, t),
-                    borderSide: BorderSide.lerp(outline.borderSide, this.borderSide, t),
+                    borderRadius: BorderRadius.lerp(outline.borderRadius, borderRadius, t),
+                    borderSide: BorderSide.lerp(outline.borderSide, borderSide, t),
                     gapPadding: outline.gapPadding
                 );
             }
@@ -263,8 +267,8 @@ namespace Unity.UIWidgets.material {
             if (b is OutlineInputBorder) {
                 OutlineInputBorder outline = b as OutlineInputBorder;
                 return new OutlineInputBorder(
-                    borderRadius: BorderRadius.lerp(this.borderRadius, outline.borderRadius, t),
-                    borderSide: BorderSide.lerp(this.borderSide, outline.borderSide, t),
+                    borderRadius: BorderRadius.lerp(borderRadius, outline.borderRadius, t),
+                    borderSide: BorderSide.lerp(borderSide, outline.borderSide, t),
                     gapPadding: outline.gapPadding
                 );
             }
@@ -272,76 +276,77 @@ namespace Unity.UIWidgets.material {
             return base.lerpTo(b, t);
         }
 
-        public override Path getInnerPath(Rect rect) {
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
-            path.addRRect(this.borderRadius.toRRect(rect).deflate(this.borderSide.width));
+            path.addRRect(borderRadius.toRRect(rect).deflate(borderSide.width));
             return path;
         }
 
-        public override Path getOuterPath(Rect rect) {
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection) {
             Path path = new Path();
-            path.addRRect(this.borderRadius.toRRect(rect));
+            path.addRRect(borderRadius.toRRect(rect));
             return path;
         }
 
         Path _gapBorderPath(Canvas canvas, RRect center, float start, float extent) {
+             RRect scaledRRect = center.scaleRadii();
             Rect tlCorner = Rect.fromLTWH(
-                center.left,
-                center.top,
-                center.tlRadiusX * 2.0f,
-                center.tlRadiusY * 2.0f
+                scaledRRect.left,
+                scaledRRect.top,
+                scaledRRect.tlRadiusX * 2.0f,
+                scaledRRect.tlRadiusY * 2.0f
             );
             Rect trCorner = Rect.fromLTWH(
-                center.right - center.trRadiusX * 2.0f,
-                center.top,
-                center.trRadiusX * 2.0f,
-                center.trRadiusY * 2.0f
+                scaledRRect.right - scaledRRect.trRadiusX * 2.0f,
+                scaledRRect.top,
+                scaledRRect.trRadiusX * 2.0f,
+                scaledRRect.trRadiusY * 2.0f
             );
             Rect brCorner = Rect.fromLTWH(
-                center.right - center.brRadiusX * 2.0f,
-                center.bottom - center.brRadiusY * 2.0f,
-                center.brRadiusX * 2.0f,
-                center.brRadiusY * 2.0f
+                scaledRRect.right - scaledRRect.brRadiusX * 2.0f,
+                scaledRRect.bottom - scaledRRect.brRadiusY * 2.0f,
+                scaledRRect.brRadiusX * 2.0f,
+                scaledRRect.brRadiusY * 2.0f
             );
             Rect blCorner = Rect.fromLTWH(
-                center.left,
-                center.bottom - center.brRadiusY * 2.0f,
-                center.blRadiusX * 2.0f,
-                center.blRadiusY * 2.0f
+                scaledRRect.left,
+                scaledRRect.bottom - scaledRRect.brRadiusY * 2.0f,
+                scaledRRect.blRadiusX * 2.0f,
+                scaledRRect.blRadiusY * 2.0f
             );
 
             const float cornerArcSweep = Mathf.PI / 2.0f;
-            float tlCornerArcSweep = start < center.tlRadiusX
-                ? Mathf.Asin((start / center.tlRadiusX).clamp(-1.0f, 1.0f))
+            float tlCornerArcSweep = start < scaledRRect.tlRadiusX
+                ? Mathf.Asin((start / scaledRRect.tlRadiusX).clamp(-1.0f, 1.0f))
                 : Mathf.PI / 2.0f;
 
             Path path = new Path();
             path.addArc(tlCorner, Mathf.PI, tlCornerArcSweep);
-            path.moveTo(center.left + center.tlRadiusX, center.top);
+            path.moveTo(scaledRRect.left + scaledRRect.tlRadiusX, scaledRRect.top);
 
-            if (start > center.tlRadiusX) {
-                path.lineTo(center.left + start, center.top);
+            if (start > scaledRRect.tlRadiusX) {
+                path.lineTo(scaledRRect.left + start, scaledRRect.top);
             }
 
             const float trCornerArcStart = (3 * Mathf.PI) / 2.0f;
             const float trCornerArcSweep = cornerArcSweep;
-            if (start + extent < center.width - center.trRadiusX) {
+            if (start + extent < scaledRRect.width - scaledRRect.trRadiusX) {
                 path.relativeMoveTo(extent, 0.0f);
-                path.lineTo(center.right - center.trRadiusX, center.top);
+                path.lineTo(scaledRRect.right - scaledRRect.trRadiusX, scaledRRect.top);
                 path.addArc(trCorner, trCornerArcStart, trCornerArcSweep);
             }
-            else if (start + extent < center.width) {
-                float dx = center.width - (start + extent);
-                float sweep = Mathf.Acos(dx / center.trRadiusX);
+            else if (start + extent < scaledRRect.width) {
+                float dx = scaledRRect.width - (start + extent);
+                float sweep = Mathf.Acos(dx / scaledRRect.trRadiusX);
                 path.addArc(trCorner, trCornerArcStart + sweep, trCornerArcSweep - sweep);
             }
 
-            path.moveTo(center.right, center.top + center.trRadiusY);
-            path.lineTo(center.right, center.bottom - center.brRadiusY);
+            path.moveTo(scaledRRect.right, scaledRRect.top + scaledRRect.trRadiusY);
+            path.lineTo(scaledRRect.right, scaledRRect.bottom - scaledRRect.brRadiusY);
             path.addArc(brCorner, 0.0f, cornerArcSweep);
-            path.lineTo(center.left + center.blRadiusX, center.bottom);
+            path.lineTo(scaledRRect.left + scaledRRect.blRadiusX, scaledRRect.bottom);
             path.addArc(blCorner, Mathf.PI / 2.0f, cornerArcSweep);
-            path.lineTo(center.left, center.top + center.trRadiusY);
+            path.lineTo(scaledRRect.left, scaledRRect.top + scaledRRect.trRadiusY);
             return path;
         }
 
@@ -351,17 +356,17 @@ namespace Unity.UIWidgets.material {
             float gapPercentage = 0.0f
         ) {
             D.assert(gapPercentage >= 0.0f && gapPercentage <= 1.0f);
-            D.assert(_cornersAreCircular(this.borderRadius));
+            D.assert(_cornersAreCircular(borderRadius));
 
-            Paint paint = this.borderSide.toPaint();
-            RRect outer = this.borderRadius.toRRect(rect);
-            RRect center = outer.deflate(this.borderSide.width / 2.0f);
+            Paint paint = borderSide.toPaint();
+            RRect outer = borderRadius.toRRect(rect);
+            RRect center = outer.deflate(borderSide.width / 2.0f);
             if (gapExtent <= 0.0f || gapPercentage == 0.0f) {
                 canvas.drawRRect(center, paint);
             }
             else {
-                float extent = MathUtils.lerpFloat(0.0f, gapExtent + this.gapPadding * 2.0f, gapPercentage);
-                Path path = this._gapBorderPath(canvas, center, Mathf.Max(0.0f,gapStart - this.gapPadding), extent);
+                float extent = MathUtils.lerpNullableFloat(0.0f, gapExtent + gapPadding * 2.0f, gapPercentage);
+                Path path = _gapBorderPath(canvas, center, Mathf.Max(0.0f,gapStart - gapPadding), extent);
                 canvas.drawPath(path, paint);
             }
         }
@@ -381,22 +386,22 @@ namespace Unity.UIWidgets.material {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
-            return this.Equals((OutlineInputBorder) obj);
+            return Equals((OutlineInputBorder) obj);
         }
 
         public bool Equals(OutlineInputBorder other) {
-            return other.borderSide == this.borderSide
-                   && other.borderRadius == this.borderRadius
-                   && other.gapPadding == this.gapPadding;
+            return other.borderSide == borderSide
+                   && other.borderRadius == borderRadius
+                   && other.gapPadding == gapPadding;
         }
 
         public override int GetHashCode() {
-            var hashCode = this.borderSide.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.borderRadius.GetHashCode();
-            hashCode = (hashCode * 397) ^ this.gapPadding.GetHashCode();
+            var hashCode = borderSide.GetHashCode();
+            hashCode = (hashCode * 397) ^ borderRadius.GetHashCode();
+            hashCode = (hashCode * 397) ^ gapPadding.GetHashCode();
             return hashCode;
         }
     }

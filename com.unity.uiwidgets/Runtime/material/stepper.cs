@@ -1,10 +1,10 @@
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -97,7 +97,7 @@ namespace Unity.UIWidgets.material {
         static readonly Color _kCircleActiveLight = Colors.white;
         static readonly Color _kCircleActiveDark = Colors.black87;
         static readonly Color _kDisabledLight = Colors.black38;
-        static readonly Color _kDisabledDark = Colors.white30;
+        static readonly Color _kDisabledDark = Colors.white38;
         static readonly float _kStepSize = 24.0f;
         static readonly float _kTriangleHeight = 24.0f * 0.866025f;
 
@@ -106,20 +106,20 @@ namespace Unity.UIWidgets.material {
 
         public override void initState() {
             base.initState();
-            this._keys = new List<GlobalKey>();
-            for (int i = 0; i < this.widget.steps.Count; i++) {
-                this._keys.Add(GlobalKey.key());
-                this._oldStates[i] = this.widget.steps[i].state;
+            _keys = new List<GlobalKey>();
+            for (int i = 0; i < widget.steps.Count; i++) {
+                _keys.Add(GlobalKey.key());
+                _oldStates[i] = widget.steps[i].state;
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             Stepper _oldWidget = (Stepper) oldWidget;
-            D.assert(this.widget.steps.Count == _oldWidget.steps.Count);
+            D.assert(widget.steps.Count == _oldWidget.steps.Count);
 
             for (int i = 0; i < _oldWidget.steps.Count; i++) {
-                this._oldStates[i] = _oldWidget.steps[i].state;
+                _oldStates[i] = _oldWidget.steps[i].state;
             }
         }
 
@@ -128,15 +128,15 @@ namespace Unity.UIWidgets.material {
         }
 
         bool _isLast(int index) {
-            return this.widget.steps.Count - 1 == index;
+            return widget.steps.Count - 1 == index;
         }
 
         bool _isCurrent(int index) {
-            return this.widget.currentStep == index;
+            return widget.currentStep == index;
         }
 
         bool _isDark() {
-            return Theme.of(this.context).brightness == Brightness.dark;
+            return Theme.of(context).brightness == Brightness.dark;
         }
 
         Widget _buildLine(bool visible) {
@@ -148,8 +148,8 @@ namespace Unity.UIWidgets.material {
         }
 
         Widget _buildCircleChild(int index, bool oldState) {
-            StepState state = oldState ? this._oldStates[index] : this.widget.steps[index].state;
-            bool isDarkActive = this._isDark() && this.widget.steps[index].isActive;
+            StepState state = oldState ? _oldStates[index] : widget.steps[index].state;
+            bool isDarkActive = _isDark() && widget.steps[index].isActive;
 
             switch (state) {
                 case StepState.indexed:
@@ -181,12 +181,12 @@ namespace Unity.UIWidgets.material {
         }
 
         Color _circleColor(int index) {
-            ThemeData themeData = Theme.of(this.context);
-            if (this._isDark()) {
-                return this.widget.steps[index].isActive ? themeData.primaryColor : Colors.black38;
+            ThemeData themeData = Theme.of(context);
+            if (_isDark()) {
+                return widget.steps[index].isActive ? themeData.primaryColor : Colors.black38;
             }
             else {
-                return this.widget.steps[index].isActive ? themeData.accentColor : themeData.backgroundColor;
+                return widget.steps[index].isActive ? themeData.accentColor : themeData.backgroundColor;
             }
         }
 
@@ -199,12 +199,12 @@ namespace Unity.UIWidgets.material {
                     curve: Curves.fastOutSlowIn,
                     duration: ThemeUtils.kThemeAnimationDuration,
                     decoration: new BoxDecoration(
-                        color: this._circleColor(index),
+                        color: _circleColor(index),
                         shape: BoxShape.circle
                     ),
                     child: new Center(
-                        child: this._buildCircleChild(index,
-                            oldState && this.widget.steps[index].state == StepState.error
+                        child: _buildCircleChild(index,
+                            oldState && widget.steps[index].state == StepState.error
                         )
                     )
                 )
@@ -222,11 +222,11 @@ namespace Unity.UIWidgets.material {
                         height: _kTriangleHeight,
                         child: new CustomPaint(
                             painter: new _TrianglePainter(
-                                color: this._isDark() ? _kErrorDark : _kErrorLight),
+                                color: _isDark() ? _kErrorDark : _kErrorLight),
                             child: new Align(
                                 alignment: new Alignment(0.0f, 0.8f),
-                                child: this._buildCircleChild(index,
-                                    oldState && this.widget.steps[index].state != StepState.error)
+                                child: _buildCircleChild(index,
+                                    oldState && widget.steps[index].state != StepState.error)
                             )
                         )
                     )
@@ -235,41 +235,41 @@ namespace Unity.UIWidgets.material {
         }
 
         Widget _buildIcon(int index) {
-            if (this.widget.steps[index].state != this._oldStates[index]) {
+            if (widget.steps[index].state != _oldStates[index]) {
                 return new AnimatedCrossFade(
-                    firstChild: this._buildCircle(index, true),
-                    secondChild: this._buildTriangle(index, true),
+                    firstChild: _buildCircle(index, true),
+                    secondChild: _buildTriangle(index, true),
                     firstCurve: new Interval(0.0f, 0.6f, curve: Curves.fastOutSlowIn),
                     secondCurve: new Interval(0.4f, 1.0f, curve: Curves.fastOutSlowIn),
                     sizeCurve: Curves.fastOutSlowIn,
-                    crossFadeState: this.widget.steps[index].state == StepState.error
+                    crossFadeState: widget.steps[index].state == StepState.error
                         ? CrossFadeState.showSecond
                         : CrossFadeState.showFirst,
                     duration: ThemeUtils.kThemeAnimationDuration
                 );
             }
             else {
-                if (this.widget.steps[index].state != StepState.error) {
-                    return this._buildCircle(index, false);
+                if (widget.steps[index].state != StepState.error) {
+                    return _buildCircle(index, false);
                 }
                 else {
-                    return this._buildTriangle(index, false);
+                    return _buildTriangle(index, false);
                 }
             }
         }
 
         Widget _buildVerticalControls() {
-            if (this.widget.controlsBuilder != null) {
-                return this.widget.controlsBuilder(
-                    this.context,
-                    onStepContinue: this.widget.onStepContinue,
-                    onStepCancel: this.widget.onStepCancel
+            if (widget.controlsBuilder != null) {
+                return widget.controlsBuilder(
+                    context,
+                    onStepContinue: widget.onStepContinue,
+                    onStepCancel: widget.onStepCancel
                 );
             }
 
             Color cancelColor = null;
 
-            switch (Theme.of(this.context).brightness) {
+            switch (Theme.of(context).brightness) {
                 case Brightness.light:
                     cancelColor = Colors.black54;
                     break;
@@ -280,8 +280,8 @@ namespace Unity.UIWidgets.material {
 
             D.assert(cancelColor != null);
 
-            ThemeData themeData = Theme.of(this.context);
-            MaterialLocalizations localizations = MaterialLocalizations.of(this.context);
+            ThemeData themeData = Theme.of(context);
+            MaterialLocalizations localizations = MaterialLocalizations.of(context);
 
             return new Container(
                 margin: EdgeInsets.only(top: 16.0f),
@@ -290,8 +290,8 @@ namespace Unity.UIWidgets.material {
                     child: new Row(
                         children: new List<Widget> {
                             new FlatButton(
-                                onPressed: this.widget.onStepContinue,
-                                color: this._isDark() ? themeData.backgroundColor : themeData.primaryColor,
+                                onPressed: widget.onStepContinue,
+                                color: _isDark() ? themeData.backgroundColor : themeData.primaryColor,
                                 textColor: Colors.white,
                                 textTheme: ButtonTextTheme.normal,
                                 child: new Text(localizations.continueButtonLabel)
@@ -299,7 +299,7 @@ namespace Unity.UIWidgets.material {
                             new Container(
                                 margin: EdgeInsets.only(8.0f),
                                 child: new FlatButton(
-                                    onPressed: this.widget.onStepCancel,
+                                    onPressed: widget.onStepCancel,
                                     textColor: cancelColor,
                                     textTheme: ButtonTextTheme.normal,
                                     child: new Text(localizations.cancelButtonLabel)
@@ -312,21 +312,21 @@ namespace Unity.UIWidgets.material {
         }
 
         TextStyle _titleStyle(int index) {
-            ThemeData themeData = Theme.of(this.context);
+            ThemeData themeData = Theme.of(context);
             TextTheme textTheme = themeData.textTheme;
 
-            switch (this.widget.steps[index].state) {
+            switch (widget.steps[index].state) {
                 case StepState.indexed:
                 case StepState.editing:
                 case StepState.complete:
-                    return textTheme.body2;
+                    return textTheme.bodyText1;
                 case StepState.disabled:
-                    return textTheme.body2.copyWith(
-                        color: this._isDark() ? _kDisabledDark : _kDisabledLight
+                    return textTheme.bodyText1.copyWith(
+                        color: _isDark() ? _kDisabledDark : _kDisabledLight
                     );
                 case StepState.error:
-                    return textTheme.body2.copyWith(
-                        color: this._isDark() ? _kErrorDark : _kErrorLight
+                    return textTheme.bodyText1.copyWith(
+                        color: _isDark() ? _kErrorDark : _kErrorLight
                     );
             }
 
@@ -334,46 +334,46 @@ namespace Unity.UIWidgets.material {
         }
 
         TextStyle _subTitleStyle(int index) {
-            ThemeData themeData = Theme.of(this.context);
+            ThemeData themeData = Theme.of(context);
             TextTheme textTheme = themeData.textTheme;
 
-            switch (this.widget.steps[index].state) {
+            switch (widget.steps[index].state) {
                 case StepState.indexed:
                 case StepState.editing:
                 case StepState.complete:
                     return textTheme.caption;
                 case StepState.disabled:
                     return textTheme.caption.copyWith(
-                        color: this._isDark() ? _kDisabledDark : _kDisabledLight
+                        color: _isDark() ? _kDisabledDark : _kDisabledLight
                     );
                 case StepState.error:
                     return textTheme.caption.copyWith(
-                        color: this._isDark() ? _kErrorDark : _kErrorLight
+                        color: _isDark() ? _kErrorDark : _kErrorLight
                     );
             }
 
             return null;
         }
 
-        Widget _buildheaderText(int index) {
+        Widget _buildHeaderText(int index) {
             List<Widget> children = new List<Widget> {
                 new AnimatedDefaultTextStyle(
-                    style: this._titleStyle(index),
+                    style: _titleStyle(index),
                     duration: ThemeUtils.kThemeAnimationDuration,
                     curve: Curves.fastOutSlowIn,
-                    child: this.widget.steps[index].title
+                    child: widget.steps[index].title
                 )
             };
 
-            if (this.widget.steps[index].subtitle != null) {
+            if (widget.steps[index].subtitle != null) {
                 children.Add(
                     new Container(
                         margin: EdgeInsets.only(top: 2.0f),
                         child: new AnimatedDefaultTextStyle(
-                            style: this._subTitleStyle(index),
+                            style: _subTitleStyle(index),
                             duration: ThemeUtils.kThemeAnimationDuration,
                             curve: Curves.fastOutSlowIn,
-                            child: this.widget.steps[index].subtitle
+                            child: widget.steps[index].subtitle
                         )
                     )
                 );
@@ -393,14 +393,14 @@ namespace Unity.UIWidgets.material {
                     children: new List<Widget> {
                         new Column(
                             children: new List<Widget> {
-                                this._buildLine(!this._isFirst(index)),
-                                this._buildIcon(index),
-                                this._buildLine(!this._isLast(index))
+                                _buildLine(!_isFirst(index)),
+                                _buildIcon(index),
+                                _buildLine(!_isLast(index))
                             }
                         ),
                         new Container(
                             margin: EdgeInsets.only(12.0f),
-                            child: this._buildheaderText(index)
+                            child: _buildHeaderText(index)
                         )
                     }
                 )
@@ -418,7 +418,7 @@ namespace Unity.UIWidgets.material {
                             width: 24.0f,
                             child: new Center(
                                 child: new SizedBox(
-                                    width: this._isLast(index) ? 0.0f : 1.0f,
+                                    width: _isLast(index) ? 0.0f : 1.0f,
                                     child: new Container(
                                         color: Colors.grey.shade400)
                                 )
@@ -435,15 +435,15 @@ namespace Unity.UIWidgets.material {
                             ),
                             child: new Column(
                                 children: new List<Widget> {
-                                    this.widget.steps[index].content,
-                                    this._buildVerticalControls()
+                                    widget.steps[index].content,
+                                    _buildVerticalControls()
                                 }
                             )
                         ),
                         firstCurve: new Interval(0.0f, 0.6f, Curves.fastOutSlowIn),
                         secondCurve: new Interval(0.4f, 1.0f, Curves.fastOutSlowIn),
                         sizeCurve: Curves.fastOutSlowIn,
-                        crossFadeState: this._isCurrent(index) ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                        crossFadeState: _isCurrent(index) ? CrossFadeState.showSecond : CrossFadeState.showFirst,
                         duration: ThemeUtils.kThemeAnimationDuration
                     )
                 }
@@ -453,29 +453,30 @@ namespace Unity.UIWidgets.material {
         Widget _buildVertical() {
             List<Widget> children = new List<Widget>();
 
-            for (int i = 0; i < this.widget.steps.Count; i++) {
+            for (int i = 0; i < widget.steps.Count; i++) {
                 int _i = i;
                 children.Add(
                     new Column(
-                        key: this._keys[_i],
+                        key: _keys[_i],
                         children: new List<Widget> {
                             new InkWell(
-                                onTap: this.widget.steps[_i].state != StepState.disabled
+                                onTap: widget.steps[_i].state != StepState.disabled
                                     ? () => {
                                         Scrollable.ensureVisible(
-                                            this._keys[_i].currentContext,
+                                            _keys[_i].currentContext,
                                             curve: Curves.fastOutSlowIn,
                                             duration: ThemeUtils.kThemeAnimationDuration
                                         );
 
-                                        if (this.widget.onStepTapped != null) {
-                                            this.widget.onStepTapped(_i);
+                                        if (widget.onStepTapped != null) {
+                                            widget.onStepTapped(_i);
                                         }
                                     }
                                     : (GestureTapCallback) null,
-                                child: this._buildVerticalHeader(_i)
+                                canRequestFocus: widget.steps[_i].state != StepState.disabled,
+                                child: _buildVerticalHeader(_i)
                             ),
-                            this._buildVerticalBody(_i)
+                            _buildVerticalBody(_i)
                         }
                     )
                 );
@@ -490,34 +491,35 @@ namespace Unity.UIWidgets.material {
         Widget _buildHorizontal() {
             List<Widget> children = new List<Widget>();
 
-            for (int i = 0; i < this.widget.steps.Count; i++) {
+            for (int i = 0; i < widget.steps.Count; i++) {
                 int _i = i;
                 children.Add(
                     new InkResponse(
-                        onTap: this.widget.steps[_i].state != StepState.disabled
+                        onTap: widget.steps[_i].state != StepState.disabled
                             ? new GestureTapCallback(
                                 () => {
-                                    if (this.widget.onStepTapped != null) {
-                                        this.widget.onStepTapped(_i);
+                                    if (widget.onStepTapped != null) {
+                                        widget.onStepTapped(_i);
                                     }
                                 })
                             : null,
+                        canRequestFocus: widget.steps[i].state != StepState.disabled,
                         child: new Row(
                             children: new List<Widget> {
                                 new Container(
                                     height: 72.0f,
-                                    child: new Center(child: this._buildIcon(_i))
+                                    child: new Center(child: _buildIcon(_i))
                                 ),
                                 new Container(
                                     margin: EdgeInsets.only(left: 12.0f),
-                                    child: this._buildheaderText(_i)
+                                    child: _buildHeaderText(_i)
                                 )
                             }
                         )
                     )
                 );
 
-                if (!this._isLast(_i)) {
+                if (!_isLast(_i)) {
                     children.Add(
                         new Expanded(
                             child: new Container(
@@ -547,9 +549,9 @@ namespace Unity.UIWidgets.material {
                                     curve: Curves.fastOutSlowIn,
                                     duration: ThemeUtils.kThemeAnimationDuration,
                                     vsync: this,
-                                    child: this.widget.steps[this.widget.currentStep].content
+                                    child: widget.steps[widget.currentStep].content
                                 ),
-                                this._buildVerticalControls()
+                                _buildVerticalControls()
                             }
                         )
                     )
@@ -558,23 +560,26 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            D.assert(MaterialD.debugCheckHasMaterial(context));
-            D.assert(MaterialD.debugCheckHasMaterialLocalizations(context));
+            D.assert(material_.debugCheckHasMaterial(context));
+            D.assert(material_.debugCheckHasMaterialLocalizations(context));
             D.assert(() => {
-                if (context.ancestorWidgetOfExactType(typeof(Stepper)) != null) {
+                if (context.findAncestorWidgetOfExactType<Stepper>() != null) {
                     throw new UIWidgetsError(
-                        "Steppers must not be nested. The material specification advises that one should avoid embedding steppers within steppers. "
+                        "Steppers must not be nested.\n" +
+                        " The material specification advises that one should avoid embedding " +
+                        "steppers within steppers. " +
+                        "https://material.io/archive/guidelines/components/steppers.html#steppers-usage"
                     );
                 }
 
                 return true;
             });
 
-            switch (this.widget.type) {
+            switch (widget.type) {
                 case StepperType.vertical:
-                    return this._buildVertical();
+                    return _buildVertical();
                 case StepperType.horizontal:
-                    return this._buildHorizontal();
+                    return _buildHorizontal();
             }
 
             return null;
@@ -595,7 +600,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override bool shouldRepaint(CustomPainter oldPainter) {
-            return ((_TrianglePainter) oldPainter).color != this.color;
+            return ((_TrianglePainter) oldPainter).color != color;
         }
 
         public override void paint(Canvas canvas, Size size) {
@@ -611,7 +616,7 @@ namespace Unity.UIWidgets.material {
             Path newPath = new Path();
             newPath.addPolygon(points, true);
             Paint newPaint = new Paint();
-            newPaint.color = this.color;
+            newPaint.color = color;
             canvas.drawPath(newPath, newPaint);
         }
     }

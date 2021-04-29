@@ -1,4 +1,5 @@
 using System;
+using uiwidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -21,18 +22,20 @@ namespace Unity.UIWidgets.material {
         padded
     }
 
-    public class ButtonTheme : InheritedWidget {
+    public class ButtonTheme : InheritedTheme {
         public ButtonTheme(
             Key key = null,
             ButtonTextTheme textTheme = ButtonTextTheme.normal,
             ButtonBarLayoutBehavior layoutBehavior = ButtonBarLayoutBehavior.padded,
             float minWidth = 88.0f,
             float height = 36.0f,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             bool alignedDropdown = false,
             Color buttonColor = null,
             Color disabledColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             ColorScheme colorScheme = null,
@@ -40,7 +43,7 @@ namespace Unity.UIWidgets.material {
             Widget child = null) : base(key: key, child: child) {
             D.assert(minWidth >= 0.0);
             D.assert(height >= 0.0);
-            this.data = new ButtonThemeData(
+            data = new ButtonThemeData(
                 textTheme: textTheme,
                 minWidth: minWidth,
                 height: height,
@@ -50,6 +53,8 @@ namespace Unity.UIWidgets.material {
                 layoutBehavior: layoutBehavior,
                 buttonColor: buttonColor,
                 disabledColor: disabledColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 highlightColor: highlightColor,
                 splashColor: splashColor,
                 colorScheme: colorScheme,
@@ -76,11 +81,13 @@ namespace Unity.UIWidgets.material {
             ButtonTextTheme textTheme = ButtonTextTheme.accent,
             float minWidth = 64.0f,
             float height = 36.0f,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             bool alignedDropdown = false,
             Color buttonColor = null,
             Color disabledColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             ColorScheme colorScheme = null,
@@ -99,6 +106,8 @@ namespace Unity.UIWidgets.material {
                 layoutBehavior: layoutBehavior,
                 buttonColor: buttonColor,
                 disabledColor: disabledColor,
+                focusColor: focusColor,
+                hoverColor: hoverColor,
                 highlightColor: highlightColor,
                 splashColor: splashColor,
                 colorScheme: colorScheme
@@ -109,7 +118,7 @@ namespace Unity.UIWidgets.material {
         public readonly ButtonThemeData data;
 
         public static ButtonThemeData of(BuildContext context) {
-            ButtonTheme inheritedButtonTheme = (ButtonTheme) context.inheritFromWidgetOfExactType(typeof(ButtonTheme));
+            ButtonTheme inheritedButtonTheme = (ButtonTheme) context.dependOnInheritedWidgetOfExactType<ButtonTheme>();
             ButtonThemeData buttonTheme = inheritedButtonTheme?.data;
             if (buttonTheme?.colorScheme == null) {
                 ThemeData theme = Theme.of(context);
@@ -124,8 +133,15 @@ namespace Unity.UIWidgets.material {
             return buttonTheme;
         }
 
+        public override Widget wrap(BuildContext context, Widget child) {
+            ButtonTheme ancestorTheme = context.findAncestorWidgetOfExactType<ButtonTheme>();
+            return ReferenceEquals(this, ancestorTheme)
+                ? child
+                : ButtonTheme.fromButtonThemeData(data: data, child: child);
+        }
+
         public override bool updateShouldNotify(InheritedWidget oldWidget) {
-            return this.data != ((ButtonTheme) oldWidget).data;
+            return data != ((ButtonTheme) oldWidget).data;
         }
     }
 
@@ -135,12 +151,14 @@ namespace Unity.UIWidgets.material {
             ButtonTextTheme textTheme = ButtonTextTheme.normal,
             float minWidth = 88.0f,
             float height = 36.0f,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             ButtonBarLayoutBehavior layoutBehavior = ButtonBarLayoutBehavior.padded,
             bool alignedDropdown = false,
             Color buttonColor = null,
             Color disabledColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             ColorScheme colorScheme = null,
@@ -154,13 +172,15 @@ namespace Unity.UIWidgets.material {
             this.layoutBehavior = layoutBehavior;
             this.alignedDropdown = alignedDropdown;
             this.colorScheme = colorScheme;
-            this._buttonColor = buttonColor;
-            this._disabledColor = disabledColor;
-            this._highlightColor = highlightColor;
-            this._splashColor = splashColor;
-            this._padding = padding;
-            this._shape = shape;
-            this._materialTapTargetSize = materialTapTargetSize;
+            _buttonColor = buttonColor;
+            _disabledColor = disabledColor;
+            _focusColor = focusColor;
+            _hoverColor = hoverColor;
+            _highlightColor = highlightColor;
+            _splashColor = splashColor;
+            _padding = padding;
+            _shape = shape;
+            _materialTapTargetSize = materialTapTargetSize;
         }
 
 
@@ -174,18 +194,18 @@ namespace Unity.UIWidgets.material {
 
         public BoxConstraints constraints {
             get {
-                return new BoxConstraints(minWidth: this.minWidth,
-                    minHeight: this.height);
+                return new BoxConstraints(minWidth: minWidth,
+                    minHeight: height);
             }
         }
 
-        public EdgeInsets padding {
+        public EdgeInsetsGeometry padding {
             get {
-                if (this._padding != null) {
-                    return this._padding;
+                if (_padding != null) {
+                    return _padding;
                 }
 
-                switch (this.textTheme) {
+                switch (textTheme) {
                     case ButtonTextTheme.normal:
                     case ButtonTextTheme.accent:
                         return EdgeInsets.symmetric(horizontal: 16.0f);
@@ -198,15 +218,15 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        readonly EdgeInsets _padding;
+        readonly EdgeInsetsGeometry _padding;
 
         public ShapeBorder shape {
             get {
-                if (this._shape != null) {
-                    return this._shape;
+                if (_shape != null) {
+                    return _shape;
                 }
 
-                switch (this.textTheme) {
+                switch (textTheme) {
                     case ButtonTextTheme.normal:
                     case ButtonTextTheme.accent:
                         return new RoundedRectangleBorder(
@@ -228,6 +248,10 @@ namespace Unity.UIWidgets.material {
 
         readonly Color _disabledColor;
 
+        readonly Color _focusColor;
+
+        readonly Color _hoverColor;
+
         readonly Color _highlightColor;
 
         readonly Color _splashColor;
@@ -237,26 +261,21 @@ namespace Unity.UIWidgets.material {
         readonly MaterialTapTargetSize? _materialTapTargetSize;
 
         public Brightness getBrightness(MaterialButton button) {
-            return button.colorBrightness ?? this.colorScheme.brightness;
+            return button.colorBrightness ?? colorScheme.brightness;
         }
 
         public ButtonTextTheme getTextTheme(MaterialButton button) {
-            return button.textTheme ?? this.textTheme;
+            return button.textTheme ?? textTheme;
         }
-
-        Color _getDisabledColor(MaterialButton button) {
-            return this.getBrightness(button) == Brightness.dark
-                ? this.colorScheme.onSurface.withOpacity(0.30f)
-                : this.colorScheme.onSurface.withOpacity(0.38f);
-        }
-
 
         public Color getDisabledTextColor(MaterialButton button) {
+            if (button.textColor is MaterialStateProperty<Color>)
+                return button.textColor;
             if (button.disabledTextColor != null) {
                 return button.disabledTextColor;
             }
 
-            return this._getDisabledColor(button);
+            return colorScheme.onSurface.withOpacity(0.38f);
         }
 
 
@@ -265,11 +284,11 @@ namespace Unity.UIWidgets.material {
                 return button.disabledColor;
             }
 
-            if (this._disabledColor != null) {
-                return this._disabledColor;
+            if (_disabledColor != null) {
+                return _disabledColor;
             }
 
-            return this._getDisabledColor(button);
+            return colorScheme.onSurface.withOpacity(0.38f);
         }
 
 
@@ -284,18 +303,18 @@ namespace Unity.UIWidgets.material {
             }
 
 
-            if (button.enabled && button is RaisedButton && this._buttonColor != null) {
-                return this._buttonColor;
+            if (button.enabled && button is RaisedButton && _buttonColor != null) {
+                return _buttonColor;
             }
 
-            switch (this.getTextTheme(button)) {
+            switch (getTextTheme(button)) {
                 case ButtonTextTheme.normal:
                 case ButtonTextTheme.accent:
-                    return button.enabled ? this.colorScheme.primary : this.getDisabledFillColor(button);
+                    return button.enabled ? colorScheme.primary : getDisabledFillColor(button);
                 case ButtonTextTheme.primary:
                     return button.enabled
-                        ? this._buttonColor ?? this.colorScheme.primary
-                        : this.colorScheme.onSurface.withOpacity(0.12f);
+                        ? _buttonColor ?? colorScheme.primary
+                        : colorScheme.onSurface.withOpacity(0.12f);
             }
 
             D.assert(false);
@@ -304,29 +323,29 @@ namespace Unity.UIWidgets.material {
 
         public Color getTextColor(MaterialButton button) {
             if (!button.enabled) {
-                return this.getDisabledTextColor(button);
+                return getDisabledTextColor(button);
             }
 
             if (button.textColor != null) {
                 return button.textColor;
             }
 
-            switch (this.getTextTheme(button)) {
+            switch (getTextTheme(button)) {
                 case ButtonTextTheme.normal:
-                    return this.getBrightness(button) == Brightness.dark ? Colors.white : Colors.black87;
+                    return getBrightness(button) == Brightness.dark ? Colors.white : Colors.black87;
                 case ButtonTextTheme.accent:
-                    return this.colorScheme.secondary;
+                    return colorScheme.secondary;
                 case ButtonTextTheme.primary: {
-                    Color fillColor = this.getFillColor(button);
+                    Color fillColor = getFillColor(button);
                     bool fillIsDark = fillColor != null
                         ? ThemeData.estimateBrightnessForColor(fillColor) == Brightness.dark
-                        : this.getBrightness(button) == Brightness.dark;
+                        : getBrightness(button) == Brightness.dark;
                     if (fillIsDark) {
                         return Colors.white;
                     }
 
                     if (button is FlatButton || button is OutlineButton) {
-                        return this.colorScheme.primary;
+                        return colorScheme.primary;
                     }
 
                     return Colors.black;
@@ -342,21 +361,29 @@ namespace Unity.UIWidgets.material {
                 return button.splashColor;
             }
 
-            if (this._splashColor != null && (button is RaisedButton || button is OutlineButton)) {
-                return this._splashColor;
+            if (_splashColor != null && (button is RaisedButton || button is OutlineButton)) {
+                return _splashColor;
             }
 
-            if (this._splashColor != null && button is FlatButton) {
-                switch (this.getTextTheme(button)) {
+            if (_splashColor != null && button is FlatButton) {
+                switch (getTextTheme(button)) {
                     case ButtonTextTheme.normal:
                     case ButtonTextTheme.accent:
-                        return this._splashColor;
+                        return _splashColor;
                     case ButtonTextTheme.primary:
                         break;
                 }
             }
 
-            return this.getTextColor(button).withOpacity(0.12f);
+            return getTextColor(button).withOpacity(0.12f);
+        }
+
+        public Color getFocusColor(MaterialButton button) {
+            return button.focusColor ?? _focusColor ?? getTextColor(button).withOpacity(0.12f);
+        }
+
+        public Color getHoverColor(MaterialButton button) {
+            return button.hoverColor ?? _hoverColor ?? getTextColor(button).withOpacity(0.04f);
         }
 
         public Color getHighlightColor(MaterialButton button) {
@@ -364,10 +391,10 @@ namespace Unity.UIWidgets.material {
                 return button.highlightColor;
             }
 
-            switch (this.getTextTheme(button)) {
+            switch (getTextTheme(button)) {
                 case ButtonTextTheme.normal:
                 case ButtonTextTheme.accent:
-                    return this._highlightColor ?? this.getTextColor(button).withOpacity(0.16f);
+                    return _highlightColor ?? getTextColor(button).withOpacity(0.16f);
                 case ButtonTextTheme.primary:
                     return Colors.transparent;
             }
@@ -389,6 +416,25 @@ namespace Unity.UIWidgets.material {
             return 2.0f;
         }
 
+        public float getFocusElevation(MaterialButton button) {
+            if (button.focusElevation != null)
+                return button.focusElevation.Value;
+            if (button is FlatButton)
+                return 0.0f;
+            if (button is OutlineButton)
+                return 0.0f;
+            return 4.0f;
+        }
+
+        public float getHoverElevation(MaterialButton button) {
+            if (button.hoverElevation != null)
+                return button.hoverElevation.Value;
+            if (button is FlatButton)
+                return 0.0f;
+            if (button is OutlineButton)
+                return 0.0f;
+            return 4.0f;
+        }
 
         public float getHighlightElevation(MaterialButton button) {
             if (button.highlightElevation != null) {
@@ -402,6 +448,7 @@ namespace Unity.UIWidgets.material {
             if (button is OutlineButton) {
                 return 0.0f;
             }
+
             return 8.0f;
         }
 
@@ -415,7 +462,7 @@ namespace Unity.UIWidgets.material {
         }
 
 
-        public EdgeInsets getPadding(MaterialButton button) {
+        public EdgeInsetsGeometry getPadding(MaterialButton button) {
             if (button.padding != null) {
                 return button.padding;
             }
@@ -424,11 +471,11 @@ namespace Unity.UIWidgets.material {
                 return EdgeInsets.fromLTRB(12.0f, 0.0f, 16.0f, 0.0f);
             }
 
-            if (this._padding != null) {
-                return this._padding;
+            if (_padding != null) {
+                return _padding;
             }
 
-            switch (this.getTextTheme(button)) {
+            switch (getTextTheme(button)) {
                 case ButtonTextTheme.normal:
                 case ButtonTextTheme.accent:
                     return EdgeInsets.symmetric(horizontal: 16.0f);
@@ -441,21 +488,21 @@ namespace Unity.UIWidgets.material {
         }
 
         public ShapeBorder getShape(MaterialButton button) {
-            return button.shape ?? this.shape;
+            return button.shape ?? shape;
         }
 
 
         public TimeSpan getAnimationDuration(MaterialButton button) {
-            return button.animationDuration ?? Constants.kThemeChangeDuration;
+            return button.animationDuration ?? material_.kThemeChangeDuration;
         }
 
         public BoxConstraints getConstraints(MaterialButton button) {
-            return this.constraints;
+            return constraints;
         }
 
 
         public MaterialTapTargetSize getMaterialTapTargetSize(MaterialButton button) {
-            return button.materialTapTargetSize ?? this._materialTapTargetSize ?? MaterialTapTargetSize.padded;
+            return button.materialTapTargetSize ?? _materialTapTargetSize ?? MaterialTapTargetSize.padded;
         }
 
 
@@ -464,11 +511,13 @@ namespace Unity.UIWidgets.material {
             ButtonBarLayoutBehavior? layoutBehavior = null,
             float? minWidth = null,
             float? height = null,
-            EdgeInsets padding = null,
+            EdgeInsetsGeometry padding = null,
             ShapeBorder shape = null,
             bool? alignedDropdown = null,
             Color buttonColor = null,
             Color disabledColor = null,
+            Color focusColor = null,
+            Color hoverColor = null,
             Color highlightColor = null,
             Color splashColor = null,
             ColorScheme colorScheme = null,
@@ -481,12 +530,14 @@ namespace Unity.UIWidgets.material {
                 padding: padding ?? this.padding,
                 shape: shape ?? this.shape,
                 alignedDropdown: alignedDropdown ?? this.alignedDropdown,
-                buttonColor: buttonColor ?? this._buttonColor,
-                disabledColor: disabledColor ?? this._disabledColor,
-                highlightColor: highlightColor ?? this._highlightColor,
-                splashColor: splashColor ?? this._splashColor,
+                buttonColor: buttonColor ?? _buttonColor,
+                disabledColor: disabledColor ?? _disabledColor,
+                focusColor: focusColor ?? _focusColor,
+                hoverColor: hoverColor ?? _hoverColor,
+                highlightColor: highlightColor ?? _highlightColor,
+                splashColor: splashColor ?? _splashColor,
                 colorScheme: colorScheme ?? this.colorScheme,
-                materialTapTargetSize: materialTapTargetSize ?? this._materialTapTargetSize);
+                materialTapTargetSize: materialTapTargetSize ?? _materialTapTargetSize);
         }
 
         public bool Equals(ButtonThemeData other) {
@@ -498,18 +549,20 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return this.textTheme == other.textTheme
-                   && this.minWidth == other.minWidth
-                   && this.height == other.height
-                   && this.padding == other.padding
-                   && this.shape == other.shape
-                   && this.alignedDropdown == other.alignedDropdown
-                   && this._buttonColor == other._buttonColor
-                   && this._disabledColor == other._disabledColor
-                   && this._highlightColor == other._highlightColor
-                   && this._splashColor == other._splashColor
-                   && this.colorScheme == other.colorScheme
-                   && this._materialTapTargetSize == other._materialTapTargetSize;
+            return textTheme == other.textTheme
+                   && minWidth == other.minWidth
+                   && height == other.height
+                   && padding == other.padding
+                   && shape == other.shape
+                   && alignedDropdown == other.alignedDropdown
+                   && _buttonColor == other._buttonColor
+                   && _disabledColor == other._disabledColor
+                   && _focusColor == other._focusColor
+                   && _hoverColor == other._hoverColor
+                   && _highlightColor == other._highlightColor
+                   && _splashColor == other._splashColor
+                   && colorScheme == other.colorScheme
+                   && _materialTapTargetSize == other._materialTapTargetSize;
         }
 
         public override bool Equals(object obj) {
@@ -521,11 +574,11 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((ButtonThemeData) obj);
+            return Equals((ButtonThemeData) obj);
         }
 
         public static bool operator ==(ButtonThemeData left, ButtonThemeData right) {
@@ -538,18 +591,20 @@ namespace Unity.UIWidgets.material {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = this.textTheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.minWidth.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.height.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.padding.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.shape.GetHashCode();
-                hashCode = (hashCode * 397) ^ this.alignedDropdown.GetHashCode();
-                hashCode = (hashCode * 397) ^ (this._buttonColor != null ? this._buttonColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this._disabledColor != null ? this._disabledColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this._highlightColor != null ? this._highlightColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (this._splashColor != null ? this._splashColor.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ this.colorScheme.GetHashCode();
-                hashCode = (hashCode * 397) ^ this._materialTapTargetSize.GetHashCode();
+                var hashCode = textTheme.GetHashCode();
+                hashCode = (hashCode * 397) ^ minWidth.GetHashCode();
+                hashCode = (hashCode * 397) ^ height.GetHashCode();
+                hashCode = (hashCode * 397) ^ padding.GetHashCode();
+                hashCode = (hashCode * 397) ^ shape.GetHashCode();
+                hashCode = (hashCode * 397) ^ alignedDropdown.GetHashCode();
+                hashCode = (hashCode * 397) ^ (_buttonColor != null ? _buttonColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_disabledColor != null ? _disabledColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_focusColor != null ? _focusColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_hoverColor != null ? _hoverColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_highlightColor != null ? _highlightColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (_splashColor != null ? _splashColor.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (colorScheme != null ? colorScheme.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ _materialTapTargetSize.GetHashCode();
                 return hashCode;
             }
         }
@@ -557,26 +612,28 @@ namespace Unity.UIWidgets.material {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             ButtonThemeData defaultTheme = new ButtonThemeData();
-            properties.add(new EnumProperty<ButtonTextTheme>("textTheme", this.textTheme,
+            properties.add(new EnumProperty<ButtonTextTheme>("textTheme", textTheme,
                 defaultValue: defaultTheme.textTheme));
-            properties.add(new FloatProperty("minWidth", this.minWidth, defaultValue: defaultTheme.minWidth));
-            properties.add(new FloatProperty("height", this.height, defaultValue: defaultTheme.height));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding", this.padding,
+            properties.add(new FloatProperty("minWidth", minWidth, defaultValue: defaultTheme.minWidth));
+            properties.add(new FloatProperty("height", height, defaultValue: defaultTheme.height));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding", padding,
                 defaultValue: defaultTheme.padding));
-            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", this.shape, defaultValue: defaultTheme.shape));
+            properties.add(new DiagnosticsProperty<ShapeBorder>("shape", shape, defaultValue: defaultTheme.shape));
             properties.add(new FlagProperty("alignedDropdown",
-                value: this.alignedDropdown,
+                value: alignedDropdown,
                 defaultValue: defaultTheme.alignedDropdown,
                 ifTrue: "dropdown width matches button"
             ));
-            properties.add(new DiagnosticsProperty<Color>("buttonColor", this._buttonColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("disabledColor", this._disabledColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("highlightColor", this._highlightColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<Color>("splashColor", this._splashColor, defaultValue: null));
-            properties.add(new DiagnosticsProperty<ColorScheme>("colorScheme", this.colorScheme,
+            properties.add(new ColorProperty("buttonColor", _buttonColor, defaultValue: null));
+            properties.add(new ColorProperty("disabledColor", _disabledColor, defaultValue: null));
+            properties.add(new ColorProperty("focusColor", _focusColor, defaultValue: null));
+            properties.add(new ColorProperty("hoverColor", _hoverColor, defaultValue: null));
+            properties.add(new ColorProperty("highlightColor", _highlightColor, defaultValue: null));
+            properties.add(new ColorProperty("splashColor", _splashColor, defaultValue: null));
+            properties.add(new DiagnosticsProperty<ColorScheme>("colorScheme", colorScheme,
                 defaultValue: defaultTheme.colorScheme));
             properties.add(new DiagnosticsProperty<MaterialTapTargetSize?>("materialTapTargetSize",
-                this._materialTapTargetSize, defaultValue: null));
+                _materialTapTargetSize, defaultValue: null));
         }
     }
 }

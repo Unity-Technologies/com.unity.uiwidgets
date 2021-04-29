@@ -19,22 +19,22 @@ namespace Unity.UIWidgets.painting {
 
         public readonly BorderRadius borderRadius;
 
-        public override EdgeInsets dimensions {
-            get { return EdgeInsets.all(this.side.width); }
+        public override EdgeInsetsGeometry dimensions {
+            get { return EdgeInsets.all(side.width); }
         }
 
         public override ShapeBorder scale(float t) {
             return new BeveledRectangleBorder(
-                side: this.side.scale(t),
-                borderRadius: this.borderRadius * t
+                side: side.scale(t),
+                borderRadius: (BorderRadius) (borderRadius * t)
             );
         }
 
         public override ShapeBorder lerpFrom(ShapeBorder a, float t) {
             if (a is BeveledRectangleBorder border) {
                 return new BeveledRectangleBorder(
-                    side: BorderSide.lerp(border.side, this.side, t),
-                    borderRadius: BorderRadius.lerp(border.borderRadius, this.borderRadius, t)
+                    side: BorderSide.lerp(border.side, side, t),
+                    borderRadius: BorderRadius.lerp(border.borderRadius, borderRadius, t)
                 );
             }
 
@@ -44,8 +44,8 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder lerpTo(ShapeBorder b, float t) {
             if (b is BeveledRectangleBorder border) {
                 return new BeveledRectangleBorder(
-                    side: BorderSide.lerp(this.side, border.side, t),
-                    borderRadius: BorderRadius.lerp(this.borderRadius, border.borderRadius, t)
+                    side: BorderSide.lerp(side, border.side, t),
+                    borderRadius: BorderRadius.lerp(borderRadius, border.borderRadius, t)
                 );
             }
 
@@ -83,26 +83,26 @@ namespace Unity.UIWidgets.painting {
             return path;
         }
 
-        public override Path getInnerPath(Rect rect) {
-            return this._getPath(this.borderRadius.toRRect(rect).deflate(this.side.width));
+        public override Path getInnerPath(Rect rect, TextDirection? textDirection = null) {
+            return _getPath(borderRadius.resolve(textDirection).toRRect(rect).deflate(side.width));
         }
 
-        public override Path getOuterPath(Rect rect) {
-            return this._getPath(this.borderRadius.toRRect(rect));
+        public override Path getOuterPath(Rect rect, TextDirection? textDirection = null) {
+            return _getPath(borderRadius.resolve(textDirection).toRRect(rect));
         }
 
-        public override void paint(Canvas canvas, Rect rect) {
+        public override void paint(Canvas canvas, Rect rect, TextDirection? textDirection = null) {
             if (rect.isEmpty) {
                 return;
             }
 
-            switch (this.side.style) {
+            switch (side.style) {
                 case BorderStyle.none:
                     break;
                 case BorderStyle.solid:
-                    Path path = this.getOuterPath(rect);
-                    path.addPath(this.getInnerPath(rect), Offset.zero);
-                    canvas.drawPath(path, this.side.toPaint());
+                    Path path = getOuterPath(rect, textDirection);
+                    path.addPath(getInnerPath(rect, textDirection), Offset.zero);
+                    canvas.drawPath(path, side.toPaint());
                     break;
             }
         }
@@ -116,7 +116,7 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return Equals(this.side, other.side) && Equals(this.borderRadius, other.borderRadius);
+            return Equals(side, other.side) && Equals(borderRadius, other.borderRadius);
         }
 
         public override bool Equals(object obj) {
@@ -128,17 +128,17 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
 
-            return this.Equals((BeveledRectangleBorder) obj);
+            return Equals((BeveledRectangleBorder) obj);
         }
 
         public override int GetHashCode() {
             unchecked {
-                return ((this.side != null ? this.side.GetHashCode() : 0) * 397) ^
-                       (this.borderRadius != null ? this.borderRadius.GetHashCode() : 0);
+                return ((side != null ? side.GetHashCode() : 0) * 397) ^
+                       (borderRadius != null ? borderRadius.GetHashCode() : 0);
             }
         }
 
@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.painting {
         }
 
         public override string ToString() {
-            return $"{this.GetType()}({this.side}, {this.borderRadius})";
+            return $"{GetType()}({side}, {borderRadius})";
         }
     }
 }

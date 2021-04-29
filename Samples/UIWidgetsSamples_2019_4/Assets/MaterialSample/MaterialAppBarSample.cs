@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using RSG;
+using uiwidgets;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
@@ -7,19 +8,20 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
+using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample {
     
-    public class MaterialAppBarSample : UIWidgetsSamplePanel {
+    public class MaterialAppBarSample : UIWidgetsPanel {
 
-        protected override Widget createWidget() {
-            return new MaterialApp(
+        protected override void main() {
+            ui_.runApp(new MaterialApp(
                 showPerformanceOverlay: false,
-                home: new MaterialAppBarWidget());
+                home: new MaterialAppBarWidget()));
         }
 
-        protected override void OnEnable() {
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/MaterialIcons-Regular"), "Material Icons");
+        protected new void OnEnable() {
             base.OnEnable();
         }
     }
@@ -64,12 +66,10 @@ namespace UIWidgetsSample {
                                 fontSize: 16.0f))
                     )
                 );
-            }).closed.Then((object obj) => {
+            }).closed.then((object obj) => {
                 if (this.mounted) {
                     this.setState(() => { this._showBottomSheetCallback = this._showBottomSheet; });
                 }
-
-                return new Promise();
             });
         }
 

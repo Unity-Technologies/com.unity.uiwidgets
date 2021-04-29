@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using RSG.Promises;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -9,10 +8,10 @@ using Unity.UIWidgets.painting;
 namespace Unity.UIWidgets.widgets {
     class _ChildEntry {
         public _ChildEntry(
-            AnimationController controller,
-            Animation<float> animation,
-            Widget transition,
-            Widget widgetChild
+            AnimationController controller = null,
+            Animation<float> animation = null,
+            Widget transition = null,
+            Widget widgetChild = null
         ) {
             D.assert(animation != null);
             D.assert(transition != null);
@@ -32,7 +31,7 @@ namespace Unity.UIWidgets.widgets {
         public Widget widgetChild;
 
         public override string ToString() {
-            return "Entry#${shortHash(this)}($widgetChild)";
+            return $"Entry#{foundation_.shortHash(this)}({widgetChild})";
         }
     }
 
@@ -45,23 +44,27 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             Widget child = null,
             TimeSpan? duration = null,
+            TimeSpan? reverseDuration = null,
             Curve switchInCurve = null,
             Curve switchOutCurve = null,
             AnimatedSwitcherTransitionBuilder transitionBuilder = null,
             AnimatedSwitcherLayoutBuilder layoutBuilder = null
         ) : base(key: key) {
             D.assert(duration != null);
+            this.child = child;
+            this.duration = duration;
+            this.reverseDuration = reverseDuration;
             this.switchInCurve = switchInCurve ?? Curves.linear;
             this.switchOutCurve = switchOutCurve ?? Curves.linear;
             this.transitionBuilder = transitionBuilder ?? defaultTransitionBuilder;
             this.layoutBuilder = layoutBuilder ?? defaultLayoutBuilder;
-            this.child = child;
-            this.duration = duration;
         }
 
         public readonly Widget child;
 
         public readonly TimeSpan? duration;
+        
+        public readonly TimeSpan? reverseDuration;
 
         public readonly Curve switchInCurve;
 
@@ -94,6 +97,12 @@ namespace Unity.UIWidgets.widgets {
                 alignment: Alignment.center
             );
         }
+        
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new IntProperty("duration", duration?.Milliseconds, unit: "ms"));
+            properties.add(new IntProperty("reverseDuration", reverseDuration?.Milliseconds, unit: "ms", defaultValue: null));
+        }
     }
 
     class _AnimatedSwitcherState : TickerProviderStateMixin<AnimatedSwitcher> {
@@ -104,96 +113,97 @@ namespace Unity.UIWidgets.widgets {
 
         public override void initState() {
             base.initState();
-            this._addEntryForNewChild(animate: false);
+            _addEntryForNewChild(animate: false);
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
             base.didUpdateWidget(_oldWidget);
             AnimatedSwitcher oldWidget = _oldWidget as AnimatedSwitcher;
 
-            if (this.widget.transitionBuilder != oldWidget.transitionBuilder) {
-                this._outgoingEntries.Each(this._updateTransitionForEntry);
-                if (this._currentEntry != null) {
-                    this._updateTransitionForEntry(this._currentEntry);
+            if (widget.transitionBuilder != oldWidget.transitionBuilder) {
+                _outgoingEntries.Each(_updateTransitionForEntry);
+                if (_currentEntry != null) {
+                    _updateTransitionForEntry(_currentEntry);
                 }
 
-                this._markChildWidgetCacheAsDirty();
+                _markChildWidgetCacheAsDirty();
             }
 
-            bool hasNewChild = this.widget.child != null;
-            bool hasOldChild = this._currentEntry != null;
+            bool hasNewChild = widget.child != null;
+            bool hasOldChild = _currentEntry != null;
             if (hasNewChild != hasOldChild ||
-                hasNewChild && !Widget.canUpdate(this.widget.child, this._currentEntry.widgetChild)) {
-                this._childNumber += 1;
-                this._addEntryForNewChild(animate: true);
+                hasNewChild && !Widget.canUpdate(widget.child, _currentEntry.widgetChild)) {
+                _childNumber += 1;
+                _addEntryForNewChild(animate: true);
             }
-            else if (this._currentEntry != null) {
+            else if (_currentEntry != null) {
                 D.assert(hasOldChild && hasNewChild);
-                D.assert(Widget.canUpdate(this.widget.child, this._currentEntry.widgetChild));
-                this._currentEntry.widgetChild = this.widget.child;
-                this._updateTransitionForEntry(this._currentEntry);
-                this._markChildWidgetCacheAsDirty();
+                D.assert(Widget.canUpdate(widget.child, _currentEntry.widgetChild));
+                _currentEntry.widgetChild = widget.child;
+                _updateTransitionForEntry(_currentEntry);
+                _markChildWidgetCacheAsDirty();
             }
         }
 
         void _addEntryForNewChild(bool animate) {
-            D.assert(animate || this._currentEntry == null);
-            if (this._currentEntry != null) {
+            D.assert(animate || _currentEntry == null);
+            if (_currentEntry != null) {
                 D.assert(animate);
-                D.assert(!this._outgoingEntries.Contains(this._currentEntry));
-                this._outgoingEntries.Add(this._currentEntry);
-                this._currentEntry.controller.reverse();
-                this._markChildWidgetCacheAsDirty();
-                this._currentEntry = null;
+                D.assert(!_outgoingEntries.Contains(_currentEntry));
+                _outgoingEntries.Add(_currentEntry);
+                _currentEntry.controller.reverse();
+                _markChildWidgetCacheAsDirty();
+                _currentEntry = null;
             }
 
-            if (this.widget.child == null) {
+            if (widget.child == null) {
                 return;
             }
 
             AnimationController controller = new AnimationController(
-                duration: this.widget.duration,
+                duration: widget.duration,
+                reverseDuration:widget.reverseDuration,
                 vsync: this
             );
             Animation<float> animation = new CurvedAnimation(
                 parent: controller,
-                curve: this.widget.switchInCurve,
-                reverseCurve: this.widget.switchOutCurve
+                curve: widget.switchInCurve,
+                reverseCurve: widget.switchOutCurve
             );
-            this._currentEntry = this._newEntry(
-                child: this.widget.child,
+            _currentEntry = _newEntry(
+                child: widget.child,
                 controller: controller,
                 animation: animation,
-                builder: this.widget.transitionBuilder
+                builder: widget.transitionBuilder
             );
             if (animate) {
                 controller.forward();
             }
             else {
-                D.assert(this._outgoingEntries.isEmpty);
+                D.assert(_outgoingEntries.isEmpty);
                 controller.setValue(1.0f);
             }
         }
 
         _ChildEntry _newEntry(
-            Widget child,
-            AnimatedSwitcherTransitionBuilder builder,
-            AnimationController controller,
-            Animation<float> animation
+            Widget child = null,
+            AnimatedSwitcherTransitionBuilder builder = null,
+            AnimationController controller = null,
+            Animation<float> animation = null
         ) {
             _ChildEntry entry = new _ChildEntry(
                 widgetChild: child,
-                transition: KeyedSubtree.wrap(builder(child, animation), this._childNumber),
+                transition: KeyedSubtree.wrap(builder(child, animation), _childNumber),
                 animation: animation,
                 controller: controller
             );
             animation.addStatusListener((AnimationStatus status) => {
                 if (status == AnimationStatus.dismissed) {
-                    this.setState(() => {
-                        D.assert(this.mounted);
-                        D.assert(this._outgoingEntries.Contains(entry));
-                        this._outgoingEntries.Remove(entry);
-                        this._markChildWidgetCacheAsDirty();
+                    setState(() => {
+                        D.assert(mounted);
+                        D.assert(_outgoingEntries.Contains(entry));
+                        _outgoingEntries.Remove(entry);
+                        _markChildWidgetCacheAsDirty();
                     });
                     controller.dispose();
                 }
@@ -202,35 +212,35 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _markChildWidgetCacheAsDirty() {
-            this._outgoingWidgets = null;
+            _outgoingWidgets = null;
         }
 
         void _updateTransitionForEntry(_ChildEntry entry) {
             entry.transition = new KeyedSubtree(
                 key: entry.transition.key,
-                child: this.widget.transitionBuilder(entry.widgetChild, entry.animation)
+                child: widget.transitionBuilder(entry.widgetChild, entry.animation)
             );
         }
 
         void _rebuildOutgoingWidgetsIfNeeded() {
-            if (this._outgoingWidgets == null) {
-                this._outgoingWidgets = new List<Widget>(this._outgoingEntries.Count);
-                foreach (_ChildEntry entry in this._outgoingEntries) {
-                    this._outgoingWidgets.Add(entry.transition);
+            if (_outgoingWidgets == null) {
+                _outgoingWidgets = new List<Widget>(_outgoingEntries.Count);
+                foreach (_ChildEntry entry in _outgoingEntries) {
+                    _outgoingWidgets.Add(entry.transition);
                 }
             }
             
-            D.assert(this._outgoingEntries.Count == this._outgoingWidgets.Count);
-            D.assert(this._outgoingEntries.isEmpty() ||
-                     this._outgoingEntries.Last().transition == this._outgoingWidgets.Last());
+            D.assert(_outgoingEntries.Count == _outgoingWidgets.Count);
+            D.assert(_outgoingEntries.isEmpty() ||
+                     _outgoingEntries.Last().transition == _outgoingWidgets.Last());
         }
 
         public override void dispose() {
-            if (this._currentEntry != null) {
-                this._currentEntry.controller.dispose();
+            if (_currentEntry != null) {
+                _currentEntry.controller.dispose();
             }
 
-            foreach (_ChildEntry entry in this._outgoingEntries) {
+            foreach (_ChildEntry entry in _outgoingEntries) {
                 entry.controller.dispose();
             }
 
@@ -238,8 +248,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            this._rebuildOutgoingWidgetsIfNeeded();
-            return this.widget.layoutBuilder(this._currentEntry?.transition, this._outgoingWidgets);
+            _rebuildOutgoingWidgetsIfNeeded();
+            return widget.layoutBuilder(_currentEntry?.transition, _outgoingWidgets);
         }
     }
 }

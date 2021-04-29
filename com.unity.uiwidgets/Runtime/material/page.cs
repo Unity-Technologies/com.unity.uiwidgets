@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.material {
             D.assert(builder != null);
             this.builder = builder;
             this.maintainState = maintainState;
-            D.assert(this.opaque);
+            D.assert(opaque);
         }
 
         public readonly WidgetBuilder builder;
@@ -29,21 +29,17 @@ namespace Unity.UIWidgets.material {
             get { return null; }
         }
 
-        public override bool canTransitionFrom(TransitionRoute previousRoute) {
-            return previousRoute is MaterialPageRoute;
-        }
-
         public override bool canTransitionTo(TransitionRoute nextRoute) {
             return nextRoute is MaterialPageRoute && !((MaterialPageRoute) nextRoute).fullscreenDialog;
         }
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            Widget result = this.builder(context);
+            Widget result = builder(context);
             D.assert(() => {
                 if (result == null) {
                     throw new UIWidgetsError(
-                        "The builder for route " + this.settings.name + "returned null. \n" +
+                        "The builder for route " + settings.name + "returned null. \n" +
                         "Route builders must never return null."
                     );
                 }

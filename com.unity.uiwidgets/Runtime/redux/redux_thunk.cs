@@ -3,7 +3,7 @@ using System;
 namespace Unity.UIWidgets.Redux {
     public static class ReduxThunk {
         public static Middleware<State> create<State>() {
-            return (store) => (next) => new DispatcherImpl((action) => {
+            return store => next => new DispatcherImpl(action => {
                 var thunkAction = action as ThunkAction<State>;
                 if (thunkAction != null && thunkAction.action != null) {
                     return thunkAction.action(store.dispatcher, store.getState);
@@ -26,7 +26,7 @@ namespace Unity.UIWidgets.Redux {
         }
 
         public override string ToString() {
-            return "ThunkAction(" + this.displayName + ")";
+            return "ThunkAction(" + displayName + ")";
         }
     }
 }

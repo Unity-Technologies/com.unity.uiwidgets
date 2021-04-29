@@ -3,6 +3,7 @@ using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace UIWidgetsGallery.gallery {
     public class ModalBottomSheetDemo : StatelessWidget {
@@ -18,7 +19,7 @@ namespace UIWidgetsGallery.gallery {
                     child: new RaisedButton(
                         child: new Text("SHOW BOTTOM SHEET"),
                         onPressed: () => {
-                            BottomSheetUtils.showModalBottomSheet<object>(context: context,
+                            material_.showModalBottomSheet<object>(context: context,
                                 builder: (BuildContext _context) => {
                                     return new Container(
                                         child: new Padding(

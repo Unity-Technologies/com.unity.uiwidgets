@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -25,163 +25,164 @@ namespace Unity.UIWidgets.widgets {
             oldPosition: oldPosition,
             debugLabel: debugLabel
         ) {
-            if (this._pixels == null && initialPixels != null) {
-                this.correctPixels(initialPixels.Value);
+            if (_pixels == null && initialPixels != null) {
+                correctPixels(initialPixels.Value);
             }
 
-            if (this.activity == null) {
-                this.goIdle();
+            if (activity == null) {
+                goIdle();
             }
 
-            D.assert(this.activity != null);
+            D.assert(activity != null);
         }
 
 
         float _heldPreviousVelocity = 0.0f;
 
         public override AxisDirection axisDirection {
-            get { return this.context.axisDirection; }
+            get { return context.axisDirection; }
         }
 
         public override float setPixels(float newPixels) {
-            D.assert(this.activity.isScrolling);
+            D.assert(activity.isScrolling);
             return base.setPixels(newPixels);
         }
 
         protected override void absorb(ScrollPosition other) {
             base.absorb(other);
             if (!(other is ScrollPositionWithSingleContext)) {
-                this.goIdle();
+                goIdle();
                 return;
             }
 
-            this.activity.updateDelegate(this);
+            activity.updateDelegate(this);
             ScrollPositionWithSingleContext typedOther = (ScrollPositionWithSingleContext) other;
-            this._userScrollDirection = typedOther._userScrollDirection;
-            D.assert(this._currentDrag == null);
+            _userScrollDirection = typedOther._userScrollDirection;
+            D.assert(_currentDrag == null);
             if (typedOther._currentDrag != null) {
-                this._currentDrag = typedOther._currentDrag;
-                this._currentDrag.updateDelegate(this);
+                _currentDrag = typedOther._currentDrag;
+                _currentDrag.updateDelegate(this);
                 typedOther._currentDrag = null;
             }
         }
 
         protected override void applyNewDimensions() {
             base.applyNewDimensions();
-            this.context.setCanDrag(this.physics.shouldAcceptUserOffset(this));
+            context.setCanDrag(physics.shouldAcceptUserOffset(this));
         }
 
         public override void beginActivity(ScrollActivity newActivity) {
-            this._heldPreviousVelocity = 0.0f;
+            _heldPreviousVelocity = 0.0f;
             if (newActivity == null) {
                 return;
             }
 
             D.assert(newActivity.del == this);
             base.beginActivity(newActivity);
-            if (this._currentDrag != null) {
-                this._currentDrag.dispose();
-                this._currentDrag = null;
+            if (_currentDrag != null) {
+                _currentDrag.dispose();
+                _currentDrag = null;
             }
 
-            if (!this.activity.isScrolling) {
-                this.updateUserScrollDirection(ScrollDirection.idle);
+            if (!activity.isScrolling) {
+                updateUserScrollDirection(ScrollDirection.idle);
             }
         }
 
         public virtual void applyUserScrollOffset(float delta) {
-            this.updateUserScrollDirection(delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
+            updateUserScrollDirection(delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
 
-            var pixel = this.pixels - this.physics.applyPhysicsToUserOffset(this, delta);
-            if (pixel < this.minScrollExtent) {
-                pixel = this.minScrollExtent;
+            var pixel = pixels - physics.applyPhysicsToUserOffset(this, delta);
+            if (pixel < minScrollExtent) {
+                pixel = minScrollExtent;
             }
 
-            if (pixel > this.maxScrollExtent) {
-                pixel = this.maxScrollExtent;
+            if (pixel > maxScrollExtent) {
+                pixel = maxScrollExtent;
             }
 
-            this.setPixels(pixel);
+            setPixels(pixel);
         }
 
         public virtual void applyUserOffset(float delta) {
-            this.updateUserScrollDirection(delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
-            this.setPixels(this.pixels - this.physics.applyPhysicsToUserOffset(this, delta));
+            updateUserScrollDirection(delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
+            setPixels(pixels - physics.applyPhysicsToUserOffset(this, delta));
         }
 
         public void goIdle() {
-            this.beginActivity(new IdleScrollActivity(this));
+            beginActivity(new IdleScrollActivity(this));
         }
 
-        public void goBallistic(float velocity) {
-            D.assert(this._pixels != null);
-            Simulation simulation = this.physics.createBallisticSimulation(this, velocity);
+        public virtual void goBallistic(float velocity) {
+            D.assert(_pixels != null);
+            Simulation simulation = physics.createBallisticSimulation(this, velocity);
             if (simulation != null) {
-                this.beginActivity(new BallisticScrollActivity(this, simulation, this.context.vsync));
+                beginActivity(new BallisticScrollActivity(this, simulation, context.vsync));
             }
             else {
-                this.goIdle();
+                goIdle();
             }
         }
 
         public override ScrollDirection userScrollDirection {
-            get { return this._userScrollDirection; }
+            get { return _userScrollDirection; }
         }
 
         ScrollDirection _userScrollDirection = ScrollDirection.idle;
 
         protected void updateUserScrollDirection(ScrollDirection value) {
-            if (this.userScrollDirection == value) {
+            if (userScrollDirection == value) {
                 return;
             }
 
-            this._userScrollDirection = value;
-            this.didUpdateScrollDirection(value);
+            _userScrollDirection = value;
+            didUpdateScrollDirection(value);
         }
 
-        public override IPromise animateTo(float to,
+        public override Future animateTo(
+            float to,
             TimeSpan duration,
             Curve curve
         ) {
-            if (PhysicsUtils.nearEqual(to, this.pixels, this.physics.tolerance.distance)) {
-                this.jumpTo(to);
-                return Promise.Resolved();
+            if (PhysicsUtils.nearEqual(to, pixels, physics.tolerance.distance)) {
+                jumpTo(to);
+                return Future.value();
             }
 
             DrivenScrollActivity activity = new DrivenScrollActivity(
                 this,
-                from: this.pixels,
+                from: pixels,
                 to: to,
                 duration: duration,
                 curve: curve,
-                vsync: this.context.vsync
+                vsync: context.vsync
             );
-            this.beginActivity(activity);
+            beginActivity(activity);
             return activity.done;
         }
 
         public override void jumpTo(float value) {
-            this.goIdle();
-            if (this.pixels != value) {
-                float oldPixels = this.pixels;
-                this.forcePixels(value);
+            goIdle();
+            if (pixels != value) {
+                float oldPixels = pixels;
+                forcePixels(value);
                 // this.notifyListeners(); already in forcePixels, no need here.
-                this.didStartScroll();
-                this.didUpdateScrollPositionBy(this.pixels - oldPixels);
-                this.didEndScroll();
+                didStartScroll();
+                didUpdateScrollPositionBy(pixels - oldPixels);
+                didEndScroll();
             }
 
-            this.goBallistic(0.0f);
+            goBallistic(0.0f);
         }
 
         public override ScrollHoldController hold(VoidCallback holdCancelCallback) {
-            float previousVelocity = this.activity.velocity;
+            float previousVelocity = activity.velocity;
             HoldScrollActivity holdActivity = new HoldScrollActivity(
                 del: this,
                 onHoldCanceled: holdCancelCallback
             );
-            this.beginActivity(holdActivity);
-            this._heldPreviousVelocity = previousVelocity;
+            beginActivity(holdActivity);
+            _heldPreviousVelocity = previousVelocity;
             return holdActivity;
         }
 
@@ -192,19 +193,19 @@ namespace Unity.UIWidgets.widgets {
                 del: this,
                 details: details,
                 onDragCanceled: dragCancelCallback,
-                carriedVelocity: this.physics.carriedMomentum(this._heldPreviousVelocity),
-                motionStartDistanceThreshold: this.physics.dragStartDistanceMotionThreshold
+                carriedVelocity: physics.carriedMomentum(_heldPreviousVelocity),
+                motionStartDistanceThreshold: physics.dragStartDistanceMotionThreshold
             );
-            this.beginActivity(new DragScrollActivity(this, drag));
-            D.assert(this._currentDrag == null);
-            this._currentDrag = drag;
+            beginActivity(new DragScrollActivity(this, drag));
+            D.assert(_currentDrag == null);
+            _currentDrag = drag;
             return drag;
         }
 
         public override void dispose() {
-            if (this._currentDrag != null) {
-                this._currentDrag.dispose();
-                this._currentDrag = null;
+            if (_currentDrag != null) {
+                _currentDrag.dispose();
+                _currentDrag = null;
             }
 
             base.dispose();
@@ -212,10 +213,10 @@ namespace Unity.UIWidgets.widgets {
 
         protected override void debugFillDescription(List<string> description) {
             base.debugFillDescription(description);
-            description.Add(this.context.GetType().ToString());
-            description.Add(this.physics.ToString());
-            description.Add(this.activity?.ToString());
-            description.Add(this.userScrollDirection.ToString());
+            description.Add(context.GetType().ToString());
+            description.Add(physics.ToString());
+            description.Add(activity?.ToString());
+            description.Add(userScrollDirection.ToString());
         }
     }
 }

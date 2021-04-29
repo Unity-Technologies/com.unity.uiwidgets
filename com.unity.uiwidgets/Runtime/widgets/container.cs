@@ -2,6 +2,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.widgets {
     public class DecoratedBox : SingleChildRenderObjectWidget {
@@ -22,23 +24,23 @@ namespace Unity.UIWidgets.widgets {
 
         public override RenderObject createRenderObject(BuildContext context) {
             return new RenderDecoratedBox(
-                decoration: this.decoration,
-                position: this.position,
+                decoration: decoration,
+                position: position,
                 configuration: ImageUtils.createLocalImageConfiguration(context)
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderDecoratedBox) renderObjectRaw;
-            renderObject.decoration = this.decoration;
+            renderObject.decoration = decoration;
             renderObject.configuration = ImageUtils.createLocalImageConfiguration(context);
-            renderObject.position = this.position;
+            renderObject.position = position;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             string label = "decoration";
-            switch (this.position) {
+            switch (position) {
                 case DecorationPosition.background:
                     label = "bg";
                     break;
@@ -48,12 +50,12 @@ namespace Unity.UIWidgets.widgets {
             }
 
             properties.add(new EnumProperty<DecorationPosition>(
-                "position", this.position, level: DiagnosticLevel.hidden));
+                "position", position, level: DiagnosticLevel.hidden));
             properties.add(new DiagnosticsProperty<Decoration>(
                 label,
-                this.decoration,
+                decoration,
                 ifNull: "no decoration",
-                showName: this.decoration != null
+                showName: decoration != null
             ));
         }
     }
@@ -61,18 +63,19 @@ namespace Unity.UIWidgets.widgets {
     public class Container : StatelessWidget {
         public Container(
             Key key = null,
-            Alignment alignment = null,
-            EdgeInsets padding = null,
+            AlignmentGeometry alignment = null,
+            EdgeInsetsGeometry padding = null,
             Color color = null,
             Decoration decoration = null,
-            Decoration forgroundDecoration = null,
+            Decoration foregroundDecoration = null,
             float? width = null,
             float? height = null,
             BoxConstraints constraints = null,
-            EdgeInsets margin = null,
-            Matrix4 transfrom = null,
-            Widget child = null
-        ) : base(key) {
+            EdgeInsetsGeometry margin = null,
+            Matrix4 transform = null,
+            Widget child = null,
+            Clip clipBehavior = Clip.none
+        ) : base(key: key) {
             D.assert(margin == null || margin.isNonNegative);
             D.assert(padding == null || padding.isNonNegative);
             D.assert(decoration == null || decoration.debugAssertIsValid());
@@ -81,48 +84,52 @@ namespace Unity.UIWidgets.widgets {
                 () => "Cannot provide both a color and a decoration\n" +
                 "The color argument is just a shorthand for \"decoration: new BoxDecoration(color: color)\"."
             );
-
+            D.assert(clipBehavior != null);
+            
             this.alignment = alignment;
             this.padding = padding;
-            this.foregroundDecoration = forgroundDecoration;
-            this.margin = margin;
-            this.transform = transfrom;
-            this.child = child;
-
-            this.decoration = decoration ?? (color != null ? new BoxDecoration(color) : null);
+            this.foregroundDecoration = foregroundDecoration;
+            this.color = color;
+            this.decoration = decoration;// ?? (color != null ? new BoxDecoration(color) : null);
             this.constraints = (width != null || height != null)
                 ? (constraints != null ? constraints.tighten(width, height) : BoxConstraints.tightFor(width, height))
                 : constraints;
+            this.margin = margin;
+            this.transform = transform;
+            this.child = child;
+            this.clipBehavior = clipBehavior ;
+            
+           
         }
 
         public readonly Widget child;
-        public readonly Alignment alignment;
-        public readonly EdgeInsets padding;
+        public readonly AlignmentGeometry alignment;
+        public readonly EdgeInsetsGeometry padding;
         public readonly Decoration decoration;
         public readonly Decoration foregroundDecoration;
         public readonly BoxConstraints constraints;
-        public readonly EdgeInsets margin;
+        public readonly EdgeInsetsGeometry margin;
         public readonly Matrix4 transform;
+        public readonly Color color;
+        public readonly Clip clipBehavior;
 
-        EdgeInsets _paddingIncludingDecoration {
+        EdgeInsetsGeometry _paddingIncludingDecoration {
             get {
-                if (this.decoration == null || this.decoration.padding == null) {
-                    return this.padding;
+                if (decoration == null || decoration.padding == null) {
+                    return padding;
                 }
-
-                EdgeInsets decorationPadding = this.decoration.padding;
-                if (this.padding == null) {
+                EdgeInsetsGeometry decorationPadding = decoration.padding;
+                if (padding == null) {
                     return decorationPadding;
                 }
-
-                return this.padding.add(decorationPadding);
+                return padding.add(decorationPadding);
             }
         }
 
         public override Widget build(BuildContext context) {
-            Widget current = this.child;
+            Widget current = child;
 
-            if (this.child == null && (this.constraints == null || !this.constraints.isTight)) {
+            if (child == null && (constraints == null || !constraints.isTight)) {
                 current = new LimitedBox(
                     maxWidth: 0.0f,
                     maxHeight: 0.0f,
@@ -130,37 +137,51 @@ namespace Unity.UIWidgets.widgets {
                 );
             }
 
-            if (this.alignment != null) {
-                current = new Align(alignment: this.alignment, child: current);
+            if (alignment != null) {
+                current = new Align(alignment: alignment, child: current);
             }
 
-            EdgeInsets effetivePadding = this._paddingIncludingDecoration;
+            EdgeInsetsGeometry effetivePadding = _paddingIncludingDecoration;
             if (effetivePadding != null) {
                 current = new Padding(padding: effetivePadding, child: current);
             }
 
-            if (this.decoration != null) {
-                current = new DecoratedBox(decoration: this.decoration, child: current);
+            if (color != null)
+                current = new ColoredBox(color: color, child: current);
+            
+            if (decoration != null) {
+                current = new DecoratedBox(decoration: decoration, child: current);
             }
 
-            if (this.foregroundDecoration != null) {
+            if (foregroundDecoration != null) {
                 current = new DecoratedBox(
-                    decoration: this.foregroundDecoration,
+                    decoration: foregroundDecoration,
                     position: DecorationPosition.foreground,
                     child: current
                 );
             }
 
-            if (this.constraints != null) {
-                current = new ConstrainedBox(constraints: this.constraints, child: current);
+            if (constraints != null) {
+                current = new ConstrainedBox(constraints: constraints, child: current);
             }
 
-            if (this.margin != null) {
-                current = new Padding(padding: this.margin, child: current);
+            if (margin != null) {
+                current = new Padding(padding: margin, child: current);
             }
 
-            if (this.transform != null) {
-                current = new Transform(transform: new Matrix4(this.transform), child: current);
+            if (transform != null) {
+                current = new Transform(transform: new Matrix4(transform), child: current);
+            }
+
+            if (clipBehavior != Clip.none) {
+                current = new ClipPath(
+                    clipper: new _DecorationClipper(
+                        textDirection: Directionality.of(context),
+                        decoration: decoration
+                    ),
+                    clipBehavior: clipBehavior,
+                    child: current
+                );
             }
 
             return current;
@@ -168,20 +189,48 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new DiagnosticsProperty<Alignment>("alignment",
-                this.alignment, showName: false, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("padding",
-                this.padding, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<Decoration>("bg",
-                this.decoration, defaultValue: Diagnostics.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<AlignmentGeometry>("alignment",
+                alignment, showName: false, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("padding",
+                padding, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<Clip>("clipBehavior", clipBehavior, defaultValue: Clip.none));
+            if (color != null)
+                properties.add(new DiagnosticsProperty<Color>("bg", color));
+            else
+                properties.add(new DiagnosticsProperty<Decoration>("bg",
+                decoration, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<Decoration>("fg",
-                this.foregroundDecoration, defaultValue: Diagnostics.kNullDefaultValue));
+                foregroundDecoration, defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<BoxConstraints>("constraints",
-                this.constraints, defaultValue: Diagnostics.kNullDefaultValue));
-            properties.add(new DiagnosticsProperty<EdgeInsets>("margin",
-                this.margin, defaultValue: Diagnostics.kNullDefaultValue));
+                constraints, defaultValue: foundation_.kNullDefaultValue));
+            properties.add(new DiagnosticsProperty<EdgeInsetsGeometry>("margin",
+                margin, defaultValue: foundation_.kNullDefaultValue));
             properties.add(ObjectFlagProperty<Matrix4>.has("transform",
-                this.transform));
+                transform));
+        }
+    }
+    
+    /// A clipper that uses [Decoration.getClipPath] to clip.
+    public class _DecorationClipper : CustomClipper<Path> {
+        public _DecorationClipper(
+            TextDirection? textDirection = null,
+            Decoration decoration = null
+        ) {
+            D.assert(decoration != null);
+            this.textDirection =  textDirection ?? TextDirection.ltr;
+            this.decoration = decoration;
+        } 
+
+        public readonly TextDirection textDirection;
+        public readonly Decoration decoration;
+        
+        public override Path getClip(Size size) {
+            return decoration.getClipPath(Offset.zero & size, textDirection);
+        }
+
+        public override bool shouldReclip(CustomClipper<Path> oldClipper) {
+            return ((_DecorationClipper)oldClipper).decoration != decoration
+                   || ((_DecorationClipper)oldClipper).textDirection != textDirection;
         }
     }
 }

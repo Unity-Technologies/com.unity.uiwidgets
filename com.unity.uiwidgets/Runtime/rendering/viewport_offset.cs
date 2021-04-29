@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.rendering {
@@ -46,14 +46,14 @@ namespace Unity.UIWidgets.rendering {
         public abstract void correctBy(float correction);
         public abstract void jumpTo(float pixels);
 
-        public abstract IPromise animateTo(float to, TimeSpan duration, Curve curve);
+        public abstract Future animateTo(float to, TimeSpan duration, Curve curve);
 
-        public virtual IPromise moveTo(float to, TimeSpan? duration, Curve curve = null, bool clamp = true) {
+        public virtual Future moveTo(float to, TimeSpan? duration, Curve curve = null, bool clamp = true) {
             if (duration == null || duration.Value == TimeSpan.Zero) {
-                this.jumpTo(to);
-                return Promise.Resolved();
+                jumpTo(to);
+                return Future.value();
             } else {
-                return this.animateTo(to, duration: duration??TimeSpan.Zero , curve: curve ?? Curves.ease);
+                return animateTo(to, duration: duration??TimeSpan.Zero , curve: curve ?? Curves.ease);
             }
         }
 
@@ -63,12 +63,12 @@ namespace Unity.UIWidgets.rendering {
 
         public override string ToString() {
             var description = new List<string>();
-            this.debugFillDescription(description);
-            return Diagnostics.describeIdentity(this) + "(" + string.Join(", ", description.ToArray()) + ")";
+            debugFillDescription(description);
+            return foundation_.describeIdentity(this) + "(" + string.Join(", ", description.ToArray()) + ")";
         }
 
         protected virtual void debugFillDescription(List<string> description) {
-            description.Add("offset: " + this.pixels.ToString("F1"));
+            description.Add("offset: " + pixels.ToString("F1"));
         }
     }
 
@@ -84,7 +84,7 @@ namespace Unity.UIWidgets.rendering {
         float _pixels;
 
         public override float pixels {
-            get { return this._pixels; }
+            get { return _pixels; }
         }
 
         public override bool applyViewportDimension(float viewportDimension) {
@@ -96,14 +96,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void correctBy(float correction) {
-            this._pixels += correction;
+            _pixels += correction;
         }
 
         public override void jumpTo(float pixels) {
         }
 
-        public override IPromise animateTo(float to, TimeSpan duration, Curve curve) {
-            return Promise.Resolved();
+        public override Future animateTo(float to, TimeSpan duration, Curve curve) {
+            return Future.value();
         }
 
         public override ScrollDirection userScrollDirection {

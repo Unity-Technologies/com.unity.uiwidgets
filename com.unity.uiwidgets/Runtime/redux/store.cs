@@ -12,23 +12,23 @@ namespace Unity.UIWidgets {
         readonly Func<object, object> _impl;
 
         public DispatcherImpl(Func<object, object> impl) {
-            this._impl = impl;
+            _impl = impl;
         }
         
         public T dispatch<T>(object action) {
-            if (this._impl == null) {
+            if (_impl == null) {
                 return default;
             }
 
-            return (T) this._impl(action);
+            return (T) _impl(action);
         }
 
         public object dispatch(object action) {
-            if (this._impl == null) {
+            if (_impl == null) {
                 return default;
             }
 
-            return this._impl(action);
+            return _impl(action);
         }
     }
 
@@ -49,30 +49,30 @@ namespace Unity.UIWidgets {
             Reducer<State> reducer,
             State initialState = default,
             params Middleware<State>[] middleware) {
-            this._reducer = reducer;
-            this._dispatcher = this._applyMiddleware(middleware);
-            this._state = initialState;
+            _reducer = reducer;
+            _dispatcher = _applyMiddleware(middleware);
+            _state = initialState;
         }
 
         public Dispatcher dispatcher {
-            get { return this._dispatcher; }
+            get { return _dispatcher; }
         }
 
         public State getState() {
-            return this._state;
+            return _state;
         }
 
         Dispatcher _applyMiddleware(params Middleware<State>[] middleware) {
             return middleware.Reverse().Aggregate<Middleware<State>, Dispatcher>(
-                new DispatcherImpl(this._innerDispatch),
+                new DispatcherImpl(_innerDispatch),
                 (current, middlewareItem) => middlewareItem(this)(current));
         }
 
         object _innerDispatch(object action) {
-            this._state = this._reducer(this._state, action);
+            _state = _reducer(_state, action);
 
-            if (this.stateChanged != null) {
-                this.stateChanged(this._state);
+            if (stateChanged != null) {
+                stateChanged(_state);
             }
 
             return action;

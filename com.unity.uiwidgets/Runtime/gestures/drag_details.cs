@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly Offset localPosition;
 
         public override string ToString() {
-            return this.GetType() + "(" + this.globalPosition + ")";
+            return GetType() + "(" + globalPosition + ")";
         }
     }
 
@@ -24,7 +24,7 @@ namespace Unity.UIWidgets.gestures {
 
     public class DragStartDetails {
         public DragStartDetails(
-            TimeSpan sourceTimeStamp, 
+            TimeSpan? sourceTimeStamp = null, 
             Offset globalPosition = null,
             Offset localPosition = null
         ) {
@@ -33,13 +33,13 @@ namespace Unity.UIWidgets.gestures {
             this.localPosition = localPosition ?? this.globalPosition;
         }
 
-        public readonly TimeSpan sourceTimeStamp;
+        public readonly TimeSpan? sourceTimeStamp;
 
         public readonly Offset globalPosition;
         public readonly Offset localPosition;
 
         public override string ToString() {
-            return this.GetType() + "(" + this.globalPosition + ")";
+            return GetType() + "(" + globalPosition + ")";
         }
     }
 
@@ -47,12 +47,14 @@ namespace Unity.UIWidgets.gestures {
 
     public class DragUpdateDetails {
         public DragUpdateDetails(
-            TimeSpan sourceTimeStamp,
+            TimeSpan? sourceTimeStamp = null,
             Offset delta = null,
             float? primaryDelta = null,
             Offset globalPosition = null,
             Offset localPosition = null,
-            bool isScroll = false) {
+            bool isScroll = false
+            )
+        {
             this.sourceTimeStamp = sourceTimeStamp;
             this.delta = delta ?? Offset.zero;
             this.primaryDelta = primaryDelta;
@@ -64,7 +66,7 @@ namespace Unity.UIWidgets.gestures {
                      || primaryDelta == this.delta.dy && this.delta.dx == 0.0);
         }
 
-        public readonly TimeSpan sourceTimeStamp;
+        public readonly TimeSpan? sourceTimeStamp;
 
         public readonly Offset delta;
 
@@ -76,7 +78,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly bool isScroll;
 
         public override string ToString() {
-            return this.GetType() + "(" + this.delta + ")";
+            return GetType() + "(" + delta + ")";
         }
     }
 
@@ -100,7 +102,7 @@ namespace Unity.UIWidgets.gestures {
         public readonly float? primaryVelocity;
 
         public override string ToString() {
-            return this.GetType() + "(" + this.velocity + ")";
+            return GetType() + "(" + velocity + ")";
         }
     }
 }

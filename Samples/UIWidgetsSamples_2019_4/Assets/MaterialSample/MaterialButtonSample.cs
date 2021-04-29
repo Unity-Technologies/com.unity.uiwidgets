@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
@@ -7,19 +8,19 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Material = Unity.UIWidgets.material.Material;
+using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample {
     
-    public class MaterialButtonSample : UIWidgetsSamplePanel {
+    public class MaterialButtonSample : UIWidgetsPanel {
 
-        protected override Widget createWidget() {
-            return new MaterialApp(
+        protected override void main() {
+            ui_.runApp(new MaterialApp(
                 showPerformanceOverlay: false,
-                home: new MaterialButtonWidget());
+                home: new MaterialButtonWidget()));
         }
 
-        protected override void OnEnable() {
-            FontManager.instance.addFont(Resources.Load<Font>(path: "fonts/MaterialIcons-Regular"), "Material Icons");
+        protected new void OnEnable() {
             base.OnEnable();
         }
     }
@@ -63,8 +64,7 @@ namespace UIWidgetsSample {
                                 }
                             )
                         )
-                    ),
-                    new PerformanceOverlay()
+                    )
                 }
             );
         }

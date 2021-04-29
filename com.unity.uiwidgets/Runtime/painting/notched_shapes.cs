@@ -79,9 +79,9 @@ namespace Unity.UIWidgets.painting {
         public readonly ShapeBorder guest;
 
         public override Path getOuterPath(Rect hostRect, Rect guestRect) {
-            Path hostPath = this.host.getOuterPath(hostRect);
-            if (this.guest != null && guestRect != null) {
-                Path guestPath = this.guest.getOuterPath(guestRect);
+            Path hostPath = host.getOuterPath(hostRect);
+            if (guest != null && guestRect != null) {
+                Path guestPath = guest.getOuterPath(guestRect);
                 return Path.combine(PathOperation.difference, hostPath, guestPath);
             }
 

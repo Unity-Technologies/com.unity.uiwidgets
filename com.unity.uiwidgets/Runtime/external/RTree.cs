@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace Unity.UIWidgets.external
 
         public IndexedRect(uiRect bounds, int index)
         {
-            this._bounds = bounds;
+            _bounds = bounds;
             this.index = index;
         }
     }
@@ -521,4 +522,4 @@ namespace Unity.UIWidgets.external
             }
         }
     }
-}
+}*/

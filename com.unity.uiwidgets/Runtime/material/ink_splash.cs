@@ -61,6 +61,7 @@ namespace Unity.UIWidgets.material {
             RenderBox referenceBox = null,
             Offset position = null,
             Color color = null,
+            TextDirection? textDirection = null,
             bool containedInkWell = false,
             RectCallback rectCallback = null,
             BorderRadius borderRadius = null,
@@ -72,6 +73,7 @@ namespace Unity.UIWidgets.material {
             D.assert(referenceBox != null);
             D.assert(position != null);
             D.assert(color != null);
+            D.assert(textDirection != null);
             return new InkSplash(
                 controller: controller,
                 referenceBox: referenceBox,
@@ -82,7 +84,9 @@ namespace Unity.UIWidgets.material {
                 borderRadius: borderRadius,
                 customBorder: customBorder,
                 radius: radius,
-                onRemoved: onRemoved);
+                onRemoved: onRemoved,
+                textDirection: textDirection
+            );
         }
     }
 
@@ -90,6 +94,7 @@ namespace Unity.UIWidgets.material {
         public InkSplash(
             MaterialInkController controller = null,
             RenderBox referenceBox = null,
+            TextDirection? textDirection = null,
             Offset position = null,
             Color color = null,
             bool containedInkWell = false,
@@ -105,30 +110,32 @@ namespace Unity.UIWidgets.material {
             onRemoved: onRemoved) {
             D.assert(controller != null);
             D.assert(referenceBox != null);
-            this._position = position;
-            this._borderRadius = borderRadius ?? BorderRadius.zero;
-            this._customBorder = customBorder;
-            this._targetRadius =
+            D.assert(textDirection != null);
+            _position = position;
+            _borderRadius = borderRadius ?? BorderRadius.zero;
+            _customBorder = customBorder;
+            _targetRadius =
                 radius ?? InkSplashUtils._getTargetRadius(referenceBox, containedInkWell, rectCallback, position);
-            this._clipCallback = InkSplashUtils._getClipCallback(referenceBox, containedInkWell, rectCallback);
-            this._repositionToReferenceBox = !containedInkWell;
+            _clipCallback = InkSplashUtils._getClipCallback(referenceBox, containedInkWell, rectCallback);
+            _repositionToReferenceBox = !containedInkWell;
+            _textDirection = textDirection.Value;
 
-            D.assert(this._borderRadius != null);
-            this._radiusController = new AnimationController(
+            D.assert(_borderRadius != null);
+            _radiusController = new AnimationController(
                 duration: InkSplashUtils._kUnconfirmedSplashDuration,
                 vsync: controller.vsync);
-            this._radiusController.addListener(controller.markNeedsPaint);
-            this._radiusController.forward();
-            this._radius = this._radiusController.drive(new FloatTween(
+            _radiusController.addListener(controller.markNeedsPaint);
+            _radiusController.forward();
+            _radius = _radiusController.drive(new FloatTween(
                 begin: InkSplashUtils._kSplashInitialSize,
-                end: this._targetRadius));
+                end: _targetRadius));
 
-            this._alphaController = new AnimationController(
+            _alphaController = new AnimationController(
                 duration: InkSplashUtils._kSplashFadeDuration,
                 vsync: controller.vsync);
-            this._alphaController.addListener(controller.markNeedsPaint);
-            this._alphaController.addStatusListener(this._handleAlphaStatusChanged);
-            this._alpha = this._alphaController.drive(new IntTween(
+            _alphaController.addListener(controller.markNeedsPaint);
+            _alphaController.addStatusListener(_handleAlphaStatusChanged);
+            _alpha = _alphaController.drive(new IntTween(
                 begin: color.alpha,
                 end: 0));
 
@@ -147,6 +154,8 @@ namespace Unity.UIWidgets.material {
 
         readonly bool _repositionToReferenceBox;
 
+        readonly TextDirection _textDirection;
+
         Animation<float> _radius;
         AnimationController _radiusController;
 
@@ -156,65 +165,47 @@ namespace Unity.UIWidgets.material {
         public static InteractiveInkFeatureFactory splashFactory = new _InkSplashFactory();
 
         public override void confirm() {
-            int duration = (this._targetRadius / InkSplashUtils._kSplashConfirmedVelocity).floor();
-            this._radiusController.duration = new TimeSpan(0, 0, 0, 0, duration);
-            this._radiusController.forward();
-            this._alphaController.forward();
+            int duration = (_targetRadius / InkSplashUtils._kSplashConfirmedVelocity).floor();
+            _radiusController.duration = new TimeSpan(0, 0, 0, 0, duration);
+            _radiusController.forward();
+            _alphaController.forward();
         }
 
         public override void cancel() {
-            this._alphaController?.forward();
+            _alphaController?.forward();
         }
 
         void _handleAlphaStatusChanged(AnimationStatus status) {
             if (status == AnimationStatus.completed) {
-                this.dispose();
+                dispose();
             }
         }
 
         public override void dispose() {
-            this._radiusController.dispose();
-            this._alphaController.dispose();
-            this._alphaController = null;
+            _radiusController.dispose();
+            _alphaController.dispose();
+            _alphaController = null;
             base.dispose();
         }
 
         protected override void paintFeature(Canvas canvas, Matrix4 transform) {
-            Paint paint = new Paint {color = this.color.withAlpha(this._alpha.value)};
-            Offset center = this._position;
-            if (this._repositionToReferenceBox) {
-                center = Offset.lerp(center, this.referenceBox.size.center(Offset.zero), this._radiusController.value);
+            Paint paint = new Paint {color = color.withAlpha(_alpha.value)};
+            Offset center = _position;
+            if (_repositionToReferenceBox) {
+                center = Offset.lerp(center, referenceBox.size.center(Offset.zero), _radiusController.value);
             }
 
-            Offset originOffset = transform.getAsTranslation();
-            canvas.save();
-            if (originOffset == null) {
-                canvas.concat(transform.toMatrix3());
-            }
-            else {
-                canvas.translate(originOffset.dx, originOffset.dy);
-            }
-
-            if (this._clipCallback != null) {
-                Rect rect = this._clipCallback();
-                if (this._customBorder != null) {
-                    canvas.clipPath(this._customBorder.getOuterPath(rect));
-                }
-                else if (this._borderRadius != BorderRadius.zero) {
-                    canvas.clipRRect(RRect.fromRectAndCorners(
-                        rect,
-                        topLeft: this._borderRadius.topLeft,
-                        topRight: this._borderRadius.topRight,
-                        bottomLeft: this._borderRadius.bottomLeft,
-                        bottomRight: this._borderRadius.bottomRight));
-                }
-                else {
-                    canvas.clipRect(rect);
-                }
-            }
-
-            canvas.drawCircle(center, this._radius.value, paint);
-            canvas.restore();
+            paintInkCircle(
+                canvas: canvas,
+                transform: transform,
+                paint: paint,
+                center: center,
+                textDirection: _textDirection,
+                radius: _radius.value,
+                customBorder: _customBorder,
+                borderRadius: _borderRadius,
+                clipCallback: _clipCallback
+            );
         }
     }
 }

@@ -4,11 +4,16 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Object = System.Object;
 using Rect = Unity.UIWidgets.ui.Rect;
+using TextRange = Unity.UIWidgets.ui.TextRange;
 
 namespace Unity.UIWidgets.widgets {
     static class TextSelectionUtils {
@@ -32,29 +37,37 @@ namespace Unity.UIWidgets.widgets {
 
     public abstract class TextSelectionControls {
         public abstract Widget buildHandle(BuildContext context, TextSelectionHandleType type, float textLineHeight);
+        public abstract Offset getHandleAnchor(TextSelectionHandleType type, float textLineHeight);
+        public abstract Widget buildToolbar(
+            BuildContext context, 
+            Rect globalEditableRegion, 
+            float textLineHeight,
+            Offset position,
+            List<TextSelectionPoint> endpoints,
+            TextSelectionDelegate selectionDelegate
+            );
+        public abstract Size getHandleSize(float textLineHeight);
 
-        public abstract Widget buildToolbar(BuildContext context, Rect globalEditableRegion, Offset position,
-            TextSelectionDelegate selectionDelegate);
-
-        public abstract Size handleSize { get; }
-
-        public virtual bool canCut(TextSelectionDelegate selectionDelegate) {
-            return !selectionDelegate.textEditingValue.selection.isCollapsed;
+        public virtual bool canCut(TextSelectionDelegate _delegate) {
+            return _delegate.cutEnabled && !_delegate.textEditingValue.selection.isCollapsed;
         }
 
-        public virtual bool canCopy(TextSelectionDelegate selectionDelegate) {
-            return !selectionDelegate.textEditingValue.selection.isCollapsed;
+
+        public bool canCopy(TextSelectionDelegate _delegate) {
+            return _delegate.copyEnabled && !_delegate.textEditingValue.selection.isCollapsed;
         }
 
-        public virtual bool canPaste(TextSelectionDelegate selectionDelegate) {
-            // TODO in flutter: return false when clipboard is empty
-            return true;
+        public bool canPaste(TextSelectionDelegate _delegate) {
+            // TODO(goderbauer): return false when clipboard is empty, https://github.com/flutter/flutter/issues/11254
+            return _delegate.pasteEnabled;
         }
 
-        public virtual bool canSelectAll(TextSelectionDelegate selectionDelegate) {
-            return selectionDelegate.textEditingValue.text.isNotEmpty() &&
-                   selectionDelegate.textEditingValue.selection.isCollapsed;
+        public bool canSelectAll(TextSelectionDelegate _delegate) {
+            return _delegate.selectAllEnabled 
+                   && _delegate.textEditingValue.text.isNotEmpty() 
+                   && _delegate.textEditingValue.selection.isCollapsed;
         }
+
 
         public void handleCut(TextSelectionDelegate selectionDelegate) {
             TextEditingValue value = selectionDelegate.textEditingValue;
@@ -87,7 +100,7 @@ namespace Unity.UIWidgets.widgets {
 
         public void handlePaste(TextSelectionDelegate selectionDelegate) {
             TextEditingValue value = selectionDelegate.textEditingValue; // Snapshot the input before using `await`.
-            Clipboard.getData(Clipboard.kTextPlain).Then((data) => {
+            Clipboard.getData(Clipboard.kTextPlain).then_((data) => {
                 if (data != null) {
                     selectionDelegate.textEditingValue = new TextEditingValue(
                         text: value.selection.textBefore(value.text)
@@ -97,7 +110,7 @@ namespace Unity.UIWidgets.widgets {
                             offset: value.selection.start + data.text.Length
                         )
                     );
-                    
+
                     selectionDelegate.bringIntoView(selectionDelegate.textEditingValue.selection.extendPos);
                     selectionDelegate.hideToolbar();
                 }
@@ -117,43 +130,61 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class TextSelectionOverlay {
-        public TextSelectionOverlay(TextEditingValue value = null,
-            BuildContext context = null, Widget debugRequiredFor = null,
-            LayerLink layerLink = null,
+        public TextSelectionOverlay(
+            TextEditingValue value = null,
+            BuildContext context = null, 
+            Widget debugRequiredFor = null,
+            LayerLink toolbarLayerLink = null,
+            LayerLink startHandleLayerLink = null,
+            LayerLink endHandleLayerLink = null,
             RenderEditable renderObject = null,
             TextSelectionControls selectionControls = null,
+            bool handlesVisible = false,
             TextSelectionDelegate selectionDelegate = null,
-            DragStartBehavior dragStartBehavior = DragStartBehavior.start) {
+            DragStartBehavior dragStartBehavior = DragStartBehavior.start, 
+            VoidCallback onSelectionHandleTapped = null) {
             D.assert(value != null);
             D.assert(context != null);
+            D.assert(handlesVisible != null);
+            _handlesVisible = handlesVisible;
             this.context = context;
             this.debugRequiredFor = debugRequiredFor;
-            this.layerLink = layerLink;
+            this.toolbarLayerLink = toolbarLayerLink;
+            this.startHandleLayerLink = startHandleLayerLink;
+            this.endHandleLayerLink = endHandleLayerLink;
             this.renderObject = renderObject;
             this.selectionControls = selectionControls;
             this.selectionDelegate = selectionDelegate;
-            this._value = value;
-            OverlayState overlay = Overlay.of(context);
+            this.onSelectionHandleTapped = onSelectionHandleTapped;
+            _value = value;
+            OverlayState overlay = Overlay.of(context, rootOverlay: true);
             D.assert(overlay != null, () => $"No Overlay widget exists above {context}.\n" +
                                             "Usually the Navigator created by WidgetsApp provides the overlay. Perhaps your " +
                                             "app content was created above the Navigator with the WidgetsApp builder parameter.");
-            this._toolbarController = new AnimationController(duration: fadeDuration, vsync: overlay);
+            _toolbarController = new AnimationController(duration: fadeDuration, vsync: overlay);
             this.dragStartBehavior = dragStartBehavior;
         }
 
         public readonly BuildContext context;
         public readonly Widget debugRequiredFor;
-        public readonly LayerLink layerLink;
+        public readonly LayerLink toolbarLayerLink;
+        public readonly LayerLink startHandleLayerLink;
+        public readonly LayerLink endHandleLayerLink;
         public readonly RenderEditable renderObject;
         public readonly TextSelectionControls selectionControls;
         public readonly TextSelectionDelegate selectionDelegate;
         public readonly DragStartBehavior dragStartBehavior;
+        public readonly VoidCallback onSelectionHandleTapped;
 
         public static readonly TimeSpan fadeDuration = TimeSpan.FromMilliseconds(150);
         AnimationController _toolbarController;
 
         Animation<float> _toolbarOpacity {
-            get { return this._toolbarController.view; }
+            get { return _toolbarController.view; }
+        }
+
+        TextEditingValue  value {
+            get { return _value; }
         }
 
         TextEditingValue _value;
@@ -163,124 +194,178 @@ namespace Unity.UIWidgets.widgets {
         OverlayEntry _toolbar;
 
         TextSelection _selection {
-            get { return this._value.selection; }
+            get { return _value.selection; }
         }
 
+        bool _handlesVisible = false;
+        public bool handlesVisible {
+            get {
+                return _handlesVisible;
+            }
+            set {
+                D.assert(value != null);
+                if (_handlesVisible == value)
+                    return;
+                _handlesVisible = value;
+                // If we are in build state, it will be too late to update visibility.
+                // We will need to schedule the build in next frame.
+                if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+                    SchedulerBinding.instance.addPostFrameCallback((TimeSpan timespan) => {
+                        _markNeedsBuild();
+                    });
+                } else {
+                    _markNeedsBuild();
+                }
+            }
+            
+        }
+        
         public void showHandles() {
-            D.assert(this._handles == null);
-            this._handles = new List<OverlayEntry> {
+            D.assert(_handles == null);
+            _handles = new List<OverlayEntry> {
                 new OverlayEntry(builder: (BuildContext context) =>
-                    this._buildHandle(context, _TextSelectionHandlePosition.start)),
+                    _buildHandle(context, _TextSelectionHandlePosition.start)),
                 new OverlayEntry(builder: (BuildContext context) =>
-                    this._buildHandle(context, _TextSelectionHandlePosition.end)),
+                    _buildHandle(context, _TextSelectionHandlePosition.end)),
             };
-            Overlay.of(this.context, debugRequiredFor: this.debugRequiredFor).insertAll(this._handles);
+            Overlay.of(this.context, rootOverlay: true, debugRequiredFor: debugRequiredFor).insertAll(_handles);
         }
 
+        public void hideHandles() {
+            if (_handles != null) {
+                _handles[0].remove();
+                _handles[1].remove();
+                _handles = null;
+            }
+        }
+        
         public void showToolbar() {
-            D.assert(this._toolbar == null);
-            this._toolbar = new OverlayEntry(builder: this._buildToolbar);
-            Overlay.of(this.context, debugRequiredFor: this.debugRequiredFor).insert(this._toolbar);
-            this._toolbarController.forward(from: 0.0f);
+            D.assert(_toolbar == null);
+            _toolbar = new OverlayEntry(builder: _buildToolbar);
+            Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor).insert(_toolbar);
+            _toolbarController.forward(from: 0.0f);
         }
 
         public void update(TextEditingValue newValue) {
-            if (this._value == newValue) {
+            if (_value == newValue) {
                 return;
             }
 
-            this._value = newValue;
+            _value = newValue;
             if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
-                SchedulerBinding.instance.addPostFrameCallback((duration) => this._markNeedsBuild());
+                SchedulerBinding.instance.addPostFrameCallback((duration) => _markNeedsBuild());
             }
             else {
-                this._markNeedsBuild();
+                _markNeedsBuild();
             }
         }
 
         public void updateForScroll() {
-            this._markNeedsBuild();
+            _markNeedsBuild();
         }
 
         void _markNeedsBuild() {
-            if (this._handles != null) {
-                this._handles[0].markNeedsBuild();
-                this._handles[1].markNeedsBuild();
+            if (_handles != null) {
+                _handles[0].markNeedsBuild();
+                _handles[1].markNeedsBuild();
             }
 
-            this._toolbar?.markNeedsBuild();
+            _toolbar?.markNeedsBuild();
         }
 
         public bool handlesAreVisible {
-            get { return this._handles != null; }
+            get { return _handles != null && handlesVisible; }
         }
 
 
         public bool toolbarIsVisible {
-            get { return this._toolbar != null; }
+            get { return _toolbar != null; }
         }
 
         public void hide() {
-            if (this._handles != null) {
-                this._handles[0].remove();
-                this._handles[1].remove();
-                this._handles = null;
+            if (_handles != null) {
+                _handles[0].remove();
+                _handles[1].remove();
+                _handles = null;
             }
+            if (_toolbar != null) {
+                hideToolbar();
+            }
+        }
 
-            this._toolbar?.remove();
-            this._toolbar = null;
-
-            this._toolbarController.stop();
+        void hideToolbar() {
+            D.assert(_toolbar != null);
+            _toolbarController.stop();
+            _toolbar.remove();
+            _toolbar = null;
         }
 
         public void dispose() {
-            this.hide();
-            this._toolbarController.dispose();
+            hide();
+            _toolbarController.dispose();
         }
 
         Widget _buildHandle(BuildContext context, _TextSelectionHandlePosition position) {
-            if ((this._selection.isCollapsed && position == _TextSelectionHandlePosition.end) ||
-                this.selectionControls == null) {
+            if ((_selection.isCollapsed && position == _TextSelectionHandlePosition.end) ||
+                selectionControls == null) {
                 return new Container(); // hide the second handle when collapsed
             }
 
-            return new _TextSelectionHandleOverlay(
-                onSelectionHandleChanged: (TextSelection newSelection) => {
-                    this._handleSelectionHandleChanged(newSelection, position);
-                },
-                onSelectionHandleTapped: this._handleSelectionHandleTapped,
-                layerLink: this.layerLink,
-                renderObject: this.renderObject,
-                selection: this._selection,
-                selectionControls: this.selectionControls,
-                position: position,
-                dragStartBehavior: this.dragStartBehavior
+            return new Visibility(
+                visible: handlesVisible,
+                child: new _TextSelectionHandleOverlay(
+                    onSelectionHandleChanged: (TextSelection newSelection) => {
+                        _handleSelectionHandleChanged(newSelection, position);
+                    },
+                    onSelectionHandleTapped: onSelectionHandleTapped,
+                    startHandleLayerLink: startHandleLayerLink,
+                    endHandleLayerLink: endHandleLayerLink,
+                    renderObject: renderObject,
+                    selection: _selection,
+                    selectionControls: selectionControls,
+                    position: position,
+                    dragStartBehavior: dragStartBehavior
+                )
             );
         }
 
         Widget _buildToolbar(BuildContext context) {
-            if (this.selectionControls == null) {
+            if (selectionControls == null) {
                 return new Container();
             }
 
             // Find the horizontal midpoint, just above the selected text.
-            List<TextSelectionPoint> endpoints = this.renderObject.getEndpointsForSelection(this._selection);
+            List<TextSelectionPoint> endpoints = renderObject.getEndpointsForSelection(_selection);
+
+            Rect editingRegion = Rect.fromPoints(renderObject.localToGlobal(Offset.zero),
+                renderObject.localToGlobal(renderObject.size.bottomRight(Offset.zero))
+            );
+
+            bool isMultiline = endpoints.last().point.dy - endpoints.first().point.dy >
+                                     renderObject.preferredLineHeight / 2;
+            
+            float midX = isMultiline
+                ? editingRegion.width / 2
+                : (endpoints.first().point.dx + endpoints.last().point.dx) / 2;
+
             Offset midpoint = new Offset(
-                (endpoints.Count == 1) ? endpoints[0].point.dx : (endpoints[0].point.dx + endpoints[1].point.dx) / 2.0f,
-                endpoints[0].point.dy - this.renderObject.preferredLineHeight
+                midX,
+                endpoints[0].point.dy - renderObject.preferredLineHeight
             );
-
-            Rect editingRegion = Rect.fromPoints(this.renderObject.localToGlobal(Offset.zero),
-                this.renderObject.localToGlobal(this.renderObject.size.bottomRight(Offset.zero))
-            );
-
+            
             return new FadeTransition(
-                opacity: this._toolbarOpacity,
+                opacity: _toolbarOpacity,
                 child: new CompositedTransformFollower(
-                    link: this.layerLink,
+                    link: toolbarLayerLink,
                     showWhenUnlinked: false,
                     offset: -editingRegion.topLeft,
-                    child: this.selectionControls.buildToolbar(context, editingRegion, midpoint, this.selectionDelegate)
+                    child: selectionControls.buildToolbar(
+                        context,
+                        editingRegion,
+                        renderObject.preferredLineHeight,
+                        midpoint,
+                        endpoints,
+                        selectionDelegate)
                 )
             );
         }
@@ -296,21 +381,9 @@ namespace Unity.UIWidgets.widgets {
                     break;
             }
 
-            this.selectionDelegate.textEditingValue =
-                this._value.copyWith(selection: newSelection, composing: TextRange.empty);
-            this.selectionDelegate.bringIntoView(textPosition);
-        }
-
-        void _handleSelectionHandleTapped() {
-            if (this._value.selection.isCollapsed) {
-                if (this._toolbar != null) {
-                    this._toolbar?.remove();
-                    this._toolbar = null;
-                }
-                else {
-                    this.showToolbar();
-                }
-            }
+            selectionDelegate.textEditingValue =
+                _value.copyWith(selection: newSelection, composing: TextRange.empty);
+            selectionDelegate.bringIntoView(textPosition);
         }
     }
 
@@ -319,7 +392,8 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             TextSelection selection = null,
             _TextSelectionHandlePosition position = _TextSelectionHandlePosition.start,
-            LayerLink layerLink = null,
+            LayerLink startHandleLayerLink = null,
+            LayerLink endHandleLayerLink = null,
             RenderEditable renderObject = null,
             ValueChanged<TextSelection> onSelectionHandleChanged = null,
             VoidCallback onSelectionHandleTapped = null,
@@ -328,7 +402,8 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key) {
             this.selection = selection;
             this.position = position;
-            this.layerLink = layerLink;
+            this.startHandleLayerLink = startHandleLayerLink;
+            this.endHandleLayerLink = endHandleLayerLink;
             this.renderObject = renderObject;
             this.onSelectionHandleChanged = onSelectionHandleChanged;
             this.onSelectionHandleTapped = onSelectionHandleTapped;
@@ -338,7 +413,8 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly TextSelection selection;
         public readonly _TextSelectionHandlePosition position;
-        public readonly LayerLink layerLink;
+        public readonly LayerLink startHandleLayerLink;
+        public readonly LayerLink endHandleLayerLink;
         public readonly RenderEditable renderObject;
         public readonly ValueChanged<TextSelection> onSelectionHandleChanged;
         public readonly VoidCallback onSelectionHandleTapped;
@@ -351,11 +427,11 @@ namespace Unity.UIWidgets.widgets {
 
         internal ValueListenable<bool> _visibility {
             get {
-                switch (this.position) {
+                switch (position) {
                     case _TextSelectionHandlePosition.start:
-                        return this.renderObject.selectionStartInViewport;
+                        return renderObject.selectionStartInViewport;
                     case _TextSelectionHandlePosition.end:
-                        return this.renderObject.selectionEndInViewport;
+                        return renderObject.selectionEndInViewport;
                 }
 
                 return null;
@@ -368,64 +444,67 @@ namespace Unity.UIWidgets.widgets {
 
         AnimationController _controller;
 
+        const float kMinInteractiveDimension = 48.0f;
         Animation<float> _opacity {
-            get { return this._controller.view; }
+            get { return _controller.view; }
         }
 
         public override void initState() {
             base.initState();
-            this._controller = new AnimationController(duration: TextSelectionOverlay.fadeDuration, vsync: this);
-            this._handleVisibilityChanged();
-            this.widget._visibility.addListener(this._handleVisibilityChanged);
+            _controller = new AnimationController(duration: TextSelectionOverlay.fadeDuration, vsync: this);
+            _handleVisibilityChanged();
+            widget._visibility.addListener(_handleVisibilityChanged);
         }
 
         void _handleVisibilityChanged() {
-            if (this.widget._visibility.value) {
-                this._controller.forward();
+            if (widget._visibility.value) {
+                _controller.forward();
             }
             else {
-                this._controller.reverse();
+                _controller.reverse();
             }
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            (oldWidget as _TextSelectionHandleOverlay)._visibility.removeListener(this._handleVisibilityChanged);
-            this._handleVisibilityChanged();
-            this.widget._visibility.addListener(this._handleVisibilityChanged);
+            (oldWidget as _TextSelectionHandleOverlay)._visibility.removeListener(_handleVisibilityChanged);
+            _handleVisibilityChanged();
+            widget._visibility.addListener(_handleVisibilityChanged);
         }
 
         public override void dispose() {
-            this.widget._visibility.removeListener(this._handleVisibilityChanged);
-            this._controller.dispose();
+            widget._visibility.removeListener(_handleVisibilityChanged);
+            _controller.dispose();
             base.dispose();
         }
 
         void _handleDragStart(DragStartDetails details) {
-            this._dragPosition = details.globalPosition +
-                                 new Offset(0.0f, -this.widget.selectionControls.handleSize.height);
+            Size handleSize = widget.selectionControls.getHandleSize(
+                widget.renderObject.preferredLineHeight
+            );
+            _dragPosition = details.globalPosition + new Offset(0.0f, -handleSize.height);
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            this._dragPosition += details.delta;
-            TextPosition position = this.widget.renderObject.getPositionForPoint(this._dragPosition);
+            _dragPosition += details.delta;
+            TextPosition position = widget.renderObject.getPositionForPoint(_dragPosition);
 
-            if (this.widget.selection.isCollapsed) {
-                this.widget.onSelectionHandleChanged(TextSelection.fromPosition(position));
+            if (widget.selection.isCollapsed) {
+                widget.onSelectionHandleChanged(TextSelection.fromPosition(position));
                 return;
             }
 
             TextSelection newSelection = null;
-            switch (this.widget.position) {
+            switch (widget.position) {
                 case _TextSelectionHandlePosition.start:
                     newSelection = new TextSelection(
                         baseOffset: position.offset,
-                        extentOffset: this.widget.selection.extentOffset
+                        extentOffset: widget.selection.extentOffset
                     );
                     break;
                 case _TextSelectionHandlePosition.end:
                     newSelection = new TextSelection(
-                        baseOffset: this.widget.selection.baseOffset,
+                        baseOffset: widget.selection.baseOffset,
                         extentOffset: position.offset
                     );
                     break;
@@ -435,57 +514,88 @@ namespace Unity.UIWidgets.widgets {
                 return; // don't allow order swapping.
             }
 
-            this.widget.onSelectionHandleChanged(newSelection);
+            widget.onSelectionHandleChanged(newSelection);
         }
 
         void _handleTap() {
-            this.widget.onSelectionHandleTapped();
+            if (widget.onSelectionHandleTapped != null)
+                widget.onSelectionHandleTapped();
         }
 
         public override Widget build(BuildContext context) {
             List<TextSelectionPoint> endpoints =
-                this.widget.renderObject.getEndpointsForSelection(this.widget.selection);
+                widget.renderObject.getEndpointsForSelection(widget.selection);
             Offset point = null;
+            
+            LayerLink layerLink = null;
             TextSelectionHandleType type = TextSelectionHandleType.left;
 
-            switch (this.widget.position) {
+            switch (widget.position) {
                 case _TextSelectionHandlePosition.start:
-                    point = endpoints[0].point;
-                    type = this._chooseType(endpoints[0], TextSelectionHandleType.left, TextSelectionHandleType.right);
+                    layerLink = widget.startHandleLayerLink;
+                    type = _chooseType(
+                        widget.renderObject.textDirection,
+                        TextSelectionHandleType.left,
+                        TextSelectionHandleType.right
+                    );
                     break;
                 case _TextSelectionHandlePosition.end:
-                    D.assert(endpoints.Count == 2);
-                    point = endpoints[1].point;
-                    type = this._chooseType(endpoints[1], TextSelectionHandleType.right, TextSelectionHandleType.left);
+                    D.assert(!widget.selection.isCollapsed);
+                    layerLink = widget.endHandleLayerLink;
+                    type = _chooseType(
+                        widget.renderObject.textDirection,
+                        TextSelectionHandleType.right,
+                        TextSelectionHandleType.left
+                    );
                     break;
             }
 
-            Size viewport = this.widget.renderObject.size;
-            point = new Offset(
-                point.dx.clamp(0.0f, viewport.width),
-                point.dy.clamp(0.0f, viewport.height)
+            Offset handleAnchor = widget.selectionControls.getHandleAnchor(
+                type,
+                widget.renderObject.preferredLineHeight
+            );
+            Size handleSize = widget.selectionControls.getHandleSize(
+                widget.renderObject.preferredLineHeight
+            );
+
+            Rect handleRect = Rect.fromLTWH(
+                -handleAnchor.dx,
+                -handleAnchor.dy,
+                handleSize.width,
+                handleSize.height
+            );
+            
+            Rect interactiveRect = handleRect.expandToInclude(
+                Rect.fromCircle(center: handleRect.center, radius: kMinInteractiveDimension/ 2)
+            );
+            RelativeRect padding = RelativeRect.fromLTRB(
+                Mathf.Max((interactiveRect.width - handleRect.width) / 2, 0),
+                Mathf.Max((interactiveRect.height - handleRect.height) / 2, 0),
+                Mathf.Max((interactiveRect.width - handleRect.width) / 2, 0),
+                Mathf.Max((interactiveRect.height - handleRect.height) / 2, 0)
             );
 
             return new CompositedTransformFollower(
-                link: this.widget.layerLink,
+                link: layerLink,
+                offset: interactiveRect.topLeft,
                 showWhenUnlinked: false,
                 child: new FadeTransition(
-                    opacity: this._opacity,
+                    opacity: _opacity,
                     child: new GestureDetector(
-                        dragStartBehavior: this.widget.dragStartBehavior,
-                        onPanStart: this._handleDragStart,
-                        onPanUpdate: this._handleDragUpdate,
-                        onTap: this._handleTap,
-                        child: new Stack(
-                            overflow: Overflow.visible,
-                            children: new List<Widget>() {
-                                new Positioned(
-                                    left: point.dx,
-                                    top: point.dy,
-                                    child: this.widget.selectionControls.buildHandle(context, type,
-                                        this.widget.renderObject.preferredLineHeight)
-                                )
-                            }
+                        behavior: HitTestBehavior.translucent,
+                        dragStartBehavior: widget.dragStartBehavior,
+                        onPanStart: _handleDragStart,
+                        onPanUpdate: _handleDragUpdate,
+                        onTap: _handleTap,
+                        child: new Padding(
+                            padding: EdgeInsets.only(
+                                left: padding.left,
+                                top: padding.top,
+                                right: padding.right,
+                                bottom: padding.bottom
+                                ), 
+                            child: widget.selectionControls.buildHandle(context, type,
+                                widget.renderObject.preferredLineHeight)
                         )
                     )
                 )
@@ -493,32 +603,171 @@ namespace Unity.UIWidgets.widgets {
         }
 
         TextSelectionHandleType _chooseType(
-            TextSelectionPoint endpoint,
+            TextDirection? textDirection,
             TextSelectionHandleType ltrType,
             TextSelectionHandleType rtlType
         ) {
-            if (this.widget.selection.isCollapsed) {
+            if (widget.selection.isCollapsed) {
                 return TextSelectionHandleType.collapsed;
             }
 
-            D.assert(endpoint.direction != null);
-            switch (endpoint.direction) {
+            D.assert(textDirection != null);
+            switch (textDirection) {
                 case TextDirection.ltr:
                     return ltrType;
                 case TextDirection.rtl:
                     return rtlType;
             }
 
-            D.assert(() => throw new UIWidgetsError($"invalid endpoint.direction {endpoint.direction}"));
+            D.assert(() => throw new UIWidgetsError($"invalid endpoint.direction {textDirection}"));
             return ltrType;
         }
     }
+    public class TextSelectionGestureDetectorBuilder {
+        public TextSelectionGestureDetectorBuilder(TextSelectionGestureDetectorBuilderDelegate _delegate = null ) {
+            D.assert(_delegate != null);
+            this._delegate = _delegate;
+        }
 
+        protected readonly TextSelectionGestureDetectorBuilderDelegate _delegate;
 
+        public bool shouldShowSelectionToolbar {
+            get { return  _shouldShowSelectionToolbar;  }
+        }
+        bool _shouldShowSelectionToolbar = true;
+
+        protected EditableTextState editableText {
+            get { return _delegate.editableTextKey.currentState; }
+        }
+        protected RenderEditable renderEditable {
+            get { return editableText.renderEditable; }
+        }
+        protected void onTapDown(TapDownDetails details) {
+            renderEditable.handleTapDown(details);
+            PointerDeviceKind kind = details.kind;
+            _shouldShowSelectionToolbar = kind == null
+                              || kind == PointerDeviceKind.touch
+                              || kind == PointerDeviceKind.stylus;
+        }
+        protected virtual void onForcePressStart(ForcePressDetails details) {
+            D.assert(_delegate.forcePressEnabled);
+            _shouldShowSelectionToolbar = true;
+            if (_delegate.selectionEnabled) {
+              renderEditable.selectWordsInRange(
+                from: details.globalPosition,
+                cause: SelectionChangedCause.forcePress
+              );
+            }
+        } 
+        protected virtual void onForcePressEnd(ForcePressDetails details) {
+            D.assert(_delegate.forcePressEnabled);
+            renderEditable.selectWordsInRange(
+              from: details.globalPosition,
+              cause: SelectionChangedCause.forcePress
+            );
+            if (shouldShowSelectionToolbar)
+              editableText.showToolbar();
+        }
+        protected virtual void onSingleTapUp(TapUpDetails details) {
+            if (_delegate.selectionEnabled) {
+                renderEditable.selectWordEdge(cause: SelectionChangedCause.tap);
+            }
+        }
+        protected void onSingleTapCancel() {/* Subclass should override this method if needed. */}
+        protected virtual void onSingleLongTapStart(LongPressStartDetails details) {
+            if (_delegate.selectionEnabled) {
+              renderEditable.selectPositionAt(
+                from: details.globalPosition,
+                cause: SelectionChangedCause.longPress
+              );
+            }
+        }
+        protected virtual void onSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
+        if (_delegate.selectionEnabled) {
+          renderEditable.selectPositionAt(
+            from: details.globalPosition,
+            cause: SelectionChangedCause.longPress
+          );
+        }
+      }
+
+      protected void onSingleLongTapEnd(LongPressEndDetails details) {
+        if (shouldShowSelectionToolbar)
+          editableText.showToolbar();
+      } 
+
+      protected void onDoubleTapDown(TapDownDetails details) {
+        if (_delegate.selectionEnabled) {
+          renderEditable.selectWord(cause: SelectionChangedCause.tap);
+          if (shouldShowSelectionToolbar)
+            editableText.showToolbar();
+        }
+      }
+
+      protected void onDragSelectionStart(DragStartDetails details) {
+        renderEditable.selectPositionAt(
+          from: details.globalPosition,
+          cause: SelectionChangedCause.drag
+        );
+      }
+
+      
+      protected void onDragSelectionUpdate(DragStartDetails startDetails, DragUpdateDetails updateDetails) {
+        renderEditable.selectPositionAt(
+          from: startDetails.globalPosition,
+          to: updateDetails.globalPosition,
+          cause: SelectionChangedCause.drag
+        );
+      }
+
+      protected virtual void onDragSelectionEnd(DragEndDetails details)
+      {/* Subclass should override this method if needed. */}
+
+      public Widget buildGestureDetector(
+        Key key = null,
+        HitTestBehavior behavior = default,
+        Widget child = null) {
+            GestureForcePressStartCallback PressStart = null;
+            GestureForcePressEndCallback PressEnd = null;
+            if (_delegate.forcePressEnabled) {
+                PressStart = onForcePressStart;
+                PressEnd = onForcePressEnd;
+            }
+            return new TextSelectionGestureDetector(
+            key: key,
+            onTapDown: onTapDown,
+            onForcePressStart:PressStart,
+            onForcePressEnd:PressEnd,
+            onSingleTapUp: onSingleTapUp,
+            onSingleTapCancel: onSingleTapCancel,
+            onSingleLongTapStart: onSingleLongTapStart,
+            onSingleLongTapMoveUpdate: onSingleLongTapMoveUpdate,
+            onSingleLongTapEnd: onSingleLongTapEnd,
+            onDoubleTapDown: onDoubleTapDown,
+            onDragSelectionStart: onDragSelectionStart,
+            onDragSelectionUpdate: onDragSelectionUpdate,
+            onDragSelectionEnd: onDragSelectionEnd,
+            behavior: behavior,
+            child: child
+            );
+        }
+    }
+
+    public interface TextSelectionGestureDetectorBuilderDelegate {
+
+        GlobalKey<EditableTextState> editableTextKey { get; }
+        bool forcePressEnabled {
+            get;
+        }
+        bool selectionEnabled { get; }
+    }
+    
     public class TextSelectionGestureDetector : StatefulWidget {
         public TextSelectionGestureDetector(
             Key key = null,
             GestureTapDownCallback onTapDown = null,
+            GestureForcePressStartCallback onForcePressStart = null,
+            GestureForcePressEndCallback onForcePressEnd = null,
             GestureTapUpCallback onSingleTapUp = null,
             GestureTapCancelCallback onSingleTapCancel = null,
             GestureLongPressStartCallback onSingleLongTapStart = null,
@@ -533,6 +782,8 @@ namespace Unity.UIWidgets.widgets {
         ) : base(key: key) {
             D.assert(child != null);
             this.onTapDown = onTapDown;
+            this.onForcePressEnd = onForcePressEnd;
+            this.onForcePressStart = onForcePressStart;
             this.onSingleTapUp = onSingleTapUp;
             this.onSingleTapCancel = onSingleTapCancel;
             this.onSingleLongTapStart = onSingleLongTapStart;
@@ -545,6 +796,10 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public readonly GestureTapDownCallback onTapDown;
+        
+        public readonly GestureForcePressStartCallback onForcePressStart;
+        
+        public readonly GestureForcePressEndCallback onForcePressEnd;
 
         public readonly GestureTapUpCallback onSingleTapUp;
 
@@ -580,44 +835,44 @@ namespace Unity.UIWidgets.widgets {
         bool _isDoubleTap = false;
 
         public override void dispose() {
-            this._doubleTapTimer?.cancel();
-            this._dragUpdateThrottleTimer?.cancel();
+            _doubleTapTimer?.cancel();
+            _dragUpdateThrottleTimer?.cancel();
             base.dispose();
         }
 
         void _handleTapDown(TapDownDetails details) {
-            if (this.widget.onTapDown != null) {
-                this.widget.onTapDown(details);
+            if (widget.onTapDown != null) {
+                widget.onTapDown(details);
             }
 
-            if (this._doubleTapTimer != null &&
-                this._isWithinDoubleTapTolerance(details.globalPosition)) {
-                if (this.widget.onDoubleTapDown != null) {
-                    this.widget.onDoubleTapDown(details);
+            if (_doubleTapTimer != null &&
+                _isWithinDoubleTapTolerance(details.globalPosition)) {
+                if (widget.onDoubleTapDown != null) {
+                    widget.onDoubleTapDown(details);
                 }
 
-                this._doubleTapTimer.cancel();
-                this._doubleTapTimeout();
-                this._isDoubleTap = true;
+                _doubleTapTimer.cancel();
+                _doubleTapTimeout();
+                _isDoubleTap = true;
             }
         }
 
         void _handleTapUp(TapUpDetails details) {
-            if (!this._isDoubleTap) {
-                if (this.widget.onSingleTapUp != null) {
-                    this.widget.onSingleTapUp(details);
+            if (!_isDoubleTap) {
+                if (widget.onSingleTapUp != null) {
+                    widget.onSingleTapUp(details);
                 }
 
-                this._lastTapOffset = details.globalPosition;
-                this._doubleTapTimer = Window.instance.run(Constants.kDoubleTapTimeout, this._doubleTapTimeout);
+                _lastTapOffset = details.globalPosition;
+                _doubleTapTimer = Timer.create(Constants.kDoubleTapTimeout, _doubleTapTimeout);
             }
 
-            this._isDoubleTap = false;
+            _isDoubleTap = false;
         }
 
         void _handleTapCancel() {
-            if (this.widget.onSingleTapCancel != null) {
-                this.widget.onSingleTapCancel();
+            if (widget.onSingleTapCancel != null) {
+                widget.onSingleTapCancel();
             }
         }
 
@@ -626,133 +881,169 @@ namespace Unity.UIWidgets.widgets {
         Timer _dragUpdateThrottleTimer;
 
         void _handleDragStart(DragStartDetails details) {
-            D.assert(this._lastDragStartDetails == null);
-            this._lastDragStartDetails = details;
-            if (this.widget.onDragSelectionStart != null) {
-                this.widget.onDragSelectionStart(details);
+            D.assert(_lastDragStartDetails == null);
+            _lastDragStartDetails = details;
+            if (widget.onDragSelectionStart != null) {
+                widget.onDragSelectionStart(details);
             }
         }
 
         void _handleDragUpdate(DragUpdateDetails details) {
-            this._lastDragUpdateDetails = details;
-            this._dragUpdateThrottleTimer = this._dragUpdateThrottleTimer ??
-                                            Window.instance.run(TextSelectionUtils._kDragSelectionUpdateThrottle,
-                                                this._handleDragUpdateThrottled);
+            _lastDragUpdateDetails = details;
+            _dragUpdateThrottleTimer =
+                _dragUpdateThrottleTimer ?? Timer.create(TextSelectionUtils._kDragSelectionUpdateThrottle, _handleDragUpdateThrottled);
         }
 
-        void _handleDragUpdateThrottled() {
-            D.assert(this._lastDragStartDetails != null);
-            D.assert(this._lastDragUpdateDetails != null);
-            if (this.widget.onDragSelectionUpdate != null) {
-                this.widget.onDragSelectionUpdate(this._lastDragStartDetails, this._lastDragUpdateDetails);
+        object _handleDragUpdateThrottled() {
+            D.assert(_lastDragStartDetails != null);
+            D.assert(_lastDragUpdateDetails != null);
+            if (widget.onDragSelectionUpdate != null) {
+                widget.onDragSelectionUpdate(_lastDragStartDetails, _lastDragUpdateDetails);
             }
 
-            this._dragUpdateThrottleTimer = null;
-            this._lastDragUpdateDetails = null;
+            _dragUpdateThrottleTimer = null;
+            _lastDragUpdateDetails = null;
+            return null;
         }
 
         void _handleDragEnd(DragEndDetails details) {
-            D.assert(this._lastDragStartDetails != null);
-            if (this._lastDragUpdateDetails != null) {
-                this._dragUpdateThrottleTimer.cancel();
-                this._handleDragUpdateThrottled();
+            D.assert(_lastDragStartDetails != null);
+            if (_lastDragUpdateDetails != null) {
+                _dragUpdateThrottleTimer.cancel();
+                _handleDragUpdateThrottled();
             }
 
-            if (this.widget.onDragSelectionEnd != null) {
-                this.widget.onDragSelectionEnd(details);
+            if (widget.onDragSelectionEnd != null) {
+                widget.onDragSelectionEnd(details);
             }
 
-            this._dragUpdateThrottleTimer = null;
-            this._lastDragStartDetails = null;
-            this._lastDragUpdateDetails = null;
+            _dragUpdateThrottleTimer = null;
+            _lastDragStartDetails = null;
+            _lastDragUpdateDetails = null;
         }
 
+        void _forcePressStarted(ForcePressDetails details) {
+            _doubleTapTimer?.cancel();
+            _doubleTapTimer = null;
+            if (widget.onForcePressStart != null)
+                widget.onForcePressStart(details);
+        }
+
+        void _forcePressEnded(ForcePressDetails details) {
+            if (widget.onForcePressEnd != null)
+                widget.onForcePressEnd(details);
+        }
         void _handleLongPressStart(LongPressStartDetails details) {
-            if (!this._isDoubleTap && this.widget.onSingleLongTapStart != null) {
-                this.widget.onSingleLongTapStart(details);
+            if (!_isDoubleTap && widget.onSingleLongTapStart != null) {
+                widget.onSingleLongTapStart(details);
             }
         }
 
         void _handleLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
-            if (!this._isDoubleTap && this.widget.onSingleLongTapMoveUpdate != null) {
-                this.widget.onSingleLongTapMoveUpdate(details);
+            if (!_isDoubleTap && widget.onSingleLongTapMoveUpdate != null) {
+                widget.onSingleLongTapMoveUpdate(details);
             }
         }
 
         void _handleLongPressEnd(LongPressEndDetails details) {
-            if (!this._isDoubleTap && this.widget.onSingleLongTapEnd != null) {
-                this.widget.onSingleLongTapEnd(details);
+            if (!_isDoubleTap && widget.onSingleLongTapEnd != null) {
+                widget.onSingleLongTapEnd(details);
             }
 
-            this._isDoubleTap = false;
+            _isDoubleTap = false;
         }
 
-        void _doubleTapTimeout() {
-            this._doubleTapTimer = null;
-            this._lastTapOffset = null;
+        object _doubleTapTimeout() {
+            _doubleTapTimer = null;
+            _lastTapOffset = null;
+            return null;
         }
 
         bool _isWithinDoubleTapTolerance(Offset secondTapOffset) {
             D.assert(secondTapOffset != null);
-            if (this._lastTapOffset == null) {
+            if (_lastTapOffset == null) {
                 return false;
             }
 
-            Offset difference = secondTapOffset - this._lastTapOffset;
+            Offset difference = secondTapOffset - _lastTapOffset;
             return difference.distance <= Constants.kDoubleTapSlop;
         }
 
         public override Widget build(BuildContext context) {
             Dictionary<Type, GestureRecognizerFactory> gestures = new Dictionary<Type, GestureRecognizerFactory>();
 
-            gestures.Add(typeof(TapGestureRecognizer), new GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-                    () => new TapGestureRecognizer(debugOwner: this),
-                    instance => {
-                        instance.onTapDown = this._handleTapDown;
-                        instance.onTapUp = this._handleTapUp;
-                        instance.onTapCancel = this._handleTapCancel;
+            gestures.Add(typeof(_TransparentTapGestureRecognizer), new GestureRecognizerFactoryWithHandlers<_TransparentTapGestureRecognizer>(
+                    () => new _TransparentTapGestureRecognizer(debugOwner: this),
+                    (_TransparentTapGestureRecognizer instance) => {
+                        instance.onTapDown = _handleTapDown;
+                        instance.onTapUp = _handleTapUp;
+                        instance.onTapCancel = _handleTapCancel;
                     }
                 )
             );
 
-            if (this.widget.onSingleLongTapStart != null ||
-                this.widget.onSingleLongTapMoveUpdate != null ||
-                this.widget.onSingleLongTapEnd != null
+            if (widget.onSingleLongTapStart != null ||
+                widget.onSingleLongTapMoveUpdate != null ||
+                widget.onSingleLongTapEnd != null
             ) {
                 gestures[typeof(LongPressGestureRecognizer)] =
                     new GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
                         () => new LongPressGestureRecognizer(debugOwner: this, kind: PointerDeviceKind.touch),
                         instance => {
-                            instance.onLongPressStart = this._handleLongPressStart;
-                            instance.onLongPressMoveUpdate = this._handleLongPressMoveUpdate;
-                            instance.onLongPressEnd = this._handleLongPressEnd;
+                            instance.onLongPressStart = _handleLongPressStart;
+                            instance.onLongPressMoveUpdate = _handleLongPressMoveUpdate;
+                            instance.onLongPressEnd = _handleLongPressEnd;
                         });
             }
 
-            if (this.widget.onDragSelectionStart != null ||
-                this.widget.onDragSelectionUpdate != null ||
-                this.widget.onDragSelectionEnd != null) {
+            if (widget.onDragSelectionStart != null ||
+                widget.onDragSelectionUpdate != null ||
+                widget.onDragSelectionEnd != null) {
                 gestures.Add(typeof(HorizontalDragGestureRecognizer),
                     new GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
                         () => new HorizontalDragGestureRecognizer(debugOwner: this, kind: PointerDeviceKind.mouse),
                         instance => {
                             instance.dragStartBehavior = DragStartBehavior.down;
-                            instance.onStart = this._handleDragStart;
-                            instance.onUpdate = this._handleDragUpdate;
-                            instance.onEnd = this._handleDragEnd;
+                            instance.onStart = _handleDragStart;
+                            instance.onUpdate = _handleDragUpdate;
+                            instance.onEnd = _handleDragEnd;
                         }
                     )
                 );
             }
 
-            // TODO: if (this.widget.onForcePressStart != null || this.widget.onForcePressEnd != null) {
-            // }
+            if (widget.onForcePressStart != null || widget.onForcePressEnd != null) {
+                GestureForcePressStartCallback startInstance = null;
+                if (widget.onForcePressStart != null)
+                    startInstance = _forcePressStarted;
+                GestureForcePressEndCallback endInstance = null;
+                if (widget.onForcePressEnd != null)
+                    endInstance = _forcePressEnded;
+                gestures[typeof(ForcePressGestureRecognizer)] = new GestureRecognizerFactoryWithHandlers<ForcePressGestureRecognizer>(
+                    () => new ForcePressGestureRecognizer(debugOwner: this),
+                    (ForcePressGestureRecognizer instance) => {
+                        instance.onStart = startInstance;
+                        instance.onEnd = endInstance;
+                    }
+                );
+            }
 
             return new RawGestureDetector(
                 gestures: gestures,
-                behavior: this.widget.behavior,
-                child: this.widget.child
+                behavior: widget.behavior,
+                child: widget.child
             );
+        }
+    }
+    public class _TransparentTapGestureRecognizer : TapGestureRecognizer {
+        public _TransparentTapGestureRecognizer(Object debugOwner = default) : base(debugOwner: debugOwner) {}
+        
+        public override void rejectGesture(int pointer) {
+            if (state == GestureRecognizerState.ready) {
+                acceptGesture(pointer);
+            } else {
+                base.rejectGesture(pointer);
+            }
         }
     }
 }

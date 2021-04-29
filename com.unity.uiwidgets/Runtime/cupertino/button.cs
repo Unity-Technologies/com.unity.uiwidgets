@@ -4,72 +4,74 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
+using TickerFuture = Unity.UIWidgets.scheduler.TickerFuture;
 
 namespace Unity.UIWidgets.cupertino {
     public class CupertinoButtonUtils {
-        public static readonly Color _kDisabledBackground = new Color(0xFFA9A9A9);
-        public static readonly Color _kDisabledForeground = new Color(0xFFD1D1D1);
         public static readonly EdgeInsets _kButtonPadding = EdgeInsets.all(16.0f);
-        public static readonly EdgeInsets _kBackgroundButtonPadding = EdgeInsets.symmetric(vertical: 14.0f, horizontal: 64.0f);
+        public static readonly EdgeInsets _kBackgroundButtonPadding = EdgeInsets.symmetric(
+            vertical: 14.0f,
+            horizontal: 64.0f);
+        public static readonly float kMinInteractiveDimensionCupertino = 44.0f;
     }
 
     public class CupertinoButton : StatefulWidget {
         public CupertinoButton(
-            Widget child,
-            VoidCallback onPressed,
             Key key = null,
-            EdgeInsets padding = null,
+            Widget child = null,
+            EdgeInsetsGeometry padding = null,
             Color color = null,
             Color disabledColor = null,
             float minSize = 44.0f,
-            float pressedOpacity = 0.1f,
+            float pressedOpacity = 0.4f,
             BorderRadius borderRadius = null,
-            bool filled = false
+            VoidCallback onPressed = null
         ) : base(key: key) {
-            D.assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0);
-            this._filled = filled;
+            D.assert((pressedOpacity >= 0.0 && pressedOpacity <= 1.0));
+             _filled = false;
             this.child = child;
             this.onPressed = onPressed;
             this.padding = padding;
             this.color = color;
-            this.disabledColor = disabledColor;
+            this.disabledColor = disabledColor ?? CupertinoColors.quaternarySystemFill;
             this.minSize = minSize;
             this.pressedOpacity = pressedOpacity;
             this.borderRadius = borderRadius ?? BorderRadius.all(Radius.circular(8.0f));
         }
 
         public static CupertinoButton filled(
-            Widget child,
-            VoidCallback onPressed,
             Key key = null,
-            EdgeInsets padding = null,
+            Widget child = null,
+            EdgeInsetsGeometry padding = null,
             Color disabledColor = null,
             float minSize = 44.0f,
-            float pressedOpacity = 0.1f,
-            BorderRadius borderRadius = null
+            float pressedOpacity = 0.4f,
+            BorderRadius borderRadius = null,
+            VoidCallback onPressed = null
         ) {
-            D.assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0);
-            return new CupertinoButton(
+            disabledColor = disabledColor ?? CupertinoColors.quaternarySystemFill;
+            D.assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0); 
+            var btn = new CupertinoButton(
                 key: key,
                 color: null,
                 child: child,
-                onPressed: onPressed,
                 padding: padding,
                 disabledColor: disabledColor,
                 minSize: minSize,
                 pressedOpacity: pressedOpacity,
                 borderRadius: borderRadius,
-                filled: true
+                onPressed: onPressed
             );
+            btn._filled = true;
+            return btn;
         }
 
         public readonly Widget child;
 
-        public readonly EdgeInsets padding;
+        public readonly EdgeInsetsGeometry padding;
 
         public readonly Color color;
 
@@ -79,13 +81,13 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly float minSize;
 
-        public readonly float? pressedOpacity;
+        public readonly float pressedOpacity;
 
         public readonly BorderRadius borderRadius;
-        public readonly bool _filled;
+        public bool _filled;
 
         public bool enabled {
-            get { return this.onPressed != null; }
+            get { return onPressed != null; }
         }
 
         public override State createState() {
@@ -94,128 +96,138 @@ namespace Unity.UIWidgets.cupertino {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new FlagProperty("enabled", value: this.enabled, ifFalse: "disabled"));
+            properties.add(new FlagProperty("enabled", value: enabled, ifFalse: "disabled"));
         }
     }
 
     class _CupertinoButtonState : SingleTickerProviderStateMixin<CupertinoButton> {
         static readonly TimeSpan kFadeOutDuration = new TimeSpan(0, 0, 0, 0, 10);
         static readonly TimeSpan kFadeInDuration = new TimeSpan(0, 0, 0, 0, 100);
-        public readonly FloatTween _opacityTween = new FloatTween(begin: 1.0f, end: 0.0f);
+        public readonly Tween<float> _opacityTween = new FloatTween(begin: 1.0f, end: 0.0f);//Tween<Float>
         AnimationController _animationController;
         Animation<float> _opacityAnimation;
 
         public override void initState() {
             base.initState();
-            this._animationController = new AnimationController(
+            _animationController = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, 200),
                 value: 0.0f,
                 vsync: this);
-            this._opacityAnimation = this._animationController
+
+            _opacityAnimation = _animationController
                 .drive(new CurveTween(curve: Curves.decelerate))
-                .drive(this._opacityTween);
-            this._setTween();
+                .drive(_opacityTween);
+            _setTween();
         }
 
         public override void didUpdateWidget(StatefulWidget old) {
             base.didUpdateWidget(old);
-            this._setTween();
+            _setTween();
         }
 
         void _setTween() {
-            if (this.widget != null) {
-                this._opacityTween.end = this.widget.pressedOpacity ?? 1.0f;
+            if (widget != null) {
+                _opacityTween.end = 1.0f;
+                if (!widget.pressedOpacity.Equals(0f)) {
+                    _opacityTween.end = widget.pressedOpacity;
+                }
             }
         }
 
         public override void dispose() {
-            this._animationController.dispose();
-            this._animationController = null;
+            _animationController.dispose();
+            _animationController = null;
             base.dispose();
         }
 
         bool _buttonHeldDown = false;
 
         void _handleTapDown(TapDownDetails evt) {
-            if (!this._buttonHeldDown) {
-                this._buttonHeldDown = true;
-                this._animate();
+            if (!_buttonHeldDown) {
+                _buttonHeldDown = true;
+                _animate();
             }
         }
 
         void _handleTapUp(TapUpDetails evt) {
-            if (this._buttonHeldDown) {
-                this._buttonHeldDown = false;
-                this._animate();
+            if (_buttonHeldDown) {
+                _buttonHeldDown = false;
+                _animate();
             }
         }
 
         void _handleTapCancel() {
-            if (this._buttonHeldDown) {
-                this._buttonHeldDown = false;
-                this._animate();
+            if (_buttonHeldDown) {
+                _buttonHeldDown = false;
+                _animate();
             }
         }
 
         void _animate() {
-            if (this._animationController.isAnimating) {
+            if (_animationController.isAnimating) {
                 return;
             }
 
-            bool wasHeldDown = this._buttonHeldDown;
+            bool wasHeldDown = _buttonHeldDown;
 
-            TickerFuture ticker = this._buttonHeldDown
-                ? this._animationController.animateTo(1.0f, duration: kFadeOutDuration)
-                : this._animationController.animateTo(0.0f, duration: kFadeInDuration);
+            TickerFuture ticker = _buttonHeldDown
+                ? _animationController.animateTo(1.0f, duration: kFadeOutDuration)
+                : _animationController.animateTo(0.0f, duration: kFadeInDuration);
 
-            ticker.Then(() => {
-                if (this.mounted && wasHeldDown != this._buttonHeldDown) {
-                    this._animate();
+            ticker.then(_ => {
+                if (mounted && wasHeldDown != _buttonHeldDown) {
+                    _animate();
                 }
             });
         }
 
         public override Widget build(BuildContext context) {
-            bool enabled = this.widget.enabled;
-            Color primaryColor = CupertinoTheme.of(context).primaryColor;
-            Color backgroundColor = this.widget.color ?? (this.widget._filled ? primaryColor : null);
+            bool enabled = widget.enabled;
+            CupertinoThemeData themeData = CupertinoTheme.of(context);
+            Color primaryColor = themeData.primaryColor;
+            Color backgroundColor = (widget.color == null) 
+                ? (widget._filled ? primaryColor : null) 
+                : CupertinoDynamicColor.resolve(widget.color, context);
 
             Color foregroundColor = backgroundColor != null
-                ? CupertinoTheme.of(context).primaryContrastingColor
+                ? themeData.primaryContrastingColor
                 : enabled
                     ? primaryColor
-                    : CupertinoButtonUtils._kDisabledForeground;
+                    : CupertinoDynamicColor.resolve(CupertinoColors.placeholderText, context);
 
             TextStyle textStyle =
-                CupertinoTheme.of(context).textTheme.textStyle.copyWith(color: foregroundColor);
+                themeData.textTheme.textStyle.copyWith(color: foregroundColor);
+
             return new GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTapDown: enabled ? this._handleTapDown : (GestureTapDownCallback) null,
-                onTapUp: enabled ? this._handleTapUp : (GestureTapUpCallback) null,
-                onTapCancel: enabled ? this._handleTapCancel : (GestureTapCancelCallback) null,
-                onTap: this.widget.onPressed == null
+                onTapDown: enabled ? _handleTapDown : (GestureTapDownCallback) null,
+                onTapUp: enabled ? _handleTapUp : (GestureTapUpCallback) null,
+                onTapCancel: enabled ? _handleTapCancel : (GestureTapCancelCallback) null,
+                onTap: widget.onPressed == null
                     ? (GestureTapCallback) null
                     : () => {
-                        if (this.widget.onPressed != null) {
-                            this.widget.onPressed();
+                        if (widget.onPressed != null) {
+                            widget.onPressed();
                         }
                     },
                 child: new ConstrainedBox(
-                    constraints: new BoxConstraints(
-                        minWidth: this.widget.minSize,
-                        minHeight: this.widget.minSize
+                    constraints: widget.minSize == null
+                    ? new BoxConstraints() : 
+                    new BoxConstraints(
+                        minWidth: widget.minSize,
+                        minHeight: widget.minSize
                     ),
                     child: new FadeTransition(
-                        opacity: this._opacityAnimation,
+                        opacity: _opacityAnimation,
                         child: new DecoratedBox(
                             decoration: new BoxDecoration(
-                                borderRadius: this.widget.borderRadius,
+                                borderRadius: widget.borderRadius,
                                 color: backgroundColor != null && !enabled
-                                    ? this.widget.disabledColor ?? CupertinoButtonUtils._kDisabledBackground
+                                    ? CupertinoDynamicColor.resolve(widget.disabledColor, context)
                                     : backgroundColor
                             ),
                             child: new Padding(
-                                padding: this.widget.padding ?? (backgroundColor != null
+                                padding: widget.padding ?? (backgroundColor != null
                                              ? CupertinoButtonUtils._kBackgroundButtonPadding
                                              : CupertinoButtonUtils._kButtonPadding),
                                 child: new Center(
@@ -225,7 +237,7 @@ namespace Unity.UIWidgets.cupertino {
                                         style: textStyle,
                                         child: new IconTheme(
                                             data: new IconThemeData(color: foregroundColor),
-                                            child: this.widget.child
+                                            child: widget.child
                                         )
                                     )
                                 )

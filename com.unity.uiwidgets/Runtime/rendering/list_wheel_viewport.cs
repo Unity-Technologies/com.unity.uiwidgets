@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -14,7 +15,7 @@ namespace Unity.UIWidgets.rendering {
     public interface IListWheelChildManager {
         int? childCount { get; }
         bool childExistsAt(int index);
-        void createChild(int index, RenderBox after);
+        void createChild(int index, RenderBox after = null);
         void removeChild(RenderBox child);
     }
 
@@ -33,6 +34,8 @@ namespace Unity.UIWidgets.rendering {
             float offAxisFraction = 0.0f,
             bool useMagnifier = false,
             float magnification = 1.0f,
+            float overAndUnderCenterOpacity = 1.0f,
+            float squeeze = 1.0f,
             bool clipToSize = true,
             bool renderChildrenOutsideViewport = false,
             List<RenderBox> children = null
@@ -43,23 +46,27 @@ namespace Unity.UIWidgets.rendering {
             D.assert(perspective > 0);
             D.assert(perspective <= 0.01f, () => perspectiveTooHighMessage);
             D.assert(magnification > 0);
+            D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
             D.assert(itemExtent > 0);
+            D.assert(squeeze > 0);
             D.assert(
                 !renderChildrenOutsideViewport || !clipToSize,
                 () => clipToSizeAndRenderChildrenOutsideViewportConflict
             );
 
             this.childManager = childManager;
-            this._offset = offset;
-            this._diameterRatio = diameterRatio;
-            this._perspective = perspective;
-            this._offAxisFraction = offAxisFraction;
-            this._useMagnifier = useMagnifier;
-            this._magnification = magnification;
-            this._itemExtent = itemExtent;
-            this._clipToSize = clipToSize;
-            this._renderChildrenOutsideViewport = renderChildrenOutsideViewport;
-            this.addAll(children);
+            _offset = offset;
+            _diameterRatio = diameterRatio;
+            _perspective = perspective;
+            _offAxisFraction = offAxisFraction;
+            _useMagnifier = useMagnifier;
+            _magnification = magnification;
+            _overAndUnderCenterOpacity = overAndUnderCenterOpacity;
+            _itemExtent = itemExtent;
+            _squeeze = squeeze;
+            _clipToSize = clipToSize;
+            _renderChildrenOutsideViewport = renderChildrenOutsideViewport;
+            addAll(children);
         }
 
         public const float defaultDiameterRatio = 2.0f;
@@ -81,151 +88,183 @@ namespace Unity.UIWidgets.rendering {
         public readonly IListWheelChildManager childManager;
 
         public ViewportOffset offset {
-            get { return this._offset; }
+            get { return _offset; }
             set {
                 D.assert(value != null);
-                if (value == this._offset) {
+                if (value == _offset) {
                     return;
                 }
 
-                if (this.attached) {
-                    this._offset.removeListener(this._hasScrolled);
+                if (attached) {
+                    _offset.removeListener(_hasScrolled);
                 }
 
-                this._offset = value;
-                if (this.attached) {
-                    this._offset.addListener(this._hasScrolled);
+                _offset = value;
+                if (attached) {
+                    _offset.addListener(_hasScrolled);
                 }
 
-                this.markNeedsLayout();
+                markNeedsLayout();
             }
         }
 
         ViewportOffset _offset;
 
         public float diameterRatio {
-            get { return this._diameterRatio; }
+            get { return _diameterRatio; }
             set {
                 D.assert(
                     value > 0,
                     () => diameterRatioZeroMessage
                 );
 
-                this._diameterRatio = value;
-                this.markNeedsPaint();
+                _diameterRatio = value;
+                markNeedsPaint();
             }
         }
 
         float _diameterRatio;
 
         public float perspective {
-            get { return this._perspective; }
+            get { return _perspective; }
             set {
                 D.assert(value > 0);
                 D.assert(
                     value <= 0.01f,
                     () => perspectiveTooHighMessage
                 );
-                if (value == this._perspective) {
+                if (value == _perspective) {
                     return;
                 }
 
-                this._perspective = value;
-                this.markNeedsPaint();
+                _perspective = value;
+                markNeedsPaint();
             }
         }
 
         float _perspective;
 
         public float offAxisFraction {
-            get { return this._offAxisFraction; }
+            get { return _offAxisFraction; }
             set {
-                if (value == this._offAxisFraction) {
+                if (value == _offAxisFraction) {
                     return;
                 }
 
-                this._offAxisFraction = value;
-                this.markNeedsPaint();
+                _offAxisFraction = value;
+                markNeedsPaint();
             }
         }
 
         float _offAxisFraction = 0.0f;
 
         public bool useMagnifier {
-            get { return this._useMagnifier; }
+            get { return _useMagnifier; }
             set {
-                if (value == this._useMagnifier) {
+                if (value == _useMagnifier) {
                     return;
                 }
 
-                this._useMagnifier = value;
-                this.markNeedsPaint();
+                _useMagnifier = value;
+                markNeedsPaint();
             }
         }
 
         bool _useMagnifier = false;
 
         public float magnification {
-            get { return this._magnification; }
+            get { return _magnification; }
             set {
                 D.assert(value > 0);
-                if (value == this._magnification) {
+                if (value == _magnification) {
                     return;
                 }
 
-                this._magnification = value;
-                this.markNeedsPaint();
+                _magnification = value;
+                markNeedsPaint();
             }
         }
 
         float _magnification = 1.0f;
 
+        
+        public float overAndUnderCenterOpacity {
+            get {
+                return _overAndUnderCenterOpacity;
+            }
+            set {
+                D.assert(value >= 0 && value <= 1);
+                if (value == _overAndUnderCenterOpacity)
+                    return;
+                _overAndUnderCenterOpacity = value;
+                markNeedsPaint();
+            }
+        }
+
+        float _overAndUnderCenterOpacity = 1.0f;
+        
         public float itemExtent {
-            get { return this._itemExtent; }
+            get { return _itemExtent; }
             set {
                 D.assert(value > 0);
-                if (value == this._itemExtent) {
+                if (value == _itemExtent) {
                     return;
                 }
 
-                this._itemExtent = value;
-                this.markNeedsLayout();
+                _itemExtent = value;
+                markNeedsLayout();
             }
         }
 
         float _itemExtent;
+        
+        public float squeeze {
+            get {
+                return _squeeze;
+            }
+            set {
+                D.assert(value > 0);
+                if (value == _squeeze)
+                    return;
+                _squeeze = value;
+                markNeedsLayout();
+            }
+        }
+
+        float _squeeze;
+        
 
         public bool clipToSize {
-            get { return this._clipToSize; }
+            get { return _clipToSize; }
             set {
                 D.assert(
-                    !this.renderChildrenOutsideViewport || !this.clipToSize,
+                    !renderChildrenOutsideViewport || !clipToSize,
                     () => clipToSizeAndRenderChildrenOutsideViewportConflict
                 );
-                if (value == this._clipToSize) {
+                if (value == _clipToSize) {
                     return;
                 }
 
-                this._clipToSize = value;
-                this.markNeedsPaint();
+                _clipToSize = value;
+                markNeedsPaint();
             }
         }
 
         bool _clipToSize;
 
         public bool renderChildrenOutsideViewport {
-            get { return this._renderChildrenOutsideViewport; }
+            get { return _renderChildrenOutsideViewport; }
             set {
                 D.assert(
-                    !this.renderChildrenOutsideViewport || !this.clipToSize,
+                    !renderChildrenOutsideViewport || !clipToSize,
                     () => clipToSizeAndRenderChildrenOutsideViewportConflict
                 );
-                if (value == this._renderChildrenOutsideViewport) {
+                if (value == _renderChildrenOutsideViewport) {
                     return;
                 }
 
-                this._renderChildrenOutsideViewport = value;
-                this.markNeedsLayout();
+                _renderChildrenOutsideViewport = value;
+                markNeedsLayout();
             }
         }
 
@@ -233,7 +272,7 @@ namespace Unity.UIWidgets.rendering {
 
 
         void _hasScrolled() {
-            this.markNeedsLayout();
+            markNeedsLayout();
         }
 
         public override void setupParentData(RenderObject child) {
@@ -244,11 +283,11 @@ namespace Unity.UIWidgets.rendering {
 
         public override void attach(object owner) {
             base.attach(owner);
-            this._offset.addListener(this._hasScrolled);
+            _offset.addListener(_hasScrolled);
         }
 
         public override void detach() {
-            this._offset.removeListener(this._hasScrolled);
+            _offset.removeListener(_hasScrolled);
             base.detach();
         }
 
@@ -258,15 +297,15 @@ namespace Unity.UIWidgets.rendering {
 
         float _viewportExtent {
             get {
-                D.assert(this.hasSize);
-                return this.size.height;
+                D.assert(hasSize);
+                return size.height;
             }
         }
 
         float _minEstimatedScrollExtent {
             get {
-                D.assert(this.hasSize);
-                if (this.childManager.childCount == null) {
+                D.assert(hasSize);
+                if (childManager.childCount == null) {
                     return float.NegativeInfinity;
                 }
 
@@ -276,73 +315,73 @@ namespace Unity.UIWidgets.rendering {
 
         float _maxEstimatedScrollExtent {
             get {
-                D.assert(this.hasSize);
-                if (this.childManager.childCount == null) {
+                D.assert(hasSize);
+                if (childManager.childCount == null) {
                     return float.PositiveInfinity;
                 }
 
-                return Mathf.Max(0.0f, ((this.childManager.childCount ?? 0) - 1) * this._itemExtent);
+                return Mathf.Max(0.0f, ((childManager.childCount ?? 0) - 1) * _itemExtent);
             }
         }
 
         float _topScrollMarginExtent {
             get {
-                D.assert(this.hasSize);
-                return -this.size.height / 2.0f + this._itemExtent / 2.0f;
+                D.assert(hasSize);
+                return -size.height / 2.0f + _itemExtent / 2.0f;
             }
         }
 
         float _getUntransformedPaintingCoordinateY(float layoutCoordinateY) {
-            return layoutCoordinateY - this._topScrollMarginExtent - this.offset.pixels;
+            return layoutCoordinateY - _topScrollMarginExtent - offset.pixels;
         }
 
         float _maxVisibleRadian {
             get {
-                if (this._diameterRatio < 1.0f) {
+                if (_diameterRatio < 1.0f) {
                     return Mathf.PI / 2.0f;
                 }
 
-                return Mathf.Asin(1.0f / this._diameterRatio);
+                return Mathf.Asin(1.0f / _diameterRatio);
             }
         }
 
         float _getIntrinsicCrossAxis(___ChildSizingFunction childSize) {
             float extent = 0.0f;
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             while (child != null) {
                 extent = Mathf.Max(extent, childSize(child));
-                child = this.childAfter(child);
+                child = childAfter(child);
             }
 
             return extent;
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
-            return this._getIntrinsicCrossAxis(
+        protected internal override float computeMinIntrinsicWidth(float height) {
+            return _getIntrinsicCrossAxis(
                 (RenderBox child) => child.getMinIntrinsicWidth(height)
             );
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
-            return this._getIntrinsicCrossAxis(
+        protected internal override float computeMaxIntrinsicWidth(float height) {
+            return _getIntrinsicCrossAxis(
                 (RenderBox child) => child.getMaxIntrinsicWidth(height)
             );
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
-            if (this.childManager.childCount == null) {
+        protected internal override float computeMinIntrinsicHeight(float width) {
+            if (childManager.childCount == null) {
                 return 0.0f;
             }
 
-            return (this.childManager.childCount ?? 0) * this._itemExtent;
+            return (childManager.childCount ?? 0) * _itemExtent;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.childManager.childCount == null) {
+            if (childManager.childCount == null) {
                 return 0.0f;
             }
 
-            return (this.childManager.childCount ?? 0) * this._itemExtent;
+            return (childManager.childCount ?? 0) * _itemExtent;
         }
 
         protected override bool sizedByParent {
@@ -350,7 +389,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected override void performResize() {
-            this.size = this.constraints.biggest;
+            size = constraints.biggest;
         }
 
         public int indexOf(RenderBox child) {
@@ -360,156 +399,156 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public int scrollOffsetToIndex(float scrollOffset) {
-            return (scrollOffset / this.itemExtent).floor();
+            return (scrollOffset / itemExtent).floor();
         }
 
         public float indexToScrollOffset(int index) {
-            return index * this.itemExtent;
+            return index * itemExtent;
         }
 
         void _createChild(int index,
             RenderBox after = null
         ) {
-            this.invokeLayoutCallback<BoxConstraints>((BoxConstraints constraints) => {
-                D.assert(this.constraints == this.constraints);
-                this.childManager.createChild(index, after: after);
+            invokeLayoutCallback<BoxConstraints>((BoxConstraints constraints) => {
+                D.assert(constraints == this.constraints);
+                childManager.createChild(index, after: after);
             });
         }
 
         void _destroyChild(RenderBox child) {
-            this.invokeLayoutCallback<BoxConstraints>((BoxConstraints constraints) => {
-                D.assert(this.constraints == this.constraints);
-                this.childManager.removeChild(child);
+            invokeLayoutCallback<BoxConstraints>((BoxConstraints constraints) => {
+                D.assert(constraints == this.constraints);
+                childManager.removeChild(child);
             });
         }
 
         void _layoutChild(RenderBox child, BoxConstraints constraints, int index) {
             child.layout(constraints, parentUsesSize: true);
             ListWheelParentData childParentData = (ListWheelParentData) child.parentData;
-            float crossPosition = this.size.width / 2.0f - child.size.width / 2.0f;
-            childParentData.offset = new Offset(crossPosition, this.indexToScrollOffset(index));
+            float crossPosition = size.width / 2.0f - child.size.width / 2.0f;
+            childParentData.offset = new Offset(crossPosition, indexToScrollOffset(index));
         }
 
         protected override void performLayout() {
-            BoxConstraints childConstraints = this.constraints.copyWith(
-                minHeight: this._itemExtent,
-                maxHeight: this._itemExtent,
+            BoxConstraints childConstraints = constraints.copyWith(
+                minHeight: _itemExtent,
+                maxHeight: _itemExtent,
                 minWidth: 0.0f
             );
 
-            float visibleHeight = this.size.height;
-            if (this.renderChildrenOutsideViewport) {
+            float visibleHeight = size.height * _squeeze;
+            if (renderChildrenOutsideViewport) {
                 visibleHeight *= 2;
             }
 
-            float firstVisibleOffset = this.offset.pixels + this._itemExtent / 2 - visibleHeight / 2;
+            float firstVisibleOffset = offset.pixels + _itemExtent / 2 - visibleHeight / 2;
             float lastVisibleOffset = firstVisibleOffset + visibleHeight;
 
-            int targetFirstIndex = this.scrollOffsetToIndex(firstVisibleOffset);
-            int targetLastIndex = this.scrollOffsetToIndex(lastVisibleOffset);
+            int targetFirstIndex = scrollOffsetToIndex(firstVisibleOffset);
+            int targetLastIndex = scrollOffsetToIndex(lastVisibleOffset);
 
-            if (targetLastIndex * this._itemExtent == lastVisibleOffset) {
+            if (targetLastIndex * _itemExtent == lastVisibleOffset) {
                 targetLastIndex--;
             }
 
-            while (!this.childManager.childExistsAt(targetFirstIndex) && targetFirstIndex <= targetLastIndex) {
+            while (!childManager.childExistsAt(targetFirstIndex) && targetFirstIndex <= targetLastIndex) {
                 targetFirstIndex++;
             }
 
-            while (!this.childManager.childExistsAt(targetLastIndex) && targetFirstIndex <= targetLastIndex) {
+            while (!childManager.childExistsAt(targetLastIndex) && targetFirstIndex <= targetLastIndex) {
                 targetLastIndex--;
             }
 
             if (targetFirstIndex > targetLastIndex) {
-                while (this.firstChild != null) {
-                    this._destroyChild(this.firstChild);
+                while (firstChild != null) {
+                    _destroyChild(firstChild);
                 }
 
                 return;
             }
 
 
-            if (this.childCount > 0 &&
-                (this.indexOf(this.firstChild) > targetLastIndex || this.indexOf(this.lastChild) < targetFirstIndex)) {
-                while (this.firstChild != null) {
-                    this._destroyChild(this.firstChild);
+            if (childCount > 0 &&
+                (indexOf(firstChild) > targetLastIndex || indexOf(lastChild) < targetFirstIndex)) {
+                while (firstChild != null) {
+                    _destroyChild(firstChild);
                 }
             }
 
 
-            if (this.childCount == 0) {
-                this._createChild(targetFirstIndex);
-                this._layoutChild(this.firstChild, childConstraints, targetFirstIndex);
+            if (childCount == 0) {
+                _createChild(targetFirstIndex);
+                _layoutChild(firstChild, childConstraints, targetFirstIndex);
             }
 
-            int currentFirstIndex = this.indexOf(this.firstChild);
-            int currentLastIndex = this.indexOf(this.lastChild);
+            int currentFirstIndex = indexOf(firstChild);
+            int currentLastIndex = indexOf(lastChild);
 
             while (currentFirstIndex < targetFirstIndex) {
-                this._destroyChild(this.firstChild);
+                _destroyChild(firstChild);
                 currentFirstIndex++;
             }
 
             while (currentLastIndex > targetLastIndex) {
-                this._destroyChild(this.lastChild);
+                _destroyChild(lastChild);
                 currentLastIndex--;
             }
 
-            RenderBox child = this.firstChild;
+            RenderBox child = firstChild;
             while (child != null) {
                 child.layout(childConstraints, parentUsesSize: true);
-                child = this.childAfter(child);
+                child = childAfter(child);
             }
 
             while (currentFirstIndex > targetFirstIndex) {
-                this._createChild(currentFirstIndex - 1);
-                this._layoutChild(this.firstChild, childConstraints, --currentFirstIndex);
+                _createChild(currentFirstIndex - 1);
+                _layoutChild(firstChild, childConstraints, --currentFirstIndex);
             }
 
             while (currentLastIndex < targetLastIndex) {
-                this._createChild(currentLastIndex + 1, after: this.lastChild);
-                this._layoutChild(this.lastChild, childConstraints, ++currentLastIndex);
+                _createChild(currentLastIndex + 1, after: lastChild);
+                _layoutChild(lastChild, childConstraints, ++currentLastIndex);
             }
 
-            this.offset.applyViewportDimension(this._viewportExtent);
+            offset.applyViewportDimension(_viewportExtent);
 
-            float minScrollExtent = this.childManager.childExistsAt(targetFirstIndex - 1)
-                ? this._minEstimatedScrollExtent
-                : this.indexToScrollOffset(targetFirstIndex);
-            float maxScrollExtent = this.childManager.childExistsAt(targetLastIndex + 1)
-                ? this._maxEstimatedScrollExtent
-                : this.indexToScrollOffset(targetLastIndex);
-            this.offset.applyContentDimensions(minScrollExtent, maxScrollExtent);
+            float minScrollExtent = childManager.childExistsAt(targetFirstIndex - 1)
+                ? _minEstimatedScrollExtent
+                : indexToScrollOffset(targetFirstIndex);
+            float maxScrollExtent = childManager.childExistsAt(targetLastIndex + 1)
+                ? _maxEstimatedScrollExtent
+                : indexToScrollOffset(targetLastIndex);
+            offset.applyContentDimensions(minScrollExtent, maxScrollExtent);
         }
 
         bool _shouldClipAtCurrentOffset() {
-            float highestUntransformedPaintY = this._getUntransformedPaintingCoordinateY(0.0f);
+            float highestUntransformedPaintY = _getUntransformedPaintingCoordinateY(0.0f);
             return highestUntransformedPaintY < 0.0f
-                   || this.size.height < highestUntransformedPaintY + this._maxEstimatedScrollExtent + this._itemExtent;
+                   || size.height < highestUntransformedPaintY + _maxEstimatedScrollExtent + _itemExtent;
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.childCount > 0) {
-                if (this._clipToSize && this._shouldClipAtCurrentOffset()) {
+            if (childCount > 0) {
+                if (_clipToSize && _shouldClipAtCurrentOffset()) {
                     context.pushClipRect(
-                        this.needsCompositing,
+                        needsCompositing,
                         offset,
-                        Offset.zero & this.size, this._paintVisibleChildren
+                        Offset.zero & size, _paintVisibleChildren
                     );
                 }
                 else {
-                    this._paintVisibleChildren(context, offset);
+                    _paintVisibleChildren(context, offset);
                 }
             }
         }
 
         void _paintVisibleChildren(PaintingContext context, Offset offset) {
-            RenderBox childToPaint = this.firstChild;
+            RenderBox childToPaint = firstChild;
             ListWheelParentData childParentData = (ListWheelParentData) childToPaint?.parentData;
 
             while (childParentData != null) {
-                this._paintTransformedChild(childToPaint, context, offset, childParentData.offset);
-                childToPaint = this.childAfter(childToPaint);
+                _paintTransformedChild(childToPaint, context, offset, childParentData.offset);
+                childToPaint = childAfter(childToPaint);
                 childParentData = (ListWheelParentData) childToPaint?.parentData;
             }
         }
@@ -517,44 +556,37 @@ namespace Unity.UIWidgets.rendering {
         void _paintTransformedChild(RenderBox child, PaintingContext context, Offset offset, Offset layoutOffset) {
             Offset untransformedPaintingCoordinates = offset + new Offset(
                                                           layoutOffset.dx,
-                                                          this._getUntransformedPaintingCoordinateY(layoutOffset.dy)
+                                                          _getUntransformedPaintingCoordinateY(layoutOffset.dy)
                                                       );
 
 
-            float fractionalY = (untransformedPaintingCoordinates.dy + this._itemExtent / 2.0f) / this.size.height;
+            float fractionalY = (untransformedPaintingCoordinates.dy + _itemExtent / 2.0f) / size.height;
 
-            float angle = -(fractionalY - 0.5f) * 2.0f * this._maxVisibleRadian;
+            float angle = -(fractionalY - 0.5f) * 2.0f * _maxVisibleRadian / squeeze;
             if (angle > Mathf.PI / 2.0f || angle < -Mathf.PI / 2.0f) {
                 return;
             }
 
-            var radius = this.size.height * this._diameterRatio / 2.0f;
+            var radius = size.height * _diameterRatio / 2.0f;
             var deltaY = radius * Mathf.Sin(angle);
 
-            Matrix4 transform = new Matrix4().identity();
-            // Matrix4x4 transform2 = MatrixUtils.createCylindricalProjectionTransform(
-            //     radius: this.size.height * this._diameterRatio / 2.0f,
-            //     angle: angle,
-            //     perspective: this._perspective
-            // );
+            Matrix4 transform = MatrixUtils.createCylindricalProjectionTransform(
+                radius: size.height * _diameterRatio / 2.0f,
+                angle: angle,
+                perspective: _perspective
+            );
 
-            // Offset offsetToCenter = new Offset(untransformedPaintingCoordinates.dx, -this._topScrollMarginExtent);
-
-            Offset offsetToCenter =
-                new Offset(untransformedPaintingCoordinates.dx, -deltaY - this._topScrollMarginExtent);
-
-            if (!this.useMagnifier) {
-                this._paintChildCylindrically(context, offset, child, transform, offsetToCenter);
-            }
-            else {
-                this._paintChildWithMagnifier(
-                    context,
-                    offset,
-                    child,
-                    transform,
-                    offsetToCenter,
-                    untransformedPaintingCoordinates
-                );
+            // Offset that helps painting everything in the center (e.g. angle = 0).
+            Offset offsetToCenter = new Offset(
+                untransformedPaintingCoordinates.dx,
+                -_topScrollMarginExtent
+            );
+            
+            bool shouldApplyOffCenterDim = overAndUnderCenterOpacity < 1;
+            if (useMagnifier || shouldApplyOffCenterDim) {
+                _paintChildWithMagnifier(context, offset, child, transform, offsetToCenter, untransformedPaintingCoordinates);
+            } else {
+                _paintChildCylindrically(context, offset, child, transform, offsetToCenter);
             }
         }
 
@@ -562,57 +594,56 @@ namespace Unity.UIWidgets.rendering {
             PaintingContext context,
             Offset offset,
             RenderBox child,
-            // Matrix4x4 cylindricalTransform,
             Matrix4 cylindricalTransform,
             Offset offsetToCenter,
             Offset untransformedPaintingCoordinates
         ) {
-            float magnifierTopLinePosition = this.size.height / 2 - this._itemExtent * this._magnification / 2;
-            float magnifierBottomLinePosition = this.size.height / 2 + this._itemExtent * this._magnification / 2;
+            float magnifierTopLinePosition = size.height / 2 - _itemExtent * _magnification / 2;
+            float magnifierBottomLinePosition = size.height / 2 + _itemExtent * _magnification / 2;
 
             bool isAfterMagnifierTopLine = untransformedPaintingCoordinates.dy
-                                           >= magnifierTopLinePosition - this._itemExtent * this._magnification;
+                                           >= magnifierTopLinePosition - _itemExtent * _magnification;
             bool isBeforeMagnifierBottomLine = untransformedPaintingCoordinates.dy
                                                <= magnifierBottomLinePosition;
 
             if (isAfterMagnifierTopLine && isBeforeMagnifierBottomLine) {
                 Rect centerRect = Rect.fromLTWH(
                     0.0f,
-                    magnifierTopLinePosition, this.size.width, this._itemExtent * this._magnification);
+                    magnifierTopLinePosition, 
+                    size.width, 
+                    _itemExtent * _magnification);
                 Rect topHalfRect = Rect.fromLTWH(
                     0.0f,
-                    0.0f, this.size.width,
+                    0.0f, size.width,
                     magnifierTopLinePosition);
                 Rect bottomHalfRect = Rect.fromLTWH(
                     0.0f,
-                    magnifierBottomLinePosition, this.size.width,
+                    magnifierBottomLinePosition, 
+                    size.width,
                     magnifierTopLinePosition);
 
                 context.pushClipRect(
-                    false,
+                    needsCompositing,
                     offset,
                     centerRect,
                     (PaintingContext context1, Offset offset1) => {
                         context1.pushTransform(
-                            false,
+                            needsCompositing,
                             offset1,
-                            cylindricalTransform,
-                            // this._centerOriginTransform(cylindricalTransform),
+                            _magnifyTransform(),
                             (PaintingContext context2, Offset offset2) => {
-                                context2.paintChild(
-                                    child,
-                                    offset2 + untransformedPaintingCoordinates);
+                                context2.paintChild(child, offset2 + untransformedPaintingCoordinates);
                             });
                     });
 
                 context.pushClipRect(
-                    false,
+                    needsCompositing,
                     offset,
                     untransformedPaintingCoordinates.dy <= magnifierTopLinePosition
                         ? topHalfRect
                         : bottomHalfRect,
                     (PaintingContext context1, Offset offset1) => {
-                        this._paintChildCylindrically(
+                        _paintChildCylindrically(
                             context1,
                             offset1,
                             child,
@@ -623,7 +654,7 @@ namespace Unity.UIWidgets.rendering {
                 );
             }
             else {
-                this._paintChildCylindrically(
+                _paintChildCylindrically(
                     context,
                     offset,
                     child,
@@ -637,29 +668,57 @@ namespace Unity.UIWidgets.rendering {
             PaintingContext context,
             Offset offset,
             RenderBox child,
-            // Matrix4x4 cylindricalTransform,
             Matrix4 cylindricalTransform,
             Offset offsetToCenter
         ) {
+            PaintingContextCallback painter = (PaintingContext _context, Offset _offset) => {
+                _context.paintChild(
+                    child,
+                    _offset + offsetToCenter
+                );
+            };
+            PaintingContextCallback opacityPainter = (PaintingContext context2, Offset offset2) =>{
+                context2.pushOpacity(offset2, (overAndUnderCenterOpacity * 255).round(), painter);
+            };
+
             context.pushTransform(
-                false,
+                needsCompositing,
                 offset,
-                cylindricalTransform,
-                // this._centerOriginTransform(cylindricalTransform),
-                (PaintingContext _context, Offset _offset) => { _context.paintChild(child, _offset + offsetToCenter); }
+                _centerOriginTransform(cylindricalTransform),
+                // Pre-transform painting function.
+                overAndUnderCenterOpacity == 1 ? painter : opacityPainter
             );
         }
 
+        Matrix4 _centerOriginTransform(Matrix4 originalMatrix) {
+            Matrix4 result = Matrix4.identity();
+            Offset centerOriginTranslation = Alignment.center.alongSize(size);
+            result.translate(centerOriginTranslation.dx * (-_offAxisFraction * 2 + 1),
+                centerOriginTranslation.dy);
+            result.multiply(originalMatrix);
+            result.translate(-centerOriginTranslation.dx * (-_offAxisFraction * 2 + 1),
+                -centerOriginTranslation.dy);
+            return result;
+        }
+        
+        Matrix4 _magnifyTransform() {
+            Matrix4 magnify = Matrix4.identity();
+            magnify.translate(size.width * (-_offAxisFraction + 0.5), size.height / 2);
+            magnify.scale(_magnification, _magnification, _magnification);
+            magnify.translate(-size.width * (-_offAxisFraction + 0.5), -size.height / 2);
+            return magnify;
+        }
+        
+        
         public override Rect describeApproximatePaintClip(RenderObject child) {
-            if (child != null && this._shouldClipAtCurrentOffset()) {
-                return Offset.zero & this.size;
+            if (child != null && _shouldClipAtCurrentOffset()) {
+                return Offset.zero & size;
             }
 
             return null;
         }
 
-        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null
-        ) {
+        protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
             return false;
         }
 
@@ -675,9 +734,9 @@ namespace Unity.UIWidgets.rendering {
 
             ListWheelParentData parentData = (ListWheelParentData) child.parentData;
             float targetOffset = parentData.offset.dy;
-            Matrix4 transform = target.getTransformTo(this);
+            Matrix4 transform = target.getTransformTo(child);
             Rect bounds = MatrixUtils.transformRect(transform, rect);
-            Rect targetRect = bounds.translate(0.0f, (this.size.height - this.itemExtent) / 2);
+            Rect targetRect = bounds.translate(0.0f, (size.height - itemExtent) / 2);
 
             return new RevealedOffset(offset: targetOffset, rect: targetRect);
         }
@@ -695,12 +754,12 @@ namespace Unity.UIWidgets.rendering {
             duration = duration ?? TimeSpan.Zero;
             curve = curve ?? Curves.ease;
             if (descendant != null) {
-                RevealedOffset revealedOffset = this.getOffsetToReveal(descendant, 0.5f, rect: rect);
+                RevealedOffset revealedOffset = getOffsetToReveal(descendant, 0.5f, rect: rect);
                 if (duration == TimeSpan.Zero) {
-                    this.offset.jumpTo(revealedOffset.offset);
+                    offset.jumpTo(revealedOffset.offset);
                 }
                 else {
-                    this.offset.animateTo(revealedOffset.offset, duration: (TimeSpan) duration, curve: curve);
+                    offset.animateTo(revealedOffset.offset, duration: (TimeSpan) duration, curve: curve);
                 }
 
                 rect = revealedOffset.rect;

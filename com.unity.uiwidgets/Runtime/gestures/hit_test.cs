@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -20,21 +21,21 @@ namespace Unity.UIWidgets.gestures {
 
     public class HitTestEntry {
         public HitTestEntry(HitTestTarget target) {
-            this._target = target;
+            _target = target;
         }
 
         public virtual HitTestTarget target {
-            get { return this._target; }
+            get { return _target; }
         }
 
         readonly HitTestTarget _target;
 
         public override string ToString() {
-            return this._target.ToString();
+            return _target.ToString();
         }
 
         public Matrix4 transform {
-            get { return this._transform; }
+            get { return _transform; }
         }
 
         internal Matrix4 _transform;
@@ -42,17 +43,17 @@ namespace Unity.UIWidgets.gestures {
 
     public class HitTestResult {
         public HitTestResult() {
-            this._path = new List<HitTestEntry>();
-            this._transforms = new LinkedList<Matrix4>();
+            _path = new List<HitTestEntry>();
+            _transforms = new LinkedList<Matrix4>();
         }
 
         public HitTestResult(HitTestResult result) {
-            this._path = result._path;
-            this._transforms = result._transforms;
+            _path = result._path;
+            _transforms = result._transforms;
         }
 
         public IList<HitTestEntry> path {
-            get { return this._path.AsReadOnly(); }
+            get { return _path.AsReadOnly(); }
         }
 
         readonly List<HitTestEntry> _path;
@@ -60,28 +61,28 @@ namespace Unity.UIWidgets.gestures {
 
         public void add(HitTestEntry entry) {
             D.assert(entry.transform == null);
-            entry._transform = this._transforms.isEmpty() ? null : this._transforms.Last();
-            this._path.Add(entry);
+            entry._transform = _transforms.isEmpty() ? null : _transforms.Last();
+            _path.Add(entry);
         }
 
         protected void pushTransform(Matrix4 transform) {
             D.assert(transform != null);
             D.assert(
-                this._debugVectorMoreOrLessEquals(transform.getRow(2), new Vector4(0, 0, 1, 0)) &&
-                this._debugVectorMoreOrLessEquals(transform.getColumn(2), new Vector4(0, 0, 1, 0))
+                _debugVectorMoreOrLessEquals(transform.getRow(2), new Vector4(0, 0, 1, 0)) &&
+                _debugVectorMoreOrLessEquals(transform.getColumn(2), new Vector4(0, 0, 1, 0))
             );
-            this._transforms.AddLast(this._transforms.isEmpty()
+            _transforms.AddLast(_transforms.isEmpty()
                 ? transform
-                : (transform * this._transforms.Last() as Matrix4));
+                : (transform * _transforms.Last() as Matrix4));
         }
 
         protected void popTransform() {
-            D.assert(this._transforms.isNotEmpty);
-            this._transforms.RemoveLast();
+            D.assert(_transforms.isNotEmpty);
+            _transforms.RemoveLast();
         }
 
         bool _debugVectorMoreOrLessEquals(Vector4 a, Vector4 b,
-            double epsilon = SliverGeometry.precisionErrorTolerance) {
+            double epsilon = foundation_.precisionErrorTolerance) {
             bool result = true;
             D.assert(() => {
                 Vector4 difference = a - b;
@@ -92,7 +93,7 @@ namespace Unity.UIWidgets.gestures {
 
         public override string ToString() {
             return
-                $"HitTestResult({(this._path.isEmpty() ? "<empty path>" : string.Join(", ", this._path.Select(x => x.ToString()).ToArray()))})";
-        }
+                $"HitTestResult({(_path.isEmpty() ? "<empty path>" : string.Join(", ", LinqUtils<string,HitTestEntry>.SelectList(_path, (x => x.ToString())) ))})";
+           }
     }
 }

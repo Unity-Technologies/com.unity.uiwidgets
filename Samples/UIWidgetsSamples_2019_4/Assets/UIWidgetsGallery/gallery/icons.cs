@@ -1,7 +1,9 @@
 using Unity.UIWidgets.widgets;
 
-namespace UIWidgetsGallery.gallery {
-    public static class GalleryIcons {
+namespace UIWidgetsGallery.gallery
+{
+    public static class GalleryIcons
+    {
         public static readonly IconData tooltip = new IconData(0xe900, fontFamily: "GalleryIcons");
         public static readonly IconData text_fields_alt = new IconData(0xe901, fontFamily: "GalleryIcons");
         public static readonly IconData tabs = new IconData(0xe902, fontFamily: "GalleryIcons");
@@ -18,7 +20,7 @@ namespace UIWidgetsGallery.gallery {
         public static readonly IconData list_alt = new IconData(0xe90d, fontFamily: "GalleryIcons");
         public static readonly IconData grid_on = new IconData(0xe90e, fontFamily: "GalleryIcons");
         public static readonly IconData expand_all = new IconData(0xe90f, fontFamily: "GalleryIcons");
-        public static readonly IconData @event = new IconData(0xe910, fontFamily: "GalleryIcons");
+        public static readonly IconData events = new IconData(0xe910, fontFamily: "GalleryIcons");
         public static readonly IconData drive_video = new IconData(0xe911, fontFamily: "GalleryIcons");
         public static readonly IconData dialogs = new IconData(0xe912, fontFamily: "GalleryIcons");
         public static readonly IconData data_table = new IconData(0xe913, fontFamily: "GalleryIcons");

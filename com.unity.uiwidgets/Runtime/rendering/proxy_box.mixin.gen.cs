@@ -1,6 +1,4 @@
 ﻿using Unity.UIWidgets.ui;
-using Unity.UIWidgets.gestures;
-using UnityEngine;
 
 namespace Unity.UIWidgets.rendering {
 
@@ -13,58 +11,63 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicWidth(height);
+
+        protected internal override float computeMinIntrinsicWidth(float height) {
+            if (child != null) {
+                return child.getMinIntrinsicWidth(height);
+            }
+            return 0.0f;
+        }
+
+
+        protected internal override float computeMaxIntrinsicWidth(float height) {
+            if (child != null) {
+                return child.getMaxIntrinsicWidth(height);
+
             }
 
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicWidth(height);
+        protected internal override float computeMinIntrinsicHeight(float width) {
+            if (child != null) {
+                return child.getMinIntrinsicHeight(width);
+
             }
 
             return 0.0f;
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicHeight(width);
-            }
-
-            return 0.0f;
-        }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicHeight(width);
-            }
+            if (child != null) {
+                return child.getMaxIntrinsicHeight(width);
 
+            }
             return 0.0f;
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
-            if (this.child != null) {
-                return this.child.getDistanceToActualBaseline(baseline);
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+            if (child != null) {
+                return child.getDistanceToActualBaseline(baseline);
             }
 
             return base.computeDistanceToActualBaseline(baseline);
         }
 
         protected override void performLayout() {
-            if (this.child != null) {
-                this.child.layout(this.constraints, parentUsesSize: true);
-                this.size = this.child.size;
+            if (child != null) {
+                child.layout(constraints, parentUsesSize: true);
+                size = child.size;
             } else {
-                this.performResize();
+                performResize();
             }
         }
 
         protected override bool hitTestChildren(BoxHitTestResult result, Offset position = null) {
-            if (this.child != null) {
-                return this.child.hitTest(result, position);
+            if (child != null) {
+                return child.hitTest(result, position);
+
             }
 
             return false;
@@ -74,8 +77,8 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            if (this.child != null) {
-                context.paintChild(this.child, offset);
+            if (child != null) {
+                context.paintChild(child, offset);
             }
         }
     }

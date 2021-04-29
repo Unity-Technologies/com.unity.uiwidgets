@@ -2,13 +2,15 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.animation {
+    
+
     public enum AnimationStatus {
         dismissed,
         forward,
         reverse,
         completed,
     }
-
+    
     public delegate void AnimationStatusListener(AnimationStatus status);
 
     public abstract class Animation<T> : ValueListenable<T> {
@@ -25,20 +27,25 @@ namespace Unity.UIWidgets.animation {
         public abstract T value { get; }
 
         public bool isDismissed {
-            get { return this.status == AnimationStatus.dismissed; }
+            get { return status == AnimationStatus.dismissed; }
         }
 
         public bool isCompleted {
-            get { return this.status == AnimationStatus.completed; }
+            get { return status == AnimationStatus.completed; }
+        }
+
+        public Animation<U> drive<U>(Animatable<U> child) {
+            D.assert(this is Animation<float>);
+            return child.animate(this as Animation<float>);
         }
 
         public override string ToString() {
-            return $"{Diagnostics.describeIdentity(this)}({this.toStringDetails()})";
+            return $"{foundation_.describeIdentity(this)}({toStringDetails()})";
         }
 
         public virtual string toStringDetails() {
             string icon = null;
-            switch (this.status) {
+            switch (status) {
                 case AnimationStatus.forward:
                     icon = "\u25B6"; // >
                     break;
@@ -55,11 +62,6 @@ namespace Unity.UIWidgets.animation {
 
             D.assert(icon != null);
             return icon;
-        }
-
-        public Animation<U> drive<U>(Animatable<U> child) {
-            D.assert(this is Animation<float>);
-            return child.animate(this as Animation<float>);
         }
     }
 }

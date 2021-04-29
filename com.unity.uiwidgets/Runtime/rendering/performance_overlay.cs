@@ -3,31 +3,78 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
     public enum PerformanceOverlayOption {
-        drawFPS, //default
-        drawFrameCost
+        displayRasterizerStatistics,
+        visualizeRasterizerStatistics,
+        displayEngineStatistics,
+        visualizeEngineStatistics,
     }
 
 
     public class RenderPerformanceOverlay : RenderBox {
         public RenderPerformanceOverlay(
-            int optionsMask = 0
+            int optionsMask = 0,
+            int rasterizerThreshold = 0,
+            bool checkerboardRasterCacheImages = false,
+            bool checkerboardOffscreenLayers = false
         ) {
-            this._optionMask = optionsMask;
+            _optionsMask = optionsMask;
+            _rasterizerThreshold = rasterizerThreshold;
+            _checkerboardRasterCacheImages = checkerboardRasterCacheImages;
+            _checkerboardOffscreenLayers = checkerboardOffscreenLayers;
         }
 
         public int optionsMask {
-            get { return this._optionMask; }
+            get { return _optionsMask; }
             set {
-                if (value == this._optionMask) {
+                if (value == _optionsMask) {
                     return;
                 }
 
-                this._optionMask = value;
-                this.markNeedsPaint();
+                _optionsMask = value;
+                markNeedsPaint();
             }
         }
 
-        int _optionMask;
+        int _optionsMask;
+
+        public int rasterizerThreshold {
+            get {
+                return _rasterizerThreshold;
+            }
+            set {
+                if (value == _rasterizerThreshold)
+                    return;
+                _rasterizerThreshold = value;
+                markNeedsPaint();
+            }
+        }
+        int _rasterizerThreshold;
+
+        public bool checkerboardRasterCacheImages {
+            get {
+                return _checkerboardRasterCacheImages;
+            }
+            set {
+                if (value == _checkerboardRasterCacheImages)
+                    return;
+                _checkerboardRasterCacheImages = value;
+                markNeedsPaint();
+            }
+        }
+        bool _checkerboardRasterCacheImages;
+
+        public bool checkerboardOffscreenLayers {
+            get { return _checkerboardOffscreenLayers; }
+            set {
+                if (value == _checkerboardOffscreenLayers)
+                    return;
+                _checkerboardOffscreenLayers = value;
+                markNeedsPaint();
+            }
+        }
+        bool _checkerboardOffscreenLayers;
+        
+        
 
         protected override bool sizedByParent {
             get { return true; }
@@ -37,44 +84,53 @@ namespace Unity.UIWidgets.rendering {
             get { return true; }
         }
 
-        protected override float computeMinIntrinsicWidth(float height) {
+        protected internal override float computeMinIntrinsicWidth(float height) {
             return 0.0f;
         }
 
-        protected override float computeMaxIntrinsicWidth(float height) {
+        protected internal override float computeMaxIntrinsicWidth(float height) {
             return 0.0f;
         }
 
         float _intrinsicHeight {
             get {
                 const float kDefaultGraphHeight = 80.0f;
-                float result = 20f;
-
-                if ((this.optionsMask | (1 << (int) PerformanceOverlayOption.drawFrameCost)) > 0) {
+                
+                float result = 0.0f;
+                if (
+                    ((optionsMask | (1 << (int) PerformanceOverlayOption.displayRasterizerStatistics)) > 0) ||
+                    ((optionsMask | (1 << (int) PerformanceOverlayOption.visualizeRasterizerStatistics)) > 0)
+                        )
                     result += kDefaultGraphHeight;
-                }
+                if (((optionsMask | (1 << (int) PerformanceOverlayOption.displayEngineStatistics)) > 0) ||
+                    ((optionsMask | (1 << (int) PerformanceOverlayOption.visualizeEngineStatistics)) > 0))
+                    result += kDefaultGraphHeight;
+                return result;
 
                 return result;
             }
         }
 
-        protected override float computeMinIntrinsicHeight(float width) {
-            return this._intrinsicHeight;
+        protected internal override float computeMinIntrinsicHeight(float width) {
+            return _intrinsicHeight;
         }
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            return this._intrinsicHeight;
+            return _intrinsicHeight;
         }
 
         protected override void performResize() {
-            this.size = this.constraints.constrain(new Size(float.PositiveInfinity, this._intrinsicHeight));
+            size = constraints.constrain(new Size(float.PositiveInfinity, _intrinsicHeight));
         }
 
         public override void paint(PaintingContext context, Offset offset) {
-            D.assert(this.needsCompositing);
+            D.assert(needsCompositing);
             context.addLayer(new PerformanceOverlayLayer(
-                overlayRect: Rect.fromLTWH(offset.dx, offset.dy, this.size.width, this.size.height),
-                optionsMask: this.optionsMask
+                overlayRect: Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
+                optionsMask: optionsMask,
+                rasterizerThreshold: rasterizerThreshold,
+                checkerboardRasterCacheImages: checkerboardRasterCacheImages,
+                checkerboardOffscreenLayers: checkerboardOffscreenLayers
             ));
         }
     }
