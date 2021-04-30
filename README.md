@@ -11,7 +11,7 @@ UIWidgets is mainly derived from [Flutter](https://github.com/flutter/flutter). 
 the powerful Unity Engine, it offers developers many new features to improve their Apps
 as well as the develop workflow significantly.
 
-As the latest version, UIWidgets 2.0 aims to optmize the overall performance of the package. Specifically, a performance gain around 10% is observed on  mobile devices like iPhone 6 after upgrading to UIWidgets 2.0. However, if you still want to use the original UIWidgets 1.0, please download the archived packages from Releases or switch your working branch to uiwidgets_1.0.
+As the latest version, UIWidgets 2.0 aims to optimize the overall performance of the package. Specifically, a performance gain around 10% is observed on  mobile devices like iPhone 6 after upgrading to UIWidgets 2.0. However, if you still want to use the original UIWidgets 1.0, please download the archived packages from Releases or switch your working branch to uiwidgets_1.0.
 
 #### Efficiency
 Using the latest Unity rendering SDKs, a UIWidgets App can run very fast and keep >60fps in most times.
