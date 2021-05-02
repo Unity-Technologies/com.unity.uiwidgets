@@ -61,7 +61,7 @@ open-sourced @https://github.com/UnityTech/DocCN.
 
 #### Unity
 
-Install **Unity 2019.4.26f1c1** and above. You can download the latest Unity on https://unity3d.com/get-unity/download.
+Install **Unity 2019.4.26f1c1**. You can download the latest Unity on https://unity3d.com/get-unity/download.
 
 #### UIWidgets Package
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
