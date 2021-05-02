@@ -52,7 +52,7 @@ https://github.com/UnityTech/DocCN 查看。
 
 #### Unity
 
-安装 **Unity 2019.4.26f1c1** 及其更高版本。 你可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
+安装 **Unity 2019.4.26f1c1**。 你可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
 
 #### UIWidgets包
 
