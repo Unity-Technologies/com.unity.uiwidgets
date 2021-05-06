@@ -59,20 +59,19 @@ modify flutter/third_party/txt/BUILD.gn
 modify third_party/angnle/BUILD.gn
 ```
 diff --git a/BUILD.gn b/BUILD.gn
-index 06bf3bbbe..1b51a32de 100644
+index 06bf3bbbe..b4289dfa7 100644
 --- a/BUILD.gn
 +++ b/BUILD.gn
-@@ -1252,3 +1252,18 @@ if (!is_component_build && is_android &&
+@@ -1252,3 +1252,17 @@ if (!is_component_build && is_android &&
      ]
    }
  }
-+
 +angle_static_library("angle_lib"){
 +  complete_static_lib = true
 +
 +  deps = [
 +    ":libANGLE",
-+    ":libANGLE_base", 
++    ":libANGLE_base",
 +    ":angle_system_utils",
 +    ":angle_version",
 +  ]
@@ -81,6 +80,18 @@ index 06bf3bbbe..1b51a32de 100644
 +    ":includes",
 +  ]
 +}
+diff --git a/src/libANGLE/renderer/d3d/d3d11/ExternalImageSiblingImpl11.cpp b/src/libANGLE/renderer/d3d/d3d11/ExternalImageSiblingImpl11.cpp
+index adeeb5aa1..c9677bd8d 100644
+--- a/src/libANGLE/renderer/d3d/d3d11/ExternalImageSiblingImpl11.cpp
++++ b/src/libANGLE/renderer/d3d/d3d11/ExternalImageSiblingImpl11.cpp
+@@ -144,7 +144,7 @@ angle::Result ExternalImageSiblingImpl11::createRenderTarget(const gl::Context *
+
+     mRenderTarget = std::make_unique<TextureRenderTarget11>(
+         std::move(rtv), mTexture, std::move(srv), std::move(blitSrv), formatInfo.internalFormat,
+-        formatInfo, mSize.width, mSize.height, 1, 1);
++        formatInfo, mSize.width, mSize.height, 1, mSamples);
+     return angle::Result::Continue;
+ }
 ```
 
 
