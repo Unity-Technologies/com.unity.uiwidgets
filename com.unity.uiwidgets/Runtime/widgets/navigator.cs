@@ -541,6 +541,11 @@ namespace Unity.UIWidgets.widgets {
             return of(context).pushReplacementNamed<T,TO>(routeName, arguments: arguments,result: result);
         }
 
+        public static Future pushReplacementNamed(BuildContext context, string routeName,
+            object result = default , object arguments = null) {
+            return of(context).pushReplacementNamed(routeName, arguments: arguments,result: result);
+        }
+
         public static Future<T> popAndPushNamed<T,TO>(BuildContext context, string routeName,
             TO result = default,
             object arguments = null) {
@@ -1709,6 +1714,15 @@ namespace Unity.UIWidgets.widgets {
             return pushReplacement<T, TO>(_routeNamed<T>(routeName, arguments: arguments), result: result);
         }
 
+        public Future pushReplacementNamed(
+            string routeName,
+            object result = default,
+            object arguments = null
+        ) {
+            return pushReplacement(_routeNamed(routeName, arguments: arguments), result: result);
+        }
+
+
         public Future<T> popAndPushNamed<T, TO>(
             string routeName,
             TO result = default,
@@ -1831,6 +1845,42 @@ namespace Unity.UIWidgets.widgets {
             _afterNavigation(newRoute);
             return newRoute.popped.to<T>();
         }
+
+        public Future pushReplacement(Route newRoute, object result) {
+            D.assert(!_debugLocked);
+            D.assert(() => {
+                _debugLocked = true;
+                return true;
+            });
+            D.assert(newRoute != null);
+            D.assert(newRoute._navigator == null);
+            D.assert(_history.isNotEmpty());
+            
+            bool anyEntry = false;
+            foreach (var historyEntry in _history) {
+                if (_RouteEntry.isPresentPredicate(historyEntry)) {
+                    anyEntry = true;
+                }
+            }
+            D.assert(anyEntry,()=> "Navigator has no active routes to replace.");
+            _RouteEntry lastEntry = null;
+            foreach (var historyEntry in _history) {
+                if (_RouteEntry.isPresentPredicate(historyEntry)) {
+                    lastEntry = historyEntry;
+                }
+            }
+            lastEntry.complete(result, isReplaced: true);
+            
+            _history.Add(new _RouteEntry(newRoute, initialState: _RouteLifecycle.pushReplace));
+            _flushHistoryUpdates();
+            D.assert(() => {
+                _debugLocked = false;
+                return true;
+            });
+            _afterNavigation(newRoute);
+            return newRoute.popped.to<object>();
+        }
+
 
         public Future<T> pushAndRemoveUntil<T>(Route<T> newRoute, RoutePredicate predicate) {
             D.assert(!_debugLocked);
