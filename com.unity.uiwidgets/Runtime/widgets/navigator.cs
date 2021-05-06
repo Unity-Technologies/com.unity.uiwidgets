@@ -10,6 +10,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.services;
+using UnityEngine;
 using SchedulerBinding = Unity.UIWidgets.scheduler.SchedulerBinding;
 using SchedulerPhase = Unity.UIWidgets.scheduler.SchedulerPhase;
 
@@ -1781,8 +1782,7 @@ namespace Unity.UIWidgets.widgets {
                         {"name", settings.name}
                     };
                     if (settings.arguments != null) {
-                        settingsJsonable["arguments"] = JSONMessageCodec.instance.toJson(
-                            settings.arguments);
+                        settingsJsonable["arguments"] = JsonUtility.ToJson(settings.arguments);
                     }
 
                     routeJsonable["settings"] = settingsJsonable;

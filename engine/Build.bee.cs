@@ -560,7 +560,6 @@ class Build
                 "src/shell/platform/unity/darwin/ios/cocoa_task_runner.h",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.h",
-                "src/shell/platform/unity/darwin/ios/device_screen.mm",
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);
@@ -744,7 +743,7 @@ class Build
             "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
             "-g",
-            "-Wl,-soname=libUIWidgets_d.so",
+            "-Wl,-soname=libUIWidgets.so",
             "-Wl,--whole-archive",
         }));
         
@@ -821,8 +820,6 @@ class Build
                 dependencies.Add(builtNP.Path);
                 dependencies.Add(deployNP.Path);
             }
-
-            Backend.Current.AddAliasDependency("ios", CopyTool.Instance().Setup("../com.unity.uiwidgets/Runtime/Plugins/iOS/CustomAppController.m", "src/external/ios/CustomAppController.m"));
 
             np.ValidConfigurations = validConfigurations;
         }
@@ -941,7 +938,6 @@ class Build
         np.Libraries.Add(IsIosOrTvos, c => {
             return new PrecompiledLibrary[]
             {
-                new StaticLibrary(flutterRoot+"/out/ios_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
                 new SystemFramework("CoreFoundation"),
                 new SystemFramework("ImageIO"),
                 new SystemFramework("MobileCoreServices"),
@@ -1180,15 +1176,39 @@ class Build
 
         np.Libraries.Add(IsMac, c =>
         {
+            if(c.CodeGen == CodeGen.Debug){
+                return new PrecompiledLibrary[]{
+                    new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+                };
+            } else {
+                return new PrecompiledLibrary[]{
+                    new StaticLibrary(flutterRoot+"/out/host_release/obj/flutter/third_party/txt/libtxt_lib.a"),
+                };
+            }
+        });
+        np.Libraries.Add(IsMac, c =>
+        {
             return new PrecompiledLibrary[]
             {
-                new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
                 new SystemFramework("Foundation"),
                 new SystemFramework("ApplicationServices"),
                 new SystemFramework("OpenGL"),
                 new SystemFramework("AppKit"),
                 new SystemFramework("CoreVideo"),
             };
+        });
+
+        np.Libraries.Add(IsAndroid, c =>
+        {
+            if(c.CodeGen == CodeGen.Debug){
+                return new PrecompiledLibrary[]{
+                    new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+                };
+            } else {
+                return new PrecompiledLibrary[]{
+                    new StaticLibrary(flutterRoot+"/out/android_release/obj/flutter/third_party/txt/libtxt_lib.a"),
+                };
+            }
         });
 
         np.Libraries.Add(IsAndroid, c =>
@@ -1201,8 +1221,6 @@ class Build
 
                 new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
                 new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
-
-                new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
 
                 new SystemLibrary("android_support"),
                 new SystemLibrary("unwind"),

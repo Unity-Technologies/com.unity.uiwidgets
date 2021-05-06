@@ -7,6 +7,10 @@
 #define GL_UNSIGNED_INT_8_8_8_8_REV 0x8367
 
 namespace uiwidgets {
+
+EAGLContext* UnitySurfaceManager::gl_context_ = nullptr;
+EAGLContext* UnitySurfaceManager::gl_resource_context_ = nullptr;
+
 UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 {
   FML_DCHECK(metal_device_ == nullptr);
@@ -21,11 +25,11 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
   metal_device_ = metalGraphics->MetalDevice();
 
   //create opengl context
-  FML_DCHECK(!gl_context_);
-  FML_DCHECK(!gl_resource_context_);
+  if (gl_context_ == nullptr && gl_resource_context_ == nullptr) {
+    gl_context_ = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    gl_resource_context_ = [[EAGLContext alloc] initWithAPI:[gl_context_ API] sharegroup: [gl_context_ sharegroup]];
+  }
 
-  gl_context_ = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-  gl_resource_context_ = [[EAGLContext alloc] initWithAPI:[gl_context_ API] sharegroup: [gl_context_ sharegroup]];
   FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
 }
 
@@ -35,7 +39,7 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
 {
   //Constants
   const int ConstCVPixelFormat = kCVPixelFormatType_32BGRA;             
-  const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+  const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm;
   const GLuint ConstGLInternalFormat = GL_RGBA;        
   const GLuint ConstGLFormat = GL_BGRA_EXT;
   const GLuint ConstGLType = GL_UNSIGNED_INT_8_8_8_8_REV;
@@ -153,10 +157,8 @@ uint32_t UnitySurfaceManager::GetFbo()
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
   FML_DCHECK(gl_resource_context_);
-  gl_resource_context_ = nullptr;
 
   FML_DCHECK(gl_context_);
-  gl_context_ = nullptr;
 
   [EAGLContext setCurrentContext:nil];
 

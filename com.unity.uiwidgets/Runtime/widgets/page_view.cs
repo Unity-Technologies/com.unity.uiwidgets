@@ -379,7 +379,7 @@ namespace Unity.UIWidgets.widgets {
             this.dragStartBehavior = dragStartBehavior;
             this.controller = controller ?? PageViewUtils._defaultPageController;
             this.allowImplicitScrolling = allowImplicitScrolling;
-            childrenDelegate = new SliverChildListDelegate(children);
+            childrenDelegate = new SliverChildListDelegate(children ?? new List<Widget>());
         }
         
         public static PageView builder(

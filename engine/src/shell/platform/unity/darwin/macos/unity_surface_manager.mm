@@ -5,6 +5,10 @@
 #include "Unity/IUnityGraphicsMetal.h"
 
 namespace uiwidgets {
+
+NSOpenGLContext* UnitySurfaceManager::gl_context_ = nullptr;
+NSOpenGLContext* UnitySurfaceManager::gl_resource_context_ = nullptr;
+
 UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 {
   FML_DCHECK(metal_device_ == nullptr);
@@ -19,26 +23,25 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
   metal_device_ = metalGraphics->MetalDevice();
 
   //create opengl context
-  FML_DCHECK(!gl_context_);
-  FML_DCHECK(!gl_resource_context_);
-
-  NSOpenGLPixelFormatAttribute attrs[] =
+  if (gl_context_ == nullptr && gl_resource_context_ == nullptr) {
+    NSOpenGLPixelFormatAttribute attrs[] =
     {
       NSOpenGLPFAAccelerated,
       0
     };
 
-  NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+    NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
     
-  //gl_context_ may be created unproperly, we can check this using the relevant gl_resource_context_
-  //loop until the created gl_context_ is ok, otherwise the program will crash anyway
-  while(gl_resource_context_ == nil) {
-    gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-    gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];  
+    //gl_context_ may be created unproperly, we can check this using the relevant gl_resource_context_
+    //loop until the created gl_context_ is ok, otherwise the program will crash anyway
+    while(gl_resource_context_ == nil) {
+      gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+      gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];  
     
-    if (gl_resource_context_ == nil) {
+      if (gl_resource_context_ == nil) {
         CGLReleaseContext(gl_context_.CGLContextObj);
         gl_context_ = nullptr;
+      }
     }
   }
 
@@ -50,7 +53,7 @@ UnitySurfaceManager::~UnitySurfaceManager() { ReleaseNativeRenderContext(); }
 void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
 {
   //Constants
-  const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
+  const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm;
   const int ConstCVPixelFormat = kCVPixelFormatType_32BGRA;
   const GLuint ConstGLInternalFormat = GL_SRGB8_ALPHA8;
   const GLuint ConstGLFormat = GL_BGRA;
@@ -155,12 +158,8 @@ uint32_t UnitySurfaceManager::GetFbo()
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
   FML_DCHECK(gl_resource_context_);
-  CGLReleaseContext(gl_resource_context_.CGLContextObj);
-  gl_resource_context_ = nullptr;
 
   FML_DCHECK(gl_context_);
-  CGLReleaseContext(gl_context_.CGLContextObj);
-  gl_context_ = nullptr;
 
   FML_DCHECK(metal_device_ != nullptr);
   metal_device_ = nullptr;
