@@ -536,15 +536,20 @@ namespace Unity.UIWidgets.widgets {
             return of(context).pushNamed(routeName, arguments: arguments);
         }
 
+        public static Future<T> pushReplacementNamed<T,TO>(BuildContext context, string routeName,
+            TO result = default , object arguments = null) {
+            return of(context).pushReplacementNamed<T,TO>(routeName, arguments: arguments,result: result);
+        }
+
         public static Future pushReplacementNamed(BuildContext context, string routeName,
             object result = default , object arguments = null) {
             return of(context).pushReplacementNamed(routeName, arguments: arguments,result: result);
         }
 
-        public static Future popAndPushNamed(BuildContext context, string routeName,
-            object result = default,
+        public static Future<T> popAndPushNamed<T,TO>(BuildContext context, string routeName,
+            TO result = default,
             object arguments = null) {
-            return of(context).popAndPushNamed(routeName, result: result, arguments: arguments);
+            return of(context).popAndPushNamed<T,TO>(routeName, result: result, arguments: arguments);
         }
 
         public static Future<T> pushNamedAndRemoveUntil<T>(BuildContext context, string newRouteName,
@@ -556,8 +561,8 @@ namespace Unity.UIWidgets.widgets {
             return of(context).push<T>(route);
         }
 
-        public static Future pushReplacement(BuildContext context, Route newRoute, object result = default ) {
-            return of(context).pushReplacement(newRoute, result);
+        public static Future<T> pushReplacement<T,TO>(BuildContext context, Route<T> newRoute, TO result = default ) {
+            return of(context).pushReplacement<T,TO>(newRoute, result);
         }
 
        
@@ -1652,7 +1657,7 @@ namespace Unity.UIWidgets.widgets {
                 arguments: arguments
             );
 
-            var routeee = (Route) widget.onGenerateRoute(settings);
+            var routeee = widget.onGenerateRoute(settings);
             Route<T> route = routeee as Route<T>;
             if (route == null && !allowNull) {
                 D.assert(() => {
@@ -1701,6 +1706,14 @@ namespace Unity.UIWidgets.widgets {
             return push(_routeNamed(routeName, arguments: arguments));
         }
 
+        public Future<T> pushReplacementNamed<T, TO>(
+            string routeName,
+            TO result = default,
+            object arguments = null
+        ) {
+            return pushReplacement<T, TO>(_routeNamed<T>(routeName, arguments: arguments), result: result);
+        }
+
         public Future pushReplacementNamed(
             string routeName,
             object result = default,
@@ -1709,13 +1722,14 @@ namespace Unity.UIWidgets.widgets {
             return pushReplacement(_routeNamed(routeName, arguments: arguments), result: result);
         }
 
-        public Future popAndPushNamed(
+
+        public Future<T> popAndPushNamed<T, TO>(
             string routeName,
-            object result = default,
+            TO result = default,
             object arguments = null
         ) {
-            pop<object>(result);
-            return pushNamed(routeName, arguments: arguments);
+            pop<TO>(result);
+            return pushNamed<T>(routeName, arguments: arguments);
         }
 
         public Future<T> pushNamedAndRemoveUntil<T>(
@@ -1797,6 +1811,41 @@ namespace Unity.UIWidgets.widgets {
 
         
 
+        public Future<T> pushReplacement<T, TO>(Route<T> newRoute, TO result) {
+            D.assert(!_debugLocked);
+            D.assert(() => {
+                _debugLocked = true;
+                return true;
+            });
+            D.assert(newRoute != null);
+            D.assert(newRoute._navigator == null);
+            D.assert(_history.isNotEmpty());
+            
+            bool anyEntry = false;
+            foreach (var historyEntry in _history) {
+                if (_RouteEntry.isPresentPredicate(historyEntry)) {
+                    anyEntry = true;
+                }
+            }
+            D.assert(anyEntry,()=> "Navigator has no active routes to replace.");
+            _RouteEntry lastEntry = null;
+            foreach (var historyEntry in _history) {
+                if (_RouteEntry.isPresentPredicate(historyEntry)) {
+                    lastEntry = historyEntry;
+                }
+            }
+            lastEntry.complete(result, isReplaced: true);
+            
+            _history.Add(new _RouteEntry(newRoute, initialState: _RouteLifecycle.pushReplace));
+            _flushHistoryUpdates();
+            D.assert(() => {
+                _debugLocked = false;
+                return true;
+            });
+            _afterNavigation(newRoute);
+            return newRoute.popped.to<T>();
+        }
+
         public Future pushReplacement(Route newRoute, object result) {
             D.assert(!_debugLocked);
             D.assert(() => {
@@ -1831,6 +1880,7 @@ namespace Unity.UIWidgets.widgets {
             _afterNavigation(newRoute);
             return newRoute.popped.to<object>();
         }
+
 
         public Future<T> pushAndRemoveUntil<T>(Route<T> newRoute, RoutePredicate predicate) {
             D.assert(!_debugLocked);
