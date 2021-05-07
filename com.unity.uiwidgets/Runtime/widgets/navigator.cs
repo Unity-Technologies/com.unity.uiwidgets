@@ -1672,7 +1672,7 @@ namespace Unity.UIWidgets.widgets {
 
                     return true;
                 });
-                route = widget.onUnknownRoute(settings) as Route<T>;
+                route = widget.onUnknownRoute(settings);
                 D.assert(() => {
                     if (route == null) {
                         throw new UIWidgetsError(
