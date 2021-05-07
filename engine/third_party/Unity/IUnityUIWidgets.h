@@ -20,7 +20,9 @@ UNITY_DECLARE_INTERFACE(IUnityUIWidgets) {
   virtual void SetWakeUpCallback(VoidCallback callback) = 0;
   virtual void IssuePluginEventAndData(UnityRenderingEventAndData callback,
                                        int eventId, void* data) = 0;
-  virtual void printf_consolev(const char* log, va_list alist) = 0;
+  //TODO zxw: this API is not provided in 2019.4.26f1c1 due to a mistake :(
+  //we should consider adding it back later (remember to enable all callers too)
+  //virtual void printf_consolev(const char* log, va_list alist) = 0;
 };
 }  // namespace UnityUIWidgets
 

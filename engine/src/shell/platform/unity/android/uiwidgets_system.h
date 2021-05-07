@@ -30,11 +30,11 @@ class UIWidgetsSystem {
 
   void PostTaskToGfxWorker(const fml::closure& task);
   void printf_console(const char* log, ...) {
-    va_list vl;
+    /*va_list vl;
     va_start(vl, log);
     // TODO: error in __android_log_vprint -> vsnprintf -> __vfprintf -> strlen_a
     // unity_uiwidgets_->printf_consolev(log, vl);
-    va_end(vl);
+    va_end(vl);*/
   }
 
   void BindUnityInterfaces(IUnityInterfaces* unity_interfaces);
