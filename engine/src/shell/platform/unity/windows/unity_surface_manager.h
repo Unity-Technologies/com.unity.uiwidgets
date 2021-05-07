@@ -21,7 +21,8 @@ class UnitySurfaceManager {
   UnitySurfaceManager(IUnityInterfaces* unity_interfaces);
   ~UnitySurfaceManager();
 
-  GLuint CreateRenderSurface(void* native_texture_ptr);
+  GLuint CreateRenderSurface(size_t width, size_t height);
+  void*CreateRenderTexture(size_t width, size_t height);
   void DestroyRenderSurface();
 
   bool ClearCurrent();
@@ -33,6 +34,8 @@ class UnitySurfaceManager {
   EGLDisplay GetEGLDisplay() const { return egl_display_; }
 
   ID3D11Device* GetD3D11Device() const { return d3d11_device_; }
+
+  void* GetD3DInnerTexture() const { return static_cast<void*>(d3d11_resource_view); }
 
   FML_DISALLOW_COPY_AND_ASSIGN(UnitySurfaceManager);
 
@@ -46,6 +49,8 @@ class UnitySurfaceManager {
   EGLConfig egl_config_;
   bool initialize_succeeded_;
   ID3D11Device* d3d11_device_;
+  ID3D11Texture2D* d3d11_texture;
+  ID3D11ShaderResourceView* d3d11_resource_view;
 
   EGLImage fbo_egl_image_ = nullptr;
   GLuint fbo_texture_ = 0;

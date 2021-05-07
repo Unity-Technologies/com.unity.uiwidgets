@@ -19,16 +19,49 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 
 UnitySurfaceManager::~UnitySurfaceManager() { CleanUp(); }
 
-GLuint UnitySurfaceManager::CreateRenderSurface(void* native_texture_ptr) {
-  ID3D11Texture2D* d3d11_texture =
-      static_cast<ID3D11Texture2D*>(native_texture_ptr);
+void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height) {
+  D3D11_TEXTURE2D_DESC desc = {0};
+  desc.Width = width;
+  desc.Height = height;
+  desc.MipLevels = 0;
+  desc.ArraySize = 1;
+  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  desc.SampleDesc.Count = 1;
+  desc.SampleDesc.Quality = 0;
+  desc.Usage = D3D11_USAGE_DEFAULT;
+  desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+  desc.CPUAccessFlags = 0;
+  desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
+
+  HRESULT hr = d3d11_device_->CreateTexture2D(&desc, nullptr, &d3d11_texture);
+
+  FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: Create texture failed";
+
+  D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
+  viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+  viewDesc.Texture2D.MostDetailedMip = 0;
+  viewDesc.Texture2D.MipLevels = 1;
+
+  hr = d3d11_device_->CreateShaderResourceView(d3d11_texture, &viewDesc, &d3d11_resource_view);
+
+  FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: Create resource view failed";
+
+  return static_cast<void*>(d3d11_texture);
+}
+
+GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
+  CreateRenderTexture(width, height);
+
+  //ID3D11Texture2D* d3d11_texture =
+  //    static_cast<ID3D11Texture2D*>(native_texture_ptr);
   IDXGIResource* image_resource;
   HRESULT hr = d3d11_texture->QueryInterface(
       __uuidof(IDXGIResource), reinterpret_cast<void**>(&image_resource));
   FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: QueryInterface() failed";
 
   HANDLE shared_image_handle;
-  hr = image_resource->GetSharedHandle(&shared_image_handle);
+   hr = image_resource->GetSharedHandle(&shared_image_handle);
   FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: GetSharedHandle() failed";
 
   image_resource->Release();
@@ -52,8 +85,10 @@ GLuint UnitySurfaceManager::CreateRenderSurface(void* native_texture_ptr) {
 
   dxgi_resource->Release();
 
+  MakeCurrent(EGL_NO_DISPLAY);
+
   const EGLint attribs[] = {EGL_NONE};
-  FML_DCHECK(fbo_egl_image_ == nullptr);
+  //FML_DCHECK(fbo_egl_image_ == nullptr);
   fbo_egl_image_ =
       eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT, EGL_D3D11_TEXTURE_ANGLE,
                         static_cast<EGLClientBuffer>(image_texture), attribs);
@@ -64,7 +99,7 @@ GLuint UnitySurfaceManager::CreateRenderSurface(void* native_texture_ptr) {
   GLint old_texture_binding_2d;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture_binding_2d);
 
-  FML_DCHECK(fbo_texture_ == 0);
+  //FML_DCHECK(fbo_texture_ == 0);
   glGenTextures(1, &fbo_texture_);
   glBindTexture(GL_TEXTURE_2D, fbo_texture_);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -77,12 +112,14 @@ GLuint UnitySurfaceManager::CreateRenderSurface(void* native_texture_ptr) {
   GLint old_framebuffer_binding;
   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
 
-  FML_DCHECK(fbo_ == 0);
+  //FML_DCHECK(fbo_ == 0);
   glGenFramebuffers(1, &fbo_);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          fbo_texture_, 0);
-  FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
+
+  auto flag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  FML_CHECK(flag ==
             GL_FRAMEBUFFER_COMPLETE);
   glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
 
