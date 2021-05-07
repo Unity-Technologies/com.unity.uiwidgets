@@ -1633,7 +1633,7 @@ namespace Unity.UIWidgets.widgets {
             return route;
         }
 
-        public Route<T> _routeNamed<T>(string name, object arguments, bool allowNull = false) {
+        public Route _routeNamed<T>(string name, object arguments, bool allowNull = false) {
             D.assert(!_debugLocked);
             D.assert(name != null);
             if (allowNull && widget.onGenerateRoute == null)
@@ -1657,8 +1657,7 @@ namespace Unity.UIWidgets.widgets {
                 arguments: arguments
             );
 
-            var routeee = widget.onGenerateRoute(settings);
-            Route<T> route = routeee as Route<T>;
+            Route route = widget.onGenerateRoute(settings);
             if (route == null && !allowNull) {
                 D.assert(() => {
                     if (widget.onUnknownRoute == null) {
@@ -1811,7 +1810,7 @@ namespace Unity.UIWidgets.widgets {
 
         
 
-        public Future<T> pushReplacement<T, TO>(Route<T> newRoute, TO result) {
+        public Future<T> pushReplacement<T, TO>(Route newRoute, TO result) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -1882,7 +1881,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        public Future<T> pushAndRemoveUntil<T>(Route<T> newRoute, RoutePredicate predicate) {
+        public Future<T> pushAndRemoveUntil<T>(Route newRoute, RoutePredicate predicate) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
