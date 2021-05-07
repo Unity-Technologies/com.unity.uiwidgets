@@ -503,7 +503,7 @@ class Build
                 "src/engine.cc",
                 "src/platform_base.h",
             },
-            OutputName = { c => $"libUIWidgets" },
+            OutputName = { c => "libUIWidgets" },
         };
 
         // include these files for test only
@@ -1144,6 +1144,10 @@ class Build
             return new PrecompiledLibrary[]
             {
                 new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/txt_lib.lib"),
+                new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/third_party/angle/angle_lib.lib"),
+                new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/third_party/angle/libEGL_static.lib"),
+                new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/third_party/angle/libGLESv2_static.lib"),
+                new SystemLibrary("dxguid.lib"),
             };
         });
 
@@ -1154,29 +1158,22 @@ class Build
             return new PrecompiledLibrary[]
             {
                 new StaticLibrary(flutterRoot+"/out/host_release/obj/flutter/third_party/txt/txt_lib.lib"),
+                new StaticLibrary(flutterRoot+"/out/host_release/obj/third_party/angle/angle_lib.lib"),
+                new StaticLibrary(flutterRoot+"/out/host_release/obj/third_party/angle/libEGL_static.lib"),
+                new StaticLibrary(flutterRoot+"/out/host_release/obj/third_party/angle/libGLESv2_static.lib"),
             };
         });
         np.Libraries.Add(IsWindows, c =>
         {
             return new PrecompiledLibrary[]
             {
-
-                new StaticLibrary(windowsSkiaBuild+"/libEGL.dll.lib"),
-                new StaticLibrary(windowsSkiaBuild+"/libGLESv2.dll.lib"),
-
-                new SystemLibrary("Opengl32.lib"),
                 new SystemLibrary("User32.lib"),
                 new SystemLibrary("Rpcrt4.lib"),
+                new SystemLibrary("d3d9.lib"),
+                new SystemLibrary("gdi32.lib"),
             };
         });
 
-        np.SupportFiles.Add(c => IsWindows(c), new[] {
-                new DeployableFile(windowsSkiaBuild + "/libEGL.dll"),
-                new DeployableFile(windowsSkiaBuild + "/libEGL.dll.pdb"),
-                new DeployableFile(windowsSkiaBuild + "/libGLESv2.dll"),
-                new DeployableFile(windowsSkiaBuild + "/libGLESv2.dll.pdb"),
-            }
-        );
         np.Libraries.Add(IsMac, c =>
         {
             if(c.CodeGen == CodeGen.Debug){
