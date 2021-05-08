@@ -1,5 +1,5 @@
 using System;
-using Unity.UIWidgets.editor;
+//using Unity.UIWidgets.editor;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -51,10 +51,12 @@ namespace Unity.UIWidgets.Redux {
 
         public readonly bool pure;
 
-        public readonly UIWidgetsEditorWindow host;
+        //TODO (zxw): we should find out a better solution to support both EditorWindow and GameObject host here
+        //public readonly UIWidgetsEditorWindow host;
+        
 
         public StoreConnector(
-            UIWidgetsEditorWindow host = null,
+            //UIWidgetsEditorWindow host = null,
             ViewModelBuilder<ViewModel> builder = null,
             StoreConverter<State, ViewModel> converter = null,
             bool pure = false, 
@@ -62,7 +64,7 @@ namespace Unity.UIWidgets.Redux {
             Key key = null) : base(key) {
             D.assert(builder != null);
             D.assert(converter != null);
-            this.host = host;
+            //this.host = host;
             this.pure = pure;
             this.builder = builder;
             this.converter = converter;
@@ -75,8 +77,8 @@ namespace Unity.UIWidgets.Redux {
                 builder: this.builder,
                 converter: this.converter,
                 pure: this.pure,
-                shouldRebuild: this.shouldRebuild,
-                host : this.host
+                shouldRebuild: this.shouldRebuild
+                //host : this.host
             );
         }
     }
@@ -92,7 +94,7 @@ namespace Unity.UIWidgets.Redux {
 
         public readonly bool pure;
 
-        public readonly UIWidgetsEditorWindow host;
+        //public readonly UIWidgetsEditorWindow host;
 
         public _StoreListener(
             ViewModelBuilder<ViewModel> builder = null,
@@ -100,7 +102,7 @@ namespace Unity.UIWidgets.Redux {
             Store<State> store = null,
             bool pure = false,
             ShouldRebuildCallback<ViewModel> shouldRebuild = null,
-            UIWidgetsEditorWindow host = null,
+            //UIWidgetsEditorWindow host = null,
             Key key = null) : base(key) {
             D.assert(builder != null);
             D.assert(converter != null);
@@ -110,7 +112,7 @@ namespace Unity.UIWidgets.Redux {
             this.converter = converter;
             this.pure = pure;
             this.shouldRebuild = shouldRebuild;
-            this.host = host;
+            //this.host = host;
         }
 
         public override widgets.State createState() {
@@ -147,14 +149,14 @@ namespace Unity.UIWidgets.Redux {
         }
 
         void _handleStateChanged(State state) {
-            if (this.widget.host != null) {
-                var preInstance = Window.instance;
-                using (WindowProvider.of(this.widget.host).getScope()) {
-                    this._innerStateChanged(state);
-                }
-                Window.instance = preInstance;
-            }
-            else if (Window.hasInstance) {
+            //if (this.widget.host != null) {
+            //    var preInstance = Window.instance;
+            //    using (WindowProvider.of(this.widget.host).getScope()) {
+            //        this._innerStateChanged(state);
+            //    }
+            //    Window.instance = preInstance;
+            //}
+            if (Window.hasInstance) {
                 this._innerStateChanged(state);
             }
             else {
