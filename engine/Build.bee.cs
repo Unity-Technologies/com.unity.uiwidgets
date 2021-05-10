@@ -620,6 +620,9 @@ class Build
             "GR_TEST_UTILS=1",
             "SKIA_IMPLEMENTATION=1",
             "SK_GL",
+            "VK_USE_PLATFORM_ANDROID_KHR",
+            "EGL_EGLEXT_PROTOTYPES",
+            "GL_GLEXT_PROTOTYPES",
             "SK_ENABLE_DUMP_GPU",
             "SK_SUPPORT_PDF",
             "SK_CODEC_DECODES_JPEG",
@@ -740,6 +743,7 @@ class Build
             "-Wl,--warn-shared-textrel",
             "-nostdlib",
             "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
+            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-28/arch-arm",
             "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
             "-g",
@@ -1235,6 +1239,7 @@ class Build
                 new SystemLibrary("EGL"),
                 new SystemLibrary("GLESv2"),
                 new SystemLibrary("log"),
+                new SystemLibrary("vulkan"),
             };
         });
     }

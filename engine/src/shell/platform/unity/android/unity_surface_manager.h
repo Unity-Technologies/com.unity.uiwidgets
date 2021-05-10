@@ -25,6 +25,9 @@
 
 #include "Unity/IUnityGraphics.h"
 
+#include "Unity/IUnityGraphicsVulkan.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+
 namespace uiwidgets
 {
 
@@ -54,6 +57,11 @@ namespace uiwidgets
     EGLContext egl_context_;
     EGLContext egl_resource_context_;
     EGLConfig egl_config_;
+    
+    IUnityGraphicsVulkan* m_UnityVulkan;
+    UnityVulkanInstance m_Instance;
+    sk_sp<GrContext> gr_context_;
+    sk_sp<SkSurface> m_SkSurface;
 
     bool initialize_succeeded_;
 
