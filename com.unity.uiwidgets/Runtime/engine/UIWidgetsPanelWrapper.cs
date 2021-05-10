@@ -45,7 +45,7 @@ namespace Unity.UIWidgets.engine {
             D.assert(native_tex_ptr != IntPtr.Zero);
 
             _renderTexture =
-                Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
+                Texture2D.CreateExternalTexture(_width, _height, TextureFormat.RGBAFloat, false, true, native_tex_ptr);
         }
 
         void _disableUIWidgetsPanel() {
@@ -59,7 +59,7 @@ namespace Unity.UIWidgets.engine {
             D.assert(native_tex_ptr != IntPtr.Zero);
 
             _renderTexture =
-                Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
+                Texture2D.CreateExternalTexture(_width, _height, TextureFormat.RGBAFloat, false, true, native_tex_ptr);
         }
 
         [DllImport(NativeBindings.dllName)]

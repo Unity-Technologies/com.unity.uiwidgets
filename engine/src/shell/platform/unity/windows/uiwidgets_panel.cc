@@ -48,10 +48,10 @@ void* UIWidgetsPanel::OnEnable(size_t width,
 
   //return surface_manager_->CreateRenderTexture(width, height);
 
-
   fbo_ = surface_manager_->CreateRenderSurface(width, height);
   void* d3dtexture = surface_manager_->GetD3DInnerTexture();
 
+  
   surface_manager_->ClearCurrent();
 
   fml::AutoResetWaitableEvent latch;
@@ -212,12 +212,13 @@ void* UIWidgetsPanel::OnEnable(size_t width,
 void UIWidgetsPanel::MonoEntrypoint() { entrypoint_callback_(handle_); }
 
 void UIWidgetsPanel::OnDisable() {
+  
   // drain pending messages
   ProcessMessages();
 
   // drain pending vsync batons
   ProcessVSync();
-
+  
   process_events_ = false;
 
   UIWidgetsSystem::GetInstancePtr()->UnregisterPanel(this);
@@ -233,7 +234,7 @@ void UIWidgetsPanel::OnDisable() {
   if (fbo_) {
     surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
 
-    surface_manager_->DestroyRenderSurface();
+    surface_manager_->ReleaseNativeRenderTexture();
     fbo_ = 0;
 
     surface_manager_->ClearCurrent();
@@ -244,22 +245,6 @@ void UIWidgetsPanel::OnDisable() {
 
 void* UIWidgetsPanel::OnRenderTexture(size_t width,
                                      size_t height, float device_pixel_ratio) {
-  /*fml::AutoResetWaitableEvent latch;
-  reinterpret_cast<EmbedderEngine*>(engine_)->PostRenderThreadTask(
-      [&latch, this, native_texture_ptr]() -> void {
-        surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
-
-        if (fbo_) {
-          surface_manager_->DestroyRenderSurface();
-          fbo_ = 0;
-        }
-        fbo_ = surface_manager_->CreateRenderSurface(width, height);
-
-        surface_manager_->ClearCurrent();
-        latch.Signal();
-      });
-  latch.Wait();*/
-
   ViewportMetrics metrics;
   metrics.physical_width = static_cast<float>(width);
   metrics.physical_height = static_cast<float>(height);
@@ -269,6 +254,8 @@ void* UIWidgetsPanel::OnRenderTexture(size_t width,
   fbo_ = surface_manager_->CreateRenderSurface(width, height);
   return static_cast<void*>(surface_manager_->GetD3DInnerTexture());
 }
+
+bool UIWidgetsPanel::ReleaseNativeRenderTexture() { return surface_manager_->ReleaseNativeRenderTexture(); }
 
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
   int texture_identifier = 0;
@@ -519,7 +506,7 @@ UIWIDGETS_API(void) UIWidgetsPanel_onDisable(UIWidgetsPanel* panel) {
 }
 
 UIWIDGETS_API(bool) UIWidgetsPanel_releaseNativeTexture(UIWidgetsPanel* panel) {
-  return true;
+  return panel->ReleaseNativeRenderTexture();
 }
 
 UIWIDGETS_API(void*)

@@ -42,6 +42,8 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void* OnRenderTexture(size_t width, size_t height,
                        float dpi);
+  
+  bool ReleaseNativeRenderTexture();
 
   int RegisterTexture(void* native_texture_ptr);
 

@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include <dxgi.h>
 #include <flutter/fml/logging.h>
+#include "uiwidgets_system.h"
 
 #include "Unity/IUnityGraphics.h"
 #include "Unity/IUnityGraphicsD3D11.h"
@@ -23,7 +24,7 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height) {
   D3D11_TEXTURE2D_DESC desc = {0};
   desc.Width = width;
   desc.Height = height;
-  desc.MipLevels = 0;
+  desc.MipLevels = 1;
   desc.ArraySize = 1;
   desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   desc.SampleDesc.Count = 1;
@@ -34,27 +35,12 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height) {
   desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
 
   HRESULT hr = d3d11_device_->CreateTexture2D(&desc, nullptr, &d3d11_texture);
-
-  FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: Create texture failed";
-
-  D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
-  viewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-  viewDesc.Texture2D.MostDetailedMip = 0;
-  viewDesc.Texture2D.MipLevels = 1;
-
-  hr = d3d11_device_->CreateShaderResourceView(d3d11_texture, &viewDesc, &d3d11_resource_view);
-
-  FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: Create resource view failed";
-
   return static_cast<void*>(d3d11_texture);
 }
 
 GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
   CreateRenderTexture(width, height);
 
-  //ID3D11Texture2D* d3d11_texture =
-  //    static_cast<ID3D11Texture2D*>(native_texture_ptr);
   IDXGIResource* image_resource;
   HRESULT hr = d3d11_texture->QueryInterface(
       __uuidof(IDXGIResource), reinterpret_cast<void**>(&image_resource));
@@ -71,7 +57,7 @@ GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
          "D3D11_RESOURCE_MISC_SHARED is needed";
 
   IDXGIResource* dxgi_resource;
-  hr = d3d11_device_->OpenSharedResource(
+  hr = d3d11_angle_device_->OpenSharedResource(
       shared_image_handle, __uuidof(ID3D11Resource),
       reinterpret_cast<void**>(&dxgi_resource));
   FML_CHECK(SUCCEEDED(hr))
@@ -88,7 +74,7 @@ GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
   MakeCurrent(EGL_NO_DISPLAY);
 
   const EGLint attribs[] = {EGL_NONE};
-  //FML_DCHECK(fbo_egl_image_ == nullptr);
+  FML_DCHECK(fbo_egl_image_ == nullptr);
   fbo_egl_image_ =
       eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT, EGL_D3D11_TEXTURE_ANGLE,
                         static_cast<EGLClientBuffer>(image_texture), attribs);
@@ -99,7 +85,7 @@ GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
   GLint old_texture_binding_2d;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture_binding_2d);
 
-  //FML_DCHECK(fbo_texture_ == 0);
+  FML_DCHECK(fbo_texture_ == 0);
   glGenTextures(1, &fbo_texture_);
   glBindTexture(GL_TEXTURE_2D, fbo_texture_);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -112,7 +98,7 @@ GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
   GLint old_framebuffer_binding;
   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
 
-  //FML_DCHECK(fbo_ == 0);
+  FML_DCHECK(fbo_ == 0);
   glGenFramebuffers(1, &fbo_);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
@@ -124,20 +110,6 @@ GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
   glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
 
   return fbo_;
-}
-
-void UnitySurfaceManager::DestroyRenderSurface() {
-  FML_DCHECK(fbo_ != 0);
-  glDeleteFramebuffers(1, &fbo_);
-  fbo_ = 0;
-
-  FML_DCHECK(fbo_texture_ != 0);
-  glDeleteTextures(1, &fbo_texture_);
-  fbo_texture_ = 0;
-
-  FML_DCHECK(fbo_egl_image_ != nullptr);
-  eglDestroyImageKHR(egl_display_, fbo_egl_image_);
-  fbo_egl_image_ = nullptr;
 }
 
 bool UnitySurfaceManager::ClearCurrent() {
@@ -162,6 +134,8 @@ bool UnitySurfaceManager::Initialize(IUnityInterfaces* unity_interfaces) {
 
   IUnityGraphicsD3D11* d3d11 = unity_interfaces->Get<IUnityGraphicsD3D11>();
   ID3D11Device* d3d11_device = d3d11->GetDevice();
+
+  d3d11_device_ = d3d11_device;
 
   IDXGIDevice* dxgi_device;
   HRESULT hr = d3d11_device->QueryInterface(
@@ -206,7 +180,7 @@ bool UnitySurfaceManager::Initialize(IUnityInterfaces* unity_interfaces) {
   EGLAttrib angle_device = 0;
   eglQueryDeviceAttribEXT(reinterpret_cast<EGLDeviceEXT>(egl_device),
                           EGL_D3D11_DEVICE_ANGLE, &angle_device);
-  d3d11_device_ = reinterpret_cast<ID3D11Device*>(angle_device);
+  d3d11_angle_device_ = reinterpret_cast<ID3D11Device*>(angle_device);
 
   const EGLint configAttributes[] = {EGL_RED_SIZE,   8, EGL_GREEN_SIZE,   8,
                                      EGL_BLUE_SIZE,  8, EGL_ALPHA_SIZE,   8,
@@ -268,6 +242,30 @@ void UnitySurfaceManager::CleanUp() {
   }
   
   d3d11_device_ = nullptr;
+  d3d11_angle_device_ = nullptr;
+}
+
+bool UnitySurfaceManager::ReleaseNativeRenderTexture() {
+  if (d3d11_texture == nullptr) {
+    return true;  
+  }
+  FML_DCHECK(fbo_ != 0);
+  glDeleteFramebuffers(1, &fbo_);
+  fbo_ = 0;
+
+  FML_DCHECK(fbo_texture_ != 0);
+  glDeleteTextures(1, &fbo_texture_);
+  fbo_texture_ = 0;
+
+  FML_DCHECK(fbo_egl_image_ != nullptr);
+  eglDestroyImageKHR(egl_display_, fbo_egl_image_);
+  fbo_egl_image_ = nullptr;
+
+  d3d11_texture->Release();
+  d3d11_texture = nullptr;
+
+  return true;
 }
 
 }  // namespace uiwidgets
+ 
