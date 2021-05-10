@@ -45,12 +45,8 @@ void* UIWidgetsPanel::OnEnable(size_t width,
 
   FML_DCHECK(fbo_ == 0);
   surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
-
-  //return surface_manager_->CreateRenderTexture(width, height);
-
   fbo_ = surface_manager_->CreateRenderSurface(width, height);
   void* d3dtexture = surface_manager_->GetD3DInnerTexture();
-
   
   surface_manager_->ClearCurrent();
 
@@ -212,13 +208,12 @@ void* UIWidgetsPanel::OnEnable(size_t width,
 void UIWidgetsPanel::MonoEntrypoint() { entrypoint_callback_(handle_); }
 
 void UIWidgetsPanel::OnDisable() {
-  
   // drain pending messages
   ProcessMessages();
 
   // drain pending vsync batons
   ProcessVSync();
-  
+
   process_events_ = false;
 
   UIWidgetsSystem::GetInstancePtr()->UnregisterPanel(this);

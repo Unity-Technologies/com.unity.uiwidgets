@@ -3,7 +3,6 @@
 #include <d3d11.h>
 #include <dxgi.h>
 #include <flutter/fml/logging.h>
-#include "uiwidgets_system.h"
 
 #include "Unity/IUnityGraphics.h"
 #include "Unity/IUnityGraphicsD3D11.h"
@@ -20,7 +19,7 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 
 UnitySurfaceManager::~UnitySurfaceManager() { CleanUp(); }
 
-void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height) {
+void UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height) {
   D3D11_TEXTURE2D_DESC desc = {0};
   desc.Width = width;
   desc.Height = height;
@@ -35,7 +34,7 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height) {
   desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
 
   HRESULT hr = d3d11_device_->CreateTexture2D(&desc, nullptr, &d3d11_texture);
-  return static_cast<void*>(d3d11_texture);
+  FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: Create Native d3d11Texture2D failed";
 }
 
 GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
@@ -47,7 +46,7 @@ GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
   FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: QueryInterface() failed";
 
   HANDLE shared_image_handle;
-   hr = image_resource->GetSharedHandle(&shared_image_handle);
+  hr = image_resource->GetSharedHandle(&shared_image_handle);
   FML_CHECK(SUCCEEDED(hr)) << "UnitySurfaceManager: GetSharedHandle() failed";
 
   image_resource->Release();
@@ -104,8 +103,7 @@ GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height) {
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
                          fbo_texture_, 0);
 
-  auto flag = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  FML_CHECK(flag ==
+  FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
             GL_FRAMEBUFFER_COMPLETE);
   glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
 

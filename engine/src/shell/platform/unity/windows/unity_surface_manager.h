@@ -22,7 +22,6 @@ class UnitySurfaceManager {
   ~UnitySurfaceManager();
 
   GLuint CreateRenderSurface(size_t width, size_t height);
-  void*CreateRenderTexture(size_t width, size_t height);
 
   bool ReleaseNativeRenderTexture();
 
@@ -42,6 +41,7 @@ class UnitySurfaceManager {
 
  private:
   bool Initialize(IUnityInterfaces* unity_interfaces);
+  void CreateRenderTexture(size_t width, size_t height);
   void CleanUp();
 
   EGLDisplay egl_display_;
