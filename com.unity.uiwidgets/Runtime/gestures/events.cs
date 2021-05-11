@@ -179,29 +179,29 @@ namespace Unity.UIWidgets.gestures {
             properties.add(new IntProperty("buttons", buttons, defaultValue: 0, level: DiagnosticLevel.debug));
             properties.add(new DiagnosticsProperty<bool>("down", down, level: DiagnosticLevel.debug));
             properties.add(
-                new FloatProperty("pressure", pressure, defaultValue: 1.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("pressureMin", pressureMin, defaultValue: 1.0,
+                new FloatProperty("pressure", pressure, defaultValue: 1.0f, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("pressureMin", pressureMin, defaultValue: 1.0f,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("pressureMax", pressureMax, defaultValue: 1.0,
+            properties.add(new FloatProperty("pressureMax", pressureMax, defaultValue: 1.0f,
                 level: DiagnosticLevel.debug));
             properties.add(
-                new FloatProperty("distance", distance, defaultValue: 0.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("distanceMin", distanceMin, defaultValue: 0.0,
+                new FloatProperty("distance", distance, defaultValue: 0.0f, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("distanceMin", distanceMin, defaultValue: 0.0f,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("distanceMax", distanceMax, defaultValue: 0.0,
+            properties.add(new FloatProperty("distanceMax", distanceMax, defaultValue: 0.0f,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("size", size, defaultValue: 0.0, level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMajor", radiusMajor, defaultValue: 0.0,
+            properties.add(new FloatProperty("size", size, defaultValue: 0.0f, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("radiusMajor", radiusMajor, defaultValue: 0.0f,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMinor", radiusMinor, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMinor", radiusMinor, defaultValue: 0.0f,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMin", radiusMin, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMin", radiusMin, defaultValue: 0.0f,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("radiusMax", radiusMax, defaultValue: 0.0,
+            properties.add(new FloatProperty("radiusMax", radiusMax, defaultValue: 0.0f,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("orientation", orientation, defaultValue: 0.0,
+            properties.add(new FloatProperty("orientation", orientation, defaultValue: 0.0f,
                 level: DiagnosticLevel.debug));
-            properties.add(new FloatProperty("tilt", tilt, defaultValue: 0.0, level: DiagnosticLevel.debug));
+            properties.add(new FloatProperty("tilt", tilt, defaultValue: 0.0f, level: DiagnosticLevel.debug));
             properties.add(new IntProperty("platformData", platformData, defaultValue: 0,
                 level: DiagnosticLevel.debug));
             properties.add(new FlagProperty("obscured", value: obscured, ifTrue: "obscured",
