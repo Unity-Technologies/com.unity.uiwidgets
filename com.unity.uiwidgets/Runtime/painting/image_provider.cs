@@ -667,15 +667,13 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 yield return www.SendWebRequest();
-
-                if (www.isNetworkError || www.isHttpError) {
-                    completer.completeError(new Exception($"Failed to load from url \"{url}\": {www.error}"));
-                    yield break;
-                }
-
-                var data = www.downloadHandler.data;
-
                 using (Isolate.getScope(isolate)) {
+                    if (www.isNetworkError || www.isHttpError) {
+                        completer.completeError(new Exception($"Failed to load from url \"{url}\": {www.error}"));
+                        yield break;
+                    }
+
+                    var data = www.downloadHandler.data;
                     completer.complete(data);
                 }
             }
