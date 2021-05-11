@@ -11,7 +11,7 @@ UIWidgets is mainly derived from [Flutter](https://github.com/flutter/flutter). 
 the powerful Unity Engine, it offers developers many new features to improve their Apps
 as well as the develop workflow significantly.
 
-As the latest version, UIWidgets 2.0 aims to optmize the overall performance of the package. Specifically, a performance gain around 10% is observed on  mobile devices like iPhone 6 after upgrading to UIWidgets 2.0. However, if you still want to use the original UIWidgets 1.0, please download the archived packages from Releases or switch your working branch to uiwidgets_1.0.
+As the latest version, UIWidgets 2.0 aims to optimize the overall performance of the package. Specifically, a performance gain around 10% is observed on  mobile devices like iPhone 6 after upgrading to UIWidgets 2.0. However, if you still want to use the original UIWidgets 1.0, please download the archived packages from Releases or switch your working branch to uiwidgets_1.0.
 
 #### Efficiency
 Using the latest Unity rendering SDKs, a UIWidgets App can run very fast and keep >60fps in most times.
@@ -50,7 +50,7 @@ CPU/GPU Profiling, FPS Profiling.
 ### Projects using UIWidgets
 
 #### Unity Connect App
-The Unity Connect App is created using UIWidgets and available for both Android (https://connect.unity.com/connectApp/download)
+The Unity Connect App is created using UIWidgets and available for both Android (https://unity.cn/connectApp/download)
 and iOS (Searching for "Unity Connect" in App Store). This project is open-sourced @https://github.com/UnityTech/ConnectAppCN.
 
 #### Unity Chinese Doc
@@ -61,7 +61,7 @@ open-sourced @https://github.com/UnityTech/DocCN.
 
 #### Unity
 
-Install **Unity 2019.1.14f1c1** and above. You can download the latest Unity on https://unity3d.com/get-unity/download.
+Install **Unity 2019.4.25f1c2** (_unityhub://2019.4.25f1c2/44dea2b5e6e6_) or **Unity 2019.4.26f1c1**. You can download the latest Unity on https://unity3d.com/get-unity/download.
 
 #### UIWidgets Package
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets

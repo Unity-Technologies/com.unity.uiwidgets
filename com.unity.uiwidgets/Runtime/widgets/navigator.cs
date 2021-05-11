@@ -541,6 +541,11 @@ namespace Unity.UIWidgets.widgets {
             return of(context).pushReplacementNamed<T,TO>(routeName, arguments: arguments,result: result);
         }
 
+        public static Future pushReplacementNamed(BuildContext context, string routeName,
+            object result = default , object arguments = null) {
+            return of(context).pushReplacementNamed(routeName, arguments: arguments,result: result);
+        }
+
         public static Future<T> popAndPushNamed<T,TO>(BuildContext context, string routeName,
             TO result = default,
             object arguments = null) {
@@ -1628,7 +1633,7 @@ namespace Unity.UIWidgets.widgets {
             return route;
         }
 
-        public Route<T> _routeNamed<T>(string name, object arguments, bool allowNull = false) {
+        public Route _routeNamed<T>(string name, object arguments, bool allowNull = false) {
             D.assert(!_debugLocked);
             D.assert(name != null);
             if (allowNull && widget.onGenerateRoute == null)
@@ -1652,8 +1657,7 @@ namespace Unity.UIWidgets.widgets {
                 arguments: arguments
             );
 
-            var routeee = widget.onGenerateRoute(settings);
-            Route<T> route = routeee as Route<T>;
+            Route route = widget.onGenerateRoute(settings);
             if (route == null && !allowNull) {
                 D.assert(() => {
                     if (widget.onUnknownRoute == null) {
@@ -1668,7 +1672,7 @@ namespace Unity.UIWidgets.widgets {
 
                     return true;
                 });
-                route = widget.onUnknownRoute(settings) as Route<T>;
+                route = widget.onUnknownRoute(settings);
                 D.assert(() => {
                     if (route == null) {
                         throw new UIWidgetsError(
@@ -1708,6 +1712,15 @@ namespace Unity.UIWidgets.widgets {
         ) {
             return pushReplacement<T, TO>(_routeNamed<T>(routeName, arguments: arguments), result: result);
         }
+
+        public Future pushReplacementNamed(
+            string routeName,
+            object result = default,
+            object arguments = null
+        ) {
+            return pushReplacement(_routeNamed(routeName, arguments: arguments), result: result);
+        }
+
 
         public Future<T> popAndPushNamed<T, TO>(
             string routeName,
@@ -1797,7 +1810,7 @@ namespace Unity.UIWidgets.widgets {
 
         
 
-        public Future<T> pushReplacement<T, TO>(Route<T> newRoute, TO result) {
+        public Future<T> pushReplacement<T, TO>(Route newRoute, TO result) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -1832,7 +1845,43 @@ namespace Unity.UIWidgets.widgets {
             return newRoute.popped.to<T>();
         }
 
-        public Future<T> pushAndRemoveUntil<T>(Route<T> newRoute, RoutePredicate predicate) {
+        public Future pushReplacement(Route newRoute, object result) {
+            D.assert(!_debugLocked);
+            D.assert(() => {
+                _debugLocked = true;
+                return true;
+            });
+            D.assert(newRoute != null);
+            D.assert(newRoute._navigator == null);
+            D.assert(_history.isNotEmpty());
+            
+            bool anyEntry = false;
+            foreach (var historyEntry in _history) {
+                if (_RouteEntry.isPresentPredicate(historyEntry)) {
+                    anyEntry = true;
+                }
+            }
+            D.assert(anyEntry,()=> "Navigator has no active routes to replace.");
+            _RouteEntry lastEntry = null;
+            foreach (var historyEntry in _history) {
+                if (_RouteEntry.isPresentPredicate(historyEntry)) {
+                    lastEntry = historyEntry;
+                }
+            }
+            lastEntry.complete(result, isReplaced: true);
+            
+            _history.Add(new _RouteEntry(newRoute, initialState: _RouteLifecycle.pushReplace));
+            _flushHistoryUpdates();
+            D.assert(() => {
+                _debugLocked = false;
+                return true;
+            });
+            _afterNavigation(newRoute);
+            return newRoute.popped.to<object>();
+        }
+
+
+        public Future<T> pushAndRemoveUntil<T>(Route newRoute, RoutePredicate predicate) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;

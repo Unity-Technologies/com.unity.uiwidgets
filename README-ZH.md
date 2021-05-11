@@ -41,7 +41,7 @@ UIWidgets 2.0是UIWidgets的最新版本，它主要着力于UI绘制相关的�
 ### 基于UIWidgets的项目
 
 #### Unity Connect App
-Unity Connect App是使用UIWidgets开发的一个移动App产品，您随时可以在Android (https://connect.unity.com/connectApp/download)
+Unity Connect App是使用UIWidgets开发的一个移动App产品，您随时可以在Android (https://unity.cn/connectApp/download)
 以及iOS (Searching for "Unity Connect" in App Store)端下载到它最新的版本. 本项目的所有代码均开源@https://github.com/UnityTech/ConnectAppCN.
 
 #### Unity中文官方文档
@@ -52,7 +52,7 @@ https://github.com/UnityTech/DocCN 查看。
 
 #### Unity
 
-安装 **Unity 2019.1.14f1c1** 及其更高版本。 你可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
+安装 **Unity 2019.4.25f1c2**（_unityhub://2019.4.25f1c2/44dea2b5e6e6_）或 **Unity 2019.4.26f1c1**。 你可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
 
 #### UIWidgets包
 
