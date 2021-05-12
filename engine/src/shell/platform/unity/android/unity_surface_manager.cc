@@ -198,10 +198,13 @@ namespace uiwidgets
     {
       return;
     }
-    egl_display_ = eglGetCurrentDisplay();
-    egl_unity_context_ = eglGetCurrentContext();
-    FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
-        << "Renderer type is invalid";
+    // EGLint major, minor;    
+
+    // egl_display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    // eglInitialize(egl_display_, &major, &minor);
+    // egl_unity_context_ = eglGetCurrentContext();
+    // FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
+    //     << "Renderer type is invalid";
   }
 
   static const int DEV_W = 16, DEV_H = 16;
@@ -248,6 +251,21 @@ namespace uiwidgets
       auto device = m_Instance.device;
       auto physicalDevice = m_Instance.physicalDevice;
       VkImage image = 0;
+      VkImageCreateInfo imageInfo{};
+      imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+      imageInfo.imageType = VK_IMAGE_TYPE_2D;
+      imageInfo.extent.width = 100;
+      imageInfo.extent.height = 100;
+      imageInfo.extent.depth = 1;
+      imageInfo.mipLevels = 1;
+      imageInfo.arrayLayers = 1;
+      imageInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
+      imageInfo.tiling = VK_IMAGE_TILING_LINEAR;
+      imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+      imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+      imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+      imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+      vkCreateImage(device, &imageInfo, nullptr, &image);
       // ... // create the image as normal
       VkMemoryRequirements memReqs; // = device->getImageMemoryRequirements(image);
       vkGetImageMemoryRequirements(device, image, &memReqs);
@@ -283,7 +301,7 @@ namespace uiwidgets
       // memory = device->allocateMemory(memAllocInfo);
       vkBindImageMemory(device, image, memory, 0);
 
-      AHardwareBuffer *buffer = nullptr;
+      AHardwareBuffer *buffer;
 
       VkMemoryGetAndroidHardwareBufferInfoANDROID meminfo;
       meminfo.sType = VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
@@ -293,26 +311,49 @@ namespace uiwidgets
       // HANDLE sharedMemoryHandle = device->getMemoryWin32HandleKHR({
       //   texture.memory, VkExternalMemoryHandleTypeFlags::VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID
       // });
-      EGLDisplay display = eglGetCurrentDisplay();
+      // EGLDisplay display = eglGetCurrentDisplay();
+
+      bool success = false;
+      EGLint major, minor;
+
+      egl_display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+      eglInitialize(egl_display_, &major, &minor);
+
+      std::tie(success, egl_config_) = ChooseEGLConfiguration(egl_display_);
+      FML_CHECK(success) << "Could not choose an EGL configuration.";
+      eglBindAPI(EGL_OPENGL_API);
+
+      std::tie(success, egl_context_) = CreateContext(egl_display_, egl_config_, EGL_NO_CONTEXT);
+
+      std::tie(success, egl_resource_context_) = CreateContext(egl_display_, egl_config_, egl_context_);
+      eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_);
+    
+    //  glewInit();
+      auto error = eglGetError();
       EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(buffer);
+      error = eglGetError();
       bool isProtectedContent = true;
-      EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
-                          isProtectedContent ? EGL_PROTECTED_CONTENT_EXT : EGL_NONE,
-                          isProtectedContent ? EGL_TRUE : EGL_NONE,
-                          EGL_NONE};
-
-      EGLImageKHR imagekhr = eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
-
+      EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,EGL_NONE};
+      error = eglGetError();
+      auto xegl = eglGetCurrentContext() ;
+      // EGLImageKHR imagekhr = eglCreateImageKHR(egl_display_, egl_context_, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
+      EGLImageKHR imagekhr = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
+      error = eglGetError();
       GLint old_framebuffer_binding;
       glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
-
+      error = eglGetError();
       glGenFramebuffers(1, &fbo_);
+      error = eglGetError();
       glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
-
+      error = eglGetError();
       GLuint mTexture = 0;
       glGenTextures(1, &mTexture);
+      error = eglGetError();
       glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, imagekhr);
+      error = eglGetError();
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture, 0);
+      error = eglGetError();
+      auto x = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
       FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
       glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
@@ -348,7 +389,6 @@ namespace uiwidgets
 
       auto valid_ = true;
 
-      bool success = false;
       return success;
     }
     else
