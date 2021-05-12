@@ -327,27 +327,29 @@ namespace uiwidgets
 
       std::tie(success, egl_resource_context_) = CreateContext(egl_display_, egl_config_, egl_context_);
       eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_);
-    
-    //  glewInit();
+   
+      glGenFramebuffers(1, &fbo_);
       auto error = eglGetError();
+      glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+      error = eglGetError();
+      GLuint mTexture = 0;
+      glGenTextures(1, &mTexture);
+
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D , mTexture, 0);
+
+    //  glewInit();
+       error = eglGetError();
       EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(buffer);
       error = eglGetError();
       bool isProtectedContent = true;
       EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,EGL_NONE};
       error = eglGetError();
       auto xegl = eglGetCurrentContext() ;
-      // EGLImageKHR imagekhr = eglCreateImageKHR(egl_display_, egl_context_, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
-      EGLImageKHR imagekhr = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
+       //EGLImageKHR imagekhr = eglCreateImageKHR(egl_display_, egl_context_, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
+       EGLImageKHR imagekhr = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
       error = eglGetError();
       GLint old_framebuffer_binding;
       glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
-      error = eglGetError();
-      glGenFramebuffers(1, &fbo_);
-      error = eglGetError();
-      glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
-      error = eglGetError();
-      GLuint mTexture = 0;
-      glGenTextures(1, &mTexture);
       error = eglGetError();
       glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, imagekhr);
       error = eglGetError();

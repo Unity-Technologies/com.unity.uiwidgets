@@ -16,6 +16,7 @@ using Bee.Toolchain.Xcode;
 using Bee.Toolchain.GNU;
 using Bee.Toolchain.IOS;
 using System.Diagnostics;
+using Bee.Toolchain.Android;
 
 enum UIWidgetsBuildTargetPlatform
 {
@@ -37,6 +38,15 @@ static class BuildUtils
         return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     }
 }
+
+// class UserNDKLocator: AndroidNdkLocator
+// {
+//     public UserNDKLocator(): base(Architecture.Armv7) { }
+//     public AndroidNdk xx(NPath path)
+//     {
+        
+//     }
+// }
 
 //ios build helpers
 class UserIOSSdkLocator : IOSSdkLocator
@@ -116,6 +126,11 @@ class IOSAppToolchain : IOSToolchain
     public IOSAppToolchain() : base((new UserIOSSdkLocator()).UserIOSSdk(XcodePath))
     {
     }
+
+    // public AndroidToolChain():base((new UserNDKLocator()).UserDefault()
+    //     {
+
+    // }
 }
 
 /**
@@ -742,7 +757,7 @@ class Build
             "-nostdlib++",
             "-Wl,--warn-shared-textrel",
             "-nostdlib",
-            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
+            // "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
             "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-28/arch-arm",
             "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
@@ -789,6 +804,7 @@ class Build
                 var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android");
                 dependencies.Add(buildNP.Path);
                 dependencies.Add(deoployNp.Path);
+                buildNP.DeployTo("/Users/siyao/temp/androidBuild/Vulkan28/unityLibrary/src/main/jniLibs/armeabi-v7a");
             }
             np.ValidConfigurations = validConfigurations;
         }
