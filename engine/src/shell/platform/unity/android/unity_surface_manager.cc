@@ -198,10 +198,13 @@ namespace uiwidgets
     {
       return;
     }
-    egl_display_ = eglGetCurrentDisplay();
-    egl_unity_context_ = eglGetCurrentContext();
-    FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
-        << "Renderer type is invalid";
+    // EGLint major, minor;
+
+    // egl_display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    // eglInitialize(egl_display_, &major, &minor);
+    // egl_unity_context_ = eglGetCurrentContext();
+    // FML_CHECK(egl_display_ != EGL_NO_DISPLAY)
+    //     << "Renderer type is invalid";
   }
 
   static const int DEV_W = 16, DEV_H = 16;
@@ -248,6 +251,21 @@ namespace uiwidgets
       auto device = m_Instance.device;
       auto physicalDevice = m_Instance.physicalDevice;
       VkImage image = 0;
+      VkImageCreateInfo imageInfo{};
+      imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+      imageInfo.imageType = VK_IMAGE_TYPE_2D;
+      imageInfo.extent.width = 100;
+      imageInfo.extent.height = 100;
+      imageInfo.extent.depth = 1;
+      imageInfo.mipLevels = 1;
+      imageInfo.arrayLayers = 1;
+      imageInfo.format = VK_FORMAT_B8G8R8A8_UNORM;
+      imageInfo.tiling = VK_IMAGE_TILING_LINEAR;
+      imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+      imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+      imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+      imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+      vkCreateImage(device, &imageInfo, nullptr, &image);
       // ... // create the image as normal
       VkMemoryRequirements memReqs; // = device->getImageMemoryRequirements(image);
       vkGetImageMemoryRequirements(device, image, &memReqs);
@@ -283,7 +301,7 @@ namespace uiwidgets
       // memory = device->allocateMemory(memAllocInfo);
       vkBindImageMemory(device, image, memory, 0);
 
-      AHardwareBuffer *buffer = nullptr;
+      AHardwareBuffer *buffer;
 
       VkMemoryGetAndroidHardwareBufferInfoANDROID meminfo;
       meminfo.sType = VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
@@ -293,30 +311,120 @@ namespace uiwidgets
       // HANDLE sharedMemoryHandle = device->getMemoryWin32HandleKHR({
       //   texture.memory, VkExternalMemoryHandleTypeFlags::VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID
       // });
-      EGLDisplay display = eglGetCurrentDisplay();
-      EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(buffer);
-      bool isProtectedContent = true;
-      EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
-                          isProtectedContent ? EGL_PROTECTED_CONTENT_EXT : EGL_NONE,
-                          isProtectedContent ? EGL_TRUE : EGL_NONE,
-                          EGL_NONE};
+      // EGLDisplay display = eglGetCurrentDisplay();
 
-      EGLImageKHR imagekhr = eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
+      bool success = false;
+      EGLint major, minor;
 
-      GLint old_framebuffer_binding;
-      glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
+      egl_display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+      auto error = eglGetError();
+      eglInitialize(egl_display_, &major, &minor);
+      error = eglGetError();
+      std::tie(success, egl_config_) = ChooseEGLConfiguration(egl_display_);
+      error = eglGetError();
+      FML_CHECK(success) << "Could not choose an EGL configuration.";
+      eglBindAPI(EGL_OPENGL_ES_API);
 
-      glGenFramebuffers(1, &fbo_);
-      glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+      error = eglGetError();
+      std::tie(success, egl_context_) = CreateContext(egl_display_, egl_config_, EGL_NO_CONTEXT);
+      error = eglGetError();
 
+      std::tie(success, egl_resource_context_) = CreateContext(egl_display_, egl_config_, egl_context_);
+      eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_);
+      error = eglGetError();
       GLuint mTexture = 0;
       glGenTextures(1, &mTexture);
-      glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, imagekhr);
+      error = eglGetError();
+      glGenFramebuffers(1, &fbo_);
+      error = eglGetError();
+      glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+      error = eglGetError();
+
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture, 0);
+      error = eglGetError();
+      
+      EGLint ver0 = -1;
+      EGLint ver1 = -1;
+      EGLint ver2 = -1;
+      EGLint ver3 = -1;
+
+      eglQueryContext(egl_display_, egl_context_, EGL_CONTEXT_CLIENT_VERSION, &ver0);
+
+      eglQueryContext(egl_display_, egl_context_, EGL_CONFIG_ID, &ver1);
+      eglQueryContext(egl_display_, egl_context_, EGL_CONTEXT_CLIENT_TYPE, &ver2);
+      eglQueryContext(egl_display_, egl_context_, EGL_RENDER_BUFFER, &ver3);
+      AHardwareBuffer_Desc usage;
+
+      // filling in the usage for HardwareBuffer
+      usage.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+      usage.height = 100; //outputHeight;
+      usage.width = 100;  // outputWidth;
+      usage.layers = 1;
+      usage.rfu0 = 0;
+      usage.rfu1 = 0;
+      usage.stride = 10;
+      usage.usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN | AHARDWAREBUFFER_USAGE_CPU_WRITE_NEVER | AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT;
+
+      AHardwareBuffer *graphicBuf;
+      AHardwareBuffer_allocate(&usage, &graphicBuf); // it's worth to check the return code
+
+      // ACTUAL parameters of the AHardwareBuffer which it reports
+      AHardwareBuffer_Desc usage1;
+
+      // for stride, see below
+      AHardwareBuffer_describe(graphicBuf, &usage1);
+
+      // get the native buffer
+      EGLClientBuffer clientBuf = eglGetNativeClientBufferANDROID(graphicBuf);
+      error = eglGetError();
+
+      // obtaining the EGL display
+
+      // specifying the image attributes
+      // EGLint eglImageAttributes[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
+      EGLint eglImageAttributes[] = { EGL_NONE};
+
+      // creating an EGL image
+
+      // EGLImageKHR imageEGL = eglCreateImageKHR(egl_display_, egl_context_, EGL_NATIVE_BUFFER_ANDROID, clientBuf, eglImageAttributes);
+      EGLImageKHR imageEGL = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, clientBuf, eglImageAttributes);
+      error = eglGetError();
+      /**
+       * @note this part should be earlies than any draw or framebuffer options.
+       * @note refer to answer of @solidpixel at https://stackoverflow.com/questions/64447069/use-gleglimagetargettexture2does-to-replace-glreadpixels-on-android
+       * @{
+       */
+      // binding the OUTPUT texture
+      glBindTexture(GL_TEXTURE_2D, mTexture);
+      error = eglGetError();
+
+      glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, imageEGL);
+      error = eglGetError();
+      glBindTexture(bindType, 0);
+
+      auto x = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+      //  glewInit();
+      error = eglGetError();
+      EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(buffer);
+      error = eglGetError();
+      bool isProtectedContent = true;
+      EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
+      error = eglGetError();
+      auto xegl = eglGetCurrentContext();
+      // EGLImageKHR imagekhr = eglCreateImageKHR(egl_display_, egl_context_, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
+       EGLImageKHR imagekhr = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, clientBuffer, attribs);
+      error = eglGetError();
+      GLint old_framebuffer_binding;
+      glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
+      error = eglGetError();
+      glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, imagekhr);
+      error = eglGetError();
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture, 0);
+      error = eglGetError();
+
       FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
       glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
-
 
       //-------------------
 
@@ -348,7 +456,6 @@ namespace uiwidgets
 
       auto valid_ = true;
 
-      bool success = false;
       return success;
     }
     else

@@ -16,6 +16,7 @@ using Bee.Toolchain.Xcode;
 using Bee.Toolchain.GNU;
 using Bee.Toolchain.IOS;
 using System.Diagnostics;
+using Bee.Toolchain.Android;
 
 enum UIWidgetsBuildTargetPlatform
 {
@@ -36,6 +37,15 @@ static class BuildUtils
     {
         return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     }
+}
+
+
+class AndroidAppToolchain : AndroidNdkToolchain
+{
+    public AndroidAppToolchain(NPath path) : base(new AndroidNdkLocator(Architecture.Armv7).UseSpecific(path).WithForcedApiLevel(28))
+    {
+    }
+    
 }
 
 //ios build helpers
@@ -694,7 +704,7 @@ class Build
             "-isystem"+ flutterRoot+"/third_party/android_tools/ndk/sources/android/support/include",
             "-isystem"+ flutterRoot +
             "/third_party/android_tools/ndk/sysroot/usr/include/arm-linux-androideabi",
-            //"-D__ANDROID_API__=16",
+            "-D__ANDROID_API__=28",
             // "-fvisibility=hidden",
             "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/sysroot",
             "-Wstring-conversion",
@@ -742,7 +752,7 @@ class Build
             "-nostdlib++",
             "-Wl,--warn-shared-textrel",
             "-nostdlib",
-            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
+            // "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
             "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-28/arch-arm",
             "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
@@ -775,20 +785,26 @@ class Build
         }
         else if (platform == UIWidgetsBuildTargetPlatform.android)
         {
-            var androidToolchain = ToolChain.Store.Android().r19().Armv7();
+            // var androidToolchain = new AndroidAppToolchain(new NPath ("/Applications/Unity/Hub/Editor/2019.4.17f1c1/PlaybackEngines/AndroidPlayer/NDK"));
+            var androidToolchain = new AndroidAppToolchain(new NPath ("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk"));
+
+            //var androidToolchain = ToolChain.Store.Android().r19().Armv7();
 
             var validConfigurations = new List<NativeProgramConfiguration>();
 
             foreach (var codegen in codegens)
             {
                 var config = new NativeProgramConfiguration(codegen, androidToolchain, lump: true);
+                
                 validConfigurations.Add(config);
 
                 var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build");
+                
 
                 var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android");
                 dependencies.Add(buildNP.Path);
                 dependencies.Add(deoployNp.Path);
+                buildNP.DeployTo("/Users/siyao/temp/androidBuild/Vulkan28/unityLibrary/src/main/jniLibs/armeabi-v7a");
             }
             np.ValidConfigurations = validConfigurations;
         }
