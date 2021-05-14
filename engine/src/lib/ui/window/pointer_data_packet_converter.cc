@@ -147,7 +147,7 @@ void PointerDataPacketConverter::ConvertPointerData(
           PointerData synthesized_hover_event = pointer_data;
           synthesized_hover_event.change = PointerData::Change::kHover;
           synthesized_hover_event.synthesized = 1;
-          synthesized_hover_event.buttons = state.buttons;
+          synthesized_hover_event.buttons = state.previous_buttons;
 
           UpdateDeltaAndState(synthesized_hover_event, state);
           converted_pointers.push_back(synthesized_hover_event);
@@ -189,7 +189,7 @@ void PointerDataPacketConverter::ConvertPointerData(
           PointerData synthesized_move_event = pointer_data;
           synthesized_move_event.change = PointerData::Change::kMove;
           synthesized_move_event.synthesized = 1;
-          synthesized_move_event.buttons = state.buttons;
+          synthesized_move_event.buttons = state.previous_buttons;
 
           UpdateDeltaAndState(synthesized_move_event, state);
           converted_pointers.push_back(synthesized_move_event);
@@ -254,7 +254,7 @@ PointerState PointerDataPacketConverter::EnsurePointerState(
   PointerState state;
   state.pointer_identifier = 0;
   state.isDown = false;
-  state.buttons = pointer_data.buttons;
+  state.previous_buttons = pointer_data.buttons;
   state.physical_x = pointer_data.physical_x;
   state.physical_y = pointer_data.physical_y;
   states_[pointer_data.device] = state;
@@ -265,7 +265,7 @@ void PointerDataPacketConverter::UpdateDeltaAndState(PointerData& pointer_data,
                                                      PointerState& state) {
   pointer_data.physical_delta_x = pointer_data.physical_x - state.physical_x;
   pointer_data.physical_delta_y = pointer_data.physical_y - state.physical_y;
-  state.buttons = pointer_data.buttons;
+  state.previous_buttons = pointer_data.buttons;
   state.physical_x = pointer_data.physical_x;
   state.physical_y = pointer_data.physical_y;
   states_[pointer_data.device] = state;
