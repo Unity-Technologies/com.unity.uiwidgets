@@ -211,6 +211,9 @@ public partial class UIWidgetsPanelWrapper {
         }
 
         bool _recreateRenderTexture(int width, int height, float devicePixelRatio) {
+            width = Mathf.Max(1, width);
+            height = Mathf.Max(1, height);
+            
             if (renderTexture != null && _width == width && _height == height &&
                 this.devicePixelRatio == devicePixelRatio) {
                 return false;

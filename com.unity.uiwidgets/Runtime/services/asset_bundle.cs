@@ -56,17 +56,16 @@ namespace Unity.UIWidgets.services {
 
                 yield return www.SendWebRequest();
 
-                if (www.isNetworkError || www.isHttpError) {
-                    completer.completeError(new UIWidgetsError(new List<DiagnosticsNode>() {
-                        new ErrorSummary($"Unable to load asset: {key}"),
-                        new StringProperty("HTTP status code", www.error)
-                    }));
-                    yield break;
-                }
-
-                var data = www.downloadHandler.data;
-
                 using (Isolate.getScope(isolate)) {
+                    if (www.isNetworkError || www.isHttpError) {
+                        completer.completeError(new UIWidgetsError(new List<DiagnosticsNode>() {
+                            new ErrorSummary($"Unable to load asset: {key}"),
+                            new StringProperty("HTTP status code", www.error)
+                        }));
+                        yield break;
+                    }
+
+                    var data = www.downloadHandler.data;
                     completer.complete(data);
                 }
             }
