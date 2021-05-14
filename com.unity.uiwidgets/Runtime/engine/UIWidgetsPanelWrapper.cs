@@ -12,68 +12,9 @@ using UnityEngine;
 using Path = Unity.UIWidgets.ui.Path;
 
 namespace Unity.UIWidgets.engine {
-    #region Platform: Windows Specific Functionalities
+    #region Platform: MacOs/iOS/Windows Specific Functionalities
 
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-    public partial class UIWidgetsPanelWrapper {
-        public RenderTexture renderTexture { get; private set; }
-
-        void _createRenderTexture(int width, int height, float devicePixelRatio) {
-            D.assert(renderTexture == null);
-
-            var desc = new RenderTextureDescriptor(
-                width: width, height: height, colorFormat: RenderTextureFormat.ARGB32, 0) {
-                useMipMap = false,
-                autoGenerateMips = false
-            };
-
-            renderTexture = new RenderTexture(desc: desc) {hideFlags = HideFlags.HideAndDontSave};
-            renderTexture.Create();
-
-            _width = width;
-            _height = height;
-            this.devicePixelRatio = devicePixelRatio;
-        }
-
-        void _destroyRenderTexture() {
-            D.assert(renderTexture != null);
-            ObjectUtils.SafeDestroy(obj: renderTexture);
-            renderTexture = null;
-        }
-
-        void _enableUIWidgetsPanel(string font_settings) {
-            UIWidgetsPanel_onEnable(ptr: _ptr, renderTexture.GetNativeTexturePtr(),
-                width: _width, height: _height, dpi: devicePixelRatio,
-                streamingAssetsPath: Application.streamingAssetsPath, font_settings: font_settings);
-        }
-
-        void _resizeUIWidgetsPanel() {
-            UIWidgetsPanel_onRenderTexture(ptr: _ptr,
-                renderTexture.GetNativeTexturePtr(),
-                width: _width, height: _height, dpi: devicePixelRatio);
-        }
-
-        void _disableUIWidgetsPanel() {
-            renderTexture = null;
-        }
-
-        [DllImport(dllName: NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
-            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath,
-            string font_settings);
-
-        [DllImport(dllName: NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onRenderTexture(
-            IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
-    }
-#endif
-
-    #endregion
-
-
-    #region Platform: MacOs/iOS Specific Functionalities
-
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 public partial class UIWidgetsPanelWrapper {
     Texture _renderTexture;
 
