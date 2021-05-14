@@ -205,7 +205,7 @@ class Build
 
     static void Main()
     {
-        flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT");
+        flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT_PATH");
         if (string.IsNullOrEmpty(flutterRoot))
         {
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
