@@ -55,5 +55,4 @@ namespace Unity.UIWidgets.widgets {
         public override ImageStreamCompleter load(T key, DecoderCallback decode) => imageProvider.load(key, decode);
         public override Future<T> obtainKey(ImageConfiguration configuration) => imageProvider.obtainKey(configuration);
     }
-
 }
