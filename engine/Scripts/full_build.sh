@@ -1,10 +1,10 @@
 engine_path=
 platform=
-runtime_mode
+runtime_mode=
 gn_params=""
-optimize="--unoptimized"
+optimize=""
 ninja_params=""
-bitcode=
+bitcode=""
 
 while getopts ":r:p:m:eo" opt
 do
@@ -19,10 +19,10 @@ do
         runtime_mode=$OPTARG
         ;;
         e)
-        bitcode="--bitcode" # enable-bitcode switch
+        bitcode="-e" # enable-bitcode switch
         ;;
         o)
-        optimize="" # optimize code switch
+        optimize="-o" # optimize code switch
         ;;
         ?)
         echo "unknown param"
@@ -33,11 +33,13 @@ done
 case $platform in
     "andorid")  echo 'You select android'
     ;;
-    "ios")  echo 'You select ios'
+    "ios")  ./lib_build_ios.sh -r $engine_path $optimize -p ios -m $runtime_mode $bitcode
     ;;
-    "mac")  ./lib_build_mac.sh -m $runtime_mode -r $engine_path
+    "mac")  ./lib_build_mac.sh -m $runtime_mode -r $engine_path $optimize
     ;;
     "windows")  echo 'You select windows'
+    ;;
+    "all")  echo 'You select all'
     ;;
     *)  echo "unknown platform, only support \"android\",\"ios\",\"mac\",\"windows\""
     ;;
