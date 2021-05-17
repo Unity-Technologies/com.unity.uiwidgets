@@ -435,13 +435,12 @@ namespace Unity.UIWidgets.widgets {
         }
 
         void _resolveImage() {
-            Type genericType = widget.image.GetType().GetGenericArguments()[0];
             //TODO: why refactoring this code? we need a PR to fix it!
-            ScrollAwareImageProvider<genericType> provider = new ScrollAwareImageProvider<genericType>(
+            /*ScrollAwareImageProvider<object> provider = new ScrollAwareImageProvider<object>(
                 context: _scrollAwareContext,
-                imageProvider: widget.image);
+                imageProvider: widget.image);*/
             var newStream =
-                provider.resolve(ImageUtils.createLocalImageConfiguration(
+                widget.image.resolve(ImageUtils.createLocalImageConfiguration(
                     context: context,
                     widget.width != null && widget.height != null
                         ? new Size(width: widget.width.Value, height: widget.height.Value)
