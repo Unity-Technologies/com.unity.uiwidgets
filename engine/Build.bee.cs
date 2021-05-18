@@ -143,7 +143,7 @@ class Build
     //bee.exe win
     static void DeployWindows()
     {
-        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.windows, out var dependencies);
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.windows, out var dependencies_d, out var dependencies_r);
 
         var builder = new VisualStudioNativeProjectFileBuilder(libUIWidgets);
         builder = libUIWidgets.SetupConfigurations.Aggregate(
@@ -156,50 +156,65 @@ class Build
         sln.Projects.Add(deployed);
         Backend.Current.AddAliasDependency("ProjectFiles", sln.Setup());
 
-        Backend.Current.AddAliasDependency("win", deployed.Path);
-        foreach (var dep in dependencies)
+        Backend.Current.AddAliasDependency("win_debug", deployed.Path);
+        foreach (var dep in dependencies_d)
         {
-            Backend.Current.AddAliasDependency("win", dep);
+            Backend.Current.AddAliasDependency("win_debug", dep);
+        }
+        foreach (var dep in dependencies_r)
+        {
+            Backend.Current.AddAliasDependency("win_release", dep);
         }
     }
 
     //bee.exe mac
     static void DeployAndroid()
     {
-        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.android, out var dependencies);
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.android, out var dependencies_d, out var dependencies_r);
         var androidProject = AndroidNativeProgramExtensions.DynamicLinkerSettingsForAndroid(libUIWidgets);
-        foreach (var dep in dependencies)
+        foreach (var dep in dependencies_d)
         {
-            Backend.Current.AddAliasDependency("android", dep);
+            Backend.Current.AddAliasDependency("android_debug", dep);
+        }
+        foreach (var dep in dependencies_r)
+        {
+            Backend.Current.AddAliasDependency("android_release", dep);
         }
     }
 
     static void DeployMac()
     {
-        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.mac, out var dependencies);
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.mac, out var dependencies_d, out var dependencies_r);
 
         var nativePrograms = new List<NativeProgram>();
         nativePrograms.Add(libUIWidgets);
         var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
 
-        Backend.Current.AddAliasDependency("mac", new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
-        foreach (var dep in dependencies)
+        Backend.Current.AddAliasDependency("mac_debug", new NPath("libUIWidgetsMac.xcodeproj/project.pbxproj"));
+        foreach (var dep in dependencies_d)
         {
-            Backend.Current.AddAliasDependency("mac", dep);
+            Backend.Current.AddAliasDependency("mac_debug", dep);
+        }
+        foreach (var dep in dependencies_r)
+        {
+            Backend.Current.AddAliasDependency("mac_release", dep);
         }
     }
 
     //bee.exe ios
     static void DeployIOS()
     {
-        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.ios, out var dependencies);
+        var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.ios, out var dependencies_d, out var dependencies_r);
         var nativePrograms = new List<NativeProgram>();
         nativePrograms.Add(libUIWidgets);
         var xcodeProject = new XCodeProjectFile(nativePrograms, new NPath("libUIWidgetsIOS.xcodeproj/project.pbxproj"));
 
-        Backend.Current.AddAliasDependency("ios",  new NPath("libUIWidgetsIOS.xcodeproj/project.pbxproj"));
-        foreach(var dep in dependencies) {
-            Backend.Current.AddAliasDependency("ios", dep);
+        Backend.Current.AddAliasDependency("ios_debug",  new NPath("libUIWidgetsIOS.xcodeproj/project.pbxproj"));
+        foreach(var dep in dependencies_d) {
+            Backend.Current.AddAliasDependency("ios_debug", dep);
+        }
+        foreach(var dep in dependencies_r) {
+            Backend.Current.AddAliasDependency("ios_release", dep);
         }
     }
 
@@ -234,7 +249,7 @@ class Build
     //refer to the readme file for the details
     private static bool ios_bitcode_enabled = false;
 
-    static NativeProgram SetupLibUIWidgets(UIWidgetsBuildTargetPlatform platform, out List<NPath> dependencies)
+    static NativeProgram SetupLibUIWidgets(UIWidgetsBuildTargetPlatform platform, out List<NPath> dependencies_d, out List<NPath> dependencies_r)
     {
         var np = new NativeProgram("libUIWidgets")
         {
@@ -751,9 +766,9 @@ class Build
         //SetupFml(np);
         //SetupSkia(np);
         //SetupTxt(np);
-        var codegens = new[] { CodeGen.Debug };
-        dependencies = new List<NPath>();
-
+        var codegens = new[] { CodeGen.Debug, CodeGen.Release };
+        dependencies_d = new List<NPath>();
+        dependencies_r = new List<NPath>();
         if (platform == UIWidgetsBuildTargetPlatform.windows)
         {
             var toolchain = ToolChain.Store.Windows().VS2019().Sdk_17134().x64();
@@ -762,11 +777,22 @@ class Build
             {
                 var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
 
-                var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat)
-                    .DeployTo("build");
-
-                dependencies.Add(builtNP.Path);
-                builtNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/x86_64");
+            
+                if(codegen == CodeGen.Debug)
+                {
+                    var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat)
+                    .DeployTo("build_debug");
+                    dependencies_d.Add(builtNP.Path);
+                    builtNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/x86_64_debug");
+                }
+                else if(codegen == CodeGen.Release)
+                {
+                    var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat)
+                    .DeployTo("build_release");
+                    dependencies_r.Add(builtNP.Path);
+                    builtNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/x86_64_release");
+                }
+                
             }
         }
         else if (platform == UIWidgetsBuildTargetPlatform.android)
@@ -780,11 +806,22 @@ class Build
                 var config = new NativeProgramConfiguration(codegen, androidToolchain, lump: true);
                 validConfigurations.Add(config);
 
-                var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build");
-
-                var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android");
-                dependencies.Add(buildNP.Path);
-                dependencies.Add(deoployNp.Path);
+                
+                if(codegen == CodeGen.Debug)
+                {
+                    var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build_debug");
+                    var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android_debug");
+                    dependencies_d.Add(buildNP.Path);
+                    dependencies_d.Add(deoployNp.Path);
+                }
+                else if(codegen == CodeGen.Release)
+                {
+                    var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build_release");
+                    var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android_release");
+                    dependencies_r.Add(buildNP.Path);
+                    dependencies_r.Add(deoployNp.Path);
+                }
+                
             }
             np.ValidConfigurations = validConfigurations;
         }
@@ -798,10 +835,21 @@ class Build
                 validConfigurations.Add(config);
 
                 var buildProgram = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat);
-                var buildNp = buildProgram.DeployTo("build");
-                var deployNp = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/osx");
-                dependencies.Add(buildNp.Path);
-                dependencies.Add(deployNp.Path);
+                
+                if(codegen == CodeGen.Debug)
+                {
+                    var buildNp = buildProgram.DeployTo("build_debug");
+                    var deployNp = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/osx_debug");
+                    dependencies_d.Add(buildNp.Path);
+                    dependencies_d.Add(deployNp.Path);
+                }
+                else if(codegen == CodeGen.Release)
+                {
+                    var buildNp = buildProgram.DeployTo("build_release");
+                    var deployNp = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/osx_release");
+                    dependencies_r.Add(buildNp.Path);
+                    dependencies_r.Add(deployNp.Path);
+                }
             }
             np.ValidConfigurations = validConfigurations;
 
@@ -815,10 +863,21 @@ class Build
                 var config = new NativeProgramConfiguration(codegen, toolchain, lump: true);
                 validConfigurations.Add(config);
                 var buildProgram = np.SetupSpecificConfiguration(config, toolchain.StaticLibraryFormat);
-                var builtNP = buildProgram.DeployTo("build");
-                var deployNP = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/iOS/");
-                dependencies.Add(builtNP.Path);
-                dependencies.Add(deployNP.Path);
+                
+                if(codegen == CodeGen.Debug)
+                {
+                    var builtNP = buildProgram.DeployTo("build_debug");
+                    var deployNP = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/iOS_debug/");
+                    dependencies_d.Add(builtNP.Path);
+                    dependencies_d.Add(deployNP.Path);
+                }
+                else if(codegen == CodeGen.Release)
+                {
+                    var builtNP = buildProgram.DeployTo("build_release");
+                    var deployNP = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/iOS_release/");
+                    dependencies_r.Add(builtNP.Path);
+                    dependencies_r.Add(deployNP.Path);
+                }
             }
 
             np.ValidConfigurations = validConfigurations;

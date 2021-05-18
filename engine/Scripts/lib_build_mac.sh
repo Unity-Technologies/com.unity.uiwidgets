@@ -159,17 +159,13 @@ fi
 ninja $ninja_params
 
 echo "\nStarting build engine..."
-#run mono
 cd $work_path
 cd ..
 if [ "$runtime_mode" == "release" ];
 then
-  cp -f $work_path/patches/bee_release.patch bee_release.patch
-  patch < bee_release.patch -N
+  mono bee.exe mac_release
 elif [ "$runtime_mode" == "debug" ];
 then
-  cp -f $work_path/patches/bee_debug.patch bee_debug.patch
-  patch < bee_debug.patch -N
+  mono bee.exe mac_debug
 fi
 
-mono bee.exe mac
