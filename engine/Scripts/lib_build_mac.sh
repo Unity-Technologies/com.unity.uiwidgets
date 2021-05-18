@@ -16,11 +16,11 @@ do
         engine_path=$OPTARG # set engine_path, depot_tools and flutter engine folder will be put into this path
         ;;
         p)
-        gn_params="$gn_params --$OPTARG" # set the target platform android/ios/linux
+        gn_params="$gn_params --$OPTARG" # set the target platform android/ios
         ;;
         m)
         runtime_mode=$OPTARG
-        gn_params="$gn_params --runtime-mode=$runtime_mode" # set runtime mode release/debug/profile
+        gn_params="$gn_params --runtime-mode=$runtime_mode" # set runtime mode release/debug
         ;;
         e)
         gn_params="$gn_params --bitcode" # enable-bitcode switch
@@ -36,17 +36,19 @@ done
 
 if [ "$runtime_mode" == "release" ] && [ "$optimize" == "--unoptimized" ];
 then
+  output_path="host_release_unopt"
   ninja_params=" -C out/host_release_unopt flutter/third_party/txt:txt_lib"
 elif [ "$runtime_mode" == "release" ] && [ "$optimize" == "" ];
 then
-  echo $ninja_params
+  output_path="host_release"
   ninja_params="-C out/host_release flutter/third_party/txt:txt_lib"
-  echo $ninja_params
 elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "--unoptimized" ];
 then
+  output_path="host_debug_unopt"
   ninja_params=" -C out/host_debug_unopt flutter/third_party/txt:txt_lib"
 elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "" ];
 then
+  output_path="host_debug"
   ninja_params=" -C out/host_debug flutter/third_party/txt:txt_lib"
 elif [ "$runtime_mode" == "profile" ];
 then
@@ -87,7 +89,7 @@ source ~/.bash_profile
 
 echo "\nGetting Depot Tools..." 
 if [ ! -n "$engine_path" ]; then   
-  echo "Flutter engine path is not exist, please set the path by using \"-r\" param to set a engine path."  
+  echo "Flutter engine path is not exist, please set the path by using \"-r\" param to set an engine path."  
   exit 1
 fi
 cd $engine_path	
@@ -138,24 +140,7 @@ patch < find_sdk.patch -N
 cd ../..
 ./flutter/tools/gn $gn_params
 
-if [ "$runtime_mode" == "release" ] && [ "$optimize" == "--unoptimized" ];
-then
-  echo "icu_use_data_file=false" >> out/host_release_unopt/args.gn
-elif [ "$runtime_mode" == "release" ] && [ "$optimize" == "" ];
-then
-  echo "icu_use_data_file=false" >> out/host_release/args.gn
-elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "--unoptimized" ];
-then
-  echo "icu_use_data_file=false" >> out/host_debug_unopt/args.gn
-elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "" ];
-then
-  echo "icu_use_data_file=false" >> out/host_debug/args.gn
-elif [ "$runtime_mode" == "profile" ];
-then
-  echo "not support profile build yet"
-  exit 1
-fi
-
+echo "icu_use_data_file=false" >> out/$output_path/args.gn
 ninja $ninja_params
 
 echo "\nStarting build engine..."
@@ -164,8 +149,23 @@ cd ..
 if [ "$runtime_mode" == "release" ];
 then
   mono bee.exe mac_release
+  if [ -d '../com.unity.uiwidgets/Runtime/Plugins/osx' ];
+  then
+    echo "engine folder already exist, skip"
+  else
+    mkdir ../com.unity.uiwidgets/Runtime/Plugins/osx
+  fi
+  rm -rf ../com.unity.uiwidgets/Runtime/Plugins/osx/*
+  cp -r build_release/. ../com.unity.uiwidgets/Runtime/Plugins/osx
 elif [ "$runtime_mode" == "debug" ];
 then
   mono bee.exe mac_debug
+  if [ -d '../com.unity.uiwidgets/Runtime/Plugins/osx' ];
+  then
+    echo "engine folder already exist, skip create folder"
+  else
+    mkdir ../com.unity.uiwidgets/Runtime/Plugins/osx
+  fi
+  rm -rf ../com.unity.uiwidgets/Runtime/Plugins/osx/*
+  cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/osx
 fi
-

@@ -39,8 +39,6 @@ case $platform in
     ;;
     "windows")  echo 'You select windows'
     ;;
-    "all")  echo 'You select all'
-    ;;
     *)  echo "unknown platform, only support \"android\",\"ios\",\"mac\",\"windows\""
     ;;
 esac

@@ -783,14 +783,14 @@ class Build
                     var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat)
                     .DeployTo("build_debug");
                     dependencies_d.Add(builtNP.Path);
-                    builtNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/x86_64_debug");
+                    // builtNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/x86_64");
                 }
                 else if(codegen == CodeGen.Release)
                 {
                     var builtNP = np.SetupSpecificConfiguration(config, toolchain.DynamicLibraryFormat)
                     .DeployTo("build_release");
                     dependencies_r.Add(builtNP.Path);
-                    builtNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/x86_64_release");
+                    // builtNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/x86_64");
                 }
                 
             }
@@ -810,16 +810,16 @@ class Build
                 if(codegen == CodeGen.Debug)
                 {
                     var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build_debug");
-                    var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android_debug");
+                    // var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android");
                     dependencies_d.Add(buildNP.Path);
-                    dependencies_d.Add(deoployNp.Path);
+                    // dependencies_d.Add(deoployNp.Path);
                 }
                 else if(codegen == CodeGen.Release)
                 {
                     var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build_release");
-                    var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android_release");
+                    // var deoployNp = buildNP.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/Android");
                     dependencies_r.Add(buildNP.Path);
-                    dependencies_r.Add(deoployNp.Path);
+                    // dependencies_r.Add(deoployNp.Path);
                 }
                 
             }
@@ -839,16 +839,16 @@ class Build
                 if(codegen == CodeGen.Debug)
                 {
                     var buildNp = buildProgram.DeployTo("build_debug");
-                    var deployNp = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/osx_debug");
+                    // var deployNp = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/osx");
                     dependencies_d.Add(buildNp.Path);
-                    dependencies_d.Add(deployNp.Path);
+                    // dependencies_d.Add(deployNp.Path);
                 }
                 else if(codegen == CodeGen.Release)
                 {
                     var buildNp = buildProgram.DeployTo("build_release");
-                    var deployNp = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/osx_release");
+                    // var deployNp = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/osx");
                     dependencies_r.Add(buildNp.Path);
-                    dependencies_r.Add(deployNp.Path);
+                    // dependencies_r.Add(deployNp.Path);
                 }
             }
             np.ValidConfigurations = validConfigurations;
@@ -867,16 +867,16 @@ class Build
                 if(codegen == CodeGen.Debug)
                 {
                     var builtNP = buildProgram.DeployTo("build_debug");
-                    var deployNP = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/iOS_debug/");
+                    // var deployNP = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/iOS/");
                     dependencies_d.Add(builtNP.Path);
-                    dependencies_d.Add(deployNP.Path);
+                    // dependencies_d.Add(deployNP.Path);
                 }
                 else if(codegen == CodeGen.Release)
                 {
                     var builtNP = buildProgram.DeployTo("build_release");
-                    var deployNP = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/iOS_release/");
+                    // var deployNP = buildProgram.DeployTo("../com.unity.uiwidgets/Runtime/Plugins/iOS/");
                     dependencies_r.Add(builtNP.Path);
-                    dependencies_r.Add(deployNP.Path);
+                    // dependencies_r.Add(deployNP.Path);
                 }
             }
 
