@@ -35,13 +35,20 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
                 float device_pixel_ratio, const char* streaming_assets_path,
                 const char* settings);
 
+  void* OnEnableVK(size_t width, size_t height,
+                float device_pixel_ratio, const char* streaming_assets_path,
+                const char* settings);
+
   void MonoEntrypoint();
 
   void OnDisable();
 
   void OnRenderTexture(void* native_texture_ptr, size_t width, size_t height,
                        float dpi);
-
+                
+  void* OnRenderTextureVK(size_t width, size_t height,
+                       float dpi);
+  
   int RegisterTexture(void* native_texture_ptr);
 
   void UnregisterTexture(int texture_id);
