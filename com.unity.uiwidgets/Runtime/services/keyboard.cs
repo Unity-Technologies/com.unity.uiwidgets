@@ -22,9 +22,9 @@ namespace Unity.UIWidgets.service {
         public readonly char input;
         public readonly TextInputAction? inputAction;
 
-        public RawInputKeyResponse(bool swallow, char input = '\0', TextInputAction? inputAction = null) {
+        public RawInputKeyResponse(bool swallow, int input = 0, TextInputAction? inputAction = null) {
             this.swallow = swallow;
-            this.input = input;
+            this.input = (char) input;
             this.inputAction = inputAction;
         }
 
@@ -35,7 +35,7 @@ namespace Unity.UIWidgets.service {
                 null);
         }
 
-        public static readonly RawInputKeyResponse swallowResponse = new RawInputKeyResponse(true, '\0', null);
+        public static readonly RawInputKeyResponse swallowResponse = new RawInputKeyResponse(true, 0, null);
     }
 
     interface KeyboardDelegate : IDisposable {
@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.service {
         void setEditingState(TextEditingValue value);
 
         void setEditableSizeAndTransform(Dictionary<string, object> args);
-
+        
         void setStyle(Dictionary<string, object> args);
         void setIMEPos(Offset imeGlobalPos);
 
@@ -153,7 +153,7 @@ namespace Unity.UIWidgets.service {
                             _value = _value.deleteSelection(true);
                         }
                     }
-                    else if (currentEvent.character != '\0') {
+                    else if (currentEvent.character != 0) {
                         _value = _value.clearCompose();
                         char ch = currentEvent.character;
                         if (ch == '\r' || ch == 3) {
