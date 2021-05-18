@@ -102,7 +102,7 @@ namespace Unity.UIWidgets.services {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new StringProperty("keyId", keyId.ToString().PadLeft(8, '\0'), showName: true));
+            properties.add(new StringProperty("keyId", keyId.ToString().PadLeft(8, (char)0), showName: true));
             properties.add(new StringProperty("keyLabel", keyLabel, showName: true));
             properties.add(new StringProperty("debugName", debugName, showName: true, defaultValue: null));
         }
