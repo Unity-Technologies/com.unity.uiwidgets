@@ -946,7 +946,7 @@ namespace Unity.UIWidgets.widgets {
                     }
                 }
 
-                var subscribers =_listeners.getOrDefault((R) route).ToList();
+                var subscribers =_listeners.getOrDefault((R) route);
                
                 if (subscribers != null) {
                     foreach (RouteAware routeAware in subscribers) {
