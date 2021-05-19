@@ -14,7 +14,7 @@ using Path = Unity.UIWidgets.ui.Path;
 namespace Unity.UIWidgets.engine {
     #region Platform: MacOs/iOS/Windows Specific Functionalities
 
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN || UNITY_ANDROID
 public partial class UIWidgetsPanelWrapper {
     Texture _renderTexture;
 
@@ -40,8 +40,13 @@ public partial class UIWidgetsPanelWrapper {
 
     void _enableUIWidgetsPanel(string font_settings) {
         D.assert(_renderTexture == null);
+#if !UNITY_EDITOR && UNITY_ANDROID
+        IntPtr native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, _width, _height, devicePixelRatio,
+            Application.temporaryCachePath, font_settings);
+#else
         IntPtr native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, _width, _height, devicePixelRatio,
             Application.streamingAssetsPath, font_settings);
+#endif
         D.assert(native_tex_ptr != IntPtr.Zero);
 
         _renderTexture =
@@ -72,74 +77,13 @@ public partial class UIWidgetsPanelWrapper {
     [DllImport(NativeBindings.dllName)]
     static extern IntPtr UIWidgetsPanel_onRenderTexture(
         IntPtr ptr, int width, int height, float dpi);
+    
 }
 
 #endif
 
     #endregion
-
-#region Platform: Android Runtime Specific Functionalities
-
-#if (!UNITY_EDITOR && UNITY_ANDROID )
-    public partial class UIWidgetsPanelWrapper {
-        RenderTexture _renderTexture;
     
-    
-        public RenderTexture renderTexture {
-            get { return _renderTexture; }
-        }
-
-        void _createRenderTexture(int width, int height, float devicePixelRatio) {
-            D.assert(_renderTexture == null);
-
-            var desc = new RenderTextureDescriptor(
-                width, height, RenderTextureFormat.ARGB32, 0) {
-                useMipMap = false,
-                autoGenerateMips = false,
-            };
-
-            _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
-            _renderTexture.Create();
-
-            _width = width;
-            _height = height;
-            this.devicePixelRatio = devicePixelRatio;
-        }
-
-        void _destroyRenderTexture() {
-            D.assert(_renderTexture != null);
-            ObjectUtils.SafeDestroy(_renderTexture);
-            _renderTexture = null;
-        }
-
-        void _enableUIWidgetsPanel(string font_settings) {
-            UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
-                _width, _height, devicePixelRatio, Application.temporaryCachePath, font_settings);
-        }
-
-        void _resizeUIWidgetsPanel() {
-            UIWidgetsPanel_onRenderTexture(_ptr,
-                _renderTexture.GetNativeTexturePtr(),
-                _width, _height, devicePixelRatio);
-        }
-
-        void _disableUIWidgetsPanel() {
-            _renderTexture = null;
-        }
-
-        [DllImport(NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onEnable(IntPtr ptr,
-            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath,
-            string font_settings);
-
-        [DllImport(NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onRenderTexture(
-            IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
-    }
-#endif
-
-#endregion
-
     #region Window Common Properties and Functions
 
     public partial class UIWidgetsPanelWrapper {

@@ -36,8 +36,10 @@ namespace uiwidgets
     UnitySurfaceManager(IUnityInterfaces *unity_interfaces);
     ~UnitySurfaceManager();
 
-    GLuint CreateRenderSurface(void *native_texture_ptr);
+    GLuint CreateRenderSurface(size_t width, size_t height);
     void DestroyRenderSurface();
+
+    GLuint GetTexture() {return egl_texture_;}
 
     bool ClearCurrent();
 
@@ -54,7 +56,10 @@ namespace uiwidgets
     EGLContext egl_context_;
     EGLContext egl_resource_context_;
     EGLConfig egl_config_;
-
+    GLuint egl_texture_;
+    AHardwareBuffer *buffer;
+    EGLImageKHR image;
+    
     bool initialize_succeeded_;
 
     GLuint fbo_ = 0;

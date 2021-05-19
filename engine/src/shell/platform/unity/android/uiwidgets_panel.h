@@ -31,7 +31,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   ~UIWidgetsPanel();
 
-  void OnEnable(void* native_texture_ptr, size_t width, size_t height,
+  GLuint OnEnable(size_t width, size_t height,
                 float device_pixel_ratio, const char* streaming_assets_path,
                 const char* settings);
 
@@ -39,9 +39,11 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void OnDisable();
 
-  void OnRenderTexture(void* native_texture_ptr, size_t width, size_t height,
+  GLuint OnRenderTexture(size_t width, size_t height,
                        float dpi);
 
+  bool ReleaseNativeRenderTexture();
+  
   int RegisterTexture(void* native_texture_ptr);
 
   void UnregisterTexture(int texture_id);

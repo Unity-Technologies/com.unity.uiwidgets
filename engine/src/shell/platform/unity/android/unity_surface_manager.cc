@@ -2,7 +2,11 @@
 
 #include <flutter/fml/logging.h>
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+#include <android/hardware_buffer.h>
 
 #include "src/shell/common/shell_io_manager.h"
 #include "src/shell/gpu/gpu_surface_delegate.h"
@@ -25,16 +29,51 @@ namespace uiwidgets
 
   UnitySurfaceManager::~UnitySurfaceManager() { CleanUp(); }
 
-  GLuint UnitySurfaceManager::CreateRenderSurface(void *native_texture_ptr)
+  GLuint UnitySurfaceManager::CreateRenderSurface(size_t width, size_t height)
   {
+    buffer = nullptr;
+
+
+    AHardwareBuffer_Desc usage = {};
+    // filling in the usage for HardwareBuffer
+    usage.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+    usage.height = height; //format.height;
+    usage.width = width;  //format.width;
+    usage.layers = 1;
+    usage.rfu0 = 0;
+    usage.rfu1 = 0;
+    usage.stride = 10;
+    usage.usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN |
+                AHARDWAREBUFFER_USAGE_CPU_WRITE_NEVER |
+                AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT;
+    FML_CHECK(AHardwareBuffer_allocate(&usage, &buffer) == 0);
+    
+    EGLClientBuffer native_buffer = eglGetNativeClientBufferANDROID(buffer);
+    assert(native_buffer);
+    auto success = false;
+    EGLint attrs[] = {EGL_NONE};
+
+    image = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT,
+                                        EGL_NATIVE_BUFFER_ANDROID, native_buffer, attrs);
+    
+    glBindTexture(GL_TEXTURE_2D, egl_texture_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
     GLint old_framebuffer_binding;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
 
     glGenFramebuffers(1, &fbo_);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+   
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
 
-    GLuint gltex = (GLuint)(size_t)(native_texture_ptr);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gltex, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, egl_texture_, 0);
+
+    // GLuint gltex = (GLuint)(size_t)(native_texture_ptr);
+    // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gltex, 0);
     FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
     glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
@@ -44,9 +83,19 @@ namespace uiwidgets
 
   void UnitySurfaceManager::DestroyRenderSurface()
   {
+    if(buffer != nullptr){
+      AHardwareBuffer_release(buffer);
+    }
+    if(image){
+      eglDestroyImageKHR(egl_display_, image);
+    }
     FML_DCHECK(fbo_ != 0);
     glDeleteFramebuffers(1, &fbo_);
+    
     fbo_ = 0;
+    
+    eglDestroyImageKHR(egl_display_, image);
+
   }
 
   bool UnitySurfaceManager::ClearCurrent()
@@ -138,7 +187,10 @@ namespace uiwidgets
     std::tie(success, egl_context_) = CreateContext(egl_display_, egl_config_, egl_unity_context_);
 
     std::tie(success, egl_resource_context_) = CreateContext(egl_display_, egl_config_, egl_context_);
+    MakeCurrent(EGL_NO_DISPLAY);
 
+    egl_texture_ = 0;
+    glGenTextures(1, &egl_texture_);
     return success;
   }
 

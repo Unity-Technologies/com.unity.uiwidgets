@@ -38,7 +38,7 @@ namespace uiwidgets
     return window_type_ == EditorWindowPanel;
   }
 
-  void UIWidgetsPanel::OnEnable(void *native_texture_ptr, size_t width,
+  GLuint UIWidgetsPanel::OnEnable( size_t width,
                                 size_t height, float device_pixel_ratio,
                                 const char *streaming_assets_path,
                                 const char *settings)
@@ -48,7 +48,7 @@ namespace uiwidgets
 
     FML_DCHECK(fbo_ == 0);
     surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
-    fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
+    fbo_ = surface_manager_->CreateRenderSurface(width, height);
     surface_manager_->ClearCurrent();
 
     fml::AutoResetWaitableEvent latch;
@@ -194,7 +194,7 @@ namespace uiwidgets
     {
       std::cerr << "Failed to start UIWidgets engine: error " << result
                 << std::endl;
-      return;
+      return 0;
     }
 
     engine_ = engine;
@@ -203,6 +203,7 @@ namespace uiwidgets
     UIWidgetsSystem::GetInstancePtr()->RegisterPanel(this);
 
     process_events_ = true;
+    return surface_manager_->GetTexture();
   }
 
   void UIWidgetsPanel::MonoEntrypoint() { entrypoint_callback_(handle_); }
@@ -241,11 +242,11 @@ namespace uiwidgets
     surface_manager_ = nullptr;
   }
 
-  void UIWidgetsPanel::OnRenderTexture(void *native_texture_ptr, size_t width,
+  GLuint UIWidgetsPanel::OnRenderTexture(size_t width,
                                        size_t height, float device_pixel_ratio)
   {
     reinterpret_cast<EmbedderEngine *>(engine_)->PostRenderThreadTask(
-        [this, native_texture_ptr]() -> void {
+        [this, width, height]() -> void {
           surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
 
           if (fbo_)
@@ -253,7 +254,7 @@ namespace uiwidgets
             surface_manager_->DestroyRenderSurface();
             fbo_ = 0;
           }
-          fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
+          fbo_ = surface_manager_->CreateRenderSurface(width, height);
 
           surface_manager_->ClearCurrent();
         });
@@ -263,6 +264,7 @@ namespace uiwidgets
     metrics.physical_height = static_cast<float>(height);
     metrics.device_pixel_ratio = device_pixel_ratio;
     reinterpret_cast<EmbedderEngine *>(engine_)->SetViewportMetrics(metrics);
+    return surface_manager_->GetTexture();
   }
 
   int UIWidgetsPanel::RegisterTexture(void *native_texture_ptr)
@@ -409,6 +411,12 @@ namespace uiwidgets
     }
   }
 
+  bool UIWidgetsPanel::ReleaseNativeRenderTexture() {
+    // for android this process is done during OnRenderTexture
+    //surface_manager_->DestroyRenderSurface();
+    return true;
+  }
+
   void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown)
   {
     if (process_events_)
@@ -505,13 +513,13 @@ namespace uiwidgets
     panel->Release();
   }
 
-  UIWIDGETS_API(void)
-  UIWidgetsPanel_onEnable(UIWidgetsPanel *panel, void *native_texture_ptr,
+  UIWIDGETS_API(GLuint)
+  UIWidgetsPanel_onEnable(UIWidgetsPanel *panel,
                           size_t width, size_t height, float device_pixel_ratio,
                           const char *streaming_assets_path,
                           const char *settings)
   {
-    panel->OnEnable(native_texture_ptr, width, height, device_pixel_ratio,
+    return panel->OnEnable(width, height, device_pixel_ratio,
                     streaming_assets_path, settings);
   }
 
@@ -521,11 +529,15 @@ namespace uiwidgets
     panel->OnDisable();
   }
 
-  UIWIDGETS_API(void)
-  UIWidgetsPanel_onRenderTexture(UIWidgetsPanel *panel, void *native_texture_ptr,
+  UIWIDGETS_API(GLuint)
+  UIWidgetsPanel_onRenderTexture(UIWidgetsPanel *panel,
                                  int width, int height, float dpi)
   {
-    panel->OnRenderTexture(native_texture_ptr, width, height, dpi);
+    return panel->OnRenderTexture(width, height, dpi);
+  }
+
+  UIWIDGETS_API(bool) UIWidgetsPanel_releaseNativeTexture(UIWidgetsPanel* panel) {
+    return panel->ReleaseNativeRenderTexture();
   }
 
   UIWIDGETS_API(int)

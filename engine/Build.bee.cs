@@ -16,6 +16,7 @@ using Bee.Toolchain.Xcode;
 using Bee.Toolchain.GNU;
 using Bee.Toolchain.IOS;
 using System.Diagnostics;
+using Bee.Toolchain.Android;
 
 enum UIWidgetsBuildTargetPlatform
 {
@@ -36,6 +37,14 @@ static class BuildUtils
     {
         return RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     }
+}
+
+class AndroidAppToolchain : AndroidNdkToolchain
+{
+    public AndroidAppToolchain(NPath path) : base(new AndroidNdkLocator(Architecture.Armv7).UseSpecific(path).WithForcedApiLevel(28))
+    {
+    }
+    
 }
 
 //ios build helpers
@@ -634,7 +643,8 @@ class Build
             "SK_CODEC_DECODES_WEBP",
             "SK_ENCODE_WEBP",
             "SK_XML",
-
+            "EGL_EGLEXT_PROTOTYPES",
+            "GL_GLEXT_PROTOTYPES",
 
             //"UIWIDGETS_ENGINE_VERSION=\"0.0\"",
             //"SKIA_VERSION=\"0.0\"",
@@ -739,7 +749,7 @@ class Build
             "-nostdlib++",
             "-Wl,--warn-shared-textrel",
             "-nostdlib",
-            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
+            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-28/arch-arm",
             "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
             "-g",
@@ -771,7 +781,7 @@ class Build
         }
         else if (platform == UIWidgetsBuildTargetPlatform.android)
         {
-            var androidToolchain = ToolChain.Store.Android().r19().Armv7();
+            var androidToolchain = new AndroidAppToolchain(new NPath ("/Users/siyao/temp/flutter/engine/src/third_party/android_tools/ndk"));
 
             var validConfigurations = new List<NativeProgramConfiguration>();
 
