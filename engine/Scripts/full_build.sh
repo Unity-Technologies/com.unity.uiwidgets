@@ -31,7 +31,7 @@ do
 done
 
 case $platform in
-    "andorid")  echo 'You select android'
+    "android")  ./lib_build_android.sh -r $engine_path $optimize -p android -m $runtime_mode
     ;;
     "ios")  ./lib_build_ios.sh -r $engine_path $optimize -p ios -m $runtime_mode $bitcode
     ;;
