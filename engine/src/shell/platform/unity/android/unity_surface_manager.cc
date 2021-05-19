@@ -100,13 +100,37 @@ namespace uiwidgets
     return fbo_;
   }
 
+  bool getMemoryTypeIndex(uint32_t typeBits, VkPhysicalDevice device, VkFlags quirementsMaks,
+                          uint32_t &index)
+  {
+    // const auto& memoryPropertys =
+    //     VulkanManager::Get().physical->mempryProperties;
+    VkPhysicalDeviceMemoryProperties memoryPropertys;
+    vkGetPhysicalDeviceMemoryProperties(device, &memoryPropertys);
+    for (uint32_t i = 0; i < memoryPropertys.memoryTypeCount; i++)
+    {
+      if ((typeBits & 1) == 1)
+      {
+        // Type is available, does it match user properties?
+        if ((memoryPropertys.memoryTypes[i].propertyFlags &
+             quirementsMaks) == quirementsMaks)
+        {
+          index = i;
+          return true;
+        }
+      }
+      typeBits >>= 1;
+    }
+    return false;
+  }
+
   GLuint UnitySurfaceManager::CreateRenderSurfaceVK(int width, int height)
   {
     if (m_UnityVulkan != nullptr)
     {
       auto vkDevice = m_Instance.device;
       // auto memoryPropertys = m_Instance.memoryTypeIndex;
-      VkImage vkImage;
+      // VkImage vkImage;
       bool useExternalFormat = true;
 
       AHardwareBuffer *buffer = nullptr;
@@ -120,10 +144,9 @@ namespace uiwidgets
       usage.rfu0 = 0;
       usage.rfu1 = 0;
       usage.stride = 0;
-      usage.usage = AHARDWAREBUFFER_USAGE_CPU_READ_NEVER |
-                    AHARDWAREBUFFER_USAGE_CPU_WRITE_NEVER |
-                    AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE |
-                    AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT;
+      usage.usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN |
+                  AHARDWAREBUFFER_USAGE_CPU_WRITE_NEVER |
+                  AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT;
       FML_CHECK(AHardwareBuffer_allocate(&usage, &buffer) == 0);
       VkResult err;
 
@@ -140,9 +163,6 @@ namespace uiwidgets
           .pNext = &formatInfo,
       };
       err = vkGetAndroidHardwareBufferPropertiesANDROID(vkDevice, buffer, &properties);
-      bool check = false;
-      check = VK_FORMAT_R8G8B8A8_UNORM == formatInfo.format;
-      check = VK_FORMAT_UNDEFINED == formatInfo.format;
 
       VkExternalFormatANDROID externalFormat{
           .sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID,
@@ -151,17 +171,11 @@ namespace uiwidgets
       };
       VkExternalMemoryImageCreateInfo externalCreateInfo{
           .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO,
-          .pNext = useExternalFormat ? &externalFormat : nullptr,
+          .pNext = &externalFormat,
           .handleTypes =
               VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID,
       };
-      VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
-                                     VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                                     VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-      if (true)
-      { //forWrite) {
-        usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-      }
+
 
       VkImageCreateInfo imageInfo = {};
       imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -169,7 +183,7 @@ namespace uiwidgets
       imageInfo.flags = 0;
       imageInfo.imageType = VK_IMAGE_TYPE_2D;
       imageInfo.format =
-          formatInfo.format;
+          VK_FORMAT_UNDEFINED;
       imageInfo.extent = {
           bufferDesc.width,
           bufferDesc.height,
@@ -178,12 +192,12 @@ namespace uiwidgets
       imageInfo.mipLevels = 1, imageInfo.arrayLayers = 1;
       imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-      imageInfo.usage = usageFlags;
+      imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
       imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
       imageInfo.queueFamilyIndexCount = 0;
-      imageInfo.pQueueFamilyIndices = 0;
+      imageInfo.pQueueFamilyIndices = nullptr;
       imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-      auto result = vkCreateImage(vkDevice, &imageInfo, nullptr, &vkImage);
+      auto result = vkCreateImage(vkDevice, &imageInfo, nullptr, &vk_Image_);
 
       VkImportAndroidHardwareBufferInfoANDROID androidHardwareBufferInfo{
           .sType = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID,
@@ -193,69 +207,50 @@ namespace uiwidgets
       VkMemoryDedicatedAllocateInfo memoryAllocateInfo{
           .sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO,
           .pNext = &androidHardwareBufferInfo,
-          .image = vkImage,
+          .image = vk_Image_,
           .buffer = VK_NULL_HANDLE,
       };
       // android的hardbuffer位置(properties)
       VkMemoryRequirements requires;
-      vkGetImageMemoryRequirements(vkDevice, vkImage, &requires);
+      vkGetImageMemoryRequirements(vkDevice, vk_Image_, &requires);
 
       VkPhysicalDeviceMemoryProperties2 phyDevMemProps;
       phyDevMemProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
       phyDevMemProps.pNext = nullptr;
 
-      uint32_t typeIndex = 0;
-      // uint32_t heapIndex = 0;
-      bool foundHeap = false;
-      vkGetPhysicalDeviceMemoryProperties2(m_Instance.physicalDevice, &phyDevMemProps);
-      uint32_t memTypeCnt = phyDevMemProps.memoryProperties.memoryTypeCount;
-      for (uint32_t i = 0; i < memTypeCnt && !foundHeap; ++i)
-      {
-        if (properties.memoryTypeBits & (1 << i))
-        {
-          const VkPhysicalDeviceMemoryProperties &pdmp = phyDevMemProps.memoryProperties;
-          uint32_t supportedFlags = pdmp.memoryTypes[i].propertyFlags &
-                                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-          if (supportedFlags == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-          {
-            typeIndex = i;
-            // heapIndex = pdmp.memoryTypes[i].heapIndex;
-            foundHeap = true;
-          }
-        }
-      }
+      uint32_t memoryTypeIndex = 0;
+      bool getIndex =
+        getMemoryTypeIndex(properties.memoryTypeBits, m_Instance.physicalDevice, 0, memoryTypeIndex);
 
-      // uint32_t memoryTypeIndex = 0;
-      // // VkPhysicalDeviceMemoryProperties memoryPropertys; //???
-
-      // bool getIndex =
-      //     getMemoryTypeIndex(properties.memoryTypeBits, m_Instance.physicalDevice, 0, memoryTypeIndex); //??
-      // assert(getIndex);
       VkMemoryAllocateInfo memoryInfo = {};
       memoryInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
       memoryInfo.pNext = &memoryAllocateInfo;
-      memoryInfo.memoryTypeIndex = typeIndex;
+      memoryInfo.memoryTypeIndex = memoryTypeIndex;
       memoryInfo.allocationSize = properties.allocationSize;
-
-      VkDeviceMemory memory; //???
 
       vkAllocateMemory(vkDevice, &memoryInfo, nullptr, &memory);
 
       VkBindImageMemoryInfo bindImageInfo;
       bindImageInfo.sType = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
       bindImageInfo.pNext = nullptr;
-      bindImageInfo.image = vkImage;
+      bindImageInfo.image = vk_Image_;
       bindImageInfo.memory = memory;
       bindImageInfo.memoryOffset = 0;
       // vkBindImageMemory2KHR(vkDevice, 1, &bindImageInfo);
       vkBindImageMemory2(vkDevice, 1, &bindImageInfo);
 
+      eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_);
+
       // android绑定AHardwareBuffer与egl image
       EGLClientBuffer native_buffer = eglGetNativeClientBufferANDROID(buffer);
       assert(native_buffer);
       auto success = false;
+      EGLint attrs[] = {EGL_NONE};
 
-      eglMakeCurrent(egl_display_, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context_);
+      EGLImageKHR image = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT,
+                                            EGL_NATIVE_BUFFER_ANDROID, native_buffer, attrs);
+      FML_DCHECK(image != EGL_NO_IMAGE_KHR);
+
       GLuint mTexture = 0;
       glGenTextures(1, &mTexture);
       glGenFramebuffers(1, &fbo_);
@@ -263,16 +258,33 @@ namespace uiwidgets
 
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture, 0);
 
-      EGLint attrs[] = {EGL_NONE};
-      EGLImageKHR image = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT,
-                                            EGL_NATIVE_BUFFER_ANDROID, native_buffer, attrs);
-      FML_DCHECK(image != EGL_NO_IMAGE_KHR);
-
+      
+      glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, mTexture);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
       glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
       glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture, 0);
       FML_DCHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-      vk_Image_ = &vkImage;
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        auto x = glGetError();
+        glEnable(GL_TEXTURE_2D);
+        x = glGetError();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
+        x = glGetError();
+        glViewport(0,0,200, 200);
+        x = glGetError();
+
+        glClearColor(0,0,1,0);
+        x = glGetError();
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        x = glGetError();
+
+      // return fbo_;
       return 0;
     }
     return 0;
@@ -356,29 +368,7 @@ namespace uiwidgets
 
   static const int DEV_W = 16, DEV_H = 16;
 
-  bool getMemoryTypeIndex(uint32_t typeBits, VkPhysicalDevice device, VkFlags quirementsMaks,
-                          uint32_t &index)
-  {
-    // const auto& memoryPropertys =
-    //     VulkanManager::Get().physical->mempryProperties;
-    VkPhysicalDeviceMemoryProperties memoryPropertys;
-    vkGetPhysicalDeviceMemoryProperties(device, &memoryPropertys);
-    for (uint32_t i = 0; i < memoryPropertys.memoryTypeCount; i++)
-    {
-      if ((typeBits & 1) == 1)
-      {
-        // Type is available, does it match user properties?
-        if ((memoryPropertys.memoryTypes[i].propertyFlags &
-             quirementsMaks) == quirementsMaks)
-        {
-          index = i;
-          return true;
-        }
-      }
-      typeBits >>= 1;
-    }
-    return false;
-  }
+  
 
   bool UnitySurfaceManager::Initialize(IUnityInterfaces *unity_interfaces)
   {

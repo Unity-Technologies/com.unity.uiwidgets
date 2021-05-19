@@ -141,24 +141,24 @@ public partial class UIWidgetsPanelWrapper {
 
 #if (!UNITY_EDITOR && UNITY_ANDROID )
     public partial class UIWidgetsPanelWrapper {
-        RenderTexture _renderTexture;
+        Texture _renderTexture;
     
     
-        public RenderTexture renderTexture {
+        public Texture renderTexture {
             get { return _renderTexture; }
         }
 
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
-            D.assert(_renderTexture == null);
-
-            var desc = new RenderTextureDescriptor(
-                width, height, RenderTextureFormat.ARGB32, 0) {
-                useMipMap = false,
-                autoGenerateMips = false,
-            };
-
-            _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
-            _renderTexture.Create();
+            // D.assert(_renderTexture == null);
+            //
+            // var desc = new RenderTextureDescriptor(
+            //     width, height, RenderTextureFormat.ARGB32, 0) {
+            //     useMipMap = false,
+            //     autoGenerateMips = false,
+            // };
+            //
+            // _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
+            // _renderTexture.Create();
 
             _width = width;
             _height = height;
@@ -172,14 +172,17 @@ public partial class UIWidgetsPanelWrapper {
         }
 
         void _enableUIWidgetsPanel(string font_settings) {
-            UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
+            IntPtr native_tex_ptr =  UIWidgetsPanel_onEnableVK(_ptr,
                 _width, _height, devicePixelRatio, Application.temporaryCachePath, font_settings);
+            D.assert(native_tex_ptr != IntPtr.Zero);
+            _renderTexture = Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
         }
 
         void _resizeUIWidgetsPanel() {
-            UIWidgetsPanel_onRenderTexture(_ptr,
-                _renderTexture.GetNativeTexturePtr(),
+            IntPtr native_tex_ptr = UIWidgetsPanel_onRenderTextureVK(_ptr,
                 _width, _height, devicePixelRatio);
+            D.assert(native_tex_ptr != IntPtr.Zero);
+            _renderTexture = Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
         }
 
         void _disableUIWidgetsPanel() {
@@ -192,8 +195,15 @@ public partial class UIWidgetsPanelWrapper {
             string font_settings);
 
         [DllImport(NativeBindings.dllName)]
+        static extern IntPtr UIWidgetsPanel_onEnableVK(IntPtr ptr, int width, int height, float dpi, string streamingAssetsPath,
+            string font_settings);
+
+        [DllImport(NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onRenderTexture(
             IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr UIWidgetsPanel_onRenderTextureVK(
+            IntPtr ptr, int width, int height, float dpi);
     }
 #endif
 

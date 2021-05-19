@@ -44,7 +44,10 @@ namespace uiwidgets
 
     void DestroyRenderSurface();
 
-    void* GetInnerTexture() const { return static_cast<void*>(vk_Image_); }
+    void* GetInnerTexture() { 
+      // return (void*)vk_Image_; 
+      return (void*)&vk_Image_; 
+    }
 
     bool ClearCurrent();
 
@@ -66,7 +69,8 @@ namespace uiwidgets
     UnityVulkanInstance m_Instance;
     sk_sp<GrContext> gr_context_;
     sk_sp<SkSurface> m_SkSurface;
-    VkImage* vk_Image_;
+    VkImage vk_Image_;
+    VkDeviceMemory memory;
 
     bool initialize_succeeded_;
 
