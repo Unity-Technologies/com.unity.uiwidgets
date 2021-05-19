@@ -17,11 +17,11 @@ do
         engine_path=$OPTARG # set engine_path, depot_tools and flutter engine folder will be put into this path
         ;;
         p)
-        gn_params="$gn_params --$OPTARG" # set the target platform android/ios/linux
+        gn_params="$gn_params --$OPTARG" # set the target platform android/ios
         ;;
         m)
         runtime_mode=$OPTARG
-        gn_params="$gn_params --runtime-mode=$runtime_mode" # set runtime mode release/debug/profile
+        gn_params="$gn_params --runtime-mode=$runtime_mode" # set runtime mode release/debug
         ;;
         e)
         bitcode="-bitcode_bundle -bitcode_verify"
@@ -126,20 +126,17 @@ echo "solutions = [
 
 gclient sync
 
-cd src/flutter
+cd $FLUTTER_ROOT_PATH/flutter
 git checkout flutter-1.17-candidate.5
 gclient sync -D
 
 echo "\nSCompiling engine..."
 #apply patch to Build.gn
-cd third_party/txt
+cd $FLUTTER_ROOT_PATH/flutter/third_party/txt
 cp -f $work_path/patches/BUILD.gn.patch BUILD.gn.patch
 patch < BUILD.gn.patch -N
 
-cd $engine_path/engine/src/build/mac
-cp -f $work_path/patches/find_sdk.patch find_sdk.patch
-patch < find_sdk.patch -N
-cd ../..
+cd $FLUTTER_ROOT_PATH
 ./flutter/tools/gn $gn_params
 
 
@@ -147,24 +144,31 @@ echo "icu_use_data_file=false" >> out/$output_path/args.gn
 ninja $ninja_params
 
 echo "\nStarting build engine..."
-cd $work_path
-cd ..
+cd $work_path/../
+
+if [ -d '../com.unity.uiwidgets/Runtime/Plugins/ios' ];
+then
+  echo "ios folder already exist, skip create folder"
+else
+  mkdir ../com.unity.uiwidgets/Runtime/Plugins/ios
+fi
 
 if [ "$runtime_mode" == "release" ];
 then
+  rm -rf build_release/*
   mono bee.exe ios_release
+  rm -rf ../com.unity.uiwidgets/Runtime/Plugins/ios/*
+  cp -r build_release/. ../com.unity.uiwidgets/Runtime/Plugins/ios
 elif [ "$runtime_mode" == "debug" ];
 then
+  rm -rf build_debug/*
   mono bee.exe ios_debug
+  rm -rf ../com.unity.uiwidgets/Runtime/Plugins/ios/*
+  cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/ios
 fi
 
 echo "\nStarting prlink library..."
-cd Scripts
-xcode_path=""
-xcode_path=`python -c 'import prelink; print prelink.get_xcode_path()'`
-
-target_files=""
+cd Scripts/../
 tundra_file="$work_path/../artifacts/tundra.dag.json"
-cd ..
 python3 Scripts/prelink.py $tundra_file $runtime_mode $output_path $work_path $bitcode
 

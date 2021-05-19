@@ -16,7 +16,7 @@ def get_target_files(tundra_file, runtime_mode):
         json_list = temp['Nodes']
         target_files=''
         for item in json_list:
-            if item['Annotation'].startswith('Lib_iOS_arm64') and item['Annotation'].find("release_iOS_arm64") != -1:
+            if item['Annotation'].startswith('Lib_iOS_arm64') and item['Annotation'].find(runtime_mode) != -1:
                 action = item['Action']
                 o_file_list = action.split("\"")
                 for o in o_file_list:
@@ -35,7 +35,7 @@ def prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode):
         os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -r -arch arm64 ' + bitcode + ' -syslibroot ' + xcode_path + '/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -unexported_symbols_list third.symbol ' + target_files + ' ' + flutter_root_path + '/out/' + output_path + '/obj/flutter/third_party/txt/libtxt_lib.a -o "libUIWidgets.o"')
         os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool" -arch_only arm64 -static "libUIWidgets.o" -o "libUIWidgets.a"')
         os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" -x "libUIWidgets.a"')
-        os.system('cp -r libUIWidgets.a ' + '../com.unity.uiwidgets/Runtime/Plugins/'+ output_path + '/libUIWidgets.a')
+        os.system('cp -r libUIWidgets.a ' + '../com.unity.uiwidgets/Runtime/Plugins/ios/libUIWidgets.a')
 
 if __name__ == "__main__":
     if len(sys.argv) > 5:
