@@ -1,6 +1,10 @@
 using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Rect = UnityEngine.Rect;
@@ -77,6 +81,9 @@ namespace Unity.UIWidgets.editor {
 
             _guiTextureMat = new Material(guiTextureShader);
             _guiTextureMat.hideFlags = HideFlags.HideAndDontSave;
+#if UNITY_EDITOR
+            _guiTextureMat.SetFloat("_Linear", PlayerSettings.colorSpace == ColorSpace.Linear ? 1 : 0);
+#endif
             return _guiTextureMat;
         }
 
