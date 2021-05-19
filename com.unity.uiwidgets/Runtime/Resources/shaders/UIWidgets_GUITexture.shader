@@ -1,6 +1,8 @@
 Shader "UIWidgets/GUITexture"
 {
-    Properties { _MainTex ("Texture", any) = "" {} }
+    Properties { _MainTex ("Texture", any) = "" {} 
+                 _Linear ("_Linear", float) = 0
+    }
 
     CGINCLUDE
     #pragma vertex vert
@@ -24,6 +26,8 @@ Shader "UIWidgets/GUITexture"
     };
 
     sampler2D _MainTex;
+    
+    float _Linear;
 
     uniform float4 _MainTex_ST;
 
@@ -40,7 +44,10 @@ Shader "UIWidgets/GUITexture"
 
     fixed4 frag (v2f i) : SV_Target
     {
-        return 2.0f * tex2D(_MainTex, i.texcoord) * i.color;
+        fixed4 colr = 2.0f * tex2D(_MainTex, i.texcoord) * i.color;
+        float gamma = 2.2;
+        colr.rgb = _Linear ? pow(colr.rgb, (1.0/gamma)) : colr.rgb;
+        return colr;
     }
     ENDCG
 
