@@ -38,7 +38,7 @@ namespace uiwidgets
     return window_type_ == EditorWindowPanel;
   }
 
-  GLuint UIWidgetsPanel::OnEnable(size_t width,
+  void* UIWidgetsPanel::OnEnable(size_t width,
                                   size_t height, float device_pixel_ratio,
                                   const char *streaming_assets_path,
                                   const char *settings)
@@ -242,7 +242,7 @@ namespace uiwidgets
     surface_manager_ = nullptr;
   }
 
-  GLuint UIWidgetsPanel::OnRenderTexture(size_t width,
+  void* UIWidgetsPanel::OnRenderTexture(size_t width,
                                          size_t height, float device_pixel_ratio)
   {
 
@@ -511,13 +511,13 @@ namespace uiwidgets
     panel->Release();
   }
 
-  UIWIDGETS_API(GLuint)
+  UIWIDGETS_API(void*)
   UIWidgetsPanel_onEnable(UIWidgetsPanel *panel,
                           size_t width, size_t height, float device_pixel_ratio,
                           const char *streaming_assets_path,
                           const char *settings)
   {
-    return panel->OnEnable(width, height, device_pixel_ratio,
+    return (void*)panel->OnEnable(width, height, device_pixel_ratio,
                            streaming_assets_path, settings);
   }
 
@@ -527,7 +527,7 @@ namespace uiwidgets
     panel->OnDisable();
   }
 
-  UIWIDGETS_API(GLuint)
+  UIWIDGETS_API(void*)
   UIWidgetsPanel_onRenderTexture(UIWidgetsPanel *panel,
                                  int width, int height, float dpi)
   {

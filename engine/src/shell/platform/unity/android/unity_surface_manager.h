@@ -25,6 +25,9 @@
 
 #include "Unity/IUnityGraphics.h"
 
+#include "Unity/IUnityGraphicsVulkan.h"
+#include "include/gpu/vk/GrVkBackendContext.h"
+
 namespace uiwidgets
 {
 
@@ -39,7 +42,12 @@ namespace uiwidgets
     GLuint CreateRenderSurface(size_t width, size_t height);
     void DestroyRenderSurface();
 
-    GLuint GetTexture() {return egl_texture_;}
+    void* GetTexture() {
+      if( m_UnityVulkan != nullptr){
+        return (void*)&vk_Image_;
+      }
+      return (void*)egl_texture_;
+    }
 
     bool ClearCurrent();
 
@@ -61,6 +69,14 @@ namespace uiwidgets
     EGLImageKHR image;
     
     bool initialize_succeeded_;
+
+
+    IUnityGraphicsVulkan* m_UnityVulkan = nullptr;
+    UnityVulkanInstance m_Instance;
+    sk_sp<GrContext> gr_context_;
+    sk_sp<SkSurface> m_SkSurface;
+    VkImage vk_Image_  = 0;
+    VkDeviceMemory memory;
 
     GLuint fbo_ = 0;
   };
