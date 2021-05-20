@@ -55,15 +55,14 @@ namespace uiwidgets
 
     image = eglCreateImageKHR(egl_display_, EGL_NO_CONTEXT,
                                         EGL_NATIVE_BUFFER_ANDROID, native_buffer, attrs);
-    
+
+    egl_texture_ = 0;
+    glGenTextures(1, &egl_texture_);
     glBindTexture(GL_TEXTURE_2D, egl_texture_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    GLint old_framebuffer_binding;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
 
     glGenFramebuffers(1, &fbo_);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo_);
@@ -75,8 +74,6 @@ namespace uiwidgets
     // GLuint gltex = (GLuint)(size_t)(native_texture_ptr);
     // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gltex, 0);
     FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-
-    glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
 
     return fbo_;
   }
@@ -96,6 +93,8 @@ namespace uiwidgets
     
     eglDestroyImageKHR(egl_display_, image);
 
+    glDeleteTextures(1, &egl_texture_);
+    egl_texture_ = 0;
   }
 
   bool UnitySurfaceManager::ClearCurrent()

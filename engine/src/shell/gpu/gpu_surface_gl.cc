@@ -281,6 +281,7 @@ bool GPUSurfaceGL::PresentSurface(SkCanvas* canvas) {
   if (delegate_->GLContextFBOResetAfterPresent()) {
     auto current_size =
         SkISize::Make(onscreen_surface_->width(), onscreen_surface_->height());
+    context_->resetContext();
 
     // The FBO has changed, ask the delegate for the new FBO and do a surface
     // re-wrap.

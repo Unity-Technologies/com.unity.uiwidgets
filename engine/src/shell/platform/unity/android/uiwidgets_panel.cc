@@ -38,10 +38,10 @@ namespace uiwidgets
     return window_type_ == EditorWindowPanel;
   }
 
-  GLuint UIWidgetsPanel::OnEnable( size_t width,
-                                size_t height, float device_pixel_ratio,
-                                const char *streaming_assets_path,
-                                const char *settings)
+  GLuint UIWidgetsPanel::OnEnable(size_t width,
+                                  size_t height, float device_pixel_ratio,
+                                  const char *streaming_assets_path,
+                                  const char *settings)
   {
     surface_manager_ = std::make_unique<UnitySurfaceManager>(
         UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
@@ -243,27 +243,24 @@ namespace uiwidgets
   }
 
   GLuint UIWidgetsPanel::OnRenderTexture(size_t width,
-                                       size_t height, float device_pixel_ratio)
+                                         size_t height, float device_pixel_ratio)
   {
-    reinterpret_cast<EmbedderEngine *>(engine_)->PostRenderThreadTask(
-        [this, width, height]() -> void {
-          surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
-
-          if (fbo_)
-          {
-            surface_manager_->DestroyRenderSurface();
-            fbo_ = 0;
-          }
-          fbo_ = surface_manager_->CreateRenderSurface(width, height);
-
-          surface_manager_->ClearCurrent();
-        });
 
     ViewportMetrics metrics;
     metrics.physical_width = static_cast<float>(width);
     metrics.physical_height = static_cast<float>(height);
     metrics.device_pixel_ratio = device_pixel_ratio;
     reinterpret_cast<EmbedderEngine *>(engine_)->SetViewportMetrics(metrics);
+
+    surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
+
+    if (fbo_)
+    {
+      surface_manager_->DestroyRenderSurface();
+      fbo_ = 0;
+    }
+    fbo_ = surface_manager_->CreateRenderSurface(width, height);
+    surface_manager_->ClearCurrent();
     return surface_manager_->GetTexture();
   }
 
@@ -411,7 +408,8 @@ namespace uiwidgets
     }
   }
 
-  bool UIWidgetsPanel::ReleaseNativeRenderTexture() {
+  bool UIWidgetsPanel::ReleaseNativeRenderTexture()
+  {
     // for android this process is done during OnRenderTexture
     //surface_manager_->DestroyRenderSurface();
     return true;
@@ -520,7 +518,7 @@ namespace uiwidgets
                           const char *settings)
   {
     return panel->OnEnable(width, height, device_pixel_ratio,
-                    streaming_assets_path, settings);
+                           streaming_assets_path, settings);
   }
 
   UIWIDGETS_API(void)
@@ -536,7 +534,9 @@ namespace uiwidgets
     return panel->OnRenderTexture(width, height, dpi);
   }
 
-  UIWIDGETS_API(bool) UIWidgetsPanel_releaseNativeTexture(UIWidgetsPanel* panel) {
+  UIWIDGETS_API(bool)
+  UIWidgetsPanel_releaseNativeTexture(UIWidgetsPanel *panel)
+  {
     return panel->ReleaseNativeRenderTexture();
   }
 

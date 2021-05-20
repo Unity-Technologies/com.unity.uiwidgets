@@ -41,7 +41,7 @@ static class BuildUtils
 
 class AndroidAppToolchain : AndroidNdkToolchain
 {
-    public AndroidAppToolchain(NPath path) : base(new AndroidNdkLocator(Architecture.Armv7).UseSpecific(path).WithForcedApiLevel(28))
+    public AndroidAppToolchain(NPath path) : base(new AndroidNdkLocator(Architecture.Armv7).UseSpecific(path).WithForcedApiLevel(26))
     {
     }
     
@@ -749,7 +749,7 @@ class Build
             "-nostdlib++",
             "-Wl,--warn-shared-textrel",
             "-nostdlib",
-            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-28/arch-arm",
+            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-26/arch-arm",
             "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
             "-Wl,--build-id=sha1",
             "-g",
