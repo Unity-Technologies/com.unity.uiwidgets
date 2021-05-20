@@ -170,3 +170,9 @@ cd Scripts/../
 tundra_file="$work_path/../artifacts/tundra.dag.json"
 python3 Scripts/prelink.py $tundra_file $runtime_mode $output_path $work_path $bitcode
 
+echo "\nRevert patches..."
+cd $FLUTTER_ROOT_PATH/flutter/third_party/txt
+patch -R < BUILD.gn.patch
+
+cd $FLUTTER_ROOT_PATH/build/mac
+patch -R < find_sdk.patch

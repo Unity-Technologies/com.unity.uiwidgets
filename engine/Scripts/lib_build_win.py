@@ -180,6 +180,19 @@ def build_engine():
         os.system("mono bee.exe win_debug")
         os.system("cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/x86_64")
 
+def revert_patches():
+    print("\nRevert patches...")
+    os.chdir(flutter_root_path + "/flutter/third_party/txt")
+    os.system("patch -R < BUILD.gn.patch")
+    
+    os.chdir(flutter_root_path + "/third_party/angle")
+    os.system("patch -R < BUILD.gn.patch -N")
+
+    os.chdir(flutter_root_path + "/third_party/angle/src/libANGLE/renderer/d3d/d3d11/")
+    os.system("patch -R < cpp.patch")
+
+    os.chdir(flutter_root_path + "/third_party/skia/")
+    os.system("patch -R < BUILD_2.gn.patch")
 
 def main():
     get_opts()
@@ -190,6 +203,7 @@ def main():
     get_flutter_engine()
     compile_engine()
     build_engine()
+    revert_patches()
 
 if __name__=="__main__":
     main()

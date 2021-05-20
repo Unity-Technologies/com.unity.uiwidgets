@@ -180,3 +180,12 @@ cd $work_path/../
 $FLUTTER_ROOT_PATH/buildtools/mac-x64/clang/bin/clang++ @"artifacts/rsp/14590475716575637239.rsp"
 cp artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so ../com.unity.uiwidgets/Runtime/Plugins/Android/libUIWidgets.so 
 
+echo "\nRevert patches..."
+cd $FLUTTER_ROOT_PATH/flutter/third_party/txt
+patch -R < BUILD.gn.patch
+
+cd $FLUTTER_ROOT_PATH/build/secondary/third_party/libcxxabi
+patch -R < BUILD_2.gn.patch
+
+cd $FLUTTER_ROOT_PATH/build/mac
+patch -R < find_sdk.patch

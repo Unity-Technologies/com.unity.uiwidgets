@@ -163,3 +163,10 @@ then
   mono bee.exe mac_debug
   cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/osx
 fi
+
+echo "\nRevert patches..."
+cd $FLUTTER_ROOT_PATH/flutter/third_party/txt
+patch -R < BUILD.gn.patch
+
+cd $FLUTTER_ROOT_PATH/build/mac
+patch -R < find_sdk.patch
