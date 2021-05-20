@@ -132,6 +132,10 @@ cd $FLUTTER_ROOT_PATH/flutter/third_party/txt
 cp -f $work_path/patches/BUILD.gn.patch BUILD.gn.patch
 patch < BUILD.gn.patch -N
 
+cd $FLUTTER_ROOT_PATH/build/mac
+cp -f $work_path/patches/find_sdk.patch find_sdk.patch
+patch < find_sdk.patch -N
+
 cd $FLUTTER_ROOT_PATH
 ./flutter/tools/gn $gn_params
 
