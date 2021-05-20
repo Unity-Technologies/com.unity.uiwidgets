@@ -36,7 +36,7 @@ done
 if [ ! -d $engine_path ];
 then
   mkdir $engine_path
-
+fi
 
 if [ "$runtime_mode" == "release" ];
 then
