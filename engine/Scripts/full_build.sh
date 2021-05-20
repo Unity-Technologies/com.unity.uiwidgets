@@ -2,7 +2,6 @@ engine_path=
 platform=
 runtime_mode=
 gn_params=""
-optimize=""
 ninja_params=""
 bitcode=""
 
@@ -21,9 +20,6 @@ do
         e)
         bitcode="-e" # enable-bitcode switch
         ;;
-        o)
-        optimize="-o" # optimize code switch
-        ;;
         ?)
         echo "unknown param"
         exit 1;;
@@ -31,11 +27,11 @@ do
 done
 
 case $platform in
-    "android")  ./lib_build_android.sh -r $engine_path $optimize -p android -m $runtime_mode
+    "android")  ./lib_build_android.sh -r $engine_path -p android -m $runtime_mode
     ;;
-    "ios")  ./lib_build_ios.sh -r $engine_path $optimize -p ios -m $runtime_mode $bitcode
+    "ios")  ./lib_build_ios.sh -r $engine_path -p ios -m $runtime_mode $bitcode
     ;;
-    "mac")  ./lib_build_mac.sh -m $runtime_mode -r $engine_path $optimize
+    "mac")  ./lib_build_mac.sh -m $runtime_mode -r $engine_path
     ;;
     "windows")  echo 'You select windows'
     ;;

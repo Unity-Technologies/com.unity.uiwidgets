@@ -10,7 +10,7 @@ def get_xcode_path():
 def get_target_files(tundra_file, runtime_mode):
     if not os.path.exists(tundra_file):
         print('tundra.dag.json file not found')
-        return null
+        return None
     with open(tundra_file, 'r') as f:
         temp = json.loads(f.read())
         json_list = temp['Nodes']
