@@ -2,7 +2,7 @@ work_path=$(pwd)
 engine_path=
 platform=
 gn_params=""
-optimize="--unoptimized"
+optimize=""
 ninja_params=""
 runtime_mode=
 
@@ -34,20 +34,19 @@ do
     esac
 done
 
-if [ "$runtime_mode" == "release" ] && [ "$optimize" == "--unoptimized" ];
+if [ ! -d $engine_path ];
 then
-  output_path="host_release_unopt"
-  ninja_params=" -C out/host_release_unopt flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "release" ] && [ "$optimize" == "" ];
+  mkdir $engine_path
+fi
+
+if [ "$runtime_mode" == "release" ];
 then
+  optimize=""
   output_path="host_release"
   ninja_params="-C out/host_release flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "--unoptimized" ];
+elif [ "$runtime_mode" == "debug" ];
 then
-  output_path="host_debug_unopt"
-  ninja_params=" -C out/host_debug_unopt flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "" ];
-then
+  optimize="--unoptimized"
   output_path="host_debug"
   ninja_params=" -C out/host_debug flutter/third_party/txt:txt_lib"
 elif [ "$runtime_mode" == "profile" ];
@@ -157,12 +156,10 @@ if [ "$runtime_mode" == "release" ];
 then
   rm -rf build_release/*
   mono bee.exe mac_release
-  rm -rf ../com.unity.uiwidgets/Runtime/Plugins/osx/*
   cp -r build_release/. ../com.unity.uiwidgets/Runtime/Plugins/osx
 elif [ "$runtime_mode" == "debug" ];
 then
   rm -rf build_debug/*
   mono bee.exe mac_debug
-  rm -rf ../com.unity.uiwidgets/Runtime/Plugins/osx/*
   cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/osx
 fi
