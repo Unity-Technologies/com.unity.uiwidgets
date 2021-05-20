@@ -2,7 +2,7 @@ work_path=$(pwd)
 engine_path=
 platform=
 gn_params=""
-optimize="--unoptimized"
+optimize=""
 ninja_params=""
 runtime_mode=
 bitcode=""
@@ -27,30 +27,26 @@ do
         bitcode="-bitcode_bundle -bitcode_verify"
         gn_params="$gn_params --bitcode" # enable-bitcode switch
         ;;
-        o)
-        optimize="" # optimize code switch
-        ;;
         ?)
         echo "unknown param"
         exit 1;;
     esac
 done
 
-if [ "$runtime_mode" == "release" ] && [ "$optimize" == "--unoptimized" ];
+if [ ! -d $engine_path ];
 then
-  output_path="ios_release_unopt"
-  ninja_params=" -C out/$output_path flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "release" ] && [ "$optimize" == "" ];
+  mkdir $engine_path
+
+
+if [ "$runtime_mode" == "release" ];
 then
+  optimize=""
   output_path="ios_release"
   ninja_params="-C out/$output_path flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "--unoptimized" ];
+elif [ "$runtime_mode" == "debug" ];
 then
-  output_path="ios_debug_unopt"
-  ninja_params=" -C out/$output_path flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "" ];
-then
-output_path="ios_debug"
+  optimize="--unoptimized"
+  output_path="ios_debug"
   ninja_params=" -C out/$output_path flutter/third_party/txt:txt_lib"
 elif [ "$runtime_mode" == "profile" ];
 then
@@ -157,13 +153,11 @@ if [ "$runtime_mode" == "release" ];
 then
   rm -rf build_release/*
   mono bee.exe ios_release
-  rm -rf ../com.unity.uiwidgets/Runtime/Plugins/ios/*
   cp -r build_release/. ../com.unity.uiwidgets/Runtime/Plugins/ios
 elif [ "$runtime_mode" == "debug" ];
 then
   rm -rf build_debug/*
   mono bee.exe ios_debug
-  rm -rf ../com.unity.uiwidgets/Runtime/Plugins/ios/*
   cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/ios
 fi
 
