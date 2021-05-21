@@ -186,7 +186,7 @@ def revert_patches():
     os.system("patch -R < BUILD.gn.patch")
     
     os.chdir(flutter_root_path + "/third_party/angle")
-    os.system("patch -R < BUILD.gn.patch -N")
+    os.system("patch -R < BUILD.gn.patch")
 
     os.chdir(flutter_root_path + "/third_party/angle/src/libANGLE/renderer/d3d/d3d11/")
     os.system("patch -R < cpp.patch")

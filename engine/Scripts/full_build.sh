@@ -33,7 +33,7 @@ case $platform in
     ;;
     "mac")  ./lib_build_mac.sh -m $runtime_mode -r $engine_path
     ;;
-    "windows")  echo 'You select windows'
+    "windows")  python3 lib_build_win.py -m $runtime_mode -r $engine_path
     ;;
     *)  echo "unknown platform, only support \"android\",\"ios\",\"mac\",\"windows\""
     ;;
