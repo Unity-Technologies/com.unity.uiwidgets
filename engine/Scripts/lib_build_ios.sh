@@ -38,6 +38,13 @@ then
   mkdir $engine_path
 fi
 
+if [ "$bitcode" == "-bitcode_bundle -bitcode_verify" ];
+then
+  echo "true" > bitcode.conf
+else
+echo "false" > bitcode.conf
+fi
+
 if [ "$runtime_mode" == "release" ];
 then
   optimize=""

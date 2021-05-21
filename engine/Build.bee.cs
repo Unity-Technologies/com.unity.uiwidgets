@@ -16,7 +16,7 @@ using Bee.Toolchain.Xcode;
 using Bee.Toolchain.GNU;
 using Bee.Toolchain.IOS;
 using System.Diagnostics;
-
+using System.IO;
 enum UIWidgetsBuildTargetPlatform
 {
     windows,
@@ -226,6 +226,31 @@ class Build
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
         }
         skiaRoot = flutterRoot + "/third_party/skia";
+
+         try
+        {
+            using (StreamReader sr = new StreamReader("Scripts/bitcode.conf"))
+            {
+                string line;
+                if ((line = sr.ReadLine()) != null)
+                {
+                    if(line.Trim() == "true")
+                    {
+                        ios_bitcode_enabled = true;
+                    }
+                    else
+                    {
+                        ios_bitcode_enabled = false;
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+
 
         //available target platforms of Windows
         if (BuildUtils.IsHostWindows())
