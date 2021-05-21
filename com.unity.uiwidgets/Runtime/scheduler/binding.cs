@@ -10,6 +10,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using UnityEngine.Rendering;
 using FrameTiming = Unity.UIWidgets.ui.FrameTiming;
 
 namespace Unity.UIWidgets.scheduler {
@@ -435,6 +436,9 @@ namespace Unity.UIWidgets.scheduler {
                     return;
             }
         }
+        
+        static readonly TimeSpan _coolDownDelay = new TimeSpan(0, 0, 0, 0, 200);
+        static Timer frameCoolDownTimer = null;
 
         public void scheduleFrame() {
             if (hasScheduledFrame || !framesEnabled) {
@@ -452,6 +456,26 @@ namespace Unity.UIWidgets.scheduler {
             ensureFrameCallbacksRegistered();
             Window.instance.scheduleFrame();
             hasScheduledFrame = true;
+
+            onFrameRateSpeedUp();
+            frameCoolDownTimer?.cancel();
+            frameCoolDownTimer = Timer.create(_coolDownDelay,
+                () => {
+                    onFrameRateCoolDown();
+                    frameCoolDownTimer = null;
+                }
+            );
+        }
+        
+        public const int defaultMaxRenderFrameInterval = 200;
+        public const int defaultMinRenderFrameInterval = 1;
+        
+        void onFrameRateSpeedUp() {
+            OnDemandRendering.renderFrameInterval = defaultMinRenderFrameInterval;
+        }
+
+        void onFrameRateCoolDown() {
+            OnDemandRendering.renderFrameInterval = defaultMaxRenderFrameInterval;
         }
 
         public void scheduleForcedFrame() {
