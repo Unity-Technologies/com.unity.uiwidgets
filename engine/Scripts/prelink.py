@@ -37,26 +37,8 @@ def prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode):
         os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" -x "libUIWidgets.a"')
         os.system('cp -r libUIWidgets.a ' + '../com.unity.uiwidgets/Runtime/Plugins/ios/libUIWidgets.a')
 
-
-def revert_patches(work_path):
-    print("\nRevert patches...")
-    flutter_root_path = os.environ['FLUTTER_ROOT_PATH']
-    os.chdir(flutter_root_path + "/flutter/third_party/txt")
-    os.system("patch -R < BUILD.gn.patch")
-    
-    os.chdir(flutter_root_path + "/build/mac")
-    os.system("patch -R < find_sdk.patch")
-
-    os.chdir(work_path)
-    if os.path.exists(work_path + "/bitcode.conf"):
-        os.remove("bitcode.conf")
-
 if __name__ == "__main__":
-    work_path = sys.argv[4]
-
     if len(sys.argv) > 5:
-        prelinkfiles(sys.argv[1], sys.argv[2], sys.argv[3], work_path, sys.argv[5])
+        prelinkfiles(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
     else:
-        prelinkfiles(sys.argv[1], sys.argv[2], sys.argv[3], work_path, "")
-    
-    revert_patches(work_path)
+        prelinkfiles(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], "")

@@ -16,7 +16,6 @@ using Bee.Toolchain.Xcode;
 using Bee.Toolchain.GNU;
 using Bee.Toolchain.IOS;
 using System.Diagnostics;
-using System.IO;
 
 enum UIWidgetsBuildTargetPlatform
 {
@@ -222,32 +221,6 @@ class Build
     static void Main()
     {
         flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT_PATH");
-
-        try
-        {
-            using (StreamReader sr = new StreamReader("Scripts/bitcode.conf"))
-            {
-                string line;
-                if ((line = sr.ReadLine()) != null)
-                {
-                    if(line.Trim() == "true")
-                    {
-                        ios_bitcode_enabled = true;
-                    }
-                    else
-                    {
-                        ios_bitcode_enabled = false;
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
-
-
-
         if (string.IsNullOrEmpty(flutterRoot))
         {
             flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
@@ -274,7 +247,7 @@ class Build
     //this setting is disabled by default, don't change it unless you know what you are doing
     //it must be set the same as the settings we choose to build the flutter txt library
     //refer to the readme file for the details
-    private static bool ios_bitcode_enabled = true;
+    private static bool ios_bitcode_enabled = false;
 
     static NativeProgram SetupLibUIWidgets(UIWidgetsBuildTargetPlatform platform, out List<NPath> dependencies_d, out List<NPath> dependencies_r)
     {
