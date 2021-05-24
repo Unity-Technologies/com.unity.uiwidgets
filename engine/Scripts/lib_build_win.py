@@ -8,7 +8,6 @@ engine_path=""
 platform=""
 gn_params=""
 optimize=""
-ninja_params=""
 ninja_params1=""
 ninja_params2=""
 ninja_params3=""
@@ -32,9 +31,6 @@ def get_opts():
         elif opt == '-m':
             runtime_mode = arg
             gn_params += gn_params + " --runtime-mode=" + runtime_mode # set runtime mode release/debug
-        elif opt == '-e':
-            bitcode="-bitcode_bundle -bitcode_verify"
-            gn_params += gn_params + " --bitcode" # enable-bitcode switch
 
 def engine_path_check():
     global engine_path
@@ -53,16 +49,16 @@ def set_params():
 
     if runtime_mode == "release":
         optimize="" 
-        output_path="host_release"
-        ninja_params1="-C out/" +output_path + " flutter/third_party/txt:txt_lib"
-        ninja_params2="-C out/" +output_path + " third_party/angle:angle_lib"
-        ninja_params3="-C out/" +output_path + " third_party/angle:libEGL_static"
+        output_path="host_release"    
     elif runtime_mode == "debug":
         optimize="--unoptimized"
         output_path="host_debug_unopt"
-        ninja_params=" -C out/" +output_path + " flutter/third_party/txt:txt_lib"
     else:
-        assert False, "func set_params(), unknown param"
+        assert False, "In func set_params(), unknown param"
+
+    ninja_params1="-C out/" +output_path + " flutter/third_party/txt:txt_lib"
+    ninja_params2="-C out/" +output_path + " third_party/angle:angle_lib"
+    ninja_params3="-C out/" +output_path + " third_party/angle:libEGL_static"
     gn_params=gn_params + " " + optimize
 
 def set_env_verb():
@@ -81,7 +77,7 @@ def set_env_verb():
         if path.startswith(engine_path):
             print("This environment variable has been set, skip")
             return
-    os.environ["Path"]= engine_path + "/depot_tools;" + os.environ["Path"]
+    os.environ["Path"] = engine_path + "/depot_tools;" + os.environ["Path"]
 
 def get_depot_tools():
     print("\nGetting Depot Tools...")
@@ -177,7 +173,7 @@ def build_engine():
         os.system("cp -r build_release/. ../com.unity.uiwidgets/Runtime/Plugins/x86_64")
     if runtime_mode == "debug":
         os.system("rm -rf build_debug/*")
-        os.system("mono bee.exe win_debug")
+        os.system("bee.exe win_debug")
         os.system("cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/x86_64")
 
 def revert_patches():
