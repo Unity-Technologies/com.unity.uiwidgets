@@ -14,6 +14,7 @@ ninja_params3=""
 runtime_mode=""
 bitcode=""
 flutter_root_path=""
+visual_studio_path=""
 
 def get_opts():
     # get intput agrs
@@ -21,8 +22,9 @@ def get_opts():
     global gn_params
     global runtime_mode
     global bitcode
+    global visual_studio_path
 
-    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:eo')
+    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:eo')
     for opt, arg in options:
         if opt == '-r':
             engine_path = arg # set engine_path, depot_tools and flutter engine folder will be put into this path
@@ -31,6 +33,8 @@ def get_opts():
         elif opt == '-m':
             runtime_mode = arg
             gn_params += gn_params + " --runtime-mode=" + runtime_mode # set runtime mode release/debug
+        elif opt == '-v':
+            visual_studio_path = arg
 
 def engine_path_check():
     global engine_path
@@ -46,7 +50,13 @@ def set_params():
 
     print("setting environment variable and other params...")
 
-
+    visual_studio_path_env = os.getenv('GYP_MSVS_OVERRIDE_PATH', 'null')
+    if visual_studio_path == "":
+        if visual_studio_path_env == 'null':
+            assert False, "In func set_params(), visual_studio_path is not exist, please set the path by using \"-v\" param to set a engine path."
+    else:
+        os.environ["GYP_MSVS_OVERRIDE_PATH"] = visual_studio_path
+    
     if runtime_mode == "release":
         optimize="" 
         output_path="host_release"    
