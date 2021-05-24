@@ -17,7 +17,12 @@ namespace Unity.UIWidgets.engine {
         readonly Dictionary<string, MethodChannelMessageDelegate> _methodChannelMessageDelegates = 
             new Dictionary<string, MethodChannelMessageDelegate>();
         public static UIWidgetsMessageManager instance {
-            get { return _instance; } 
+            get {
+                if (_instance == null) {
+                    ensureUIWidgetsMessageManagerIfNeeded();
+                }
+                return _instance;
+            } 
         }
 
         internal static void ensureUIWidgetsMessageManagerIfNeeded() {
@@ -28,7 +33,8 @@ namespace Unity.UIWidgets.engine {
                 return;
             }
             var managerObj = new GameObject("__UIWidgetsMessageManager");
-            managerObj.AddComponent<UIWidgetsMessageManager>();
+            var component = managerObj.AddComponent<UIWidgetsMessageManager>();
+            _instance = component;
         }
         
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL

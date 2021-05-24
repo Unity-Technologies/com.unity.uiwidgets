@@ -584,7 +584,7 @@ namespace Unity.UIWidgets.widgets {
                 fn();
             }
 
-            _element.markNeedsBuild();
+            _element?.markNeedsBuild();
         }
 
         public virtual void deactivate() {

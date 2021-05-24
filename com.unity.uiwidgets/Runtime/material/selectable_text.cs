@@ -124,7 +124,7 @@ namespace Unity.UIWidgets.material {
         }
     }
 
-    class SelectableText : StatefulWidget {
+    public class SelectableText : StatefulWidget {
 
         public SelectableText(
             string data,

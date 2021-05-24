@@ -150,8 +150,6 @@ namespace Unity.UIWidgets.engine {
         }
         
         protected virtual void Update() {
-            UIWidgetsMessageManager.ensureUIWidgetsMessageManagerIfNeeded();
-
             if (!_viewMetricsCallbackRegistered) {
                 _viewMetricsCallbackRegistered = true;
                 UIWidgetsMessageManager.instance?.AddChannelMessageDelegate("ViewportMetricsChanged",
