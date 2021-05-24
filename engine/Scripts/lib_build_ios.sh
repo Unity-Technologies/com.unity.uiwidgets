@@ -10,7 +10,7 @@ output_path=
 
 echo "setting environment variable and other params..."
 
-while getopts ":r:p:m:eo" opt
+while getopts ":r:p:m:e" opt
 do
     case $opt in
         r)

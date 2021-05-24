@@ -5,7 +5,7 @@ gn_params=""
 ninja_params=""
 bitcode=""
 
-while getopts ":r:p:m:eo" opt
+while getopts ":r:p:m:v:e" opt
 do
     case $opt in
         r)
@@ -20,6 +20,9 @@ do
         e)
         bitcode="-e" # enable-bitcode switch
         ;;
+        v)
+        # do nothing here
+        ;;
         ?)
         echo "unknown param"
         exit 1;;
@@ -33,7 +36,7 @@ case $platform in
     ;;
     "mac")  ./lib_build_mac.sh -m $runtime_mode -r $engine_path
     ;;
-    "windows")  python3 lib_build_win.py -m $runtime_mode -r $engine_path
+    "windows")  echo "Please run lib_build_win.py with params directly"
     ;;
     *)  echo "unknown platform, only support \"android\",\"ios\",\"mac\",\"windows\""
     ;;

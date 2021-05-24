@@ -24,7 +24,7 @@ def get_opts():
     global bitcode
     global visual_studio_path
 
-    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:eo')
+    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:')
     for opt, arg in options:
         if opt == '-r':
             engine_path = arg # set engine_path, depot_tools and flutter engine folder will be put into this path

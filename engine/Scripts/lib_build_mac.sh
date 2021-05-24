@@ -9,24 +9,15 @@ runtime_mode=
 
 echo "setting environment variable and other params..."
 
-while getopts ":r:p:m:eo" opt
+while getopts ":r:m:" opt
 do
     case $opt in
         r)
         engine_path=$OPTARG # set engine_path, depot_tools and flutter engine folder will be put into this path
         ;;
-        p)
-        gn_params="$gn_params --$OPTARG" # set the target platform android/ios
-        ;;
         m)
         runtime_mode=$OPTARG
         gn_params="$gn_params --runtime-mode=$runtime_mode" # set runtime mode release/debug
-        ;;
-        e)
-        gn_params="$gn_params --bitcode" # enable-bitcode switch
-        ;;
-        o)
-        optimize="" # optimize code switch
         ;;
         ?)
         echo "unknown param"

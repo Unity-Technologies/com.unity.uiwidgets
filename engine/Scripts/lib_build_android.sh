@@ -8,7 +8,7 @@ runtime_mode=
 
 
 echo "setting environment variable and other params..."
-while getopts ":r:p:m:eo" opt
+while getopts ":r:p:m:" opt
 do
     case $opt in
         r)
