@@ -47,6 +47,7 @@ def set_params():
     global ninja_params2
     global ninja_params3
     global gn_params
+    global visual_studio_path
 
     print("setting environment variable and other params...")
 
@@ -75,8 +76,6 @@ def set_env_verb():
     global flutter_root_path
     flutter_root_path = os.getenv('FLUTTER_ROOT_PATH', 'null')
     if flutter_root_path == 'null':
-        # command ="setx /M FLUTTER_ROOT_PATH " + engine_path + "/engine/src"
-        # os.system(command)
         os.environ["FLUTTER_ROOT_PATH"] = engine_path + "/engine/src"
         flutter_root_path = os.getenv('FLUTTER_ROOT_PATH')
     else:
