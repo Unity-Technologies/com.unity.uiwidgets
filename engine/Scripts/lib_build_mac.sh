@@ -47,8 +47,8 @@ then
 elif [ "$runtime_mode" == "debug" ];
 then
   optimize="--unoptimized"
-  output_path="host_debug"
-  ninja_params=" -C out/host_debug flutter/third_party/txt:txt_lib"
+  output_path="host_debug_unopt"
+  ninja_params=" -C out/$output_path flutter/third_party/txt:txt_lib"
 elif [ "$runtime_mode" == "profile" ];
 then
   echo "not support profile build yet"

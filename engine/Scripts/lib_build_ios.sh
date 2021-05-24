@@ -53,7 +53,7 @@ then
 elif [ "$runtime_mode" == "debug" ];
 then
   optimize="--unoptimized"
-  output_path="ios_debug"
+  output_path="ios_debug_unopt"
   ninja_params=" -C out/$output_path flutter/third_party/txt:txt_lib"
 elif [ "$runtime_mode" == "profile" ];
 then
@@ -165,6 +165,10 @@ then
   rm -rf build_release/*
   mono bee.exe ios_release
   cp -r build_release/. ../com.unity.uiwidgets/Runtime/Plugins/ios
+  echo "\nStarting prlink library..."
+  cd Scripts/../
+  tundra_file="$work_path/../artifacts/tundra.dag.json"
+  python3 Scripts/prelink.py $tundra_file $runtime_mode $output_path $work_path $bitcode
 elif [ "$runtime_mode" == "debug" ];
 then
   rm -rf build_debug/*
@@ -172,14 +176,12 @@ then
   cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/ios
 fi
 
-echo "\nStarting prlink library..."
-cd Scripts/../
-tundra_file="$work_path/../artifacts/tundra.dag.json"
-python3 Scripts/prelink.py $tundra_file $runtime_mode $output_path $work_path $bitcode
+if [ "$runtime_mode" == "debug" ];
+then
+  echo "\nRevert patches..."
+  cd $FLUTTER_ROOT_PATH/flutter/third_party/txt
+  patch -R < BUILD.gn.patch
 
-echo "\nRevert patches..."
-cd $FLUTTER_ROOT_PATH/flutter/third_party/txt
-patch -R < BUILD.gn.patch
-
-cd $FLUTTER_ROOT_PATH/build/mac
-patch -R < find_sdk.patch
+  cd $FLUTTER_ROOT_PATH/build/mac
+  patch -R < find_sdk.patch
+fi

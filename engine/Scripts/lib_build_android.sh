@@ -2,13 +2,12 @@ work_path=$(pwd)
 engine_path=
 platform=
 gn_params=""
-optimize="--unoptimized"
+optimize=""
 ninja_params=""
 runtime_mode=
 
 
 echo "setting environment variable and other params..."
-
 while getopts ":r:p:m:eo" opt
 do
     case $opt in
@@ -22,37 +21,25 @@ do
         runtime_mode=$OPTARG
         gn_params="$gn_params --runtime-mode=$runtime_mode" # set runtime mode release/debug
         ;;
-        e)
-        gn_params="$gn_params --bitcode" # enable-bitcode switch
-        ;;
-        o)
-        optimize="" # optimize code switch
-        ;;
         ?)
         echo "unknown param"
         exit 1;;
     esac
 done
 
-if [ "$runtime_mode" == "release" ] && [ "$optimize" == "--unoptimized" ];
+if [ "$runtime_mode" == "release" ];
 then
-  output_path="android_release_unopt"
-  ninja_params=" -C out/android_release_unopt flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "release" ] && [ "$optimize" == "" ];
-then
+  optimize=""
   output_path="android_release"
   ninja_params="-C out/android_release flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "--unoptimized" ];
+elif [ "$runtime_mode" == "debug" ];
 then
+  optimize="--unoptimized"
   output_path="android_debug_unopt"
   ninja_params=" -C out/android_debug_unopt flutter/third_party/txt:txt_lib"
-elif [ "$runtime_mode" == "debug" ] && [ "$optimize" == "" ];
-then
-  output_path="android_debug"
-  ninja_params=" -C out/android_debug flutter/third_party/txt:txt_lib"
 elif [ "$runtime_mode" == "profile" ];
 then
-  echo "not support profile build yet"
+  echo "not support profile build"
   exit 1
 fi
 
@@ -163,22 +150,23 @@ if [ "$runtime_mode" == "release" ];
 then
   mono bee.exe android_release
   rm -rf ../com.unity.uiwidgets/Runtime/Plugins/android/libUIWidgets.so
-  cp -r build_release/. ../com.unity.uiwidgets/Runtime/Plugins/android
+
+  mkdir $work_path/../artifacts/rsp/backup
+  cp -f $work_path/../artifacts/rsp/14590475716575637239.rsp $work_path/../artifacts/rsp/backup/14590475716575637239.rsp
+  cd $work_path
+  python -c 'import rsppatch; print rsppatch.rsp_patch()' 
+
+  cd $work_path/../
+  "artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++" @"artifacts/rsp/14590475716575637239.rsp"
+  $FLUTTER_ROOT_PATH/buildtools/mac-x64/clang/bin/clang++ @"artifacts/rsp/14590475716575637239.rsp"
+  cp artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so ../com.unity.uiwidgets/Runtime/Plugins/Android/libUIWidgets.so
+
 elif [ "$runtime_mode" == "debug" ];
 then
   mono bee.exe android_debug
   rm -rf ../com.unity.uiwidgets/Runtime/Plugins/android/libUIWidgets.so
-  cp -r build_release/. ../com.unity.uiwidgets/Runtime/Plugins/android
+  cp -r build_debug/. ../com.unity.uiwidgets/Runtime/Plugins/android
 fi
-
-cd $work_path/../artifacts/rsp
-cp -f $work_path/patches/android/rsp.patch rsp.patch
-patch < rsp.patch -N
-
-cd $work_path/../
-"artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++" @"artifacts/rsp/14590475716575637239.rsp"
-$FLUTTER_ROOT_PATH/buildtools/mac-x64/clang/bin/clang++ @"artifacts/rsp/14590475716575637239.rsp"
-cp artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so ../com.unity.uiwidgets/Runtime/Plugins/Android/libUIWidgets.so 
 
 echo "\nRevert patches..."
 cd $FLUTTER_ROOT_PATH/flutter/third_party/txt
@@ -189,3 +177,11 @@ patch -R < BUILD_2.gn.patch
 
 cd $FLUTTER_ROOT_PATH/build/mac
 patch -R < find_sdk.patch
+
+if [ "$runtime_mode" == "release" ];
+then
+  rm -rf $work_path/../artifacts/rsp/14590475716575637239.rsp
+  cp -f $work_path/../artifacts/rsp/backup/14590475716575637239.rsp $work_path/../artifacts/rsp/14590475716575637239.rsp
+  rm -rf $work_path/../artifacts/rsp/backup
+  echo "rsp reverted"
+fi
