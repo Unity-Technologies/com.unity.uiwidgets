@@ -401,8 +401,7 @@ namespace Unity.UIWidgets.editor {
                         physicalY: evt.mousePosition.y * this._devicePixelRatio
                     );
                 }
-                else if (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp ||
-                        evt.type == EventType.DragExited || evt.type == EventType.MouseLeaveWindow) {
+                else if (evt.type == EventType.MouseUp || evt.rawType == EventType.MouseUp || evt.type == EventType.MouseLeaveWindow) {
                     pointerData = new PointerData(
                         timeStamp: Timer.timespanSinceStartup,
                         change: PointerChange.up,
@@ -450,7 +449,7 @@ namespace Unity.UIWidgets.editor {
                         physicalY: evt.mousePosition.y * this._devicePixelRatio
                     );
                 }
-                else if (evt.type == EventType.DragPerform) {
+                else if (evt.type == EventType.DragPerform || evt.type == EventType.DragExited) {
                     pointerData = new PointerData(
                         timeStamp: Timer.timespanSinceStartup,
                         change: PointerChange.dragFromEditorRelease,
