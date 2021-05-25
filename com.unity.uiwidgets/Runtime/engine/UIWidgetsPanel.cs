@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.UIWidgets.engine;
-using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -368,6 +366,14 @@ namespace Unity.UIWidgets.engine {
                     }
                 }
             }
+            
+#if UNITY_ANDROID && !UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Escape)) {
+                using (Isolate.getScope(anyIsolate)) {
+                    WidgetsBinding.instance.handlePopRoute();
+                }
+            }
+#endif
         }
 
         void Input_OnGUI() {
