@@ -109,7 +109,6 @@ def set_params():
         optimize="--unoptimized"
         output_path="ios_debug_unopt"
     else:
-        print(runtime_mode + "\t" + platform)
         assert False, "In func set_params(), unknown param"
 
     ninja_params=" -C out/" + output_path + " flutter/third_party/txt:txt_lib"
@@ -124,7 +123,6 @@ def set_env_verb():
     else:
         print("This environment variable has been set, skip")
     env_path = os.getenv('PATH')
-    print(env_path)
     path_strings = env_path.split(';')
     for path in path_strings:
         if path.startswith(engine_path):
@@ -147,7 +145,6 @@ def get_flutter_engine():
     global engine_path
     global flutter_root_path
     print("\nGetting flutter engine...")
-    print(Path(engine_path + "/engine"))
     if not os.path.exists(Path(engine_path + "/engine")):
         os.makedirs(Path(engine_path + "/engine"))
 
@@ -193,6 +190,10 @@ def compile_engine():
         copy_file(Path(work_path + "/patches/find_sdk.patch"), Path(flutter_root_path + "/build/mac"))
         os.system("patch < find_sdk.patch -N")
     elif platform == "android":
+        os.chdir(Path(flutter_root_path + "/build/mac"))
+        copy_file(Path(work_path + "/patches/find_sdk.patch"), Path(flutter_root_path + "/build/mac"))
+        os.system("patch < find_sdk.patch -N")
+
         os.chdir(Path(flutter_root_path + "/build/secondary/third_party/libcxxabi"))
         copy_file(Path(work_path + "/patches/android/BUILD_2.gn.patch"), Path(flutter_root_path + "/build/secondary/third_party/libcxxabi"))
         os.system("patch < BUILD_2.gn.patch -N")
@@ -259,13 +260,14 @@ def build_engine():
             os.system("mono bee.exe " + platform +"_release")
             copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
             if platform == "android":
-                os.makedirs(Path(work_path + "/../artifacts/rsp/backup"))
+                if not os.path.exists(Path(work_path + "/../artifacts/rsp/backup")):
+                    os.makedirs(Path(work_path + "/../artifacts/rsp/backup"))
                 copy_file(Path(work_path + "/../artifacts/rsp/14590475716575637239.rsp"), Path(work_path + "/../artifacts/rsp/backup/14590475716575637239.rsp"))
                 os.chdir(Path(work_path))
                 rsp_patch()
                 os.chdir(Path(work_path + "/../"))
-                os.system(Path(work_path + "/../artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++") + " @" + Path(work_path + "/../artifacts/rsp/14590475716575637239.rsp"))
-                os.system(Path(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++") + " @" + Path(work_path + "/../artifacts/rsp/14590475716575637239.rsp"))
+                os.system(work_path + "/../artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " "@\"artifacts/rsp/14590475716575637239.rsp\"")
+                os.system(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++ " + "@\"artifacts/rsp/14590475716575637239.rsp\"")
                 copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android/libUIWidgets.so"))
             elif platform == "ios":
                 print("\nStarting prlink library...")
@@ -279,6 +281,11 @@ def build_engine():
         else:
             os.system("mono bee.exe " + platform +"_debug")
         copy_file(Path(work_path + "/../build_debug/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+        if platform == "ios":
+            print("\nStarting prlink library...")
+            os.chdir(Path(work_path + "/../"))
+            tundra_file=Path(work_path + "/../artifacts/tundra.dag.json")
+            prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode)
 
 def revert_patches():
     global flutter_root_path
@@ -295,6 +302,9 @@ def revert_patches():
             if os.path.exists(Path(work_path + "/bitcode.conf")):
                 os.remove("bitcode.conf")
     elif platform == "android":
+        os.chdir(Path(flutter_root_path + "/build/mac"))
+        os.system("patch -R < find_sdk.patch")
+
         os.chdir(Path(flutter_root_path + "/build/secondary/third_party/libcxxabi"))
         os.system("patch -R < BUILD_2.gn.patch")
     elif platform == "windows":
@@ -323,7 +333,7 @@ def copy_file(source_path, target_path):
 def rsp_patch():
     global work_path
     file_data = ""
-    file = Path(work_path + "../artifacts/rsp/14590475716575637239.rsp")
+    file = Path(work_path + "/../artifacts/rsp/14590475716575637239.rsp")
     old_str = ',--icf-iterations=5'
     with open(file, "r") as f:
         for line in f:
@@ -361,13 +371,13 @@ def prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode):
     if not target_files:
         print("get prelink xxx.o files failed")
     else:
-        os.system('nm -j ' + Path(flutter_root_path + '/out/' + output_path + '/obj/flutter/third_party/txt/libtxt_lib.a') +' > third.symbol')
+        os.system('nm -j ' + flutter_root_path + '/out/' + output_path + '/obj/flutter/third_party/txt/libtxt_lib.a > third.symbol')
         xcode_path = get_xcode_path().strip()
-        os.system('\"' + Path(xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld')+ '\" -r -arch arm64 ' + bitcode + ' -syslibroot ' + Path(xcode_path + '/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk') + ' -unexported_symbols_list third.symbol ' + target_files + ' ' + Path(flutter_root_path + '/out/' + output_path + '/obj/flutter/third_party/txt/libtxt_lib.a') + ' -o "libUIWidgets.o"')
-        os.system('\"' + Path(xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool') + '\" -arch_only arm64 -static "libUIWidgets.o" -o "libUIWidgets.a"')
-        os.system('\"' + Path(xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip') + '\" -x "libUIWidgets.a"')
-        os.system('cp -r libUIWidgets.a ' + '../com.unity.uiwidgets/Runtime/Plugins/ios/libUIWidgets.a')
+        os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -r -arch arm64 ' + bitcode + ' -syslibroot ' + xcode_path + '/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -unexported_symbols_list third.symbol ' + target_files + ' ' + flutter_root_path + '/out/' + output_path + '/obj/flutter/third_party/txt/libtxt_lib.a -o "libUIWidgets.o"')
+        os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool" -arch_only arm64 -static "libUIWidgets.o" -o "libUIWidgets.a"')
+        os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" -x "libUIWidgets.a"')
         copy_file(Path(work_path + "/../libUIWidgets.a"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/ios/libUIWidgets.a"))
+
 def main():
     get_opts()
     engine_path_check()
