@@ -123,13 +123,14 @@ def set_env_verb():
         flutter_root_path = os.getenv('FLUTTER_ROOT_PATH')
     else:
         print("This environment variable has been set, skip")
-    env_path = os.getenv('Path')
+    env_path = os.getenv('PATH')
+    print(env_path)
     path_strings = env_path.split(';')
     for path in path_strings:
         if path.startswith(engine_path):
             print("This environment variable has been set, skip")
             return
-    os.environ["Path"] = engine_path + "/depot_tools;" + os.environ["Path"]
+    os.environ["PATH"] = engine_path + "/depot_tools;" + os.environ["PATH"]
 
 def get_depot_tools():
     print("\nGetting Depot Tools...")
