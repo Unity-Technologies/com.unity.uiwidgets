@@ -439,6 +439,9 @@ namespace Unity.UIWidgets.scheduler {
         
         static readonly TimeSpan _coolDownDelay = new TimeSpan(0, 0, 0, 0, 200);
         static Timer frameCoolDownTimer = null;
+        
+        //disable auto adjust framerate by default
+        public static bool MEnableAutoAdjustFramerate = false;
 
         public void scheduleFrame() {
             if (hasScheduledFrame || !framesEnabled) {
@@ -457,6 +460,14 @@ namespace Unity.UIWidgets.scheduler {
             Window.instance.scheduleFrame();
             hasScheduledFrame = true;
 
+            adjustFrameRate();
+        }
+
+        void adjustFrameRate() {
+            if (!MEnableAutoAdjustFramerate) {
+                return;
+            }
+            
             onFrameRateSpeedUp();
             frameCoolDownTimer?.cancel();
             frameCoolDownTimer = Timer.create(_coolDownDelay,
@@ -467,8 +478,8 @@ namespace Unity.UIWidgets.scheduler {
             );
         }
         
-        public const int defaultMaxRenderFrameInterval = 200;
-        public const int defaultMinRenderFrameInterval = 1;
+        const int defaultMaxRenderFrameInterval = 200;
+        const int defaultMinRenderFrameInterval = 1;
         
         void onFrameRateSpeedUp() {
             OnDemandRendering.renderFrameInterval = defaultMinRenderFrameInterval;
@@ -498,6 +509,8 @@ namespace Unity.UIWidgets.scheduler {
             ensureFrameCallbacksRegistered();
             Window.instance.scheduleFrame();
             hasScheduledFrame = true;
+
+            adjustFrameRate();
         }
 
         public void scheduleWarmUpFrame() {
