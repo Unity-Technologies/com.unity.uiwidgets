@@ -181,15 +181,19 @@ def compile_engine():
 
     print("\nSCompiling engine...")
 
-    os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
-    copy_file(Path(work_path + "/patches/BUILD.gn.patch"), Path(flutter_root_path + "/flutter/third_party/txt"))
-    os.system("patch < BUILD.gn.patch -N")
-
     if platform == "ios" or platform == "mac":
+        os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
+        copy_file(Path(work_path + "/patches/BUILD.gn.patch"), Path(flutter_root_path + "/flutter/third_party/txt"))
+        os.system("patch < BUILD.gn.patch -N")
+
         os.chdir(Path(flutter_root_path + "/build/mac"))
         copy_file(Path(work_path + "/patches/find_sdk.patch"), Path(flutter_root_path + "/build/mac"))
         os.system("patch < find_sdk.patch -N")
     elif platform == "android":
+        os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
+        copy_file(Path(work_path + "/patches/android/BUILD.gn.patch"), Path(flutter_root_path + "/flutter/third_party/txt"))
+        os.system("patch < BUILD.gn.patch -N")
+        
         os.chdir(Path(flutter_root_path + "/build/mac"))
         copy_file(Path(work_path + "/patches/find_sdk.patch"), Path(flutter_root_path + "/build/mac"))
         os.system("patch < find_sdk.patch -N")
@@ -198,6 +202,10 @@ def compile_engine():
         copy_file(Path(work_path + "/patches/android/BUILD_2.gn.patch"), Path(flutter_root_path + "/build/secondary/third_party/libcxxabi"))
         os.system("patch < BUILD_2.gn.patch -N")
     elif platform == "windows":
+        os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
+        copy_file(Path(work_path + "/patches/BUILD.gn.patch"), Path(flutter_root_path + "/flutter/third_party/txt"))
+        os.system("patch < BUILD.gn.patch -N")
+
         os.chdir(Path(flutter_root_path + "/third_party/angle"))
         copy_file(Path(work_path + "/patches/windows/BUILD.gn.patch"), Path(flutter_root_path + "/third_party/angle"))
         os.system("patch < BUILD.gn.patch -N")
@@ -246,13 +254,16 @@ def build_engine():
         dest_folder = "osx"
     elif platform == "android":
         dest_folder = "android"
+        os.chdir(work_path + "/../")
+        os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm")
     elif platform == "ios":
         dest_folder = "ios"
     if not os.path.exists(Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder)):
         os.makedirs(Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
     os.chdir(Path(work_path + "/../"))
     if runtime_mode == "release":
-        os.system("rm -rf build_release/*")
+        if os.path.exists(Path(work_path + "/../build_release")):
+            shutil.rmtree(Path(work_path + "/../build_release"))
         if platform == "windows":
             os.system("bee.exe win_release")
             copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
@@ -266,16 +277,16 @@ def build_engine():
                 os.chdir(Path(work_path))
                 rsp_patch()
                 os.chdir(Path(work_path + "/../"))
-                os.system(work_path + "/../artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " "@\"artifacts/rsp/14590475716575637239.rsp\"")
+                os.system("artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " "@\"artifacts/rsp/14590475716575637239.rsp\"")
                 os.system(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++ " + "@\"artifacts/rsp/14590475716575637239.rsp\"")
-                copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android/libUIWidgets.so"))
+                copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
             elif platform == "ios":
                 print("\nStarting prlink library...")
                 os.chdir(Path(work_path + "/../"))
                 tundra_file=Path(work_path + "/../artifacts/tundra.dag.json")
                 prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode)
     elif runtime_mode == "debug":
-        os.system("rm -rf build_debug/*")
+        shutil.rmtree(Path(work_path + "/../build_debug"))
         if platform == "windows":
             os.system("bee.exe win_debug")
         else:
