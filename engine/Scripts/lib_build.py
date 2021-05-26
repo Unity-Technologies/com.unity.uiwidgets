@@ -39,15 +39,15 @@ def get_opts():
         elif opt == '-p':
             platform = arg
             if platform == "android" or platform == "ios":
-                gn_params += gn_params + " --" + arg # set the target platform android/ios
+                gn_params +=  " --" + arg # set the target platform android/ios
         elif opt == '-m':
             runtime_mode = arg
-            gn_params += gn_params + " --runtime-mode=" + runtime_mode # set runtime mode release/debug
+            gn_params +=  " --runtime-mode=" + runtime_mode # set runtime mode release/debug
         elif opt == '-v':
             visual_studio_path = arg
         elif opt == '-e':
             bitcode="-bitcode_bundle -bitcode_verify"
-            gn_params = gn_params + " --bitcode" # enable-bitcode switch
+            gn_params += " --bitcode" # enable-bitcode switch
         elif opt in ("-h","--help"):
             show_help()
             sys.exit()
@@ -227,10 +227,23 @@ def compile_engine():
     os.chdir(Path(flutter_root_path))
     os.system("python ./flutter/tools/gn " + gn_params)
 
-    if platform == "mac" or platform == "ios":
+    if platform == "mac":
         f = open(Path(flutter_root_path + "/out/" + output_path + "/args.gn"), 'a')
-        f.write("icu_use_data_file=false")
+        f.write("icu_use_data_file = false")
         f.close()
+        os.system("ninja " + ninja_params)
+    elif platform == "ios":
+        old_str = "bitcode_marker = true"
+        new_str = "bitcode_marker = false"
+        file_data = ""
+        with open(Path(flutter_root_path + "/out/" + output_path + "/args.gn"), "r") as f:
+            for line in f:
+                if old_str in line:
+                    line = line.replace(old_str,new_str)
+                file_data += line
+            file_data += "icu_use_data_file = false"
+        with open(Path(flutter_root_path + "/out/" + output_path + "/args.gn"),"w") as f:
+            f.write(file_data)
         os.system("ninja " + ninja_params)
     elif platform == "windows":
         f = open(Path(flutter_root_path + "/out/" + output_path + "/args.gn"), 'a')
@@ -420,7 +433,7 @@ usage:
 
 optional arguments:
     -h, --help        show this help message and exit.
-    -e                enable bitcode for ios targets. On debug runtime modes, this will be a marker only.
+    -e                enable bitcode for ios targets.
     -v                show the visual studio path, flutter could find some SDKs by this path. 
 '''
     print(help_note)
