@@ -29,7 +29,10 @@ def get_opts():
     global visual_studio_path
     global platform
 
-    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:e')
+    if len(sys.argv) < 2:
+        show_help()
+        sys.exit()
+    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:eh',["help"])
     for opt, arg in options:
         if opt == '-r':
             engine_path = arg # set engine_path, depot_tools and flutter engine folder will be put into this path
@@ -45,6 +48,9 @@ def get_opts():
         elif opt == '-e':
             bitcode="-bitcode_bundle -bitcode_verify"
             gn_params = gn_params + " --bitcode" # enable-bitcode switch
+        elif opt in ("-h","--help"):
+            show_help()
+            sys.exit()
         
 def engine_path_check():
     global engine_path
@@ -271,14 +277,16 @@ def build_engine():
             os.system("mono bee.exe " + platform +"_release")
             copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
             if platform == "android":
+                tundra_file=Path(work_path + "/../artifacts/tundra.dag.json")
+                rsp = get_rsp(tundra_file, runtime_mode)
                 if not os.path.exists(Path(work_path + "/../artifacts/rsp/backup")):
                     os.makedirs(Path(work_path + "/../artifacts/rsp/backup"))
-                copy_file(Path(work_path + "/../artifacts/rsp/14590475716575637239.rsp"), Path(work_path + "/../artifacts/rsp/backup/14590475716575637239.rsp"))
+                copy_file(Path(work_path + "/../" + rsp), Path(work_path + "/../artifacts/rsp/backup"))
                 os.chdir(Path(work_path))
                 rsp_patch()
                 os.chdir(Path(work_path + "/../"))
-                os.system("artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " "@\"artifacts/rsp/14590475716575637239.rsp\"")
-                os.system(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++ " + "@\"artifacts/rsp/14590475716575637239.rsp\"")
+                os.system("artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " + "@\"" + rsp + "\"")
+                os.system(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++ " + "@\"" + rsp + "\"")
                 copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
             elif platform == "ios":
                 print("\nStarting prlink library...")
@@ -389,6 +397,34 @@ def prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode):
         os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool" -arch_only arm64 -static "libUIWidgets.o" -o "libUIWidgets.a"')
         os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" -x "libUIWidgets.a"')
         copy_file(Path(work_path + "/../libUIWidgets.a"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/ios/libUIWidgets.a"))
+
+def get_rsp(tundra_file, runtime_mode):
+    if not os.path.exists(tundra_file):
+        print('tundra.dag.json file not found')
+        return None
+    with open(tundra_file, 'r') as f:
+        temp = json.loads(f.read())
+        json_list = temp['Nodes']
+        target_files=''
+        for item in json_list:
+            if item['Annotation'].startswith('Link_Android_arm32') and item['Annotation'].find(runtime_mode) != -1:
+                action_list = item['Inputs']
+                for o in action_list:
+                    if o.endswith('.rsp'):
+                        return o
+
+def show_help():
+    help_note = '''
+usage:
+    python3 lib_build.py <-p <android|ios|windows|mac>> <-r <engine_path>> <-m <debug|release>> [-v [visual_studio_path]] [-e] [-h] [--help]
+
+optional arguments:
+    -h, --help        show this help message and exit.
+    -e                enable bitcode for ios targets. On debug runtime modes, this will be a marker only.
+    -v                show the visual studio path, flutter could find some SDKs by this path. 
+'''
+    print(help_note)
+
 
 def main():
     get_opts()
