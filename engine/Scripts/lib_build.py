@@ -47,10 +47,11 @@ def get_opts():
             visual_studio_path = arg
         elif opt == '-e':
             bitcode="-bitcode_bundle -bitcode_verify"
-            gn_params += " --bitcode" # enable-bitcode switch
         elif opt in ("-h","--help"):
             show_help()
             sys.exit()
+    if platform == "ios":
+        gn_params += " --bitcode" # enable-bitcode switch
         
 def engine_path_check():
     global engine_path
@@ -428,13 +429,33 @@ def get_rsp(tundra_file, runtime_mode):
 
 def show_help():
     help_note = '''
-usage:
-    python3 lib_build.py <-p <android|ios|windows|mac>> <-r <engine_path>> <-m <debug|release>> [-v [visual_studio_path]] [-e] [-h] [--help]
+SYNOPSIS
+    python3 lib_build.py <-p <android|ios|windows|mac>> <-r <engine_path>> <-m <debug|release>> [-v [visual_studio_path]] [-e] [-h] [--help].
 
-optional arguments:
-    -h, --help        show this help message and exit.
-    -e                enable bitcode for ios targets.
-    -v                show the visual studio path, flutter could find some SDKs by this path. 
+NOTION
+    python3 is required to run this script. For windows, visual studio 2017 need to be installed. For mac, Xcode need to be installed and Mac version should be 10 or 11.
+    You can build for mac/ios/android platforms on Mac. You can only build for windows platform on Windows
+
+DESCRIPTION
+    lib_build.py will setup the build environment and build UIWidgets' engine.
+
+    The following options are available:
+
+    required parameters:
+
+    -p                Target platform, available values: android, windows, mac, ios
+
+    -m                Build mode, available values: debug, release
+
+    -r                The build target directory, third party dependencies (e.g., flutter engine) will be downloaded and built here
+
+    optional parameters:
+
+    -h, --help        Show this help message
+
+    -e                Enable bitcode for ios targets and can only be used when "-p ios" is specified
+
+    -v                The visual studio path in your PC, e.g., "C:\Program Files (x86)/Microsoft Visual Studio/2017/Community". It is required if "-p window" is specified
 '''
     print(help_note)
 
