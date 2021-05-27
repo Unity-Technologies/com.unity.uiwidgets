@@ -16,5 +16,5 @@ do
     esac
 done
 
-python3 lib_build.py -r $engine_path -p ios -m $runtime_mode
+python3 lib_build.py -r $engine_path -m $runtime_mode -p ios -e
 
