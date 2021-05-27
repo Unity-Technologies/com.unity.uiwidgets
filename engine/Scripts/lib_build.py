@@ -297,7 +297,7 @@ def build_engine():
                     os.makedirs(Path(work_path + "/../artifacts/rsp/backup"))
                 copy_file(Path(work_path + "/../" + rsp), Path(work_path + "/../artifacts/rsp/backup"))
                 os.chdir(Path(work_path))
-                rsp_patch()
+                rsp_patch(rsp)
                 os.chdir(Path(work_path + "/../"))
                 os.system("artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " + "@\"" + rsp + "\"")
                 os.system(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++ " + "@\"" + rsp + "\"")
@@ -364,10 +364,10 @@ def copy_file(source_path, target_path):
                     shutil.copy(src_file, target_path)
     
 
-def rsp_patch():
+def rsp_patch(rsp_path):
     global work_path
     file_data = ""
-    file = Path(work_path + "/../artifacts/rsp/14590475716575637239.rsp")
+    file = Path(work_path + "/../" + rsp_path)
     old_str = ',--icf-iterations=5'
     with open(file, "r") as f:
         for line in f:
