@@ -50,7 +50,7 @@ def get_opts():
         elif opt in ("-h","--help"):
             show_help()
             sys.exit()
-    if platform == "ios":
+    if platform == "ios" and bitcode == "-bitcode_bundle -bitcode_verify":
         gn_params += " --bitcode" # enable-bitcode switch
         
 def engine_path_check():
