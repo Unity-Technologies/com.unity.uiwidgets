@@ -213,6 +213,10 @@ want to show the status bar in your App, you can disable```Start in fullscreen``
 #### Image Import Setting
 Please put images under StreamingAssets folder, a and loading it using ```Image.file```.
 
+#### Auto Framerate Adjustment
+You can enable this feature by setting ```SchedulerBinding.MEnableAutoAdjustFramerate = true``` in your project, which will automatically drop the frame rate of your App to 0 if the UI contents of UIWidgetsPanel is not changed for some time. This will help to prevent battery drain on mobile devices significantly. 
+
+Note that this feature is disabled by default though.
 
 ## Debug UIWidgets Application
 

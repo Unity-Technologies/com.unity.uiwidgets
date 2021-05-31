@@ -202,6 +202,9 @@ UIWidgets也支持Gif！
 #### 七、图片导入设置
 请将图片放入StreamingAssets下，而后用```Image.file```读取
 
+#### 八、自动降低帧率
+目前在默认情况下，为了保证流畅度，项目在各个平台上均会以最高的刷新频率运行。不过您可以通过在代码中设置```SchedulerBinding.MEnableAutoAdjustFramerate = true```的方式来开启自动降帧的功能：该功能开启后，在UI内容不变的情况下我们将降低项目的刷新率来降低耗电。
+
 
 ## 调试UIWidgets应用程序
 
