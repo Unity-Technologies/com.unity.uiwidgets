@@ -52,7 +52,13 @@ https://github.com/UnityTech/DocCN 查看。
 
 #### Unity
 
-安装 **Unity 2019.4.25f1c2**（_unityhub://2019.4.25f1c2/44dea2b5e6e6_）或 **Unity 2019.4.26f1c1**。 你可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
+UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
+
+| UIWidgets 版本     |  Unity 2019 LTS  |  Unity 2020 LTS  | 
+| -----------------------------------------------| ------------------------- | ------------------------- |
+| 1.5.4 及以下     | 2019.4.10f1 及以上  | N\A |
+| 2.0.1   | 2019.4.26f1c1  | N\A |
+| 2.0.2 及以上   | 2019.4.26f1c1 及以上 | N\A |
 
 #### UIWidgets包
 
@@ -195,6 +201,9 @@ UIWidgets也支持Gif！
 
 #### 七、图片导入设置
 请将图片放入StreamingAssets下，而后用```Image.file```读取
+
+#### 八、自动降低帧率
+目前在默认情况下，为了保证流畅度，项目在各个平台上均会以最高的刷新频率运行。不过您可以通过在代码中设置```SchedulerBinding.MEnableAutoAdjustFramerate = true```的方式来开启自动降帧的功能：该功能开启后，在UI内容不变的情况下我们将降低项目的刷新率来降低耗电。
 
 
 ## 调试UIWidgets应用程序

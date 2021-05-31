@@ -61,7 +61,13 @@ open-sourced @https://github.com/UnityTech/DocCN.
 
 #### Unity
 
-Install **Unity 2019.4.25f1c2** (_unityhub://2019.4.25f1c2/44dea2b5e6e6_) or **Unity 2019.4.26f1c1**. You can download the latest Unity on https://unity3d.com/get-unity/download.
+The compatible Unity versions for each UIWidgets release are listed below. You can download the latest Unity on https://unity3d.com/get-unity/download.
+
+| UIWidgets version     |  Unity 2019 LTS  |  Unity 2020 LTS  | 
+| -----------------------------------------------| ------------------------- | ------------------------- |
+| 1.5.4 and below     | 2019.4.10f1 and above  | N\A |
+| 2.0.1   | 2019.4.26f1c1  | N\A |
+| 2.0.2 and above   | 2019.4.26f1c1 and above | N\A |
 
 #### UIWidgets Package
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
@@ -207,6 +213,10 @@ want to show the status bar in your App, you can disable```Start in fullscreen``
 #### Image Import Setting
 Please put images under StreamingAssets folder, a and loading it using ```Image.file```.
 
+#### Automatic Framerate Adjustment
+You can enable this feature by setting ```SchedulerBinding.MEnableAutoAdjustFramerate = true``` in your project, which will automatically drop the frame rate of your App to 0 if the UI contents of UIWidgetsPanel is not changed for some time. This will help to prevent battery drain on mobile devices significantly. 
+
+Note that this feature is disabled by default though.
 
 ## Debug UIWidgets Application
 
