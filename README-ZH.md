@@ -52,7 +52,13 @@ https://github.com/UnityTech/DocCN 查看。
 
 #### Unity
 
-安装 **Unity 2019.4.25f1c2**（_unityhub://2019.4.25f1c2/44dea2b5e6e6_）或 **Unity 2019.4.26f1c1**。 你可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
+UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
+
+| UIWidgets 版本     |  Unity 2019 LTS  |  Unity 2020 LTS  | 
+| -----------------------------------------------| ------------------------- | ------------------------- |
+| 1.5.4 及以下     | 2019.4.10f1 及以上  | N\A |
+| 2.0.1   | 2019.4.26f1c1  | N\A |
+| 2.0.2   | 2019.4.26f1c1 及以上 | N\A |
 
 #### UIWidgets包
 

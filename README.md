@@ -63,11 +63,11 @@ open-sourced @https://github.com/UnityTech/DocCN.
 
 The compatible Unity versions of each UIWidgets release are listed below. You can download the latest Unity on https://unity3d.com/get-unity/download.
 
-| UIWidgets Version     | Unity 2019 LTS  |  Unity 2020 LTS |
-| :-----------------------------------------------| ---------------------: |
-| 1.5.4 and below     |  2019.4.10f1 and above  |  NA  |
-| 2.0.1               |  2019.4.26f1c1  |  NA  |
-| 2.0.2               |  2019.4.26f1c1 and above |  NA  |
+| UIWidgets version     |  Unity 2019 LTS  |  Unity 2020 LTS  | 
+| -----------------------------------------------| ------------------------- | ------------------------- |
+| 1.5.4 and below     | 2019.4.10f1 and above  | N\A |
+| 2.0.1   | 2019.4.26f1c1  | N\A |
+| 2.0.2   | 2019.4.26f1c1 and above | N\A |
 
 #### UIWidgets Package
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
