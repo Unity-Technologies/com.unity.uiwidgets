@@ -10,7 +10,6 @@ Major changes are as follows:
 
 ### Fixes
 - Android return button support [\#168](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/168)
-- 
 
 ### New Features
 - Add engine compilation scripts [\#170](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/170)
