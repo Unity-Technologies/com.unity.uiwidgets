@@ -1,5 +1,5 @@
 test_editors:
-  - version: 51fe52edbb02
+  - version: 2b8c080c2117
 test_platforms:
   - name: win
     type: Unity::VM
