@@ -4,6 +4,20 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.2-preview.1] - 2021-05-31
+
+Major changes are as follows:
+
+### Fixes
+- Android return button support [\#168](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/168)
+- 
+
+### New Features
+- Add engine compilation scripts [\#170](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/170)
+- On demand rendering support [\#166](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/166)
+- [Breaking Changes] Use CreateExternalTexture API to share textures on Windows [\#153](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/153)
+
+
 ## [2.0.1-preview.1] - 2021-05-18
 
 #### In this release we mainly focus on the optimization and stabilization of the framework. 
