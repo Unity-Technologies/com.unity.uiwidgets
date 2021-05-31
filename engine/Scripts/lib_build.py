@@ -122,6 +122,7 @@ def set_params():
     gn_params=gn_params + " " + optimize
 
 def set_env_verb():
+    global platform
     global flutter_root_path
     flutter_root_path = os.getenv('FLUTTER_ROOT_PATH', 'null')
     if flutter_root_path == 'null':
@@ -135,7 +136,10 @@ def set_env_verb():
         if path.startswith(engine_path):
             print("This environment variable has been set, skip")
             return
-    os.environ["PATH"] = engine_path + "/depot_tools;" + os.environ["PATH"]
+    if platform == "windows":
+        os.environ["PATH"] = engine_path + "/depot_tools;" + os.environ["PATH"]
+    else:
+        os.environ["PATH"] = engine_path + "/depot_tools:" + os.environ["PATH"]
 
 def get_depot_tools():
     print("\nGetting Depot Tools...")
