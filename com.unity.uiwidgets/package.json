@@ -4,6 +4,9 @@
 	"version": "2.0.2-preview.1",
 	"unity": "2019.4",
 	"description": "UIWidgets allows you to build beautiful cross-platform apps through Unity",
+	"documentationUrl" : "https://docs.unity.cn/cn/Packages-cn/com.unity.uiwidgets@2.0/cn/manual/GetStarted.html",
+	"changelogUrl" : "https://github.com/Unity-Technologies/com.unity.uiwidgets/blob/master/com.unity.uiwidgets/CHANGELOG.md",
+	"licensesUrl" : "https://github.com/Unity-Technologies/com.unity.uiwidgets/blob/master/com.unity.uiwidgets/LICENSE.md",
 	"dependencies": {
 	}
 }
