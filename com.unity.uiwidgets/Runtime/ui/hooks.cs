@@ -12,10 +12,11 @@ namespace Unity.UIWidgets.ui {
     public static class Hooks {
         
         static bool hooked = false;
+
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
 #else
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 #endif
         static unsafe void hook() {
             D.assert(!hooked);
@@ -34,6 +35,7 @@ namespace Unity.UIWidgets.ui {
                 ui_._dispatchPlatformMessage,
                 ui_._dispatchPointerDataPacket);
         }
+
         
         public static void tryHook() {
             if (hooked) {
