@@ -5,6 +5,7 @@ import sys
 import getopt
 import shutil
 import json
+import re
 
 work_path=os.getcwd()
 engine_path=""
@@ -131,9 +132,9 @@ def set_env_verb():
     else:
         print("This environment variable has been set, skip")
     env_path = os.getenv('PATH')
-    path_strings = env_path.split(';')
+    path_strings = re.split("[;:]", env_path)
     for path in path_strings:
-        if path.startswith(engine_path):
+        if path.endswith("depot_tools"):
             print("This environment variable has been set, skip")
             return
     if platform == "windows":
@@ -150,7 +151,7 @@ def get_depot_tools():
     else:
         os.chdir(engine_path)
         os.system("git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git")
-        os.system("gclient")
+        os.system("gclient sync")
 
 def get_flutter_engine():
     global engine_path
@@ -413,7 +414,8 @@ def prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode):
         xcode_path = get_xcode_path().strip()
         os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld" -r -arch arm64 ' + bitcode + ' -syslibroot ' + xcode_path + '/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk -unexported_symbols_list third.symbol ' + target_files + ' ' + flutter_root_path + '/out/' + output_path + '/obj/flutter/third_party/txt/libtxt_lib.a -o "libUIWidgets.o"')
         os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool" -arch_only arm64 -static "libUIWidgets.o" -o "libUIWidgets.a"')
-        os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" -x "libUIWidgets.a"')
+        if runtime_mode == "release":
+            os.system('\"' + xcode_path + '/Toolchains/XcodeDefault.xctoolchain/usr/bin/strip" -x "libUIWidgets.a"')
         copy_file(Path(work_path + "/../libUIWidgets.a"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/ios/libUIWidgets.a"))
 
 def get_rsp(tundra_file, runtime_mode):
