@@ -6,7 +6,7 @@ using Rect = Unity.UIWidgets.ui.Rect;
 namespace Unity.UIWidgets.rendering {
     public class TextureBox : RenderBox {
 
-        public TextureBox(int textureId) {
+        public TextureBox(int? textureId) {
             _textureId = textureId;
         }
 

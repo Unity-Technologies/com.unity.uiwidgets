@@ -5,9 +5,12 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using FontStyle = Unity.UIWidgets.ui.FontStyle;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
+using Texture = Unity.UIWidgets.widgets.Texture;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample
@@ -58,11 +61,13 @@ namespace UIWidgetsSample
 
             public override Widget build(BuildContext context)
             {
+                var text = GameObject.Find("CameraTarget")?.GetComponent<UnityEngine.UI.RawImage>()?.texture;
                 return new Container(
                     child: new Column(
                         children: new List<Widget>
                         {
                             AnimatedLottie.file("wine.json", frame: frame, curve: Curves.linear),
+                            new Container(width: 100, height: 100, child:new Texture(texture: text)),
                             new Container(
                                 width: 100,
                                 height: 100,
