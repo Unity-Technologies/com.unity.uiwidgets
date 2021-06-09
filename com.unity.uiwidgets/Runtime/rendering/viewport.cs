@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using uiwidgets;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -9,6 +10,7 @@ using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
+using TextStyle = Unity.UIWidgets.ui.TextStyle;
 
 namespace Unity.UIWidgets.rendering {
     public enum CacheExtentStyle {
@@ -53,6 +55,15 @@ namespace Unity.UIWidgets.rendering {
         }
     }
 
+    public class GlobalValue {
+        public static int x;
+        public static DateTime? pre;
+        public static DateTime? cur;
+        public static LinkedList<double> frameRates = new LinkedList<double>();
+        public static DateTime? playerPre;
+        public static DateTime? playerCur;
+        public static LinkedList<double> playerFrameRates = new LinkedList<double>();
+    }
     public abstract class RenderViewportBase<ParentDataClass> :
         ContainerRenderObjectMixinRenderBox<RenderSliver, ParentDataClass>,
         RenderAbstractViewport
@@ -348,12 +359,54 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
+        int a = 0;
+        
         public void _paintContents(PaintingContext context, Offset offset) {
             foreach (RenderSliver child in childrenInPaintOrder) {
                 if (child.geometry.visible) {
                     context.paintChild(child, offset + paintOffsetOf(child));
                 }
             }
+
+            
+            a++;
+            var p = new Paint();
+            p.color = Colors.blue;
+            for (int i = 0; i < a%10; i++) {
+                context.canvas.drawRect(Rect.fromLTRB(i * 20, 0, i * 20 + 10, 50), p );
+            }
+            p.color = Colors.red;
+            for (int i = 0; i < GlobalValue.x%10; i++) {
+                context.canvas.drawRect(Rect.fromLTRB(i * 20, 50, i * 20 + 10, 100), p );
+            }
+
+            if (GlobalValue.cur != null && GlobalValue.pre != null) {
+                var pr = new ParagraphBuilder(new ParagraphStyle(
+                    textDirection: TextDirection.ltr,
+                    textAlign: TextAlign.left
+                ));
+                var seconds = (GlobalValue.cur.Value - GlobalValue.pre.Value).TotalSeconds;
+                pr.pushStyle(new TextStyle(color: Colors.blue));
+                pr.addText($"{seconds}\n{1.0 /seconds}\n{GlobalValue.x - a}");
+                var prr = pr.build();
+                prr.layout(new ParagraphConstraints(width: 400));
+                context.canvas.drawParagraph(prr, new Offset(30, 100));
+            }
+
+            int index = 0;
+            foreach(var f in GlobalValue.frameRates) {
+                p.color = Color.fromRGBO(255,0,0, 0.5f);
+
+                context.canvas.drawCircle(new Offset(10 + index * 3, 300 - (float)(f * 1.0f)), 3, p);
+                index++;
+            }
+            index = 0;
+            foreach(var f in GlobalValue.playerFrameRates) {
+                p.color = Color.fromRGBO(0,0,255, 0.5f);
+                context.canvas.drawCircle(new Offset(10 + index * 3, 300 - (float)(f * 1)), 3, p);
+                index++;
+            }
+            context.canvas.drawRect(Rect.fromLTRB(0 , 300, 500, 310), p );
         }
 
         protected override void debugPaintSize(PaintingContext context, Offset offset) {

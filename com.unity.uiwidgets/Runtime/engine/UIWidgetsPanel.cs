@@ -157,6 +157,19 @@ namespace Unity.UIWidgets.engine {
         long nextCollectAt = 0;
         
         protected virtual void Update() {
+            if (GlobalValue.playerPre == null) {
+                GlobalValue.playerPre = DateTime.Now;
+            } else if (GlobalValue.playerCur == null) {
+                GlobalValue.playerCur = DateTime.Now;
+            }
+            else {
+                GlobalValue.playerPre = GlobalValue.playerCur;
+                GlobalValue.playerCur = DateTime.Now;
+                GlobalValue.playerFrameRates.AddLast(2000f*(GlobalValue.playerCur - GlobalValue.playerPre).Value.TotalSeconds);
+                if (GlobalValue.playerFrameRates.Count > 50) {
+                    GlobalValue.playerFrameRates.RemoveFirst();
+                }
+            }
             if (!_viewMetricsCallbackRegistered) {
                 _viewMetricsCallbackRegistered = true;
                 UIWidgetsMessageManager.instance?.AddChannelMessageDelegate("ViewportMetricsChanged",

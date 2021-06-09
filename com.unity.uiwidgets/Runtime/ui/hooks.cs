@@ -5,6 +5,7 @@ using AOT;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -177,6 +178,20 @@ namespace Unity.UIWidgets.ui {
 
         [MonoPInvokeCallback(typeof(Window_drawFrameCallback))]
         static void Window_drawFrame() {
+            GlobalValue.x += 1;
+            if (GlobalValue.pre == null) {
+                GlobalValue.pre = DateTime.Now;
+            } else if (GlobalValue.cur == null) {
+                GlobalValue.cur = DateTime.Now;
+            }
+            else {
+                GlobalValue.pre = GlobalValue.cur;
+                GlobalValue.cur = DateTime.Now;
+                GlobalValue.frameRates.AddLast(2000f*(GlobalValue.cur - GlobalValue.pre).Value.TotalSeconds);
+                if (GlobalValue.frameRates.Count > 50) {
+                    GlobalValue.frameRates.RemoveFirst();
+                }
+            }
             try {
                 Window.instance.onDrawFrame?.Invoke();
             }
