@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Profiling;
+using UnityEngine.Scripting;
 using UnityEngine.UI;
 using RawImage = UnityEngine.UI.RawImage;
 
@@ -147,14 +150,39 @@ namespace Unity.UIWidgets.engine {
             }
         }
         
+        // 8 MB
+        const long kCollectAfterAllocating = 8 * 1024 * 1024;
+        
+        long lastFrameMemory = 0;
+        long nextCollectAt = 0;
+        
         protected virtual void Update() {
             if (!_viewMetricsCallbackRegistered) {
                 _viewMetricsCallbackRegistered = true;
                 UIWidgetsMessageManager.instance?.AddChannelMessageDelegate("ViewportMetricsChanged",
                     _handleViewMetricsChanged);
             }
+            
+            CollectGarbegeOndemend();
 
             Input_Update();
+        }
+
+        void CollectGarbegeOndemend() {
+            long mem = Profiler.GetMonoUsedSizeLong();
+            if (mem < lastFrameMemory)
+            {
+                // GC happened.
+                nextCollectAt = mem + kCollectAfterAllocating;
+            }
+            else if (mem >= nextCollectAt)
+            {
+                // Trigger incremental GC
+                GarbageCollector.CollectIncremental(1000);
+                lastFrameMemory = mem + kCollectAfterAllocating;
+            }
+
+            lastFrameMemory = mem;
         }
 
 #if !UNITY_EDITOR && UNITY_ANDROID
@@ -185,6 +213,11 @@ namespace Unity.UIWidgets.engine {
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
 #endif
+#if !UNITY_EDITOR
+            GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
+#endif
+            Application.lowMemory += GC.Collect;
+            
             base.OnEnable();
             
             D.assert(_wrapper == null);
