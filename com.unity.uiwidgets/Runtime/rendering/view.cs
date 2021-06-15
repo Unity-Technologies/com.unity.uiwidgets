@@ -133,6 +133,7 @@ namespace Unity.UIWidgets.rendering {
             var builder = new SceneBuilder();
             using (var scene = layer.buildScene(builder)) {
                 Window.instance.render(scene);
+                builder.DisposeCPtr();
             }
 
             D.assert(() => {

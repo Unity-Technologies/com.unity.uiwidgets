@@ -764,11 +764,26 @@ namespace Unity.UIWidgets.ui {
     }
 
     public class Image : NativeWrapperDisposable, IEquatable<Image> {
+
+        private bool isDisposed = false;
+
         internal Image(IntPtr ptr) : base(ptr) {
         }
 
         public override void DisposePtr(IntPtr ptr) {
-            Image_dispose(ptr);
+            if(isDisposed){
+                return;
+            }
+            isDisposed = true;
+            Image_dispose(ptr); 
+        }
+
+        public void DisposeCPtr() {
+            if(isDisposed){
+                return;
+            }
+            isDisposed = true;
+            Image_dispose(_ptr);
         }
 
         public int width => Image_width(_ptr);
@@ -881,17 +896,44 @@ namespace Unity.UIWidgets.ui {
     public delegate void ImageDecoderCallback(Image result);
 
     public class FrameInfo : NativeWrapper {
+        bool isDisposed = false;
+        
         internal FrameInfo(IntPtr ptr) : base(ptr) {
         }
 
         public override void DisposePtr(IntPtr ptr) {
+            if (isDisposed) {
+                return;
+            }
+
+            isDisposed = true;
             FrameInfo_dispose(ptr);
+        }
+
+        internal void DisposeCPtr() {
+            if (isDisposed) {
+                return;
+            }
+
+            isDisposed = true;
+            FrameInfo_dispose(_ptr);
         }
 
         public TimeSpan duration => TimeSpan.FromMilliseconds(_durationMillis);
         int _durationMillis => FrameInfo_durationMillis(_ptr);
 
-        public Image image => new Image(FrameInfo_image(_ptr));
+        
+        private Image _image;
+
+        public Image image {
+            get {
+                if(_image == null){
+                    _image = new Image(FrameInfo_image(_ptr));
+                }
+                
+                return _image;
+            }
+        }
 
         [DllImport(NativeBindings.dllName)]
         static extern void FrameInfo_dispose(IntPtr ptr);
@@ -1056,11 +1098,25 @@ namespace Unity.UIWidgets.ui {
     }
 
     public abstract class EngineLayer : NativeWrapper {
+        private bool isDisposed = false;
         protected EngineLayer(IntPtr ptr) : base(ptr) {
         }
 
         public override void DisposePtr(IntPtr ptr) {
+            if(isDisposed){
+                return;
+            }
+            isDisposed = true;
             EngineLayer_dispose(ptr);
+        }
+
+        internal void DisposeCPtr()
+        {
+            if(isDisposed){
+                return;
+            }
+            isDisposed = true;
+            EngineLayer_dispose(_ptr);
         }
 
         [DllImport(NativeBindings.dllName)]
@@ -2845,11 +2901,25 @@ namespace Unity.UIWidgets.ui {
     }
 
     public class Picture : NativeWrapperDisposable {
+
+        private bool isDisposed = false;
         internal Picture(IntPtr ptr) : base(ptr) {
         }
 
         public override void DisposePtr(IntPtr ptr) {
+            if(isDisposed){
+                return;
+            }
+            isDisposed = true;
             Picture_dispose(ptr);
+        }
+
+        public void DisposeCPtr(){
+            if(isDisposed){
+                return;
+            }
+            isDisposed = true;
+            Picture_dispose(_ptr);
         }
 
         public Future<Image> toImage(int width, int height) {
