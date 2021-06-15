@@ -140,25 +140,12 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
-    public class SceneBuilder : NativeWrapper {
-        private bool isDisposed = false;
+    public class SceneBuilder : NativeWrapperCPtrDisposable {
         public SceneBuilder() : base(SceneBuilder_constructor()) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
-            if(isDisposed){
-                return;
-            }
-            isDisposed = true;
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             SceneBuilder_dispose(ptr);
-        }
-
-        public void DisposeCPtr() {
-            if(isDisposed){
-                return;
-            }
-            isDisposed = true;
-            SceneBuilder_dispose(_ptr);
         }
 
         readonly Dictionary<EngineLayer, string> _usedLayers = new Dictionary<EngineLayer, string>();

@@ -73,5 +73,18 @@ namespace Unity.UIWidgets.ui {
 
         protected NativeWrapperCPtrDisposable(IntPtr ptr) : base(ptr) {
         }
+
+        public void DisposeCPtr() {
+            DisposePtr(_ptr);
+        }
+        public override void DisposePtr(IntPtr ptr) {
+            if(isDisposed){
+                return;
+            }
+            isDisposed = true;
+            DisposeCPtrImpl(ptr); 
+        }
+
+        public abstract void DisposeCPtrImpl(IntPtr ptr);
     }
 }

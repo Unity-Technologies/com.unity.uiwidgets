@@ -768,20 +768,8 @@ namespace Unity.UIWidgets.ui {
         internal Image(IntPtr ptr) : base(ptr) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
-            if(isDisposed){
-                return;
-            }
-            isDisposed = true;
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             Image_dispose(ptr); 
-        }
-
-        public void DisposeCPtr() {
-            if(isDisposed){
-                return;
-            }
-            isDisposed = true;
-            Image_dispose(_ptr);
         }
 
         public int width => Image_width(_ptr);
@@ -898,23 +886,10 @@ namespace Unity.UIWidgets.ui {
         internal FrameInfo(IntPtr ptr) : base(ptr) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
-            if (isDisposed) {
-                return;
-            }
-
-            isDisposed = true;
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             FrameInfo_dispose(ptr);
         }
 
-        internal void DisposeCPtr() {
-            if (isDisposed) {
-                return;
-            }
-
-            isDisposed = true;
-            FrameInfo_dispose(_ptr);
-        }
 
         public TimeSpan duration => TimeSpan.FromMilliseconds(_durationMillis);
         int _durationMillis => FrameInfo_durationMillis(_ptr);
@@ -1098,21 +1073,8 @@ namespace Unity.UIWidgets.ui {
         protected EngineLayer(IntPtr ptr) : base(ptr) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
-            if(isDisposed){
-                return;
-            }
-            isDisposed = true;
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             EngineLayer_dispose(ptr);
-        }
-
-        internal void DisposeCPtr()
-        {
-            if(isDisposed){
-                return;
-            }
-            isDisposed = true;
-            EngineLayer_dispose(_ptr);
         }
 
         [DllImport(NativeBindings.dllName)]
@@ -2901,20 +2863,8 @@ namespace Unity.UIWidgets.ui {
         internal Picture(IntPtr ptr) : base(ptr) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
-            if(isDisposed){
-                return;
-            }
-            isDisposed = true;
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             Picture_dispose(ptr);
-        }
-
-        public void DisposeCPtr(){
-            if(isDisposed){
-                return;
-            }
-            isDisposed = true;
-            Picture_dispose(_ptr);
         }
 
         public Future<Image> toImage(int width, int height) {
