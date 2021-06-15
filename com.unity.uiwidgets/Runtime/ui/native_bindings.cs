@@ -64,4 +64,14 @@ namespace Unity.UIWidgets.ui {
             _dispose();
         }
     }
+
+    public abstract class NativeWrapperCPtrDisposable : NativeWrapperDisposable {
+        public bool isDisposed = false;
+
+        protected NativeWrapperCPtrDisposable() {
+        }
+
+        protected NativeWrapperCPtrDisposable(IntPtr ptr) : base(ptr) {
+        }
+    }
 }

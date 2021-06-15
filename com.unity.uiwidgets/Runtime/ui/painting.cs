@@ -763,9 +763,7 @@ namespace Unity.UIWidgets.ui {
         public int rowBytes;
     }
 
-    public class Image : NativeWrapperDisposable, IEquatable<Image> {
-
-        private bool isDisposed = false;
+    public class Image : NativeWrapperCPtrDisposable, IEquatable<Image> {
 
         internal Image(IntPtr ptr) : base(ptr) {
         }
@@ -895,8 +893,7 @@ namespace Unity.UIWidgets.ui {
 
     public delegate void ImageDecoderCallback(Image result);
 
-    public class FrameInfo : NativeWrapper {
-        bool isDisposed = false;
+    public class FrameInfo : NativeWrapperCPtrDisposable {
         
         internal FrameInfo(IntPtr ptr) : base(ptr) {
         }
@@ -1097,8 +1094,7 @@ namespace Unity.UIWidgets.ui {
         reverseDifference,
     }
 
-    public abstract class EngineLayer : NativeWrapper {
-        private bool isDisposed = false;
+    public abstract class EngineLayer : NativeWrapperCPtrDisposable {
         protected EngineLayer(IntPtr ptr) : base(ptr) {
         }
 
@@ -2900,9 +2896,8 @@ namespace Unity.UIWidgets.ui {
             bool transparentOccluder);
     }
 
-    public class Picture : NativeWrapperDisposable {
+    public class Picture : NativeWrapperCPtrDisposable {
 
-        private bool isDisposed = false;
         internal Picture(IntPtr ptr) : base(ptr) {
         }
 

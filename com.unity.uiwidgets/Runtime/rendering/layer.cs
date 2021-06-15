@@ -59,7 +59,7 @@ namespace Unity.UIWidgets.rendering {
             get { return (ContainerLayer) base.parent; }
         }
 
-        public virtual void DisposeCPter()
+        public virtual void DisposeCPtr()
         {
             if(_engineLayer != null) {
                 _engineLayer.DisposeCPtr();
@@ -102,7 +102,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public EngineLayer engineLayer {
+        protected EngineLayer engineLayer {
             get { return _engineLayer; }
             set {
                 if(_engineLayer != null){
@@ -254,9 +254,9 @@ namespace Unity.UIWidgets.rendering {
             this.canvasBounds = canvasBounds;
         }
 
-        public override void DisposeCPter()
+        public override void DisposeCPtr()
         {
-            base.DisposeCPter();
+            base.DisposeCPtr();
             if(_picture != null){
                  _picture.DisposeCPtr();
             }
@@ -504,16 +504,12 @@ namespace Unity.UIWidgets.rendering {
             return addedLayers;
         }
 
-        public override void DisposeCPter() {
-            base.DisposeCPter();
-            DisposeAllChildren();
-        }
-
-        private void DisposeAllChildren(){
+        public override void DisposeCPtr() {
+            base.DisposeCPtr();
             Layer child = firstChild;
             while (child != null) {
                 Layer next = child.nextSibling;
-                child.DisposeCPter();
+                child.DisposeCPtr();
                 child = next;
             }
         }
@@ -633,7 +629,7 @@ namespace Unity.UIWidgets.rendering {
             child._nextSibling = null;
             child._previousSibling = null;
             dropChild(child);
-            child.DisposeCPter();
+            child.DisposeCPtr();
             D.assert(!child.attached);
         }
 
@@ -645,7 +641,7 @@ namespace Unity.UIWidgets.rendering {
                 child._nextSibling = null;
                 D.assert(child.attached == attached);
                 dropChild(child);
-                child.DisposeCPter();
+                child.DisposeCPtr();
                 child = next;
             }
 

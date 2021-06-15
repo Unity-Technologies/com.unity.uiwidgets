@@ -2444,7 +2444,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        public override void DisposeCPter() {
+        public override void DisposeCPtr() {
             if(_picture != null){
                 _picture.DisposeCPtr();
             }
