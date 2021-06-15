@@ -149,13 +149,7 @@ namespace Unity.UIWidgets.engine {
                 Window.instance.onMetricsChanged?.Invoke();
             }
         }
-        
-        // 8 MB
-        const long kCollectAfterAllocating = 8 * 1024 * 1024;
-        
-        long lastFrameMemory = 0;
-        long nextCollectAt = 0;
-        
+
         protected virtual void Update() {
             if (!_viewMetricsCallbackRegistered) {
                 _viewMetricsCallbackRegistered = true;
@@ -163,13 +157,38 @@ namespace Unity.UIWidgets.engine {
                     _handleViewMetricsChanged);
             }
             
-            CollectGarbegeOndemend();
+#if !UNITY_EDITOR
+            CollectGarbageOnDemand();
+#endif
 
             Input_Update();
         }
 
-        void CollectGarbegeOndemend() {
-            long mem = Profiler.GetMonoUsedSizeLong();
+        #region OnDemandGC
+#if !UNITY_EDITOR
+        // 8 MB
+        const long kCollectAfterAllocating = 8 * 1024 * 1024;
+        
+        long lastFrameMemory = 0;
+        long nextCollectAt = 0;
+
+        void TryEnableOnDemandGC() 
+        {
+            if (UIWidgetsGlobalConfiguration.EnableIncrementalGC)
+            {
+                GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
+                Application.lowMemory += GC.Collect;
+            }
+        }
+
+        void CollectGarbageOnDemand() 
+        {
+            if (!UIWidgetsGlobalConfiguration.EnableIncrementalGC)
+            {
+                return;
+            }
+            
+            var mem = Profiler.GetMonoUsedSizeLong();
             if (mem < lastFrameMemory)
             {
                 // GC happened.
@@ -184,6 +203,8 @@ namespace Unity.UIWidgets.engine {
 
             lastFrameMemory = mem;
         }
+#endif
+        #endregion
 
 #if !UNITY_EDITOR && UNITY_ANDROID
         bool AndroidInitialized = true;
@@ -213,11 +234,11 @@ namespace Unity.UIWidgets.engine {
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
 #endif
-#if !UNITY_EDITOR
-            GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
-#endif
-            Application.lowMemory += GC.Collect;
             
+#if !UNITY_EDITOR
+            TryEnableOnDemandGC();
+#endif
+
             base.OnEnable();
             
             D.assert(_wrapper == null);
