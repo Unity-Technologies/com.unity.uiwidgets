@@ -213,16 +213,16 @@ want to show the status bar in your App, you can disable```Start in fullscreen``
 #### Image Import Setting
 Please put images under StreamingAssets folder, a and loading it using ```Image.file```.
 
-#### Automatic Framerate Adjustment
-You can enable this feature by setting ```SchedulerBinding.MEnableAutoAdjustFramerate = true``` in your project, which will automatically drop the frame rate of your App to 0 if the UI contents of UIWidgetsPanel is not changed for some time. This will help to prevent battery drain on mobile devices significantly. 
+#### Performance Optimization on Mobile devices
+By setting ```UIWidgetsGlobalConfiguration.EnableAutoAdjustFramerate = true``` in your project, UIWidgets will drop the frame rate of your App to 0 if the UI contents of UIWidgetsPanel is not changed for some time. This will help to prevent battery drain on mobile devices significantly. Note that this feature is disabled by default.
 
-Note that this feature is disabled by default though.
+Long time garbage collection may cause App to stuck frequently. In UIWidgets we enable incremental garbage collection to avoid it. However, you can disable this feature by setting ```UIWidgetsGlobalConfiguration.EnableIncrementalGC = false```.
 
 ## Debug UIWidgets Application
 
 In Unity editor, you can switch debug/release mode by “UIWidgets->EnableDebug”.
 
-If you want to change different mode in runtime, please modify the file “com.unity.uiwidgets/com.unity.uiwidgets/Runtime/foundation/debug.cs” by making “static bool debugEnableAtRuntimeInternal” to true or false. Note that the value is set to false by default.
+You can also enable debug mode in runtime by setting ```UIWidgetsGlobalConfiguration.EnableDebugAtRuntime = true``` in your project. Note that this value is set to false by default.
 
 ## Using Window Scope
 If you see the error `AssertionError: Window.instance is null` or null pointer error of `Window.instance`,

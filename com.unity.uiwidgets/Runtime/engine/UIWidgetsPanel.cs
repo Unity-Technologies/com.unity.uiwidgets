@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Profiling;
+using UnityEngine.Scripting;
 using UnityEngine.UI;
 using RawImage = UnityEngine.UI.RawImage;
 
@@ -146,16 +149,62 @@ namespace Unity.UIWidgets.engine {
                 Window.instance.onMetricsChanged?.Invoke();
             }
         }
-        
+
         protected virtual void Update() {
             if (!_viewMetricsCallbackRegistered) {
                 _viewMetricsCallbackRegistered = true;
                 UIWidgetsMessageManager.instance?.AddChannelMessageDelegate("ViewportMetricsChanged",
                     _handleViewMetricsChanged);
             }
+            
+#if !UNITY_EDITOR
+            CollectGarbageOnDemand();
+#endif
 
             Input_Update();
         }
+
+        #region OnDemandGC
+#if !UNITY_EDITOR
+        // 8 MB
+        const long kCollectAfterAllocating = 8 * 1024 * 1024;
+        
+        long lastFrameMemory = 0;
+        long nextCollectAt = 0;
+
+        void TryEnableOnDemandGC() 
+        {
+            if (UIWidgetsGlobalConfiguration.EnableIncrementalGC)
+            {
+                GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
+                Application.lowMemory += GC.Collect;
+            }
+        }
+
+        void CollectGarbageOnDemand() 
+        {
+            if (!UIWidgetsGlobalConfiguration.EnableIncrementalGC)
+            {
+                return;
+            }
+            
+            var mem = Profiler.GetMonoUsedSizeLong();
+            if (mem < lastFrameMemory)
+            {
+                // GC happened.
+                nextCollectAt = mem + kCollectAfterAllocating;
+            }
+            else if (mem >= nextCollectAt)
+            {
+                // Trigger incremental GC
+                GarbageCollector.CollectIncremental(1000);
+                lastFrameMemory = mem + kCollectAfterAllocating;
+            }
+
+            lastFrameMemory = mem;
+        }
+#endif
+        #endregion
 
 #if !UNITY_EDITOR && UNITY_ANDROID
         bool AndroidInitialized = true;
@@ -185,6 +234,11 @@ namespace Unity.UIWidgets.engine {
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
 #endif
+            
+#if !UNITY_EDITOR
+            TryEnableOnDemandGC();
+#endif
+
             base.OnEnable();
             
             D.assert(_wrapper == null);

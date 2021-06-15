@@ -202,15 +202,17 @@ UIWidgets也支持Gif！
 #### 七、图片导入设置
 请将图片放入StreamingAssets下，而后用```Image.file```读取
 
-#### 八、自动降低帧率
-目前在默认情况下，为了保证流畅度，项目在各个平台上均会以最高的刷新频率运行。不过您可以通过在代码中设置```SchedulerBinding.MEnableAutoAdjustFramerate = true```的方式来开启自动降帧的功能：该功能开启后，在UI内容不变的情况下我们将降低项目的刷新率来降低耗电。
+#### 八、移动设备优化
+目前在默认情况下，为了保证流畅度，项目在各个平台上均会以最高的刷新频率运行。不过您可以通过在代码中设置```UIWidgetsGlobalConfiguration.EnableAutoAdjustFramerate = true```的方式来开启自动降帧的功能：该功能开启后，在UI内容不变的情况下我们将降低项目的刷新率来降低耗电。
+
+在移动设备上UI绘制的流畅度受到GC影响较大。项目默认会开启OnDemandGC来接管并优化整体GC效果。如果您不需要GC被UIWidgets控制，请在代码中设置```UIWidgetsGlobalConfiguration.EnableIncrementalGC = false```。
 
 
 ## 调试UIWidgets应用程序
 
 在编辑器菜单栏选择```UIWidgets->EnableDebug```
 
-如果想在runtime选择是否debug，请修改文件```com.unity.uiwidgets/com.unity.uiwidgets/Runtime/foundation/debug.cs```中的```static bool debugEnableAtRuntimeInternal```
+如果想在runtime开启debug模式，请在项目代码中设置```UIWidgetsGlobalConfiguration.EnableDebugAtRuntime = true```。在默认情况下debug模式为关闭状态。
 
 ## 使用Window Scope保护外部调用
 如果您在调试时遇到 `AssertionError: Window.instance is null` 或者在调用 `Window.instance` 时得到空指针, 那么您需要
