@@ -64,7 +64,9 @@ namespace Unity.UIWidgets.rendering {
                 if (value == _image) {
                     return;
                 }
-
+                if(_image != null){
+                    _image.DisposeCPtr();
+                }
                 _image = value;
                 markNeedsPaint();
                 if (_width == null || _height == null) {

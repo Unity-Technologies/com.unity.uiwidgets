@@ -140,11 +140,11 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
-    public class SceneBuilder : NativeWrapper {
+    public class SceneBuilder : NativeWrapperCPtrDisposable {
         public SceneBuilder() : base(SceneBuilder_constructor()) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             SceneBuilder_dispose(ptr);
         }
 

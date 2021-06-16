@@ -763,12 +763,13 @@ namespace Unity.UIWidgets.ui {
         public int rowBytes;
     }
 
-    public class Image : NativeWrapperDisposable, IEquatable<Image> {
+    public class Image : NativeWrapperCPtrDisposable, IEquatable<Image> {
+
         internal Image(IntPtr ptr) : base(ptr) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
-            Image_dispose(ptr);
+        public override void DisposeCPtrImpl(IntPtr ptr) {
+            Image_dispose(ptr); 
         }
 
         public int width => Image_width(_ptr);
@@ -880,18 +881,31 @@ namespace Unity.UIWidgets.ui {
 
     public delegate void ImageDecoderCallback(Image result);
 
-    public class FrameInfo : NativeWrapper {
+    public class FrameInfo : NativeWrapperCPtrDisposable {
+        
         internal FrameInfo(IntPtr ptr) : base(ptr) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             FrameInfo_dispose(ptr);
         }
+
 
         public TimeSpan duration => TimeSpan.FromMilliseconds(_durationMillis);
         int _durationMillis => FrameInfo_durationMillis(_ptr);
 
-        public Image image => new Image(FrameInfo_image(_ptr));
+        
+        private Image _image;
+
+        public Image image {
+            get {
+                if(_image == null){
+                    _image = new Image(FrameInfo_image(_ptr));
+                }
+                
+                return _image;
+            }
+        }
 
         [DllImport(NativeBindings.dllName)]
         static extern void FrameInfo_dispose(IntPtr ptr);
@@ -1055,11 +1069,11 @@ namespace Unity.UIWidgets.ui {
         reverseDifference,
     }
 
-    public abstract class EngineLayer : NativeWrapper {
+    public abstract class EngineLayer : NativeWrapperCPtrDisposable {
         protected EngineLayer(IntPtr ptr) : base(ptr) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             EngineLayer_dispose(ptr);
         }
 
@@ -2844,11 +2858,12 @@ namespace Unity.UIWidgets.ui {
             bool transparentOccluder);
     }
 
-    public class Picture : NativeWrapperDisposable {
+    public class Picture : NativeWrapperCPtrDisposable {
+
         internal Picture(IntPtr ptr) : base(ptr) {
         }
 
-        public override void DisposePtr(IntPtr ptr) {
+        public override void DisposeCPtrImpl(IntPtr ptr) {
             Picture_dispose(ptr);
         }
 

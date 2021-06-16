@@ -59,6 +59,13 @@ namespace Unity.UIWidgets.rendering {
             get { return (ContainerLayer) base.parent; }
         }
 
+        public virtual void DisposeCPtr()
+        {
+            if(_engineLayer != null) {
+                _engineLayer.DisposeCPtr();
+            }
+        }
+
         public bool _needsAddToScene = true;
 
         protected void markNeedsAddToScene() {
@@ -98,6 +105,9 @@ namespace Unity.UIWidgets.rendering {
         protected EngineLayer engineLayer {
             get { return _engineLayer; }
             set {
+                if(_engineLayer != null){
+                    _engineLayer.DisposeCPtr();
+                }
                 _engineLayer = value;
                 if (!alwaysNeedsAddToScene) {
                     if (parent != null && !parent.alwaysNeedsAddToScene) {
@@ -242,6 +252,14 @@ namespace Unity.UIWidgets.rendering {
     public class PictureLayer : Layer {
         public PictureLayer(Rect canvasBounds) {
             this.canvasBounds = canvasBounds;
+        }
+
+        public override void DisposeCPtr()
+        {
+            base.DisposeCPtr();
+            if(_picture != null){
+                 _picture.DisposeCPtr();
+            }
         }
 
         public readonly Rect canvasBounds;
@@ -486,6 +504,16 @@ namespace Unity.UIWidgets.rendering {
             return addedLayers;
         }
 
+        public override void DisposeCPtr() {
+            base.DisposeCPtr();
+            Layer child = firstChild;
+            while (child != null) {
+                Layer next = child.nextSibling;
+                child.DisposeCPtr();
+                child = next;
+            }
+        }
+
         internal override void updateSubtreeNeedsAddToScene() {
             base.updateSubtreeNeedsAddToScene();
             Layer child = firstChild;
@@ -612,6 +640,7 @@ namespace Unity.UIWidgets.rendering {
                 child._nextSibling = null;
                 D.assert(child.attached == attached);
                 dropChild(child);
+                child.DisposeCPtr();
                 child = next;
             }
 
