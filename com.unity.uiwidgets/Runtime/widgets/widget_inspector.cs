@@ -2444,12 +2444,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
 
-        public override void DisposeCPtr() {
-            if(_picture != null){
-                _picture.DisposeCPtr();
-            }
-        }
-
         public override bool findAnnotations<S>(
             AnnotationResult<S> result,
             Offset localPosition, 

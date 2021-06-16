@@ -134,7 +134,7 @@ namespace Unity.UIWidgets.rendering {
             using (var scene = layer.buildScene(builder)) {
                 Window.instance.render(scene);
             }
-            builder.DisposeCPtr();
+
             D.assert(() => {
                 if (D.debugRepaintRainbowEnabled || D.debugRepaintTextRainbowEnabled) {
                     D.debugCurrentRepaintColor =

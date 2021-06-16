@@ -444,7 +444,6 @@ namespace Unity.UIWidgets.painting {
                 _emitFrame(new ImageInfo(image: _nextFrame.image, scale: _scale));
                 _shownTimestamp = timestamp;
                 _frameDuration = _nextFrame.duration;
-                _nextFrame.DisposeCPtr();
                 _nextFrame = null;
                 int completedCycles = _codec.frameCount == 0 ? 0 : _framesEmitted / _codec.frameCount;
 
