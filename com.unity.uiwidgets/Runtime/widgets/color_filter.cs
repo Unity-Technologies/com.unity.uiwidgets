@@ -5,7 +5,7 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.widgets {
     
         public class ColorFiltered : SingleChildRenderObjectWidget {
-            protected ColorFiltered(
+            public ColorFiltered(
                 ColorFilter colorFilter = null, 
                 Widget child = null, 
                 Key key = null)
