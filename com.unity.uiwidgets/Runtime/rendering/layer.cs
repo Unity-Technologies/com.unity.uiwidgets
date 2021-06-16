@@ -629,7 +629,6 @@ namespace Unity.UIWidgets.rendering {
             child._nextSibling = null;
             child._previousSibling = null;
             dropChild(child);
-            child.DisposeCPtr();
             D.assert(!child.attached);
         }
 
