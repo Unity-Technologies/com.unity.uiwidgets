@@ -65,6 +65,15 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    /// <summary>
+    /// This class is used to release c++ resources in advance without waiting for c# garbage collection. 
+    /// Please make sure that the resource will not be used again after it is released.
+    /// Releasing resources prematurely may cause null pointer exceptions in references elsewhere.
+    ///
+    /// Usage: 
+    ///    Use DisposeCPtr() to manually release c++ resources, and then add an interface to release unmanaged memory 
+    ///    in DisposeCPtrImpl(IntPtr ptr).
+    /// </summary>
     public abstract class NativeWrapperCPtrDisposable : NativeWrapperDisposable {
         public bool isDisposed = false;
 
