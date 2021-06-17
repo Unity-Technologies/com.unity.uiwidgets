@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -440,14 +441,14 @@ namespace Unity.UIWidgets.cupertino {
         }
         DateTime  selectedDateTime {
             get {
-                return new DateTime(
+                return (new DateTime(
                     initialDateTime.Year,
                     initialDateTime.Month,
-                    initialDateTime.Day + selectedDayFromInitial,
+                    initialDateTime.Day,
                     selectedHour,
                     selectedMinute,
                     0
-                );
+                )).AddDays(selectedDayFromInitial);
             }
         }
         void _onSelectedItemChange(int index) {
@@ -509,14 +510,14 @@ namespace Unity.UIWidgets.cupertino {
             );
         }
         bool _isValidHour(int meridiemIndex, int hourIndex) {
-            DateTime rangeStart = new DateTime(
+            DateTime rangeStart = (new DateTime(
                 initialDateTime.Year, 
                 initialDateTime.Month, 
-                initialDateTime.Day + selectedDayFromInitial,
+                initialDateTime.Day,
                 _selectedHour(meridiemIndex, hourIndex),
                 0,
                 0
-            );
+            )).AddDays(selectedDayFromInitial);
 
             // The end value of the range is exclusive, i.e. [rangeStart, rangeEnd).
             DateTime rangeEnd = rangeStart.Add(new TimeSpan(0,1,0,0));
@@ -592,14 +593,14 @@ namespace Unity.UIWidgets.cupertino {
             for (int index = 0; index < 24; index++) {
                 int minute = index * widget.minuteInterval;
 
-                DateTime date = new DateTime(
+                DateTime date = (new DateTime(
                     initialDateTime.Year,
                     initialDateTime.Month,
-                    initialDateTime.Day + selectedDayFromInitial,
+                    initialDateTime.Day,
                     selectedHour,
                     minute,
                     0
-                );
+                )).AddDays(selectedDayFromInitial);
 
                 bool isInvalidMinute = (widget.minimumDate?.CompareTo(date) < 0 )
                                        || (widget.maximumDate?.CompareTo(date) > 0);
@@ -1582,7 +1583,7 @@ namespace Unity.UIWidgets.cupertino {
                 };
                 break;
             }
-             CupertinoThemeData themeData = CupertinoTheme.of(context);
+            CupertinoThemeData themeData = CupertinoTheme.of(context);
             return new MediaQuery(
               // The native iOS picker's text scaling is fixed, so we will also fix it
               // as well in our picker.
@@ -1602,11 +1603,10 @@ namespace Unity.UIWidgets.cupertino {
                     child: new DefaultTextStyle(
                       style: _textStyleFrom(context),
                       child: new Row(
-                          children:
-                              columns.Select((Widget child) => {
-                                      var result = new Expanded(child: child);
-                                      return (Widget) result;
-                              }).ToList()
+                          children: LinqUtils<Widget>.SelectList(columns, (Widget child) => {
+                              var result = new Expanded(child: child);
+                              return (Widget) result;
+                          })
                           )
                     )
                   )

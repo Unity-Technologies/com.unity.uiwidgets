@@ -2,9 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Unity.UIWidgets.async2;
-using Unity.UIWidgets.editor2;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine.Networking;
@@ -57,17 +56,16 @@ namespace Unity.UIWidgets.services {
 
                 yield return www.SendWebRequest();
 
-                if (www.isNetworkError || www.isHttpError) {
-                    completer.completeError(new UIWidgetsError(new List<DiagnosticsNode>() {
-                        new ErrorSummary($"Unable to load asset: {key}"),
-                        new StringProperty("HTTP status code", www.error)
-                    }));
-                    yield break;
-                }
-
-                var data = www.downloadHandler.data;
-
                 using (Isolate.getScope(isolate)) {
+                    if (www.isNetworkError || www.isHttpError) {
+                        completer.completeError(new UIWidgetsError(new List<DiagnosticsNode>() {
+                            new ErrorSummary($"Unable to load asset: {key}"),
+                            new StringProperty("HTTP status code", www.error)
+                        }));
+                        yield break;
+                    }
+
+                    var data = www.downloadHandler.data;
                     completer.complete(data);
                 }
             }

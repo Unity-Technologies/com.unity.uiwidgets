@@ -1,4 +1,4 @@
-#pragma
+#pragma once
 
 #include "include/effects/SkGradientShader.h"
 #include "lib/ui/painting/matrix.h"

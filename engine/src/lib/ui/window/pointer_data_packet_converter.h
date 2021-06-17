@@ -14,6 +14,7 @@ namespace uiwidgets {
 struct PointerState {
   int32_t pointer_identifier;
   bool isDown;
+  int64_t previous_buttons;
   float physical_x;
   float physical_y;
 };

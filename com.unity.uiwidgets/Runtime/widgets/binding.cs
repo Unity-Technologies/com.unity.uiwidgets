@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
@@ -242,6 +242,7 @@ namespace Unity.UIWidgets.widgets {
 
         public void attachRootWidget(Widget rootWidget) {
             _readyToProduceFrames = true;
+
             _renderViewElement = new RenderObjectToWidgetAdapter<RenderBox>(
                 container: renderView,
                 debugShortDescription: "[root]",

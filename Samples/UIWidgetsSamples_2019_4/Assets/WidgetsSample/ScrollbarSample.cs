@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -18,6 +18,7 @@ namespace UIWidgetsSample {
             public override Widget build(BuildContext context)
             {
                 return new WidgetsApp(
+                    color: Color.white,
                     home: new Container(
                         decoration: new BoxDecoration(
                             border: Border.all(color: new Color(0xFFFFFF00))

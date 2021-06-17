@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -29,6 +29,7 @@ namespace UIWidgetsSample
             public override Widget build(BuildContext context)
             {
                 return new WidgetsApp(
+                    color: Color.white,
                     home: new ExampleApp(),
                     pageRouteBuilder: (settings, builder) =>
                         new PageRouteBuilder(

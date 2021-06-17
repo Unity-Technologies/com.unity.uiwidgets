@@ -893,6 +893,8 @@ inline int64_t PointerDataButtonsForLegacyEvent(PointerData::Change change) {
     case PointerData::Change::kHover:
     case PointerData::Change::kUp:
       return 0;
+    default:
+      return 0;
   }
   return 0;
 }

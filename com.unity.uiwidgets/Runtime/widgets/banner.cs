@@ -250,9 +250,9 @@ namespace Unity.UIWidgets.widgets {
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new StringProperty("message", message, showName: false));
-            properties.add(new EnumProperty<TextDirection>("textDirection", (TextDirection)textDirection, defaultValue: null));
-            properties.add(new EnumProperty<BannerLocation>("location", (BannerLocation)location));
-            properties.add(new EnumProperty<TextDirection>("layoutDirection", (TextDirection)layoutDirection, defaultValue: null));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+            properties.add(new EnumProperty<BannerLocation?>("location", location));
+            properties.add(new EnumProperty<TextDirection?>("layoutDirection", layoutDirection, defaultValue: null));
             properties.add(new ColorProperty("color", color, showName: false));
             textStyle?.debugFillProperties(properties, prefix: "text ");
         }

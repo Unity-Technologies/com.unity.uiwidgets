@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.services;
@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.service {
             this.obscureText = obscureText;
             this.autocorrect = autocorrect;
             this.enableSuggestions = enableSuggestions;
-            this.actionLabel = actionLabel;
+            this.actionLabel = actionLabel ?? "";
             this.inputAction = inputAction;
             this.textCapitalization = textCapitalization;
             this.keyboardAppearance = keyboardAppearance;
@@ -196,7 +196,7 @@ namespace Unity.UIWidgets.service {
             json["smartQuotesType"] = smartQuotesType.ToString();
             json["enableSuggestions"] = enableSuggestions;
             json["actionLabel"] = actionLabel;
-            json["inputAction"] = inputAction.ToString();
+            json["inputAction"] = $"TextInputAction.{inputAction.ToString()}";
             json["unityTouchKeyboard"] = unityTouchKeyboard;
             json["textCapitalization"] = textCapitalization.ToString();
             json["keyboardAppearance"] = keyboardAppearance.ToString();
@@ -603,6 +603,10 @@ namespace Unity.UIWidgets.service {
             _client = client;
             _id = _nextId++;
         }
+
+        public Isolate isolate {
+            get { return _window._panel.isolate; }
+        }
         
         internal Size _cachedSize;
         internal Matrix4 _cachedTransform;
@@ -720,12 +724,13 @@ namespace Unity.UIWidgets.service {
             }
             else {
 #if UNITY_IOS || UNITY_ANDROID
-                if (configuration.unityTouchKeyboard) {
+                /*if (configuration.unityTouchKeyboard) {
                     keyboardDelegate = new UnityTouchScreenKeyboardDelegate();
                 }
                 else {
                     keyboardDelegate = new UIWidgetsTouchScreenKeyboardDelegate();
-                }
+                }*/
+                keyboardDelegate = new UIWidgetsTouchScreenKeyboardDelegate();
 #elif UNITY_WEBGL
                 keyboardDelegate = new UIWidgetsWebGLKeyboardDelegate();
 #else

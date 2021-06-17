@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using uiwidgets;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
@@ -724,7 +725,7 @@ namespace Unity.UIWidgets.material {
         ) :
             base(key: key) {
             D.assert(items == null || items.isEmpty() || value == null ||
-                     items.Where((DropdownMenuItem<T> item) => { return item.value.Equals(value); }).Count() == 1,
+                     LinqUtils<DropdownMenuItem<T>>.WhereList(items,((DropdownMenuItem<T> item) => { return item.value.Equals(value); })).Count() == 1,
                 () => "There should be exactly one item with [DropdownButton]'s value: " +
                       $"{value}. \n" +
                       "Either zero or 2 or more [DropdownMenuItem]s were detected " +
@@ -913,8 +914,8 @@ namespace Unity.UIWidgets.material {
             }
 
             D.assert(widget.value == null ||
-                     widget.items.Where((DropdownMenuItem<T> item) => item.value.Equals(widget.value))
-                         .ToList().Count == 1);
+                     LinqUtils<DropdownMenuItem<T>>.WhereList(widget.items,((DropdownMenuItem<T> item) => item.value.Equals(widget.value))
+                         ).Count == 1);
             _selectedIndex = null;
             for (int itemIndex = 0; itemIndex < widget.items.Count; itemIndex++) {
                 if (widget.items[itemIndex].value.Equals(widget.value)) {
@@ -1109,13 +1110,12 @@ namespace Unity.UIWidgets.material {
                     alignment: AlignmentDirectional.centerStart,
                     children: widget.isDense
                         ? items
-                        : items.Select((Widget item) => {
+                        : LinqUtils<Widget>.SelectList(items,(Widget item) => {
                             return widget.itemHeight != null
                                 ? new SizedBox(height: widget.itemHeight, child: item)
                                 : (Widget) new Column(mainAxisSize: MainAxisSize.min,
                                     children: new List<Widget>() {item});
-                        }).ToList()
-                );
+                        }));
             }
 
             Icon defaultIcon = new Icon(Icons.arrow_drop_down);

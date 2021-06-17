@@ -1,205 +1,166 @@
-/*
 using System;
-using System.Collections.Generic;
-using Unity.UIWidgets.foundation;
+using System.Runtime.InteropServices;
+using AOT;
+using Unity.UIWidgets.ui;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-
-#endif
 
 namespace Unity.UIWidgets.async {
     public abstract class Timer : IDisposable {
+        public static Timer create(TimeSpan duration, ZoneCallback callback) {
+            if (Zone.current == Zone.root) {
+                return Zone.current.createTimer(duration, callback);
+            }
+
+            return Zone.current
+                .createTimer(duration, Zone.current.bindCallbackGuarded(callback));
+        }
+
+       
+
+        public static Timer create(TimeSpan duration, Action callback) {
+            return create(duration, () => {
+                callback.Invoke();
+                return null;
+            });
+        }
+
+        public static Timer periodic(TimeSpan duration, ZoneUnaryCallback callback) {
+            if (Zone.current == Zone.root) {
+                return Zone.current.createPeriodicTimer(duration, callback);
+            }
+
+            var boundCallback = Zone.current.bindUnaryCallbackGuarded(callback);
+            return Zone.current.createPeriodicTimer(duration, boundCallback);
+        }
+
+        public static void run(ZoneCallback callback) {
+            create(TimeSpan.Zero, callback);
+        }
+
         public abstract void cancel();
 
         public void Dispose() {
             cancel();
         }
 
-        public static float timeSinceStartup {
-            get {
-#if UNITY_EDITOR
-                return (float) EditorApplication.timeSinceStartup;
-#else
-                return Time.realtimeSinceStartup;
-#endif
-            }
+        public abstract long tick { get; }
+
+        public abstract bool isActive { get; }
+
+        internal static Timer _createTimer(TimeSpan duration, ZoneCallback callback) {
+            return _Timer._createTimer(_ => callback(), (int) duration.TotalMilliseconds, false);
         }
 
-        public static TimeSpan timespanSinceStartup {
-            get { return TimeSpan.FromSeconds(timeSinceStartup); }
-        }
-
-        static readonly object _syncObj = new object();
-
-        static LinkedList<Action> _callbacks = new LinkedList<Action>();
-
-        public static void runInMainFromFinalizer(Action callback) {
-            lock (_syncObj) {
-                _callbacks.AddLast(callback);
-            }
-        }
-
-        internal static void update() {
-            LinkedList<Action> callbacks;
-
-            lock (_syncObj) {
-                if (_callbacks.isEmpty()) {
-                    return;
-                }
-
-                callbacks = _callbacks;
-                _callbacks = new LinkedList<Action>();
-            }
-
-            foreach (var callback in callbacks) {
-                try {
-                    callback();
-                }
-                catch (Exception ex) {
-                    D.logError("Error to execute runInMain callback: ", ex);
-                }
-            }
+        internal static Timer _createPeriodicTimer(
+            TimeSpan duration, ZoneUnaryCallback callback) {
+            return _Timer._createTimer(callback, (int) duration.TotalMilliseconds, true);
         }
     }
 
-    public class TimerProvider {
-        readonly PriorityQueue<TimerImpl> _queue;
+    class _Timer : Timer {
+        long _tick = 0;
 
-        public TimerProvider() {
-            _queue = new PriorityQueue<TimerImpl>();
+        ZoneUnaryCallback _callback;
+        long _wakeupTime;
+        readonly int _milliSeconds;
+        readonly bool _repeating;
+
+        _Timer(ZoneUnaryCallback callback, long wakeupTime, int milliSeconds, bool repeating) {
+            _callback = callback;
+            _wakeupTime = wakeupTime;
+            _milliSeconds = milliSeconds;
+            _repeating = repeating;
         }
-
-        public Timer runInMain(Action callback) {
-            var timer = new TimerImpl(callback);
-
-            lock (_queue) {
-                _queue.enqueue(timer);
-            }
-
-            return timer;
-        }
-
-        public Timer run(TimeSpan duration, Action callback) {
-            var timer = new TimerImpl(duration, callback);
-
-            lock (_queue) {
-                _queue.enqueue(timer);
-            }
-
-            return timer;
-        }
-
-        public Timer periodic(TimeSpan duration, Action callback) {
-            var timer = new TimerImpl(duration, callback, periodic: true);
-
-            lock (_queue) {
-                _queue.enqueue(timer);
-            }
-
-            return timer;
-        }
-
-        static readonly List<TimerImpl> _timers = new List<TimerImpl>();
-        static readonly List<TimerImpl> _appendList = new List<TimerImpl>();
         
-        public void update(Action flushMicroTasks = null) {
-            var now = Timer.timeSinceStartup;
-
-            _timers.Clear();
-            _appendList.Clear();
                 
-            lock (_queue) {
-                while (_queue.count > 0 && _queue.peek().deadline <= now) {
-                    var timer = _queue.dequeue();
-                    _timers.Add(timer);
-                }
+        public static TimeSpan timespanSinceStartup {
+            get { return TimeSpan.FromMilliseconds(UIMonoState_timerMillisecondClock()); }
+        }
+
+        internal static _Timer _createTimer(ZoneUnaryCallback callback, int milliSeconds, bool repeating) {
+            if (milliSeconds < 0) {
+                milliSeconds = 0;
             }
 
-            if (_timers.Count != 0) {
-                foreach (var timer in _timers) {
-                    if (flushMicroTasks != null) {
-                        flushMicroTasks();
-                    }
+            long now = UIMonoState_timerMillisecondClock();
+            long wakeupTime = (milliSeconds == 0) ? now : (now + 1 + milliSeconds);
 
-                    timer.invoke();
-                    if (timer.periodic && !timer.done) {
-                        _appendList.Add(timer);
-                    }
-                }
+            _Timer timer = new _Timer(callback, wakeupTime, milliSeconds, repeating);
+            timer._enqueue();
+
+            return timer;
+        }
+
+        public override void cancel() {
+            _callback = null;
+        }
+
+        public override bool isActive => _callback != null;
+
+        public override long tick => _tick;
+
+        void _advanceWakeupTime() {
+            if (_milliSeconds > 0) {
+                _wakeupTime += _milliSeconds;
             }
-
-            if (_appendList.Count != 0) {
-                lock (_queue) {
-                    foreach (var timer in _appendList) {
-                        _queue.enqueue(timer);
-                    }
-                }
+            else {
+                _wakeupTime = UIMonoState_timerMillisecondClock();
             }
         }
 
-        class TimerImpl : Timer, IComparable<TimerImpl> {
-            float _deadline;
-            readonly Action _callback;
-            bool _done;
+        const long MILLI_TO_NANO = 1000000L;
+        
+        void _enqueue() {
+            Isolate.ensureExists();
+            
+            GCHandle callbackHandle = GCHandle.Alloc(this);
+            UIMonoState_postTaskForTime(_postTaskForTime, (IntPtr) callbackHandle, _wakeupTime * MILLI_TO_NANO);
+        }
 
-            public readonly bool periodic;
-            readonly TimeSpan _interval;
+        [MonoPInvokeCallback(typeof(UIMonoState_postTaskForTimeCallback))]
+        static void _postTaskForTime(IntPtr callbackHandle) {
+            GCHandle timerHandle = (GCHandle) callbackHandle;
+            var timer = (_Timer) timerHandle.Target;
+            timerHandle.Free();
 
-            public TimerImpl(TimeSpan duration, Action callback, bool periodic = false) {
-                _deadline = timeSinceStartup + (float) duration.TotalSeconds;
-                _callback = callback;
-                _done = false;
+            try {
+                if (timer._callback != null) {
+                    var callback = timer._callback;
+                    if (!timer._repeating) {
+                        timer._callback = null;
+                    }
+                    else if (timer._milliSeconds > 0) {
+                        var ms = timer._milliSeconds;
+                        long overdue = UIMonoState_timerMillisecondClock() - timer._wakeupTime;
+                        if (overdue > ms) {
+                            long missedTicks = overdue / ms;
+                            timer._wakeupTime += missedTicks * ms;
+                            timer._tick += missedTicks;
+                        }
+                    }
 
-                this.periodic = periodic;
-                if (periodic) {
-                    _interval = duration;
+                    timer._tick += 1;
+
+                    callback(timer);
+
+                    if (timer._repeating && (timer._callback != null)) {
+                        timer._advanceWakeupTime();
+                        timer._enqueue();
+                    }
                 }
             }
-
-            public TimerImpl(Action callback) {
-                _deadline = 0;
-                _callback = callback;
-                _done = false;
-            }
-
-            public float deadline {
-                get { return _deadline; }
-            }
-
-            public override void cancel() {
-                _done = true;
-            }
-
-            public bool done {
-                get { return _done; }
-            }
-
-            public void invoke() {
-                if (_done) {
-                    return;
-                }
-
-                var now = timeSinceStartup;
-                if (!periodic) {
-                    _done = true;
-                }
-
-                try {
-                    _callback();
-                }
-                catch (Exception ex) {
-                    D.logError("Error to execute timer callback: ", ex);
-                }
-
-                if (periodic) {
-                    _deadline = now + (float) _interval.TotalSeconds;
-                }
-            }
-
-            public int CompareTo(TimerImpl other) {
-                return deadline.CompareTo(other.deadline);
+            catch (Exception ex) {
+                Debug.LogException(ex);
             }
         }
+
+        [DllImport(NativeBindings.dllName)]
+        static extern long UIMonoState_timerMillisecondClock();
+
+        delegate void UIMonoState_postTaskForTimeCallback(IntPtr callbackHandle);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern void UIMonoState_postTaskForTime(UIMonoState_postTaskForTimeCallback callback,
+            IntPtr callbackHandle, long targetTimeNanos);
     }
-}*/
+}

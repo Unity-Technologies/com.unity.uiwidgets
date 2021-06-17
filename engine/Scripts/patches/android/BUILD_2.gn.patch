@@ -1,0 +1,10 @@
+--- /Users/unity/Documents/GitHub/EngineBuildTool/engine/src/build/secondary/third_party/libcxxabi/BUILD.gn	2021-05-19 10:57:31.000000000 +0800
++++ /Users/unity/Documents/GitHub/EngineBuildTool/engine/src/build/secondary/third_party/libcxxabi/modify/BUILD.gn	2021-05-19 11:53:06.000000000 +0800
+@@ -7,7 +7,6 @@
+ }
+ 
+ source_set("libcxxabi") {
+-  visibility = [ "../libcxx:*" ]
+ 
+   sources = [
+     "src/abort_message.cpp",

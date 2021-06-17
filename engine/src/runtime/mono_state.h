@@ -24,6 +24,7 @@ class MonoState : public std::enable_shared_from_this<MonoState> {
 
   static MonoState* From(Mono_Isolate isolate);
   static MonoState* Current();
+  static bool EnsureCurrentIsolate();
 
   std::weak_ptr<MonoState> GetWeakPtr();
 

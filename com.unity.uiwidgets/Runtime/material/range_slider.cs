@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -453,11 +454,15 @@ namespace Unity.UIWidgets.material {
         const float _minPreferredTrackWidth = 144.0f;
 
         float _maxSliderPartWidth {
-            get { return Mathf.Max(_sliderPartSizes.Select((Size size) => size.width).ToArray()); }
+            get {
+                return Mathf.Max(LinqUtils<float, Size>.SelectArray(_sliderPartSizes,((Size size) => size.width)));
+            }
         }
 
         float _maxSliderPartHeight {
-            get { return Mathf.Max(_sliderPartSizes.Select((Size size) => size.height).ToArray()); }
+            get {
+                return Mathf.Max(LinqUtils<float,Size>.SelectArray(_sliderPartSizes,((Size size) => size.height)));
+            }
         }
 
         List<Size> _sliderPartSizes {

@@ -28,6 +28,10 @@ UIMonoState* UIMonoState::Current() {
   return static_cast<UIMonoState*>(MonoState::Current());
 }
 
+bool UIMonoState::EnsureCurrentIsolate() {
+  return MonoState::EnsureCurrentIsolate();
+}
+
 void UIMonoState::SetWindow(std::unique_ptr<Window> window) {
   window_ = std::move(window);
 }

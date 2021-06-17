@@ -1,0 +1,20 @@
+--- E:\EngineBuildTool\engine\src\third_party\angle\BUILD.gn	2021-05-20 11:40:00 +0800
++++ E:\EngineBuildTool\engine\src\third_party\angle\modify\BUILD.gn	2021-05-20 14:02:00 +0800
+@@ -1252,3 +1252,17 @@
+     ]
+   }
+ }
++angle_static_library("angle_lib"){
++  complete_static_lib = true
++
++  deps = [
++    ":libANGLE",
++    ":libANGLE_base",
++    ":angle_system_utils",
++    ":angle_version",
++  ]
++
++  public_deps = [
++    ":includes",
++  ]
++}

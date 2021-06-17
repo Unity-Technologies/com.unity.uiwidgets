@@ -1,10 +1,10 @@
-/*
 using System;
+using System.Collections.Generic;
 using System.Text;
-using RSG;
-using RSG.Promises;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.scheduler {
     public delegate void TickerCallback(TimeSpan elapsed);
@@ -13,24 +13,23 @@ namespace Unity.UIWidgets.scheduler {
         Ticker createTicker(TickerCallback onTick);
     }
 
-    public class Ticker {
-        public Ticker(TickerCallback onTick, Func<string> debugLabel = null) {
+    public class Ticker : IDisposable {
+        public Ticker(TickerCallback onTick, string debugLabel = null) {
             D.assert(() => {
-                _debugCreationStack = "skipped, use StackTraceUtility.ExtractStackTrace() if you need it"; // StackTraceUtility.ExtractStackTrace();
+                _debugCreationStack = StackTraceUtility.ExtractStackTrace();
                 return true;
             });
             _onTick = onTick;
             this.debugLabel = debugLabel;
         }
 
-        TickerFutureImpl _future;
+        TickerFuture _future;
 
         public bool muted {
-            get { return _muted; }
+            get => _muted;
             set {
-                if (value == _muted) {
+                if (value == _muted)
                     return;
-                }
 
                 _muted = value;
                 if (value) {
@@ -46,22 +45,14 @@ namespace Unity.UIWidgets.scheduler {
 
         public bool isTicking {
             get {
-                if (_future == null) {
+                if (_future == null)
                     return false;
-                }
-
-                if (muted) {
+                if (muted)
                     return false;
-                }
-
-                if (SchedulerBinding.instance.framesEnabled) {
+                if (SchedulerBinding.instance.framesEnabled)
                     return true;
-                }
-
-                if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.idle) {
+                if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.idle)
                     return true;
-                }
-
                 return false;
             }
         }
@@ -76,15 +67,18 @@ namespace Unity.UIWidgets.scheduler {
             D.assert(() => {
                 if (isActive) {
                     throw new UIWidgetsError(
-                        "A ticker that is already active cannot be started again without first stopping it.\n" +
-                        "The affected ticker was: " + toString(debugIncludeStack: true));
+                        new List<DiagnosticsNode>() {
+                            new ErrorSummary("A ticker was started twice."),
+                            new ErrorDescription(
+                                "A ticker that is already active cannot be started again without first stopping it."),
+                            describeForError("The affected ticker was: ")
+                        });
                 }
-
                 return true;
             });
 
             D.assert(_startTime == null);
-            _future = new TickerFutureImpl();
+            _future = new TickerFuture();
             if (shouldScheduleTick) {
                 scheduleTick();
             }
@@ -97,10 +91,13 @@ namespace Unity.UIWidgets.scheduler {
             return _future;
         }
 
+        public DiagnosticsNode describeForError(string name) {
+            return new DiagnosticsProperty<Ticker>(name, this, description: toString(debugIncludeStack: true));
+        }
+
         public void stop(bool canceled = false) {
-            if (!isActive) {
+            if (!isActive)
                 return;
-            }
 
             var localFuture = _future;
             _future = null;
@@ -121,12 +118,10 @@ namespace Unity.UIWidgets.scheduler {
         int? _animationId;
 
         protected bool scheduled {
-            get { return _animationId != null; }
+            get => _animationId != null;
         }
 
-        protected bool shouldScheduleTick {
-            get { return !muted && isActive && !scheduled; }
-        }
+        protected bool shouldScheduleTick => !muted && isActive && !scheduled;
 
         void _tick(TimeSpan timeStamp) {
             D.assert(isTicking);
@@ -134,12 +129,10 @@ namespace Unity.UIWidgets.scheduler {
             _animationId = null;
 
             _startTime = _startTime ?? timeStamp;
-
             _onTick(timeStamp - _startTime.Value);
 
-            if (shouldScheduleTick) {
+            if (shouldScheduleTick)
                 scheduleTick(rescheduling: true);
-            }
         }
 
         protected void scheduleTick(bool rescheduling = false) {
@@ -175,10 +168,10 @@ namespace Unity.UIWidgets.scheduler {
                 originalTicker.unscheduleTick();
             }
 
-            originalTicker.dispose();
+            originalTicker.Dispose();
         }
 
-        public virtual void dispose() {
+        public virtual void Dispose() {
             if (_future != null) {
                 var localFuture = _future;
                 _future = null;
@@ -188,14 +181,13 @@ namespace Unity.UIWidgets.scheduler {
             }
 
             D.assert(() => {
-                _startTime = default(TimeSpan);
+                _startTime = TimeSpan.Zero;
                 return true;
             });
         }
 
-        internal readonly Func<string> debugLabel;
-
-        string _debugCreationStack;
+        public readonly string debugLabel;
+        internal string _debugCreationStack;
 
         public override string ToString() {
             return toString(debugIncludeStack: false);
@@ -205,18 +197,18 @@ namespace Unity.UIWidgets.scheduler {
             var buffer = new StringBuilder();
             buffer.Append(GetType() + "(");
             D.assert(() => {
-                if (debugLabel != null) {
-                    buffer.Append(debugLabel());
-                }
+                buffer.Append(debugLabel ?? "");
                 return true;
             });
             buffer.Append(')');
             D.assert(() => {
                 if (debugIncludeStack) {
                     buffer.AppendLine();
-                    buffer.AppendLine("The stack trace when the " + GetType() + " was actually created was:");
-                    UIWidgetsError.defaultStackFilter(_debugCreationStack.TrimEnd().Split('\n'))
-                        .Each(line => buffer.AppendLine(line));
+                    buffer.AppendLine("The stack trace when the " + GetType() + " was actually created was: ");
+                    foreach (var line in UIWidgetsError.defaultStackFilter(
+                        _debugCreationStack.TrimEnd().Split('\n'))) {
+                        buffer.AppendLine(line);
+                    }
                 }
 
                 return true;
@@ -225,61 +217,85 @@ namespace Unity.UIWidgets.scheduler {
         }
     }
 
-    public interface TickerFuture : IPromise {
-        void whenCompleteOrCancel(VoidCallback callback);
+    public class TickerFuture : Future {
+        internal TickerFuture() {
+        }
 
-        IPromise orCancel { get; }
-    }
-
-    public class TickerFutureImpl : Promise, TickerFuture {
         public static TickerFuture complete() {
-            var result = new TickerFutureImpl();
+            var result = new TickerFuture();
             result._complete();
             return result;
         }
 
-        Promise _secondaryCompleter;
-        bool? _completed;
+        readonly Completer _primaryCompleter = Completer.create();
+        Completer _secondaryCompleter;
+        bool? _completed; // null means unresolved, true means complete, false means canceled
 
         internal void _complete() {
             D.assert(_completed == null);
             _completed = true;
-            Resolve();
-            if (_secondaryCompleter != null) {
-                _secondaryCompleter.Resolve();
-            }
+            _primaryCompleter.complete();
+            _secondaryCompleter?.complete();
         }
 
         internal void _cancel(Ticker ticker) {
             D.assert(_completed == null);
             _completed = false;
-            if (_secondaryCompleter != null) {
-                _secondaryCompleter.Reject(new TickerCanceled(ticker));
-            }
+            _secondaryCompleter?.completeError(new TickerCanceled(ticker));
         }
 
         public void whenCompleteOrCancel(VoidCallback callback) {
-            orCancel.Then(() => callback(), ex => callback());
+            orCancel.then((value) => {
+                callback();
+                return FutureOr.nil;
+            }, ex => {
+                callback();
+                return FutureOr.nil;
+            });
         }
 
-        public IPromise orCancel {
+        public Future orCancel {
             get {
                 if (_secondaryCompleter == null) {
-                    _secondaryCompleter = new Promise();
+                    _secondaryCompleter = Completer.create();
                     if (_completed != null) {
                         if (_completed.Value) {
-                            _secondaryCompleter.Resolve();
+                            _secondaryCompleter.complete();
                         }
                         else {
-                            _secondaryCompleter.Reject(new TickerCanceled());
+                            _secondaryCompleter.completeError(new TickerCanceled());
                         }
                     }
                 }
 
-                return _secondaryCompleter;
+                return _secondaryCompleter.future;
             }
         }
+
+        // public override Stream asStream() {
+        //     return _primaryCompleter.future.asStream();
+        // }
+
+        public override Future catchError(Func<Exception, FutureOr> onError, Func<Exception, bool> test = null) {
+            return _primaryCompleter.future.catchError(onError, test: test);
+        }
+
+        public override Future then(Func<object, FutureOr> onValue, Func<Exception, FutureOr> onError = null) {
+            return _primaryCompleter.future.then(onValue, onError: onError);
+        }
+
+        public override Future timeout(TimeSpan timeLimit, Func<FutureOr> onTimeout = null) {
+            return _primaryCompleter.future.timeout(timeLimit, onTimeout: onTimeout);
+        }
+
+        public override Future whenComplete(Func<FutureOr> action) {
+            return _primaryCompleter.future.whenComplete(action);
+        }
+
+        public override string ToString() =>
+            $"{foundation_.describeIdentity(this)}({(_completed == null ? "active" : (_completed.Value ? "complete" : "canceled"))})";
     }
+
 
     public class TickerCanceled : Exception {
         public TickerCanceled(Ticker ticker = null) {
@@ -296,4 +312,4 @@ namespace Unity.UIWidgets.scheduler {
             return "The ticker was canceled before the \"orCancel\" property was first used.";
         }
     }
-}*/
+}

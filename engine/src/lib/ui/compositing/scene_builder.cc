@@ -36,7 +36,7 @@ fml::RefPtr<EngineLayer> SceneBuilder::pushTransform(const float* matrix4) {
 }
 
 fml::RefPtr<EngineLayer> SceneBuilder::pushOffset(float dx, float dy) {
-  SkMatrix sk_matrix = SkMatrix::Translate(dx, dy);
+  SkMatrix sk_matrix = SkMatrix::MakeTrans(dx, dy);
   auto layer = std::make_shared<TransformLayer>(sk_matrix);
   PushLayer(layer);
   return EngineLayer::MakeRetained(layer);

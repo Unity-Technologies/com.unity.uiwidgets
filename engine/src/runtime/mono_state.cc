@@ -22,6 +22,10 @@ MonoState* MonoState::From(Mono_Isolate isolate) {
   return isolate_data->get();
 }
 
+bool MonoState::EnsureCurrentIsolate() {
+  return Mono_CurrentIsolate() != nullptr;
+}
+
 MonoState* MonoState::Current() {
   auto isolate_data =
       static_cast<std::shared_ptr<MonoState>*>(Mono_CurrentIsolateData());

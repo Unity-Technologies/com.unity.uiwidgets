@@ -1,61 +1,37 @@
-/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
-namespace Unity.UIWidgets.rendering {
-    
-    public delegate void PointerEnterEventListener(PointerEnterEvent _event);
-    public delegate void PointerExitEventListener(PointerExitEvent _event);
-    public delegate void PointerHoverEventListener(PointerHoverEvent _event);
-    
-    public class MouseTrackerAnnotation : Diagnosticable {
+namespace Unity.UIWidgets.gestures {
+    public delegate void PointerHoverEventListener(PointerHoverEvent evt);
 
-        public MouseTrackerAnnotation(
-            PointerEnterEventListener onEnter, 
-            PointerHoverEventListener onHover,
-            PointerExitEventListener onExit) {
-            this.onEnter = onEnter;
-            this.onHover = onHover;
-            this.onExit = onExit;
-        }
+    public delegate void PointerEnterEventListener(PointerEnterEvent evt);
 
-        public readonly PointerEnterEventListener onEnter;
-        public readonly PointerHoverEventListener onHover;
-        public readonly PointerExitEventListener onExit;
+    public delegate void PointerExitEventListener(PointerExitEvent evt);
 
-      
-        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-            base.debugFillProperties(properties);
-            properties.add(new FlagsSummary<Delegate>(
-              "callbacks",
-              new Dictionary<string, Delegate> {
-                  {"enter", onEnter},
-                  {"hover", onHover},
-                  {"exit", onExit},
-              },
-              ifEmpty: "<none>"
-            ));
-        }
-    }
+    public delegate void PointerDragFromEditorEnterEventListener(PointerDragFromEditorEnterEvent evt);
 
+    public delegate void PointerDragFromEditorHoverEventListener(PointerDragFromEditorHoverEvent evt);
 
-    public delegate IEnumerable<MouseTrackerAnnotation> MouseDetectorAnnotationFinder(Offset offset);
+    public delegate void PointerDragFromEditorExitEventListener(PointerDragFromEditorExitEvent evt);
+
+    public delegate void PointerDragFromEditorReleaseEventListener(PointerDragFromEditorReleaseEvent evt);
+
     public delegate void _UpdatedDeviceHandler(_MouseState mouseState, HashSet<MouseTrackerAnnotation> previousAnnotations);
 
+   
     public class _MouseState {
-        public _MouseState(PointerEvent initialEvent) {
+        public _MouseState(PointerEvent initialEvent = null
+        ) {
             D.assert(initialEvent != null);
             _latestEvent = initialEvent;
         }
 
         public HashSet<MouseTrackerAnnotation> annotations {
-            get { return _annotations; }
+            get { return _annotations;}
         }
-
         HashSet<MouseTrackerAnnotation> _annotations = new HashSet<MouseTrackerAnnotation>();
 
         public HashSet<MouseTrackerAnnotation> replaceAnnotations(HashSet<MouseTrackerAnnotation> value) {
@@ -63,237 +39,287 @@ namespace Unity.UIWidgets.rendering {
             _annotations = value;
             return previous;
         }
-        
+
+        // The most recently processed mouse event observed from this device.
         public PointerEvent latestEvent {
-            get {
-                return _latestEvent;
-            }
+            get { return _latestEvent; }
             set {
                 D.assert(value != null);
                 _latestEvent = value;
             }
         }
-
         PointerEvent _latestEvent;
-      
 
         public int device {
-            get {
-                return latestEvent.device;
-            }
+            get { return latestEvent.device;}
         }
 
-      
         public override string ToString() {
-            string describeEvent(PointerEvent _event) {
-                return _event == null ? "null" : foundation_.describeIdentity(_event);
+            string describeEvent(PointerEvent Event) {
+                return Event == null ? "null" : describeIdentity(Event);
             }
             string describeLatestEvent = $"latestEvent: {describeEvent(latestEvent)}";
             string describeAnnotations = $"annotations: [list of {annotations.Count}]";
-            return $"{foundation_.describeIdentity(this)}({describeLatestEvent}, {describeAnnotations})";
+            return $"{describeIdentity(this)}"+$"({describeLatestEvent}, {describeAnnotations})";
+        }
+
+        public string describeIdentity(object Object) {
+            return $"{Object.GetType()}" + $"{Object.GetHashCode()}";
+
+        }
+    }
+    public class MouseTrackerAnnotation {
+        public MouseTrackerAnnotation(
+            PointerEnterEventListener onEnter = null,
+            PointerHoverEventListener onHover = null,
+            PointerExitEventListener onExit = null,
+            PointerDragFromEditorEnterEventListener onDragFromEditorEnter = null,
+            PointerDragFromEditorHoverEventListener onDragFromEditorHover = null,
+            PointerDragFromEditorExitEventListener onDragFromEditorExit = null,
+            PointerDragFromEditorReleaseEventListener onDragFromEditorRelease = null
+        ) {
+            this.onEnter = onEnter;
+            this.onHover = onHover;
+            this.onExit = onExit;
+
+            this.onDragFromEditorEnter = onDragFromEditorEnter;
+            this.onDragFromEditorHover = onDragFromEditorHover;
+            this.onDragFromEditorExit = onDragFromEditorExit;
+            this.onDragFromEditorRelease = onDragFromEditorRelease;
+        }
+
+        public readonly PointerEnterEventListener onEnter;
+
+        public readonly PointerHoverEventListener onHover;
+
+        public readonly PointerExitEventListener onExit;
+
+        public readonly PointerDragFromEditorEnterEventListener onDragFromEditorEnter;
+        public readonly PointerDragFromEditorHoverEventListener onDragFromEditorHover;
+        public readonly PointerDragFromEditorExitEventListener onDragFromEditorExit;
+        public readonly PointerDragFromEditorReleaseEventListener onDragFromEditorRelease;
+
+        public override string ToString() {
+            return
+                $"{GetType()}#{GetHashCode()}{(onEnter == null ? "" : " onEnter")}{(onHover == null ? "" : " onHover")}{(onExit == null ? "" : " onExit")}";
         }
     }
 
-public class MouseTracker : ChangeNotifier {
-  
-    public MouseTracker(PointerRouter _router, MouseDetectorAnnotationFinder annotationFinder) {
-        D.assert(_router != null);
-        D.assert(annotationFinder != null);
-        _router.addGlobalRoute(_handleEvent);
+    public class _TrackedAnnotation {
+        public _TrackedAnnotation(
+            MouseTrackerAnnotation annotation) {
+            this.annotation = annotation;
+        }
+
+        public readonly MouseTrackerAnnotation annotation;
+
+        public HashSet<int> activeDevices = new HashSet<int>();
     }
 
-  
-    public override void dispose() {
-        base.dispose();
-        _router.removeGlobalRoute(_handleEvent);
-    }
-    
-    public readonly MouseDetectorAnnotationFinder annotationFinder;
-    public readonly PointerRouter _router;
-    public readonly Dictionary<int, _MouseState> _mouseStates = new Dictionary<int, _MouseState>();
-    
-    static bool _shouldMarkStateDirty(_MouseState state, PointerEvent value) {
-        if (state == null)
-            return true;
-        D.assert(value != null);
-        PointerEvent lastEvent = state.latestEvent;
-        D.assert(value.device == lastEvent.device);
-        D.assert((value is PointerAddedEvent) == (lastEvent is PointerRemovedEvent));
-    
-        if (value is PointerSignalEvent)
-            return false;
-        return lastEvent is PointerAddedEvent
-        || value is PointerRemovedEvent
-        || lastEvent.position != value.position;
-    }
+    public delegate IEnumerable<MouseTrackerAnnotation> MouseDetectorAnnotationFinder(Offset offset);
 
-    void _handleEvent(PointerEvent _event) {
-        if (_event.kind != PointerDeviceKind.mouse)
-            return;
-        if (_event is PointerSignalEvent)
-            return;
-        int device = _event.device;
-        _MouseState existingState = _mouseStates.getOrDefault(device);
-        if (!_shouldMarkStateDirty(existingState, _event))
-            return;
+    public class MouseTracker : ChangeNotifier{
+        public MouseTracker(
+            PointerRouter router,
+            MouseDetectorAnnotationFinder annotationFinder
+            
+        ) {
+            D.assert(router != null);
+            D.assert(annotationFinder != null);
+            _router = router;
+            router.addGlobalRoute(_handleEvent);
+            this.annotationFinder = annotationFinder;
+        }
+        public override void dispose() {
+            base.dispose();
+            _router.removeGlobalRoute(_handleEvent);
+        }
+       
+        public readonly MouseDetectorAnnotationFinder annotationFinder;
+        readonly Dictionary<int, PointerEvent> _lastMouseEvent = new Dictionary<int, PointerEvent>();
+        readonly PointerRouter _router;
+        public readonly Dictionary<int, _MouseState> _mouseStates = new Dictionary<int, _MouseState>();
+        
+        public bool mouseIsConnected {
+            get { return _lastMouseEvent.isNotEmpty(); }
+        }
+        public static bool _shouldMarkStateDirty(_MouseState state, PointerEvent value) {
+            if (state == null)
+                return true;
+            D.assert(value != null);
+            PointerEvent lastEvent = state.latestEvent;
+            D.assert(value.device == lastEvent.device);
+            
+            D.assert((value is PointerAddedEvent) == (lastEvent is PointerRemovedEvent));
+            if (value is PointerSignalEvent)
+                return false;
+            return lastEvent is PointerAddedEvent
+                   || value is PointerRemovedEvent
+                   || lastEvent.position != value.position;
+        }
 
-        PointerEvent previousEvent = existingState?.latestEvent;
-        _updateDevices(
-        targetEvent: _event,
-        handleUpdatedDevice: (_MouseState mouseState, HashSet<MouseTrackerAnnotation> previousAnnotations) =>{
-            D.assert(mouseState.device == _event.device);
-            _dispatchDeviceCallbacks(
-            lastAnnotations: previousAnnotations,
-            nextAnnotations: mouseState.annotations,
-            previousEvent: previousEvent,
-            unhandledEvent: _event
+        public readonly Dictionary<MouseTrackerAnnotation, _TrackedAnnotation> _trackedAnnotations =
+            new Dictionary<MouseTrackerAnnotation, _TrackedAnnotation>();
+
+        public void _handleEvent(PointerEvent Event) {
+            if (Event.kind != PointerDeviceKind.mouse)
+                return;
+            if (Event is PointerSignalEvent)
+                return;
+            int device = Event.device;
+            _MouseState existingState = _mouseStates.getOrDefault(device);
+            if (!_shouldMarkStateDirty(existingState, Event))
+                return;
+            PointerEvent previousEvent = existingState?.latestEvent;
+            _updateDevices(
+                targetEvent: Event,
+                handleUpdatedDevice: (_MouseState mouseState, HashSet<MouseTrackerAnnotation> previousAnnotations) =>{
+                D.assert(mouseState.device == Event.device);
+                _dispatchDeviceCallbacks(
+                        lastAnnotations: previousAnnotations,
+                        nextAnnotations: mouseState.annotations,
+                        previousEvent: previousEvent,
+                        unhandledEvent: Event
+                    );
+                }
             );
-        });
-    }
-  
-    HashSet<MouseTrackerAnnotation> _findAnnotations(_MouseState state) {
-        Offset globalPosition = state.latestEvent.position;
-        int device = state.device;
-        HashSet<MouseTrackerAnnotation> temp = new HashSet<MouseTrackerAnnotation>();
-        foreach (var set in annotationFinder(globalPosition)) {
-            temp.Add(set);
         }
-        return (_mouseStates.ContainsKey(device)) ? temp : new HashSet<MouseTrackerAnnotation>();
-    }
+        public static void _dispatchDeviceCallbacks(
+            HashSet<MouseTrackerAnnotation> lastAnnotations,
+            HashSet<MouseTrackerAnnotation> nextAnnotations,
+            PointerEvent previousEvent = null,
+            PointerEvent unhandledEvent = null
+        ) { 
+            D.assert(lastAnnotations != null);
+            D.assert(nextAnnotations != null);
+            PointerEvent latestEvent = unhandledEvent ?? previousEvent;
+            D.assert(latestEvent != null);
+            IEnumerable<MouseTrackerAnnotation> exitingAnnotations = new List<MouseTrackerAnnotation>();
+            foreach (var lastAnnotation in lastAnnotations) {
+                if (!nextAnnotations.Contains(lastAnnotation)) {
+                    exitingAnnotations.Append(lastAnnotation);
+                }
+            }
+            foreach ( MouseTrackerAnnotation annotation in exitingAnnotations) { 
+                if (annotation.onExit != null) {
+                    annotation.onExit(PointerExitEvent.fromMouseEvent(latestEvent));
+                }
+            }
+            IEnumerable<MouseTrackerAnnotation> enteringAnnotations = new List<MouseTrackerAnnotation>();
+            List<MouseTrackerAnnotation> entering = new List<MouseTrackerAnnotation>();
+            foreach (var nextAnnotation in nextAnnotations) {
+                if (!lastAnnotations.Contains(nextAnnotation)) {
+                    entering.Add(nextAnnotation);
+                }
+            }    
+            entering.ToList().Reverse();
+            enteringAnnotations = entering;
+            foreach ( MouseTrackerAnnotation annotation in enteringAnnotations) { 
+                if (annotation.onEnter != null) {
+                    annotation.onEnter(PointerEnterEvent.fromMouseEvent(latestEvent));
+                }
+            }
+            if (unhandledEvent is PointerHoverEvent) {
+               Offset lastHoverPosition = previousEvent is PointerHoverEvent ? previousEvent.position : null;
+               bool pointerHasMoved = lastHoverPosition == null || lastHoverPosition != unhandledEvent.position;
+               nextAnnotations.ToList().Reverse();
+               IEnumerable<MouseTrackerAnnotation> hoveringAnnotations = pointerHasMoved ? nextAnnotations : enteringAnnotations;
+               foreach ( MouseTrackerAnnotation annotation in hoveringAnnotations) { 
+                   if (annotation.onHover != null) {
+                    annotation.onHover((PointerHoverEvent)unhandledEvent);
+                   } 
+               }
+            }
+        }
 
-    static bool _duringBuildPhase {
-        get {
-            return SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks;
+        public HashSet<MouseTrackerAnnotation> _findAnnotations(_MouseState state) {
+            Offset globalPosition = state.latestEvent.position;
+            int device = state.device;
+            HashSet<MouseTrackerAnnotation> result = new HashSet<MouseTrackerAnnotation>();
+            foreach (var values in annotationFinder(globalPosition)) {
+                result.Add(values);
+            }
+            return (_mouseStates.ContainsKey(device))
+                ? result
+                : new  HashSet<MouseTrackerAnnotation>{} as HashSet<MouseTrackerAnnotation>;
         }
-    }
-    
-    void _updateAllDevices() {
-        _updateDevices(
-            handleUpdatedDevice: (_MouseState mouseState, HashSet<MouseTrackerAnnotation> previousAnnotations) => {
-            _dispatchDeviceCallbacks(
-                lastAnnotations: previousAnnotations,
-                nextAnnotations: mouseState.annotations,
-                previousEvent: mouseState.latestEvent,
-                unhandledEvent: null
+
+
+        public static bool _duringBuildPhase {
+            get {
+                return SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks;
+            }
+        }
+        public void _updateAllDevices() {
+            _updateDevices(
+                handleUpdatedDevice: (_MouseState mouseState, HashSet<MouseTrackerAnnotation> previousAnnotations)=> {
+                    _dispatchDeviceCallbacks(
+                        lastAnnotations: previousAnnotations,
+                        nextAnnotations: mouseState.annotations,
+                        previousEvent: mouseState.latestEvent,
+                        unhandledEvent: null
+                    );
+                }
             );
-        });
-    }
-
-    bool _duringDeviceUpdate = false;
-  
-    void _updateDevices(
-        PointerEvent targetEvent = null,
-        _UpdatedDeviceHandler handleUpdatedDevice = null
-    ) {
-        D.assert(handleUpdatedDevice != null);
-        D.assert(!_duringBuildPhase);
-        D.assert(!_duringDeviceUpdate);
-        bool mouseWasConnected = mouseIsConnected;
-
-        _MouseState targetState = null;
-        if (targetEvent != null) {
-            targetState = _mouseStates.getOrDefault(targetEvent.device);
-            if (targetState == null) {
-                targetState = new _MouseState(initialEvent: targetEvent);
+        }
+        bool _duringDeviceUpdate = false;
+        
+        void _updateDevices(
+            PointerEvent targetEvent = null, 
+            _UpdatedDeviceHandler handleUpdatedDevice = null) { 
+            D.assert(handleUpdatedDevice != null);
+            D.assert(!_duringBuildPhase);
+            D.assert(!_duringDeviceUpdate);
+            bool mouseWasConnected = mouseIsConnected;
+            
+            _MouseState targetState = null;
+            if (targetEvent != null) {
+              targetState = _mouseStates.getOrDefault(targetEvent.device);
+              if (targetState == null) {
+                targetState = new  _MouseState(initialEvent: targetEvent);
                 _mouseStates[targetState.device] = targetState;
-            } else {
+              } else {
                 D.assert(!(targetEvent is PointerAddedEvent));
                 targetState.latestEvent = targetEvent;
                 if (targetEvent is PointerRemovedEvent)
-                    _mouseStates.Remove(targetEvent.device);
+                  _mouseStates.Remove(targetEvent.device);
+              }
             }
-        }
+            D.assert((targetState == null) == (targetEvent == null));
 
-        D.assert(() => {
-            _duringDeviceUpdate = true;
-            return true;
-        });
-        IEnumerable<_MouseState> dirtyStates = targetEvent == null ? _mouseStates.Values : new List<_MouseState>{targetState};
-        foreach (_MouseState dirtyState in dirtyStates) {
-            HashSet<MouseTrackerAnnotation> nextAnnotations = _findAnnotations(dirtyState);
-            HashSet<MouseTrackerAnnotation> lastAnnotations = dirtyState.replaceAnnotations(nextAnnotations);
-            handleUpdatedDevice(dirtyState, lastAnnotations);
-        }
-        D.assert(() => {
-          _duringDeviceUpdate = false;
-          return true;
-        });
-
-        if (mouseWasConnected != mouseIsConnected)
-            notifyListeners();
-    }
-    
-    static void _dispatchDeviceCallbacks(
-        HashSet<MouseTrackerAnnotation> lastAnnotations = null,
-        HashSet<MouseTrackerAnnotation> nextAnnotations = null,
-        PointerEvent previousEvent = null,
-        PointerEvent unhandledEvent = null
-    ) {
-        D.assert(lastAnnotations != null);
-        D.assert(nextAnnotations != null);
-        PointerEvent latestEvent = unhandledEvent ?? previousEvent;
-        D.assert(latestEvent != null);
-
-        
-        
-        List<MouseTrackerAnnotation> exitingAnnotations = new List<MouseTrackerAnnotation>();
-        foreach (var annotation in lastAnnotations) {
-            if (!nextAnnotations.Contains(annotation)) {
-                exitingAnnotations.Add(annotation);
-            }
-        }
-        foreach (MouseTrackerAnnotation annotation in exitingAnnotations) {
-            annotation.onExit?.Invoke(PointerExitEvent.fromMouseEvent(latestEvent));
-        }
-
-        List<MouseTrackerAnnotation> enteringAnnotations = new List<MouseTrackerAnnotation>();
-        foreach (var annotation in nextAnnotations) {
-            if (!lastAnnotations.Contains(annotation)) {
-                enteringAnnotations.Add(annotation);
-            }
-        }
-        enteringAnnotations.Reverse();
-        foreach (MouseTrackerAnnotation annotation in enteringAnnotations) {
-            annotation.onEnter?.Invoke(PointerEnterEvent.fromMouseEvent(latestEvent));
-        }
-    
-        if (unhandledEvent is PointerHoverEvent) {
-            Offset lastHoverPosition = previousEvent is PointerHoverEvent ? previousEvent.position : null;
-            bool pointerHasMoved = lastHoverPosition == null || lastHoverPosition != unhandledEvent.position;
-            List<MouseTrackerAnnotation> nextAnnotationsList = new List<MouseTrackerAnnotation>();
-            foreach (var annotation in nextAnnotations) {
-                nextAnnotationsList.Add(annotation);
-            }
-
-            nextAnnotationsList.Reverse();
-            IEnumerable<MouseTrackerAnnotation> hoveringAnnotations = pointerHasMoved ? nextAnnotationsList : enteringAnnotations;
-            foreach (MouseTrackerAnnotation annotation in hoveringAnnotations) {
-                annotation.onHover?.Invoke((PointerHoverEvent)unhandledEvent);
-            }
-        }
-    }
-
-    bool _hasScheduledPostFrameCheck = false;
-
-    public void schedulePostFrameCheck() {
-        D.assert(_duringBuildPhase);
-        D.assert(!_duringDeviceUpdate);
-        if (!mouseIsConnected)
-            return;
-        if (!_hasScheduledPostFrameCheck) {
-            _hasScheduledPostFrameCheck = true;
-            SchedulerBinding.instance.addPostFrameCallback((TimeSpan timeSpan) => {
-            D.assert(_hasScheduledPostFrameCheck);
-            _hasScheduledPostFrameCheck = false;
-            _updateAllDevices();
+            D.assert(()=> {
+              _duringDeviceUpdate = true;
+              return true;
             });
+           
+            IEnumerable<_MouseState> dirtyStates = targetEvent == null ? (IEnumerable<_MouseState>) _mouseStates.Values : new  List<_MouseState>{targetState};
+            foreach ( _MouseState dirtyState in dirtyStates) {
+              HashSet<MouseTrackerAnnotation> nextAnnotations = _findAnnotations(dirtyState); 
+              HashSet<MouseTrackerAnnotation> lastAnnotations = dirtyState.replaceAnnotations(nextAnnotations);
+              handleUpdatedDevice(dirtyState, lastAnnotations);
+            }
+            D.assert(() =>{
+              _duringDeviceUpdate = false;
+              return true;
+            });
+
+            if (mouseWasConnected != mouseIsConnected)
+              notifyListeners();
         }
-    }
-  
-        public bool mouseIsConnected {
-            get {
-                return _mouseStates.isNotEmpty();
+        public bool _hasScheduledPostFrameCheck = false;
+        public void schedulePostFrameCheck() {
+            D.assert(_duringBuildPhase);
+            D.assert(!_duringDeviceUpdate);
+            if (!mouseIsConnected)
+              return;
+            if (!_hasScheduledPostFrameCheck) {
+              _hasScheduledPostFrameCheck = true;
+              SchedulerBinding.instance.addPostFrameCallback((stamp =>  {
+                D.assert(_hasScheduledPostFrameCheck);
+                _hasScheduledPostFrameCheck = false;
+                _updateAllDevices();
+              }));
             }
         }
     }
-}*/
+}
