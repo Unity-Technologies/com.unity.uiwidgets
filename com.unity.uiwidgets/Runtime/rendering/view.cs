@@ -20,7 +20,7 @@ namespace Unity.UIWidgets.rendering {
         public readonly float devicePixelRatio;
 
         public Matrix4 toMatrix() {
-            return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 0);
+            return Matrix4.diagonal3Values(devicePixelRatio, devicePixelRatio, 1);
         }
 
         public override string ToString() {

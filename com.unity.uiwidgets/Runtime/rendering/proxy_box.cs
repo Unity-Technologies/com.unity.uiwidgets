@@ -2867,7 +2867,7 @@ namespace Unity.UIWidgets.rendering {
                     return;
                 }
 
-                layer = value;
+                base.layer = value;
             }
         }
 
