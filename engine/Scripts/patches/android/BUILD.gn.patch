@@ -1,0 +1,23 @@
+--- /Users/unity/Documents/GitHub/EngineBuildTool/engine/src/flutter/third_party/txt/BUILD.gn	2021-05-19 11:45:24.000000000 +0800
++++ /Users/unity/Documents/GitHub/EngineBuildTool/engine/src/flutter/third_party/txt/modify/BUILD.gn	2021-05-19 11:44:06.000000000 +0800
+@@ -141,6 +141,9 @@
+     "//third_party/harfbuzz",
+     "//third_party/icu",
+     "//third_party/skia",
++    "//third_party/skia/modules/skottie",
++    "//third_party/libcxx",
++    "//third_party/libcxxabi",
+   ]
+ 
+   deps = [
+@@ -339,3 +342,10 @@
+     deps += [ "//third_party/skia/modules/skparagraph" ]
+   }
+ }
++
++static_library("txt_lib") {
++  complete_static_lib = true
++  deps = [
++    ":txt",
++  ]
++}

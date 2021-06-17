@@ -2,15 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.services;
-using SchedulerBinding = Unity.UIWidgets.scheduler2.SchedulerBinding;
-using SchedulerPhase = Unity.UIWidgets.scheduler2.SchedulerPhase;
+using UnityEngine;
+using SchedulerBinding = Unity.UIWidgets.scheduler.SchedulerBinding;
+using SchedulerPhase = Unity.UIWidgets.scheduler.SchedulerPhase;
 
 namespace Unity.UIWidgets.widgets {
     public delegate Route RouteFactory(RouteSettings settings);
@@ -539,6 +541,11 @@ namespace Unity.UIWidgets.widgets {
             return of(context).pushReplacementNamed<T,TO>(routeName, arguments: arguments,result: result);
         }
 
+        public static Future pushReplacementNamed(BuildContext context, string routeName,
+            object result = default , object arguments = null) {
+            return of(context).pushReplacementNamed(routeName, arguments: arguments,result: result);
+        }
+
         public static Future<T> popAndPushNamed<T,TO>(BuildContext context, string routeName,
             TO result = default,
             object arguments = null) {
@@ -1025,16 +1032,17 @@ namespace Unity.UIWidgets.widgets {
 
             if (initialRoute != null) {
                 _history.AddRange(
-                    widget.onGenerateInitialRoutes(
+                    LinqUtils<_RouteEntry,Route>.SelectList(
+                        widget.onGenerateInitialRoutes(
                         this,
-                        widget.initialRoute ?? Navigator.defaultRouteName
-                    ).Select((Route route) =>
-                            new _RouteEntry(
-                                route,
-                                initialState: _RouteLifecycle.add
-                            )
-                    )
-                );
+                                widget.initialRoute ?? Navigator.defaultRouteName
+                ), (Route route) =>
+                         new _RouteEntry(
+                             route, 
+                             initialState: _RouteLifecycle.add
+                             )
+                        )
+                    );
             }
             D.assert(!_debugLocked);
             D.assert(() => {
@@ -1625,7 +1633,7 @@ namespace Unity.UIWidgets.widgets {
             return route;
         }
 
-        public Route<T> _routeNamed<T>(string name, object arguments, bool allowNull = false) {
+        public Route _routeNamed<T>(string name, object arguments, bool allowNull = false) {
             D.assert(!_debugLocked);
             D.assert(name != null);
             if (allowNull && widget.onGenerateRoute == null)
@@ -1649,8 +1657,7 @@ namespace Unity.UIWidgets.widgets {
                 arguments: arguments
             );
 
-            var routeee = widget.onGenerateRoute(settings);
-            Route<T> route = routeee as Route<T>;
+            Route route = widget.onGenerateRoute(settings);
             if (route == null && !allowNull) {
                 D.assert(() => {
                     if (widget.onUnknownRoute == null) {
@@ -1665,7 +1672,7 @@ namespace Unity.UIWidgets.widgets {
 
                     return true;
                 });
-                route = widget.onUnknownRoute(settings) as Route<T>;
+                route = widget.onUnknownRoute(settings);
                 D.assert(() => {
                     if (route == null) {
                         throw new UIWidgetsError(
@@ -1705,6 +1712,15 @@ namespace Unity.UIWidgets.widgets {
         ) {
             return pushReplacement<T, TO>(_routeNamed<T>(routeName, arguments: arguments), result: result);
         }
+
+        public Future pushReplacementNamed(
+            string routeName,
+            object result = default,
+            object arguments = null
+        ) {
+            return pushReplacement(_routeNamed(routeName, arguments: arguments), result: result);
+        }
+
 
         public Future<T> popAndPushNamed<T, TO>(
             string routeName,
@@ -1779,8 +1795,7 @@ namespace Unity.UIWidgets.widgets {
                         {"name", settings.name}
                     };
                     if (settings.arguments != null) {
-                        settingsJsonable["arguments"] = JSONMessageCodec.instance.toJson(
-                            settings.arguments);
+                        settingsJsonable["arguments"] = JsonUtility.ToJson(settings.arguments);
                     }
 
                     routeJsonable["settings"] = settingsJsonable;
@@ -1795,7 +1810,7 @@ namespace Unity.UIWidgets.widgets {
 
         
 
-        public Future<T> pushReplacement<T, TO>(Route<T> newRoute, TO result) {
+        public Future<T> pushReplacement<T, TO>(Route newRoute, TO result) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -1830,7 +1845,43 @@ namespace Unity.UIWidgets.widgets {
             return newRoute.popped.to<T>();
         }
 
-        public Future<T> pushAndRemoveUntil<T>(Route<T> newRoute, RoutePredicate predicate) {
+        public Future pushReplacement(Route newRoute, object result) {
+            D.assert(!_debugLocked);
+            D.assert(() => {
+                _debugLocked = true;
+                return true;
+            });
+            D.assert(newRoute != null);
+            D.assert(newRoute._navigator == null);
+            D.assert(_history.isNotEmpty());
+            
+            bool anyEntry = false;
+            foreach (var historyEntry in _history) {
+                if (_RouteEntry.isPresentPredicate(historyEntry)) {
+                    anyEntry = true;
+                }
+            }
+            D.assert(anyEntry,()=> "Navigator has no active routes to replace.");
+            _RouteEntry lastEntry = null;
+            foreach (var historyEntry in _history) {
+                if (_RouteEntry.isPresentPredicate(historyEntry)) {
+                    lastEntry = historyEntry;
+                }
+            }
+            lastEntry.complete(result, isReplaced: true);
+            
+            _history.Add(new _RouteEntry(newRoute, initialState: _RouteLifecycle.pushReplace));
+            _flushHistoryUpdates();
+            D.assert(() => {
+                _debugLocked = false;
+                return true;
+            });
+            _afterNavigation(newRoute);
+            return newRoute.popped.to<object>();
+        }
+
+
+        public Future<T> pushAndRemoveUntil<T>(Route newRoute, RoutePredicate predicate) {
             D.assert(!_debugLocked);
             D.assert(() => {
                 _debugLocked = true;
@@ -1953,7 +2004,7 @@ namespace Unity.UIWidgets.widgets {
 
         public Future<bool> maybePop<T>(T result = default(T)) {
             ///asyn
-            _RouteEntry lastEntry = null; //_history.Where(_RouteEntry.isPresentPredicate);
+            _RouteEntry lastEntry = null; 
             foreach (_RouteEntry routeEntry in _history) {
                 if (_RouteEntry.isPresentPredicate(routeEntry)) {
                     lastEntry = routeEntry;

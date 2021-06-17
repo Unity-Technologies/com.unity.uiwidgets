@@ -1,4 +1,4 @@
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -16,6 +16,7 @@ namespace UIWidgetsSample {
             public override Widget build(BuildContext context)
             {
                 return new WidgetsApp(
+                    color: Color.white,
                     home: new Unity.UIWidgets.widgets.CustomPaint(
                         child: new Container(width: 300, height: 300, color: new Color(0XFFFFFFFF)),
                         foregroundPainter: new GridPainter(null)

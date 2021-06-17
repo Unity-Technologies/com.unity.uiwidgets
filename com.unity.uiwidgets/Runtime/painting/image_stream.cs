@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
-using SchedulerBinding = Unity.UIWidgets.scheduler2.SchedulerBinding;
+using SchedulerBinding = Unity.UIWidgets.scheduler.SchedulerBinding;
 
 namespace Unity.UIWidgets.painting {
     public class ImageInfo : IEquatable<ImageInfo> {
@@ -309,7 +310,7 @@ namespace Unity.UIWidgets.painting {
                 return;
             }
 
-            var localListeners = _listeners.Select(l => l).ToList();
+            var localListeners = LinqUtils<ImageStreamListener>.SelectList(_listeners,(l => l));
             foreach (var listener in localListeners) {
                 try {
                     listener.onImage(image, false);
@@ -335,12 +336,11 @@ namespace Unity.UIWidgets.painting {
                 informationCollector: informationCollector,
                 silent: silent
             );
-
-            var localErrorListeners = _listeners
-                .Select(l => l.onError)
-                .Where(l => l != null)
-                .ToList();
-
+            
+            var localErrorListeners = LinqUtils<ImageErrorListener>.WhereList(
+                LinqUtils<ImageErrorListener,ImageStreamListener>.SelectList(_listeners, (l => l.onError)),
+                (l => l != null));
+            
             if (localErrorListeners.isEmpty()) {
                 UIWidgetsError.reportError(_currentError);
             }

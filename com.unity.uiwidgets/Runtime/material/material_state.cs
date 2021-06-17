@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.ui;
-using UnityEditor.VersionControl;
 
 namespace Unity.UIWidgets.material {
     public enum MaterialState {

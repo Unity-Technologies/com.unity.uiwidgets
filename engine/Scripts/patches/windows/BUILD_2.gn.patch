@@ -1,0 +1,10 @@
+--- e:\EngineBuildTool\engine\src\third_party\skia\BUILD.gn	2021-05-20 15:48:51 +0800
++++ e:\EngineBuildTool\engine\src\third_party\skia\modify\BUILD.gn	2021-05-20 16:08:53 +0800
+@@ -524,6 +524,7 @@
+ 
+   if (skia_use_gl) {
+     public_defines += [ "SK_GL" ]
++    include_dirs = [ "//third_party/angle/include" ]
+     if (is_android) {
+       sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
+ 

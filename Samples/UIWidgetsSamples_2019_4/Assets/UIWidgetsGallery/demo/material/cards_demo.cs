@@ -332,8 +332,8 @@ namespace UIWidgetsGallery.demo.material
                                 // of the Material and display ink effects above it. Using a
                                 // standard Image will obscure the ink splash.
                                 child: Ink.image(
-                                    image: new FileImage(this.destination.assetPackage + "/" +
-                                                         this.destination.assetName),
+                                    image: new FileImage(System.IO.Path.Combine(destination.assetPackage,
+                                                         destination.assetName)),
                                     fit: BoxFit.cover,
                                     child: new Container()
                                 )

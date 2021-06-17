@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using UnityEngine;
 
 namespace Unity.UIWidgets.service {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
@@ -24,6 +24,7 @@ namespace Unity.UIWidgets.rendering {
             D.assert(renderView != null);
             addPersistentFrameCallback(_handlePersistentFrameCallback);
             initMouseTracker();
+            window.updateSafeArea();
         }
         
         public void initRenderView() {

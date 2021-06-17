@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.widgets {
@@ -640,7 +640,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public RoutePredicate withName(string name) {
+        public static RoutePredicate withName(string name) {
             return (Route route) => !route.willHandlePopInternally
                                     && route is ModalRoute
                                     && route.settings.name == name;
@@ -946,7 +946,7 @@ namespace Unity.UIWidgets.widgets {
                     }
                 }
 
-                var subscribers =_listeners.getOrDefault((R) route).ToList();
+                var subscribers =_listeners.getOrDefault((R) route);
                
                 if (subscribers != null) {
                     foreach (RouteAware routeAware in subscribers) {

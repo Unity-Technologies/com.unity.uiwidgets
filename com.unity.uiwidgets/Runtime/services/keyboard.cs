@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
@@ -22,9 +22,9 @@ namespace Unity.UIWidgets.service {
         public readonly char input;
         public readonly TextInputAction? inputAction;
 
-        public RawInputKeyResponse(bool swallow, char input = '\0', TextInputAction? inputAction = null) {
+        public RawInputKeyResponse(bool swallow, int input = 0, TextInputAction? inputAction = null) {
             this.swallow = swallow;
-            this.input = input;
+            this.input = (char) input;
             this.inputAction = inputAction;
         }
 
@@ -35,7 +35,7 @@ namespace Unity.UIWidgets.service {
                 null);
         }
 
-        public static readonly RawInputKeyResponse swallowResponse = new RawInputKeyResponse(true, '\0', null);
+        public static readonly RawInputKeyResponse swallowResponse = new RawInputKeyResponse(true, 0, null);
     }
 
     interface KeyboardDelegate : IDisposable {
@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.service {
         void setEditingState(TextEditingValue value);
 
         void setEditableSizeAndTransform(Dictionary<string, object> args);
-
+        
         void setStyle(Dictionary<string, object> args);
         void setIMEPos(Offset imeGlobalPos);
 
@@ -153,7 +153,7 @@ namespace Unity.UIWidgets.service {
                             _value = _value.deleteSelection(true);
                         }
                     }
-                    else if (currentEvent.character != '\0') {
+                    else if (currentEvent.character != 0) {
                         _value = _value.clearCompose();
                         char ch = currentEvent.character;
                         if (ch == '\r' || ch == 3) {
@@ -357,11 +357,11 @@ namespace Unity.UIWidgets.service {
         public abstract void setEditingState(TextEditingValue value);
 
         public void setEditableSizeAndTransform(Dictionary<string, object> args) {
-            throw new NotImplementedException();
+            Debug.LogError("not implemented yet");
         }
 
         public void setStyle(Dictionary<string, object> args) {
-            throw new NotImplementedException();
+            Debug.LogError("not implemented yet");
         }
 
         public abstract void setIMEPos(Offset imeGlobalPos);
@@ -374,9 +374,7 @@ namespace Unity.UIWidgets.service {
         }
 
         void _handleMethodCall(string method, List<JSONNode> args) {
-            D.assert(false, () => "keyboard.handleMethodCall is not implemented yet!");
-
-            /*if (TextInput._currentConnection == null) {
+            if (TextInput._currentConnection == null) {
                 return;
             }
             int client = args[0].AsInt;
@@ -384,10 +382,10 @@ namespace Unity.UIWidgets.service {
                 return;
             }
 
-            using (TextInput._currentConnection._window.getScope()) {
+            using (Isolate.getScope(TextInput._currentConnection.isolate)) {
                 switch (method) {
                     case "TextInputClient.updateEditingState":
-                        TextInput._updateEditingState(client, TextEditingValue.fromJson(args[1].AsObject));
+                        TextInput._updateEditingState(client, TextEditingValue.fromJSON(args[1].AsObject));
                         break;
                     case "TextInputClient.performAction":
                         TextInput._performAction(client, TextInputUtils._toTextInputAction(args[1].Value));
@@ -395,7 +393,7 @@ namespace Unity.UIWidgets.service {
                     default:
                         throw new UIWidgetsError($"unknown method ${method}");
                 }
-            }*/
+            }
         }
     }
 
@@ -461,7 +459,7 @@ namespace Unity.UIWidgets.service {
         }
 
         public override void setEditingState(TextEditingValue value) {
-            UIWidgetsTextInputSetTextInputEditingState(value.toJson().ToString());
+            UIWidgetsTextInputSetTextInputEditingState(value.toJSON().ToString());
         }
 
         public override void setIMEPos(Offset imeGlobalPos) {
@@ -490,6 +488,7 @@ namespace Unity.UIWidgets.service {
         
         [DllImport ("__Internal")]
         internal static extern void UIWidgetsTextInputClearTextInputClient();
+        
 #elif UNITY_ANDROID
         internal static void UIWidgetsTextInputShow() {
             using (

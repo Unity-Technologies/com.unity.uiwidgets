@@ -53,7 +53,7 @@ static Float32List EncodeTextBoxes(
   // text direction index.
   int size = boxes.size() * 5;
   Float32List result = {(float*)malloc(sizeof(float) * size),
-                        boxes.size() * size};
+                        (int)boxes.size() * size};
   unsigned long position = 0;
   for (unsigned long i = 0; i < boxes.size(); i++) {
     const txt::Paragraph::TextBox& box = boxes[i];

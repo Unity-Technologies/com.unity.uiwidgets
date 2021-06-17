@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -517,9 +518,7 @@ namespace Unity.UIWidgets.widgets {
                        && flight._proxyAnimation.isDismissed;
             }
 
-             List<_HeroFlight> invalidFlights = _flights.Values
-                .Where(isInvalidFlight)
-                .ToList();
+            List<_HeroFlight> invalidFlights = LinqUtils<_HeroFlight>.WhereList(_flights.Values, isInvalidFlight);
              foreach ( _HeroFlight flight in invalidFlights) {
                 flight._handleAnimationUpdate(AnimationStatus.dismissed);
             }

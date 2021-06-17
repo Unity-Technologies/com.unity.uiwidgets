@@ -1,0 +1,11 @@
+--- E:\EngineBuildTool\engine\src\third_party\angle\src\libANGLE\renderer\d3d\d3d11\ExternalImageSiblingImpl11.cpp	2021-05-20 11:40:01 +0800
++++ E:\EngineBuildTool\engine\src\third_party\angle\src\libANGLE\renderer\d3d\d3d11\modify\ExternalImageSiblingImpl11.cpp	2021-05-20 14:48:30 +0800
+@@ -144,7 +144,7 @@
+ 
+     mRenderTarget = std::make_unique<TextureRenderTarget11>(
+         std::move(rtv), mTexture, std::move(srv), std::move(blitSrv), formatInfo.internalFormat,
+-        formatInfo, mSize.width, mSize.height, 1, 1);
++        formatInfo, mSize.width, mSize.height, 1, mSamples);
+     return angle::Result::Continue;
+ }
+ 

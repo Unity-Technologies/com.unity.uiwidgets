@@ -1,7 +1,10 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.service;
+using System.Runtime.InteropServices;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.engine {
@@ -14,7 +17,12 @@ namespace Unity.UIWidgets.engine {
         readonly Dictionary<string, MethodChannelMessageDelegate> _methodChannelMessageDelegates = 
             new Dictionary<string, MethodChannelMessageDelegate>();
         public static UIWidgetsMessageManager instance {
-            get { return _instance; } 
+            get {
+                if (_instance == null) {
+                    ensureUIWidgetsMessageManagerIfNeeded();
+                }
+                return _instance;
+            } 
         }
 
         internal static void ensureUIWidgetsMessageManagerIfNeeded() {
@@ -25,7 +33,8 @@ namespace Unity.UIWidgets.engine {
                 return;
             }
             var managerObj = new GameObject("__UIWidgetsMessageManager");
-            managerObj.AddComponent<UIWidgetsMessageManager>();
+            var component = managerObj.AddComponent<UIWidgetsMessageManager>();
+            _instance = component;
         }
         
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL
@@ -49,13 +58,13 @@ namespace Unity.UIWidgets.engine {
 
         void UpdateNameIfNeed() {
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WEBGL
-            var name = this.gameObject.name;
-            if (name != this._lastObjectName) {
+            var name = gameObject.name;
+            if (name != _lastObjectName) {
 
                 if (!Application.isEditor) {
                     UIWidgetsMessageSetObjectName(name);
                 }
-                this._lastObjectName = name;
+                _lastObjectName = name;
             }
 #endif
         }
@@ -75,7 +84,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         void OnUIWidgetsMethodMessage(string message) {
-            JSONObject jsonObject = (JSONObject)JSON.Parse(message);
+            JSONObject jsonObject = (JSONObject) JSON.Parse(message);
             string channel = jsonObject["channel"].Value;
             string method = jsonObject["method"].Value;
             var args = new List<JSONNode>(jsonObject["args"].AsArray.Children);

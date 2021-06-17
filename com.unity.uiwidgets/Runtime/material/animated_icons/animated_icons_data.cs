@@ -40,14 +40,14 @@ namespace Unity.UIWidgets.material {
     }
 
     class _AnimatedIconData : AnimatedIconData {
-        public _AnimatedIconData(Size size, List<_PathFrames> paths, bool matchTextDirection = false) {
+        public _AnimatedIconData(Size size, _PathFrames[] paths, bool matchTextDirection = false) {
             this.size = size;
             this.paths = paths;
             this.matchTextDirection = matchTextDirection;
         }
 
         public readonly Size size;
-        public readonly List<_PathFrames> paths;
+        public readonly _PathFrames[] paths;
 
         public override bool matchTextDirection { get; }
     }

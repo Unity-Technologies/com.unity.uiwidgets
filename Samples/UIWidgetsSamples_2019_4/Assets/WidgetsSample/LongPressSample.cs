@@ -1,7 +1,8 @@
 using uiwidgets;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace UIWidgetsSample {
     public class LongPressSample : UIWidgetsPanel {
@@ -15,6 +16,7 @@ namespace UIWidgetsSample {
         public override Widget build(BuildContext context)
         {
             return new WidgetsApp(
+                color: Color.white,
                 home: new LongPressSampleWidget(),
                 pageRouteBuilder: (settings, builder) =>
                     new PageRouteBuilder(

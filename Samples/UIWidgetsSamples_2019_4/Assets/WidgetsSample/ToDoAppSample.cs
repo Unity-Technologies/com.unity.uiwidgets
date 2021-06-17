@@ -8,6 +8,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Unity.UIWidgets.external;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -22,6 +23,7 @@ namespace UIWidgetsSample
         {
             ui_.runApp(
                 new WidgetsApp(
+                    color: Color.white,
                     home: new ToDoListApp(),
                     pageRouteBuilder: this.pageRouteBuilder)
             );
@@ -166,7 +168,7 @@ namespace UIWidgetsSample
 
             Widget contents()
             {
-                var children = this.items.Select((item) =>
+                var children = LinqUtils<Widget,ToDoItem>.SelectList(this.items, (ToDoItem item) =>
                 {
                     return (Widget) new Text(
                         item.content, style: new TextStyle(

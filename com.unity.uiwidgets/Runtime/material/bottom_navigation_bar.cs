@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using uiwidgets;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -725,10 +726,10 @@ namespace Unity.UIWidgets.material {
         public float horizontalLeadingOffset {
             get {
                 float weightSum(IEnumerable<Animation<float>> animations) {
-                    return animations.Select(state._evaluateFlex).Sum();
+                    return LinqUtils<float,Animation<float>>.SelectList(animations, state._evaluateFlex).Sum();
                 }
 
-                float allWeights = weightSum(state._animations);
+                float allWeights = weightSum(state._animations); 
                 float leadingWeights = weightSum(state._animations.GetRange(0, index ?? 0));
 
                 return (leadingWeights + state._evaluateFlex(state._animations[index ?? 0]) / 2.0f) /

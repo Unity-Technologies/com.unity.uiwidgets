@@ -3,7 +3,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler2;
+using Unity.UIWidgets.scheduler;
 
 namespace Unity.UIWidgets.widgets {
     public class AnimatedSize : SingleChildRenderObjectWidget {

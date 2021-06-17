@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using Unity.UIWidgets.async2;
-using Unity.UIWidgets.editor2;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -669,15 +667,13 @@ namespace Unity.UIWidgets.painting {
                 }
 
                 yield return www.SendWebRequest();
-
-                if (www.isNetworkError || www.isHttpError) {
-                    completer.completeError(new Exception($"Failed to load from url \"{url}\": {www.error}"));
-                    yield break;
-                }
-
-                var data = www.downloadHandler.data;
-
                 using (Isolate.getScope(isolate)) {
+                    if (www.isNetworkError || www.isHttpError) {
+                        completer.completeError(new Exception($"Failed to load from url \"{url}\": {www.error}"));
+                        yield break;
+                    }
+
+                    var data = www.downloadHandler.data;
                     completer.complete(data);
                 }
             }
@@ -799,12 +795,26 @@ namespace Unity.UIWidgets.painting {
         }
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
-            byte[] bytes = File.ReadAllBytes(Path.Combine(Application.streamingAssetsPath, key.file));
-            if (bytes.Length > 0) {
-                return decode(bytes);
-            }
+#if UNITY_ANDROID && !UNITY_EDITOR
+            var path = Path.Combine(Application.streamingAssetsPath, key.file);
+#else
+            var path = "file://" + Path.Combine(Application.streamingAssetsPath, key.file);
+#endif
+            using(var unpackerWWW = UnityWebRequest.Get(path)) {
+                unpackerWWW.SendWebRequest();
+                while (!unpackerWWW.isDone) {
+                } // This will block in the webplayer.
+                if (unpackerWWW.isNetworkError || unpackerWWW.isHttpError) {
+                    throw new Exception($"Failed to get file \"{path}\": {unpackerWWW.error}");
+                }
 
-            throw new Exception("not loaded");
+                var data = unpackerWWW.downloadHandler.data;
+                if (data.Length > 0) {
+                    return decode(data);
+                }
+
+                throw new Exception("not loaded");
+            }
         }
 
         IEnumerator _loadBytes(FileImage key) {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async2;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -379,7 +379,7 @@ namespace Unity.UIWidgets.widgets {
             this.dragStartBehavior = dragStartBehavior;
             this.controller = controller ?? PageViewUtils._defaultPageController;
             this.allowImplicitScrolling = allowImplicitScrolling;
-            childrenDelegate = new SliverChildListDelegate(children);
+            childrenDelegate = new SliverChildListDelegate(children ?? new List<Widget>());
         }
         
         public static PageView builder(

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using uiwidgets;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.engine2;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
@@ -27,6 +27,7 @@ namespace UIWidgetsSample {
             public override Widget build(BuildContext context)
             {
                 return new WidgetsApp(
+                    color: Color.white,
                     initialRoute: "/",
                     textStyle: new TextStyle(fontSize: 24),
                     pageRouteBuilder: (settings, builder) =>

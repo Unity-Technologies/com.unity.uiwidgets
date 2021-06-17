@@ -1,5 +1,3 @@
-#pragma once
-
 #include "embedder_surface_software.h"
 
 #include "flutter/fml/trace_event.h"

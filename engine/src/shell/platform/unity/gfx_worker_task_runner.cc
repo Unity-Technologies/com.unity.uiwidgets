@@ -32,7 +32,7 @@ bool GfxWorkerTaskRunner::RunsTasksOnCurrentThread() const {
 void GfxWorkerTaskRunner::PostTask(UIWidgetsTask uiwidgets_task,
                                    uint64_t uiwidgets_target_time_nanos) {
   FML_DCHECK(uiwidgets_target_time_nanos <=
-             fml::TimePoint::Now().ToEpochDelta().ToNanoseconds());
+             (uint64_t)fml::TimePoint::Now().ToEpochDelta().ToNanoseconds());
 
   UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
       [&on_task_expired = on_task_expired_, uiwidgets_task]() -> void {

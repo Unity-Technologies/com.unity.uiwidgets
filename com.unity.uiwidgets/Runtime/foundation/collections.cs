@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.UIWidgets.InternalBridge;
+using Unity.UIWidgets.external;
 
 namespace Unity.UIWidgets.foundation {
     public static class CollectionUtils {
@@ -123,23 +122,9 @@ namespace Unity.UIWidgets.foundation {
             if (it == null) {
                 return null;
             }
-
-            return "{ " + string.Join(", ", it.Select(item => item.ToString())) + " }";
+            return "{ " + string.Join(", ", LinqUtils<string,T>.SelectList(it,(item => item.ToString()))) + " }";
         }
-
-        public static void reset<T>(this List<T> list, int size) {
-            NoAllocHelpersBridge<T>.EnsureListElemCount(list, size);
-        }
-
-        public static ref T refAt<T>(this List<T> list, int index) {
-            var array = NoAllocHelpersBridge<T>.ExtractArrayFromListT(list);
-            return ref array[index];
-        }
-
-        public static T[] array<T>(this List<T> list) {
-            return NoAllocHelpersBridge<T>.ExtractArrayFromListT(list);
-        }
-
+        
         public static List<T> CreateRepeatedList<T>(T value, int length) {
             List<T> newList = new List<T>(length);
             for (int i = 0; i < length; i++) {

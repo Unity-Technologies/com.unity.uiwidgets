@@ -1,0 +1,21 @@
+--- a/third_party/txt/BUILD.gn
++++ b/third_party/txt/BUILD.gn
+@@ -141,6 +141,7 @@
+     "//third_party/harfbuzz",
+     "//third_party/icu",
+     "//third_party/skia",
++    "//third_party/skia/modules/skottie",
+   ]
+ 
+   deps = [
+@@ -339,3 +340,10 @@
+     deps += [ "//third_party/skia/modules/skparagraph" ]
+   }
+ }
++
++static_library("txt_lib") {
++  complete_static_lib = true
++  deps = [
++    ":txt",
++  ]
++}
