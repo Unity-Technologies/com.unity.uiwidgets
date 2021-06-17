@@ -130,7 +130,8 @@ namespace Unity.UIWidgets.gestures {
                 return;
             }
 
-            int deviceId = evt.device;
+            //for mouse tracking purpose, the evt.device id makes no difference at all
+            int deviceId = 0;
             if (this._trackedAnnotations.isEmpty()) {
                 // If we are adding the device again, then we're not removing it anymore.
                 this._lastMouseEvent.Remove(deviceId);
