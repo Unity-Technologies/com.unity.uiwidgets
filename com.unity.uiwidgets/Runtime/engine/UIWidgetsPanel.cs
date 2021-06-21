@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.rendering;
@@ -11,6 +12,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
+using Path = System.IO.Path;
 using RawImage = UnityEngine.UI.RawImage;
 
 namespace Unity.UIWidgets.engine {
@@ -66,19 +68,33 @@ namespace Unity.UIWidgets.engine {
             foreach (var setting in settings) {
                 var font = new Dictionary<string, object>();
                 font.Add("family", value: setting.Key);
-                var dic = new Dictionary<string, object>[setting.Value.fonts.Length];
+                var dic = new List<Dictionary<string, object>>();
                 for (var j = 0; j < setting.Value.fonts.Length; j++) {
-                    dic[j] = new Dictionary<string, object>();
+                    var fontDic = new Dictionary<string, object>();
+                    var fileExist = false;
+                    
                     if (setting.Value.fonts[j].asset.Length > 0) {
-                        dic[j].Add("asset", value: setting.Value.fonts[j].asset);
+                        var assetPath = setting.Value.fonts[j].asset;
+                        var assetAbsolutePath = Path.Combine(Application.streamingAssetsPath, assetPath);
+                        if (!File.Exists(assetAbsolutePath)) {
+                            Debug.LogError($"The font asset (family: \"{setting.Key}\", path: \"{assetPath}\") is not found");
+                        }
+                        else {
+                            fileExist = true;
+                        }
+                        fontDic.Add("asset", value: setting.Value.fonts[j].asset);
                     }
 
                     if (setting.Value.fonts[j].weight > 0) {
-                        dic[j].Add("weight", value: setting.Value.fonts[j].weight);
+                        fontDic.Add("weight", value: setting.Value.fonts[j].weight);
+                    }
+
+                    if (fileExist) {
+                        dic.Add(fontDic);
                     }
                 }
 
-                font.Add("fonts", value: dic);
+                font.Add("fonts", value: dic.ToArray());
                 result[i] = font;
                 i++;
             }
