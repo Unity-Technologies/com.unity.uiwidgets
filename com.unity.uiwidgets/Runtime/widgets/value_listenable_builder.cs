@@ -10,8 +10,8 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             Widget child = null
         ) : base(key: key) {
-            D.assert(valueListenable != null);
-            D.assert(builder != null);
+            // D.assert(valueListenable != null);
+            // D.assert(builder != null);
             this.valueListenable = valueListenable;
             this.builder = builder;
             this.child = child;

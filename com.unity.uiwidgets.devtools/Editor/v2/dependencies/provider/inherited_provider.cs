@@ -9,10 +9,13 @@ namespace Unity.UIWidgets.DevTools
 
     delegate void Dispose<T>(BuildContext context, T value);
 
-    delegate VoidCallback StartListening<T>(InheritedContext<T> element, T value);
+    // delegate VoidCallback StartListening<T>(InheritedContext<T> element, T value);
     
     public class InheritedProvider<T> : SingleChildStatelessWidget
     {
-        
+        protected internal override Widget buildWithChild(BuildContext context, Widget child)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

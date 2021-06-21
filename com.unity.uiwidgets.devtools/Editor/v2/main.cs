@@ -1,20 +1,23 @@
 using Unity.UIWidgets.DevTools.config_specific.framework_initialize;
 using Unity.UIWidgets.Editor;
 using Unity.UIWidgets.widgets;
+using UnityEditor;
 
 namespace Unity.UIWidgets.DevTools
 {
-    public class Devetool : UIWidgetsEditorPanel
+    public class EditorWindowDevtools : UIWidgetsEditorPanel
     {
+        
+        [MenuItem("UIWidgets/DevTools")]
+        public static void CountDemo()
+        {
+            CreateWindow<EditorWindowDevtools>();
+        }
         protected override void main()
         {
             var preferences = new PreferencesController();
-            
-            preferences.init();
-            FrameworkInitializeUtils.initializeFramework();
-            
             ui_.runApp(
-                new DevToolsApp(defaultScreens, preferences)
+                new DevToolsApp(AppUtils.defaultScreens, preferences)
             );
         }
     }
