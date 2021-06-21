@@ -52,7 +52,7 @@ https://github.com/UnityTech/DocCN 查看。
 
 #### Unity
 
-UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https://unity3d.com/get-unity/download](https://unity3d.com/get-unity/download)下载最新的Unity。
+UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https://unity.cn/releases](https://unity.cn/releases)下载最新的Unity。
 
 | UIWidgets 版本     |  Unity 2019 LTS  |  Unity 2020 LTS  | 
 | -----------------------------------------------| ------------------------- | ------------------------- |

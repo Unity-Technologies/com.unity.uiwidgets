@@ -61,7 +61,7 @@ open-sourced @https://github.com/UnityTech/DocCN.
 
 #### Unity
 
-The compatible Unity versions for each UIWidgets release are listed below. You can download the latest Unity on https://unity3d.com/get-unity/download.
+The compatible Unity versions for each UIWidgets release are listed below. You can download the latest Unity on [https://unity.cn/releases](https://unity.cn/releases).
 
 | UIWidgets version     |  Unity 2019 LTS  |  Unity 2020 LTS  | 
 | -----------------------------------------------| ------------------------- | ------------------------- |
