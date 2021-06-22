@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         {
             
         }
-        protected override Widget build(BuildContext context)
+        public override Widget build(BuildContext context)
         {
             // var isFlutterApp = serviceManager.connectedApp.isFlutterAppNow;
             // var isProfileBuild = serviceManager.connectedApp.isProfileBuildNow;
@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             return new InspectorScreenBody();
         }
         
-        class InspectorScreenBody : StatefulWidget {
+        public class InspectorScreenBody : StatefulWidget {
             public InspectorScreenBody(){}
 
             public override State createState()
@@ -60,27 +60,28 @@ namespace Unity.UIWidgets.DevTools.inspector
                 );
 
                 var splitAxis = Split.axisFor(context, 0.85f);
-                return new Column(
-                    children: new List<Widget>
-                    {
-                        new Expanded(
-                            child: new Split(
-                                axis: splitAxis,
-                                initialFractions: new List<float?>{0.33f, 0.67f},
-                                children: new List<Widget>
-                                {
-                                    summaryTree,
-                                    new InspectorDetailsTabController(
-                                        detailsTree: detailsTree,
-                                        controller: inspectorController,
-                                        actionButtons: null,
-                                        layoutExplorerSupported: _layoutExplorerSupported
-                                    )
-                                }
-                            )
-                        )
-                    }
-                );
+                // return new Column(
+                //     children: new List<Widget>
+                //     {
+                //         new Expanded(
+                //             child: new Split(
+                //                 axis: splitAxis,
+                //                 initialFractions: new List<float?>{0.33f, 0.67f},
+                //                 children: new List<Widget>
+                //                 {
+                //                     summaryTree,
+                //                     new InspectorDetailsTabController(
+                //                         detailsTree: detailsTree,
+                //                         controller: inspectorController,
+                //                         actionButtons: null,
+                //                         layoutExplorerSupported: _layoutExplorerSupported
+                //                     )
+                //                 }
+                //             )
+                //         )
+                //     }
+                // );
+                return new Container();
             } 
         }
     }

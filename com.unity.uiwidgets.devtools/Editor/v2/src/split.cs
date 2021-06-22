@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.DevTools
@@ -59,14 +60,16 @@ namespace Unity.UIWidgets.DevTools
         {
             return new _SplitState();
         }
-
-
-        class _SplitState : State<Split>
+    }
+    
+    class _SplitState : State<Split>
+    {
+        public override Widget build(BuildContext context)
         {
-            public override Widget build(BuildContext context)
-            {
-                throw new System.NotImplementedException();
-            }
+            // return new LayoutBuilder(builder: _buildLayout);
+            return new Container(child: new Text("this is a text!"));
         }
+
+
     }
 }

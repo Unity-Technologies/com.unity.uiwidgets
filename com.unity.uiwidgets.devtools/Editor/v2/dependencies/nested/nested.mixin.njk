@@ -1,0 +1,15 @@
+using Unity.UIWidgets.widgets;
+using Unity.UIWidgets.foundation;
+
+namespace Unity.UIWidgets.DevTools {
+{% macro SingleChildWidgetMixin(with) %}
+    {% set className = 'SingleChildWidgetMixin' + with %}
+    public abstract class {{className}} : {{with}} {
+        
+        public SingleChildWidgetMixin{{with}}(Key key = null) : base(key: key){}
+        
+        public abstract override Element createElement();
+    }
+{% endmacro %}
+{{ SingleChildWidgetMixin('StatelessWidget') }}
+}

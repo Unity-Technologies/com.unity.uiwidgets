@@ -52,7 +52,7 @@ namespace Unity.UIWidgets.DevTools
     );
   }
   
-  protected abstract Widget build(BuildContext context);
+  public abstract Widget build(BuildContext context);
   
   Widget buildStatus(BuildContext context, TextTheme textTheme) {
     return null;

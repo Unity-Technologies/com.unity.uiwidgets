@@ -9,16 +9,16 @@ namespace Unity.UIWidgets.DevTools
     {
         public Nested(
             Key key = null,
-            List<SingleChildWidget> children = null,
+            List<SingleChildWidgetMixinStatelessWidget> children = null,
             Widget child = null
         ) : base(key: key)
         {
-            D.assert(children != null && children.isNotEmpty());
+            // D.assert(children != null && children.isNotEmpty());
             this._children = children;
             this._child = child;
         }
         
-        public readonly List<SingleChildWidget> _children;
+        public readonly List<SingleChildWidgetMixinStatelessWidget> _children;
         public readonly Widget _child;
 
         public override Widget build(BuildContext context)
@@ -100,7 +100,7 @@ namespace Unity.UIWidgets.DevTools
     {
         public _NestedHook(
             Widget injectedChild = null,
-            SingleChildWidget wrappedWidget = null,
+            SingleChildWidgetMixinStatelessWidget wrappedWidget = null,
             _NestedElement owner = null
             )
         {
@@ -111,7 +111,7 @@ namespace Unity.UIWidgets.DevTools
             this.owner = owner;
         }
         
-        public readonly SingleChildWidget wrappedWidget;
+        public readonly SingleChildWidgetMixinStatelessWidget wrappedWidget;
         public readonly Widget injectedChild;
         public readonly _NestedElement owner;
 
@@ -145,9 +145,9 @@ namespace Unity.UIWidgets.DevTools
         }
     }
 
-    SingleChildWidget _wrappedChild;
+    SingleChildWidgetMixinStatelessWidget _wrappedChild;
 
-    internal SingleChildWidget wrappedChild
+    internal SingleChildWidgetMixinStatelessWidget wrappedChild
     {
         get { return _wrappedChild; }
         set
@@ -181,7 +181,7 @@ namespace Unity.UIWidgets.DevTools
         public abstract override Element createElement();
     }
 
-    public abstract class SingleChildStatelessWidget : StatelessWidget
+    public abstract class SingleChildStatelessWidget : SingleChildWidgetMixinStatelessWidget
     {
         public SingleChildStatelessWidget(Key key = null, Widget child = null) : base(key : key)
         {
