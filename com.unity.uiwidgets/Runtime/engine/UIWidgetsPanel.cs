@@ -177,7 +177,6 @@ namespace Unity.UIWidgets.engine {
             if (UIWidgetsGlobalConfiguration.EnableIncrementalGC)
             {
                 GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
-                Application.lowMemory += GC.Collect;
             }
         }
 
@@ -197,8 +196,10 @@ namespace Unity.UIWidgets.engine {
             else if (mem >= nextCollectAt)
             {
                 // Trigger incremental GC
+                GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
                 GarbageCollector.CollectIncremental(1000);
                 lastFrameMemory = mem + kCollectAfterAllocating;
+                GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
             }
 
             lastFrameMemory = mem;
@@ -238,6 +239,12 @@ namespace Unity.UIWidgets.engine {
 #if !UNITY_EDITOR
             TryEnableOnDemandGC();
 #endif
+            Application.lowMemory += () => {
+                GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
+                GC.Collect();
+                GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
+            };
+
 
             base.OnEnable();
             
