@@ -246,17 +246,12 @@ namespace Unity.UIWidgets.engine {
             
 #if !UNITY_EDITOR
             TryEnableOnDemandGC();
-#endif
             Application.lowMemory += () => {
-#if !UNITY_EDITOR
                 TryDisableOnDemandGC();
-#endif
                 GC.Collect();
-#if !UNITY_EDITOR
                 TryEnableOnDemandGC();
-#endif
             };
-
+#endif
 
             base.OnEnable();
             
