@@ -205,8 +205,7 @@ UIWidgets也支持Gif！
 #### 八、移动设备优化
 目前在默认情况下，为了保证流畅度，项目在各个平台上均会以最高的刷新频率运行。不过您可以通过在代码中设置```UIWidgetsGlobalConfiguration.EnableAutoAdjustFramerate = true```的方式来开启自动降帧的功能：该功能开启后，在UI内容不变的情况下我们将降低项目的刷新率来降低耗电。
 
-在移动设备上UI绘制的流畅度受到GC影响较大。项目默认会开启OnDemandGC来接管并优化整体GC效果。如果您不需要GC被UIWidgets控制，请在代码中设置```UIWidgetsGlobalConfiguration.EnableIncrementalGC = false```。
-
+在移动设备上UI绘制的流畅度受到GC影响较大。如有卡顿，例如滑动掉帧。可开启OnDemandGC, UIWidgets将接管并优化整体GC效果，请在代码中设置```UIWidgetsGlobalConfiguration.EnableIncrementalGC = true```,并开启```Project Setting -> Player -> Other Settings -> Use incremental GC```。
 
 ## 调试UIWidgets应用程序
 

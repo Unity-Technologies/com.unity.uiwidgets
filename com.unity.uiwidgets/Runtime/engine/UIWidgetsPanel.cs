@@ -177,7 +177,14 @@ namespace Unity.UIWidgets.engine {
             if (UIWidgetsGlobalConfiguration.EnableIncrementalGC)
             {
                 GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
-                Application.lowMemory += GC.Collect;
+            }
+        }
+
+        void TryDisableOnDemandGC() 
+        {
+            if (UIWidgetsGlobalConfiguration.EnableIncrementalGC)
+            {
+                GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
             }
         }
 
@@ -197,8 +204,10 @@ namespace Unity.UIWidgets.engine {
             else if (mem >= nextCollectAt)
             {
                 // Trigger incremental GC
+                GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
                 GarbageCollector.CollectIncremental(1000);
                 lastFrameMemory = mem + kCollectAfterAllocating;
+                GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
             }
 
             lastFrameMemory = mem;
@@ -237,6 +246,11 @@ namespace Unity.UIWidgets.engine {
             
 #if !UNITY_EDITOR
             TryEnableOnDemandGC();
+            Application.lowMemory += () => {
+                TryDisableOnDemandGC();
+                GC.Collect();
+                TryEnableOnDemandGC();
+            };
 #endif
 
             base.OnEnable();
@@ -265,6 +279,9 @@ namespace Unity.UIWidgets.engine {
             _wrapper = null;
             texture = null;
             Input_OnDisable();
+#if !UNITY_EDITOR
+            TryDisableOnDemandGC();
+#endif
             base.OnDisable();
         }
 
