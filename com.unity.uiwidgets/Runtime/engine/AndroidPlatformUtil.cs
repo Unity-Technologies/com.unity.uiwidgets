@@ -17,6 +17,21 @@ namespace Unity.UIWidgets.engine {
 
         internal delegate string UnpackFileCallback(string file);
 
+        internal static bool FileExists(string file)
+        {
+            var path = "jar:file://" + Application.dataPath + "!/assets/" + file;
+            using (var unpackerWWW = UnityWebRequest.Get(path)) {
+                unpackerWWW.SendWebRequest();
+                    while (!unpackerWWW.isDone) {
+                    } // This will block in the webplayer.
+
+                    if (unpackerWWW.isNetworkError || unpackerWWW.isHttpError) {
+                        return false;
+                    }
+            }
+            return true;
+        }
+
         [MonoPInvokeCallback(typeof(UnpackFileCallback))]
         internal static string unpackFile(string file) {
             var dir = Application.temporaryCachePath + "/";
