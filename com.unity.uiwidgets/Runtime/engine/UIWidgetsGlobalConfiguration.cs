@@ -3,7 +3,7 @@ namespace Unity.UIWidgets.engine {
         //disable auto adjust framerate by default
         public static bool EnableAutoAdjustFramerate = false;
 
-        //enable incremental gc by default
+        //disable incremental gc by default
         public static bool EnableIncrementalGC = false;
         
         //disable debug at runtime by default
