@@ -248,9 +248,13 @@ namespace Unity.UIWidgets.engine {
             TryEnableOnDemandGC();
 #endif
             Application.lowMemory += () => {
-                GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
+#if !UNITY_EDITOR
+                TryDisableOnDemandGC();
+#endif
                 GC.Collect();
-                GarbageCollector.GCMode = GarbageCollector.Mode.Disabled;
+#if !UNITY_EDITOR
+                TryEnableOnDemandGC();
+#endif
             };
 
 
