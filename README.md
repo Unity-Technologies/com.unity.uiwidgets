@@ -216,7 +216,7 @@ Please put images under StreamingAssets folder, a and loading it using ```Image.
 #### Performance Optimization on Mobile devices
 By setting ```UIWidgetsGlobalConfiguration.EnableAutoAdjustFramerate = true``` in your project, UIWidgets will drop the frame rate of your App to 0 if the UI contents of UIWidgetsPanel is not changed for some time. This will help to prevent battery drain on mobile devices significantly. Note that this feature is disabled by default.
 
-Long time garbage collection may cause App to stuck frequently. In UIWidgets we enable incremental garbage collection to avoid it. However, you can disable this feature by setting ```UIWidgetsGlobalConfiguration.EnableIncrementalGC = false```.
+Long time garbage collection may cause App to stuck frequently. You can enable incremental garbage collection to avoid it. You can enable this feature by setting ```UIWidgetsGlobalConfiguration.EnableIncrementalGC = true```, and enabling ```Project Setting -> Player -> Other Settings -> Use incremental GC```.
 
 ## Debug UIWidgets Application
 

@@ -180,6 +180,14 @@ namespace Unity.UIWidgets.engine {
             }
         }
 
+        void TryDisableOnDemandGC() 
+        {
+            if (UIWidgetsGlobalConfiguration.EnableIncrementalGC)
+            {
+                GarbageCollector.GCMode = GarbageCollector.Mode.Enabled;
+            }
+        }
+
         void CollectGarbageOnDemand() 
         {
             if (!UIWidgetsGlobalConfiguration.EnableIncrementalGC)
@@ -272,6 +280,9 @@ namespace Unity.UIWidgets.engine {
             _wrapper = null;
             texture = null;
             Input_OnDisable();
+#if !UNITY_EDITOR
+            TryDisableOnDemandGC();
+#endif
             base.OnDisable();
         }
 
