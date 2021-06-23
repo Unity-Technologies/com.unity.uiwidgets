@@ -76,7 +76,11 @@ namespace Unity.UIWidgets.engine {
                     if (setting.Value.fonts[j].asset.Length > 0) {
                         var assetPath = setting.Value.fonts[j].asset;
                         var assetAbsolutePath = Path.Combine(Application.streamingAssetsPath, assetPath);
+#if !UNITY_EDITOR && UNITY_ANDROID
+                        if (!AndroidPlatformUtil.FileExists(assetPath)) {
+#else
                         if (!File.Exists(assetAbsolutePath)) {
+#endif
                             Debug.LogError($"The font asset (family: \"{setting.Key}\", path: \"{assetPath}\") is not found");
                         }
                         else {
