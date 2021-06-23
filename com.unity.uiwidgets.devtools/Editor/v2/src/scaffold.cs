@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.DevTools;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.DevTools
@@ -45,6 +46,8 @@ namespace Unity.UIWidgets.DevTools
 
     class DevToolsScaffoldState : State<DevToolsScaffold>
     {
+        ValueNotifier<Screen> _currentScreen = new ValueNotifier<Screen>(null);
+        
         public override Widget build(BuildContext context)
         {
             var tabBodies = new List<Widget>();
@@ -65,27 +68,28 @@ namespace Unity.UIWidgets.DevTools
             }
                 
             
-            // return ValueListenableProvider.value(
-            //     value: _currentScreen,
-            //     child: Provider<BannerMessagesController>(
-            //         create: (_) => BannerMessagesController(),
-            //         child: DragAndDrop(
-            //             // TODO(kenz): we are handling drops from multiple scaffolds. We need
-            //             // to make sure we are only handling drops from the active scaffold.
-            //             handleDrop: _importController.importData,
-            //             child: Scaffold(
-            //                 appBar: widget.embed ? null : _buildAppBar(),
-            //                 body: TabBarView(
-            //                     physics: defaultTabBarViewPhysics,
-            //                     controller: _tabController,
-            //                     children: tabBodies
-            //                 ),
-            //                 bottomNavigationBar:
-            //                 widget.embed ? null : _buildStatusLine(context)
-            //             )
-            //         )
-            //     )
-            // );
+            return new ValueListenableProvider<Screen>(
+                value: _currentScreen,
+                child: new Provider<BannerMessagesController>(
+                    create: (_) => new BannerMessagesController(),
+                    child: new Container(height:100,width:100,color:Color.white)
+                    // child: DragAndDrop(
+                    //     // TODO(kenz): we are handling drops from multiple scaffolds. We need
+                    //     // to make sure we are only handling drops from the active scaffold.
+                    //     handleDrop: _importController.importData,
+                    //     child: Scaffold(
+                    //         appBar: widget.embed ? null : _buildAppBar(),
+                    //         body: TabBarView(
+                    //             physics: defaultTabBarViewPhysics,
+                    //             controller: _tabController,
+                    //             children: tabBodies
+                    //         ),
+                    //         bottomNavigationBar: 
+                    //         widget.embed ? null : _buildStatusLine(context)
+                    //     )
+                    // )
+                )
+            );
             return new Container(child:new Text("enter here"));
         }
     }

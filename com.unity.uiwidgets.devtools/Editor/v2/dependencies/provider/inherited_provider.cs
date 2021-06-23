@@ -29,12 +29,13 @@ namespace Unity.UIWidgets.DevTools
             Dispose<T> dispose = null,
             TransitionBuilder builder = null,
             bool? lazy = null, 
-            Widget child = null
+            Widget child = null,
+            _Delegate<T> _delegate = null
         ) :
         base(key: key, child: child)
         {
-            _lazy = lazy;
-            _delegate = new _CreateInheritedProvider<T>(
+            this._lazy = lazy;
+            this._delegate = _delegate?? new _CreateInheritedProvider<T>(
                 create: create,
                 update: update,
                 updateShouldNotify: updateShouldNotify,
@@ -42,29 +43,41 @@ namespace Unity.UIWidgets.DevTools
                 startListening: startListening,
                 dispose: dispose
             );
+            this.builder = builder;
         }
         
         public readonly _Delegate<T> _delegate;
         public readonly bool? _lazy;
         public readonly TransitionBuilder builder;
-        
-        public InheritedProvider(
+
+        public InheritedProvider<T> _constructor(
             Key key,
             _Delegate<T> _delegate,
-            bool lazy,
+            bool? lazy,
             TransitionBuilder builder,
             Widget child
-        ) : 
-        base(key: key, child: child)
+        )
         {
-            _lazy = lazy;
-            _delegate = _delegate;
+            return new InheritedProvider<T>(key: key, child: child, lazy: lazy, _delegate: _delegate, builder: builder);
         }
         
         
         protected internal override Widget buildWithChild(BuildContext context, Widget child)
         {
-            throw new System.NotImplementedException();
+            // D.assert(
+            //     builder != null || child != null,
+            //     () => $"runtimeType used outside of MultiProvider must specify a child"
+            // );
+            return new _InheritedProviderScope<T>(
+                owner: this,
+                child: builder != null
+                    ? new Container(
+                        child:new Builder(
+                            builder: (context2) => builder(context2, child)
+                        )
+                    )
+                    : new Container(child : new Text("child is null"))
+            );
         }
     }
     
@@ -78,7 +91,7 @@ namespace Unity.UIWidgets.DevTools
             Dispose<T> dispose = null
         )
         {
-            D.assert(create != null || update != null);
+            // D.assert(create != null || update != null);
             this.create = create;
             this.update = update;
             _updateShouldNotify = updateShouldNotify;
@@ -105,18 +118,18 @@ namespace Unity.UIWidgets.DevTools
     public abstract class _Delegate<T> {
         public abstract _DelegateState<T, _Delegate<T>> createState();
 
-        void debugFillProperties(DiagnosticPropertiesBuilder properties) {}
+        public virtual void debugFillProperties(DiagnosticPropertiesBuilder properties) {}
     }
     
     public abstract class _DelegateState<T, D> where D : _Delegate<T>{
-        _InheritedProviderScopeElement<T> element;
+        public _InheritedProviderScopeElement<T> element;
 
         public T value
         {
             get;
         }
 
-        D  _delegate
+        public D  _delegate
         {
             get
             {
@@ -133,16 +146,16 @@ namespace Unity.UIWidgets.DevTools
             return element._debugSetInheritedLock(value);
         }
 
-        bool willUpdateDelegate(D newDelegate) => false;
+        public virtual bool willUpdateDelegate(D newDelegate) => false;
 
         void dispose() {}
 
-        void debugFillProperties(DiagnosticPropertiesBuilder properties) {}
+        public virtual void debugFillProperties(DiagnosticPropertiesBuilder properties) {}
 
         void build(bool isBuildFromExternalSources) {}
     }
 
-    class _InheritedProviderScopeElement<T> : InheritedElement
+    public class _InheritedProviderScopeElement<T> : InheritedElement
     {
         public _InheritedProviderScopeElement(Widget widget) : base(widget)
         {
@@ -177,7 +190,7 @@ namespace Unity.UIWidgets.DevTools
         
     }
     
-    class _InheritedProviderScope<T> : InheritedWidget {
+    public class _InheritedProviderScope<T> : InheritedWidget {
         public _InheritedProviderScope(
             InheritedProvider<T> owner = null,
             Widget child = null

@@ -45,6 +45,8 @@ namespace Unity.UIWidgets.DevTools
         
         public const float defaultIconSize = 16.0f;
         public const float buttonMinWidth = 36.0f;
+        public const float denseRowSpacing = 6.0f;
+        public const float defaultSpacing = 16.0f;
         
         static ColorSwatch<int> devtoolsGrey = new ColorSwatch<int>(0xFF202124, new Dictionary<int, Color>(){
             {900, new Color(0xFF202124)},
