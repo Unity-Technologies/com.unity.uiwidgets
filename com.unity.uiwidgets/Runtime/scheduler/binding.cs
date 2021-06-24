@@ -457,14 +457,14 @@ namespace Unity.UIWidgets.scheduler {
             Window.instance.scheduleFrame();
             hasScheduledFrame = true;
 
-            onFrameRateSpeedUp();
-            frameCoolDownTimer?.cancel();
-            frameCoolDownTimer = Timer.create(_coolDownDelay,
-                () => {
-                    onFrameRateCoolDown();
-                    frameCoolDownTimer = null;
-                }
-            );
+            // onFrameRateSpeedUp();
+            // frameCoolDownTimer?.cancel();
+            // frameCoolDownTimer = Timer.create(_coolDownDelay,
+            //     () => {
+            //         onFrameRateCoolDown();
+            //         frameCoolDownTimer = null;
+            //     }
+            // );
         }
         
         public const int defaultMaxRenderFrameInterval = 200;

@@ -1,4 +1,9 @@
+using System;
+using System.Reflection;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Rect = Unity.UIWidgets.ui.Rect;
@@ -6,10 +11,12 @@ using Rect = Unity.UIWidgets.ui.Rect;
 namespace Unity.UIWidgets.rendering {
     public class TextureBox : RenderBox {
 
-        public TextureBox(int? textureId) {
+        public TextureBox(int? textureId, Texture texture) {
             _textureId = textureId;
+            _texture = texture;
         }
 
+        Texture _texture;
         public int? textureId {
             get { return _textureId; }
             set {
@@ -22,6 +29,8 @@ namespace Unity.UIWidgets.rendering {
         }
         
         int? _textureId;
+        Timer _timer;
+        bool _frameCallbackScheduled;
 
         protected override bool sizedByParent {
             get { return true; }
@@ -42,12 +51,42 @@ namespace Unity.UIWidgets.rendering {
         protected override bool hitTestSelf(Offset position) {
             return true;
         }
+        
+        void _scheduleAppFrame() {
+            if (_frameCallbackScheduled || textureId == null) {
+                return;
+            }
 
-        public override void paint(PaintingContext context, Offset offset) {
-            if (_textureId == null) {
+            _frameCallbackScheduled = true;
+            SchedulerBinding.instance.scheduleFrameCallback(_handleAppFrame);
+        }
+        
+        void _handleAppFrame(TimeSpan timestamp) {
+            _frameCallbackScheduled = false;
+            if (textureId == null) {
                 return;
             }
             
+            TimeSpan delay = TimeSpan.Zero;
+            delay = new TimeSpan((long) (delay.Ticks * scheduler_.timeDilation));
+            // TODO: time dilation 
+            _timer = Timer.create(delay, () => _scheduleAppFrame());
+        }
+        
+        public override void paint(PaintingContext context, Offset offset) {
+            if (_textureId == null) {
+                if (_texture != null) {
+                    markNeedsLayout();
+                    SchedulerBinding.instance.scheduleFrameCallback(_handleAppFrame);
+
+                    if (_texture.GetNativeTexturePtr() != IntPtr.Zero) {
+                        _textureId = UIWidgetsPanelWrapper.current.registerTexture(_texture);
+                    }
+                }
+                return;
+            }
+
+            _scheduleAppFrame();
             context.addLayer(new TextureLayer(
                 rect: Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
                 textureId: _textureId.Value

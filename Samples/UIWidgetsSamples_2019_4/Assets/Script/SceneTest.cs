@@ -57,8 +57,6 @@ namespace UIWidgetsSample
 
         class ExampleState : State<ExampleApp>
         {
-            private float frame = 0;
-
             public override Widget build(BuildContext context)
             {
                 var text = GameObject.Find("CameraTarget")?.GetComponent<UnityEngine.UI.RawImage>()?.texture;
@@ -66,17 +64,7 @@ namespace UIWidgetsSample
                     child: new Column(
                         children: new List<Widget>
                         {
-                            AnimatedLottie.file("wine.json", frame: frame, curve: Curves.linear),
-                            new Container(width: 100, height: 100, child:new Texture(texture: text)),
-                            new GestureDetector(
-                                onTap: () => { setState(() => { frame += 1; }); },
-                                child: new Container(
-                                    color: Color.black,
-                                    padding: EdgeInsets.symmetric(20, 20),
-                                    child: new Text("Click Me",
-                                        style: new TextStyle(fontWeight: FontWeight.w700))
-                                )
-                            )
+                            new Container(width: 100, height: 100, child: new Texture(texture: text)),
                         }
                     )
                 );
