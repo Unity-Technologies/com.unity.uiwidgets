@@ -4,6 +4,7 @@ using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.services;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -62,7 +63,16 @@ namespace Unity.UIWidgets.DevTools.inspector
     {
         public readonly float rowWidth = 1200;
         float _maxIndent;
-
+        // InspectorControllerClient client
+        // {
+        //     get
+        //     {
+        //         return _client;
+        //     }
+        // }
+        // InspectorControllerClient _client;
+        
+        
         public float maxRowIndent {
             get
             {
@@ -79,6 +89,17 @@ namespace Unity.UIWidgets.DevTools.inspector
                 }
                 return _maxIndent;
             }
+        }
+
+        public override void setState(VoidCallback fn)
+        {
+            fn();
+            // client?.onChanged();
+        }
+
+        public override InspectorTreeNode createNode()
+        {
+            return new InspectorTreeNode();
         }
     }
 

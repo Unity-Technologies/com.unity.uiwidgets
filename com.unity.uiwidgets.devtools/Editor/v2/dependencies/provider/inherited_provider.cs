@@ -50,24 +50,27 @@ namespace Unity.UIWidgets.DevTools
         public readonly bool? _lazy;
         public readonly TransitionBuilder builder;
 
-        public InheritedProvider<T> _constructor(
+        public InheritedProvider(
             Key key,
             _Delegate<T> _delegate,
             bool? lazy,
             TransitionBuilder builder,
             Widget child
-        )
+        ):
+            base(key: key, child: child)
         {
-            return new InheritedProvider<T>(key: key, child: child, lazy: lazy, _delegate: _delegate, builder: builder);
+            this._lazy = lazy;
+            this._delegate = _delegate;
+            this.builder = builder;
         }
         
         
         protected internal override Widget buildWithChild(BuildContext context, Widget child)
         {
-            // D.assert(
-            //     builder != null || child != null,
-            //     () => $"runtimeType used outside of MultiProvider must specify a child"
-            // );
+            D.assert(
+                builder != null || child != null,
+                () => $"runtimeType used outside of MultiProvider must specify a child"
+            );
             return new _InheritedProviderScope<T>(
                 owner: this,
                 child: builder != null
@@ -76,7 +79,7 @@ namespace Unity.UIWidgets.DevTools
                             builder: (context2) => builder(context2, child)
                         )
                     )
-                    : new Container(child : new Text("child is null"))
+                    : child
             );
         }
     }
@@ -184,7 +187,12 @@ namespace Unity.UIWidgets.DevTools
         {
             get
             {
-                return _delegateState.value;
+                if (_delegateState != null)
+                {
+                    return _delegateState.value;
+                }
+
+                return default;
             }   
         }
         

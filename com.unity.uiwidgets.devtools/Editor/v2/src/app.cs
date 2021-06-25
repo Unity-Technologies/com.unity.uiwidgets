@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.DevTools.inspector;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.DevTools
@@ -73,14 +74,14 @@ namespace Unity.UIWidgets.DevTools
             // var path = uri.PathAndQuery.isEmpty() ? AppUtils.homeRoute : uri.PathAndQuery;
             var args = (SnapshotArguments) settings.arguments;
             
-            var path = AppUtils.snapshotRoute;
+            var path = AppUtils.homeRoute;
             
             // Provide the appropriate page route.
             if (routes.ContainsKey(path))
             {
                 WidgetBuilder builder = (context2) => routes[path](
                     context2,
-                    null,
+                    new Dictionary<string, string>(){{"uri","inspector"},{"embed","true"},{"page","inspector"}},
                     args
                 );
                 D.assert(() =>
@@ -101,7 +102,7 @@ namespace Unity.UIWidgets.DevTools
                 settings: settings,
                 builder: (BuildContext context) => {
                 return DevToolsScaffold.withChild(
-                    child: new Container()
+                    child: new Container(child:new Text("_generateRoute error"))
                 );
             }
             );
@@ -123,19 +124,40 @@ namespace Unity.UIWidgets.DevTools
                 Dictionary<string, UrlParametersBuilder> builders = new Dictionary<string, UrlParametersBuilder>();
                 builders.Add(AppUtils.homeRoute, (_, _params, __) =>
                 {
-                    if (_params.ContainsKey("uri"))
-                    {
+                    if (_params["uri"]?.isNotEmpty() ?? false) {
                         var embed = _params["embed"] == "true";
                         var page = _params["page"];
+                        var temp = _visibleScreens();
+                        var visibleScreens = new List<Screen>();
+                        if (embed && page != null)
+                        {
+                            foreach (var screen in temp)
+                            {
+                                if (screen.screenId == page)
+                                {
+                                    visibleScreens.Add(screen);
+                                }
+                            }
+                        }
+                        var tabs = embed && page != null ? visibleScreens : temp;
                         return new Initializer(
-                            url: _params["uri"].ToString(),
+                            url: _params["uri"],
                             allowConnectionScreenOnDisconnect: !embed,
-                            builder: null
+                            builder: (___) => _providedControllers(
+                                child: new DevToolsScaffold(
+                                    embed: embed,
+                                    initialPage: page,
+                                    tabs: tabs,
+                                    actions: new List<Widget>()
+                                    {
+                                        new Text("ba ga"),
+                                        new Text("ya lu"),
+                                    }
+                                )
+                            )
                         );
                     }
-                    
-                    // return DevToolsScaffold.withChild(child: ConnectScreenBody());
-                    return new Container(child: new Text("this is a text!"));
+                    return DevToolsScaffold.withChild(child: new Text("app.cs line 144"));
                 });
                 builders.Add(AppUtils.snapshotRoute, (_, __, args) =>
                 {
@@ -147,6 +169,7 @@ namespace Unity.UIWidgets.DevTools
                     );
                 });
                 
+                
                 return builders;
             }
 
@@ -154,6 +177,15 @@ namespace Unity.UIWidgets.DevTools
 
         Dictionary<string, UrlParametersBuilder> _routes;
 
+        List<Screen> _visibleScreens() {
+            var visibleScreens = new List<Screen>();
+            foreach (var screen in _screens) {
+                visibleScreens.Add(screen);
+            }
+            return visibleScreens;
+        }
+        
+        
         Widget _providedControllers(Widget child = null, bool offline = false)
         {
             List<SingleChildWidgetMixinStatelessWidget> _providers = new List<SingleChildWidgetMixinStatelessWidget>();

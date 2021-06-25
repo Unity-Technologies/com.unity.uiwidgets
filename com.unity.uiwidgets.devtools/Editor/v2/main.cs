@@ -16,6 +16,7 @@ namespace Unity.UIWidgets.DevTools
         protected override void main()
         {
             var preferences = new PreferencesController();
+            FrameworkInitializeUtils.initializeFramework();
             ui_.runApp(
                 new DevToolsApp(AppUtils.defaultScreens, preferences)
             );

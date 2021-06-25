@@ -35,6 +35,7 @@ namespace Unity.UIWidgets.DevTools
     {
         public override Widget build(BuildContext context)
         {
+            return widget.builder(context);
             // return _checkLoaded() && _dependenciesLoaded
             //     ? widget.builder(context)
             //     : new Scaffold(

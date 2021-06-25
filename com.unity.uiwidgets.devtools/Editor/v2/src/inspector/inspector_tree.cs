@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
@@ -15,6 +17,9 @@ namespace Unity.UIWidgets.DevTools.inspector
     
     abstract class InspectorTreeController
     {
+        public abstract void setState(VoidCallback fn);
+        public abstract InspectorTreeNode createNode();
+        
         public float? lastContentWidth;
         public int numRows
         {
@@ -38,7 +43,18 @@ namespace Unity.UIWidgets.DevTools.inspector
 
         InspectorTreeNode _root;
         
+        // InspectorTreeConfig config
+        // {
+        //     get
+        //     {
+        //         return _config;
+        //     }
+        // }
+        //
+        // InspectorTreeConfig _config;
+        
         public InspectorTreeRow getCachedRow(int index) {
+            Debug.Log("getCachedRow");
             // _maybeClearCache();
             // while (cachedRows.length <= index) {
             //     cachedRows.add(null);
@@ -60,6 +76,122 @@ namespace Unity.UIWidgets.DevTools.inspector
             return (depth.Value + 1) * InspectorTreeUtils.columnWidth + horizontalPadding;
         }
         
+        void removeNodeFromParent(InspectorTreeNode node) {
+            setState(() => {
+                node.parent?.removeChild(node);
+            });
+        }
+        
+        
+        void appendChild(InspectorTreeNode node, InspectorTreeNode child) {
+            setState(() => {
+                node.appendChild(child);
+            });
+        }
+        
+        InspectorTreeNode setupInspectorTreeNode(
+            InspectorTreeNode node,
+            RemoteDiagnosticsNode diagnosticsNode,
+            bool expandChildren = false,
+            bool expandProperties = false
+        ) {
+            D.assert(expandChildren != null);
+            D.assert(expandProperties != null);
+            node.diagnostic = diagnosticsNode;
+            // if (config.onNodeAdded != null) {
+            //     config.onNodeAdded(node, diagnosticsNode);
+            // }
+
+            if (diagnosticsNode.hasChildren ||
+                diagnosticsNode.inlineProperties.isNotEmpty()) {
+                if (diagnosticsNode.childrenReady || !diagnosticsNode.hasChildren) {
+                    bool styleIsMultiline =
+                        expandPropertiesByDefault(diagnosticsNode.style.Value);
+                    setupChildren(
+                        diagnosticsNode,
+                        node,
+                        node.diagnostic.childrenNow,
+                        expandChildren: expandChildren && styleIsMultiline,
+                        expandProperties: expandProperties && styleIsMultiline
+                    );
+                } else {
+                    node.clearChildren();
+                    node.appendChild(createNode());
+                }
+            }
+            return node;
+        }
+        
+        bool expandPropertiesByDefault(DiagnosticsTreeStyle style) {
+            // This code matches the text style defaults for which styles are
+            //  by default and which aren't.
+            switch (style) {
+                case DiagnosticsTreeStyle.none:
+                case DiagnosticsTreeStyle.singleLine:
+                case DiagnosticsTreeStyle.errorProperty:
+                    return false;
+
+                case DiagnosticsTreeStyle.sparse:
+                case DiagnosticsTreeStyle.offstage:
+                case DiagnosticsTreeStyle.dense:
+                case DiagnosticsTreeStyle.transition:
+                case DiagnosticsTreeStyle.error:
+                case DiagnosticsTreeStyle.whitespace:
+                case DiagnosticsTreeStyle.flat:
+                case DiagnosticsTreeStyle.shallow:
+                case DiagnosticsTreeStyle.truncateChildren:
+                    return true;
+            }
+            return true;
+        }
+        
+        void setupChildren(
+            RemoteDiagnosticsNode parent,
+            InspectorTreeNode treeNode,
+            List<RemoteDiagnosticsNode> children, 
+            bool expandChildren = false,
+            bool expandProperties = false
+        ) {
+            D.assert(expandChildren != null);
+            D.assert(expandProperties != null);
+            treeNode.isExpanded = expandChildren;
+            if (treeNode.children.isNotEmpty()) {
+                // Only case supported is this is the loading node.
+                D.assert(treeNode.children.Count == 1);
+                removeNodeFromParent(treeNode.children.first());
+            }
+            var inlineProperties = parent.inlineProperties;
+
+            if (inlineProperties != null) {
+                foreach (RemoteDiagnosticsNode property in inlineProperties) {
+                    appendChild(
+                        treeNode,
+                        setupInspectorTreeNode(
+                            createNode(),
+                            property,
+                            // We are inside a property so only expand children if
+                            // expandProperties is true.
+                            expandChildren: expandProperties,
+                            expandProperties: expandProperties
+                        )
+                    );
+                }
+            }
+            if (children != null) {
+                foreach (RemoteDiagnosticsNode child in children) {
+                    appendChild(
+                        treeNode,
+                        setupInspectorTreeNode(
+                            createNode(),
+                            child,
+                            expandChildren: expandChildren,
+                            expandProperties: expandProperties
+                        )
+                    );
+                }
+            }
+        }
+        
     }
 
     class InspectorTreeNode
@@ -70,7 +202,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                 return _children.Count > 1 && !_children.Last().isProperty;
             }
         }
-        InspectorTreeNode parent
+        public InspectorTreeNode parent
         {
             get
             {
@@ -127,7 +259,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             }
         }
 
-        List<InspectorTreeNode> children
+        public List<InspectorTreeNode> children
         {
             get
             {
@@ -143,7 +275,8 @@ namespace Unity.UIWidgets.DevTools.inspector
                 }
             }
         }
-        bool isExpanded
+
+        public bool isExpanded
         {
             get
             {
@@ -185,11 +318,15 @@ namespace Unity.UIWidgets.DevTools.inspector
         int? _childrenCount;
 
         public int subtreeSize => childrenCount.GetValueOrDefault(0) + 1;
-        RemoteDiagnosticsNode diagnostic
+        public RemoteDiagnosticsNode diagnostic
         {
             get
             {
                 return _diagnostic;
+            }
+            set
+            {
+                _diagnostic = value;
             }
         }
 
@@ -242,6 +379,24 @@ namespace Unity.UIWidgets.DevTools.inspector
             }
             D.assert(false); // internal error.
             return null;
+        }
+        
+        public void removeChild(InspectorTreeNode child) {
+            child.parent = null;
+            var removed = _children.Remove(child);
+            D.assert(removed != null);
+            isDirty = true;
+        }
+        
+        public void appendChild(InspectorTreeNode child) {
+            _children.Add(child);
+            child.parent = this;
+            isDirty = true;
+        }
+
+        public void clearChildren() {
+            _children.Clear();
+            isDirty = true;
         }
         
     }

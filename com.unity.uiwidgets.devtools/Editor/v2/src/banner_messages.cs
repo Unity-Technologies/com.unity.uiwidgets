@@ -19,29 +19,35 @@ namespace Unity.UIWidgets.DevTools
     
         public override Widget build(BuildContext context)
         {
-            return new Container();
-            // var controller = Provider<object>.of<BannerMessagesController>(context);
-            // var messagesForScreen = controller?.messagesForScreen(screen.screenId);
-            // List<Widget> temp = new List<Widget>();
-            // if (messagesForScreen != null)
-            // {
-            //     temp.Add(new ValueListenableBuilder<List<BannerMessage>>(
-            //             valueListenable: messagesForScreen,
-            //             builder: (context2, messages, _) => {
-            //                 return new Column(
-            //                 children: messages
-            //                 );
-            //             }
-            //     ));
-            // }
-            // temp.Add(new Expanded(
-            //     child: screen.build(context)
-            // ));
-            //     
-            //
-            // return new Column(
-            //     children: temp
-            //     );
+            // return new Container();
+            var controller = Provider<object>.of<BannerMessagesController>(context);
+            var messagesForScreen = controller?.messagesForScreen(screen.screenId);
+            List<Widget> temp = new List<Widget>();
+            if (messagesForScreen != null)
+            {
+                temp.Add(new ValueListenableBuilder<List<BannerMessage>>(
+                        valueListenable: messagesForScreen,
+                        builder: (context2, messages, _) =>
+                        {
+                            List<Widget> temp1 = new List<Widget>();
+                            foreach (var msg in messages)
+                            {
+                                temp1.Add(msg);
+                            }
+                            return new Column(
+                            children: temp1
+                            );
+                        }
+                ));
+            }
+            temp.Add(new Expanded(
+                child: screen.build(context)
+            ));
+                
+            
+            return new Column(
+                children: temp
+                );
         }
     }
     
@@ -119,7 +125,7 @@ namespace Unity.UIWidgets.DevTools
                 screenId, () => new ValueNotifier<List<BannerMessage>>(null));
         }
     
-        ValueListenable<List<BannerMessage>> messagesForScreen(string screenId) {
+        public ValueListenable<List<BannerMessage>> messagesForScreen(string screenId) {
             return _messagesForScreen(screenId);
         }
     }

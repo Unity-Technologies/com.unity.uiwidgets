@@ -1,3 +1,4 @@
+using Unity.UIWidgets.DevTools.framework;
 using UnityEngine;
 
 namespace Unity.UIWidgets.DevTools.config_specific.framework_initialize
@@ -6,7 +7,7 @@ namespace Unity.UIWidgets.DevTools.config_specific.framework_initialize
     {
         public static void initializeFramework()
         {
-            Debug.Log("empty initializeFramework");
+            FrameworkCore.initGlobals();
         }
     }
 }

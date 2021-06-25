@@ -25,23 +25,21 @@ namespace Unity.UIWidgets.DevTools
             bool? lazy = null,
             TransitionBuilder builder = null,
             Widget child = null
-        )
+        ) : base(
+        key: key,
+        child: child,
+        lazy: lazy,
+        builder: builder,
+        _delegate: new _CreateDeferredInheritedProvider<T,R>(
+        create: create,
+        dispose: dispose,
+        updateShouldNotify: updateShouldNotify,
+        startListening: startListening
+        ))
         {
-            base._constructor(
-                key: key,
-                child: child,
-                lazy: lazy,
-                builder: builder,
-                _delegate: new _CreateDeferredInheritedProvider<T,R>(
-                    create: create,
-                    dispose: dispose,
-                    updateShouldNotify: updateShouldNotify,
-                    startListening: startListening
-                )
-            );
+            
         }
-
-        /// Listens to `value` and expose its content to `child` and its descendants.
+        
         public DeferredInheritedProvider(
             Key key = null,
             T value = default,
@@ -50,19 +48,17 @@ namespace Unity.UIWidgets.DevTools
             bool? lazy = null,
             TransitionBuilder builder = null,
             Widget child = null
-        )
+        ): base(key: key,
+            lazy: lazy,
+            builder: builder,
+            _delegate: new _ValueDeferredInheritedProvider<T, R>(
+                value,
+                updateShouldNotify,
+                startListening
+            ),
+            child: child)
         {
-            base._constructor(
-                key: key,
-                lazy: lazy,
-                builder: builder,
-                _delegate: new _ValueDeferredInheritedProvider<T, R>(
-                    value,
-                    updateShouldNotify,
-                    startListening
-                ),
-                child: child
-            );
+            
         }
         
     }

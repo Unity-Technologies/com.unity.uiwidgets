@@ -11,6 +11,12 @@ namespace Unity.UIWidgets.DevTools
             this.child = child;
         }
         
+        public static NotificationsState of(BuildContext context) {
+            var provider =
+                context.dependOnInheritedWidgetOfExactType<_InheritedNotifications>();
+            return provider?.data;
+        }
+        
         public readonly Widget child;
         public override Widget build(BuildContext context)
         {
@@ -27,7 +33,7 @@ namespace Unity.UIWidgets.DevTools
     }
     
     
-    class _NotificationsProvider : StatefulWidget {
+    public class _NotificationsProvider : StatefulWidget {
         public _NotificationsProvider(Key key = null, Widget child = null) : base(key: key)
         {
             this.child = child;
@@ -57,7 +63,7 @@ namespace Unity.UIWidgets.DevTools
         }
     }
 
-    class NotificationsState : State<_NotificationsProvider>
+    public class NotificationsState : State<_NotificationsProvider>
     {
         public override Widget build(BuildContext context)
         {
