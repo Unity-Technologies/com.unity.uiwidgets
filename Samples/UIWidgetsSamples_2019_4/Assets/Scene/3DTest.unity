@@ -259,7 +259,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 847097468}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f34989adbb4345fda4362c56f72ae791, type: 3}
+  m_Script: {fileID: 11500000, guid: ede68871f26ed4140ab72a231d56b44f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -269,7 +269,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 1080943737}
+  m_Texture: {fileID: 1111108692}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -286,7 +286,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 847097468}
   m_CullTransparentMesh: 0
---- !u!28 &1080943737
+--- !u!28 &1111108692
 Texture2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
