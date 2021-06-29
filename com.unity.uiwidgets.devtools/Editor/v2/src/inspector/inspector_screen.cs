@@ -4,19 +4,22 @@ using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
+using Unity.UIWidgets.DevTools.ui;
+using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
-    class InspectorScreen : Screen {
+    class InspectorScreen : Screen
+    {
         public InspectorScreen() : base(
-                "inspector",
-                title: "Flutter Inspector",
-                icon: Octicons.deviceMobile
-            )
+            "inspector",
+            title: "Flutter Inspector",
+            icon: Octicons.deviceMobile
+        )
         {
-            
+
         }
+
         public override Widget build(BuildContext context)
         {
             // var isFlutterApp = serviceManager.connectedApp.isFlutterAppNow;
@@ -28,9 +31,12 @@ namespace Unity.UIWidgets.DevTools.inspector
             // }
             return new InspectorScreenBody();
         }
-        
-        public class InspectorScreenBody : StatefulWidget {
-            public InspectorScreenBody(){}
+
+        public class InspectorScreenBody : StatefulWidget
+        {
+            public InspectorScreenBody()
+            {
+            }
 
             public override State createState()
             {
@@ -42,47 +48,76 @@ namespace Unity.UIWidgets.DevTools.inspector
         {
             bool _layoutExplorerSupported = false;
             bool _expandCollapseSupported = false;
+            bool connectionInProgress = false;
             InspectorController inspectorController;
             InspectorTreeControllerFlutter summaryTreeController;
             InspectorTreeControllerFlutter detailsTreeController;
+            InspectorService inspectorService;
 
-            
-            
-            public override void initState() {
+
+
+            public override void initState()
+            {
                 base.initState();
                 _handleConnectionStart();
             }
-            
-            void _onExpandCollapseSupported() {
-                setState(() => {
-                    _expandCollapseSupported = true;
-                });
+
+            void _onExpandCollapseSupported()
+            {
+                setState(() => { _expandCollapseSupported = true; });
             }
 
-            void _onLayoutExplorerSupported() {
-                setState(() => {
-                    _layoutExplorerSupported = true;
-                });
+            void _onLayoutExplorerSupported()
+            {
+                setState(() => { _layoutExplorerSupported = true; });
             }
 
             void _handleConnectionStart()
             {
-                setState(() => {
+
+                setState(() => { connectionInProgress = true; });
+
+                try
+                {
+                    // Init the inspector service, or return null.
+                    // ensureInspectorDependencies();
+                    // ensureInspectorServiceDependencies();
+                    inspectorService = new InspectorService();
+                    // InspectorService.create(service).catchError((e) => null);
+                }
+                finally
+                {
+                    setState(() => { connectionInProgress = false; });
+                }
+
+                if (inspectorService == null)
+                {
+                    return;
+                }
+
+
+                setState(() =>
+                {
                     // inspectorController?.dispose();
                     summaryTreeController = new InspectorTreeControllerFlutter();
                     detailsTreeController = new InspectorTreeControllerFlutter();
                     inspectorController = new InspectorController(
                         inspectorTree: summaryTreeController,
                         detailsTree: detailsTreeController,
-                        // inspectorService: inspectorService,
-                        // treeType: FlutterTreeType.widget,
+                        inspectorService: inspectorService,
+                        treeType: FlutterTreeType.widget,
                         onExpandCollapseSupported: _onExpandCollapseSupported,
                         onLayoutExplorerSupported: _onLayoutExplorerSupported
                     );
-                    
+
                 });
+                _refreshInspector();
             }
-            
+
+            void _refreshInspector()
+            {
+                inspectorController?.onForceRefresh();
+            }
 
             public override Widget build(BuildContext context)
             {
@@ -103,10 +138,29 @@ namespace Unity.UIWidgets.DevTools.inspector
                 return new Column(
                     children: new List<Widget>
                     {
+                        new Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: new List<Widget>
+                            {
+                                new SizedBox(width: ThemeUtils.denseSpacing),
+                                new Container(
+                                    height: Theme.of(context).buttonTheme.height,
+                                    child: new OutlineButton(
+                                        onPressed: _refreshInspector,
+                                        child: new MaterialIconLabel(
+                                            Icons.refresh,
+                                            "Refresh Tree",
+                                            includeTextWidth: 750
+                                        )
+                                    )
+                                ),
+                                new Spacer()
+                            }),
+                        new SizedBox(height: ThemeUtils.denseRowSpacing),
                         new Expanded(
                             child: new Split(
                                 axis: splitAxis,
-                                initialFractions: new List<float?>{0.33f, 0.67f},
+                                initialFractions: new List<float?> {0.33f, 0.67f},
                                 children: new List<Widget>
                                 {
                                     summaryTree,
@@ -121,7 +175,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                         )
                     }
                 );
-            } 
+            }
         }
     }
 }

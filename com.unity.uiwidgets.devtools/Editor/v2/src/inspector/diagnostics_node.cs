@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.DevTools.ui;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
-    class RemoteDiagnosticsNode : DiagnosticableTree {
+    public class RemoteDiagnosticsNode : DiagnosticableTree {
         public RemoteDiagnosticsNode(
             Dictionary<string, object> json,
             FutureOr inspectorService,
@@ -19,6 +21,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             this.json = json;
             this.inspectorService = inspectorService;
             this.isProperty = isProperty;
+            this.parent = parent;
         }
 
         RemoteDiagnosticsNode parent;
@@ -32,6 +35,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         public readonly Dictionary<string, object> json;
         
         List<RemoteDiagnosticsNode> _children;
+        static readonly CustomIconMaker iconMaker = new CustomIconMaker();
 
         // Future<Dictionary<string, InstanceRef>> _valueProperties;
 
@@ -45,13 +49,16 @@ namespace Unity.UIWidgets.DevTools.inspector
             
         }
 
-        string name
+        public string name
         {
             get
             {
                 return getStringMember("name");
             }
         }
+        
+        public string type => getStringMember("type");
+        public string widgetRuntimeType => getStringMember("widgetRuntimeType");
 
         string getStringMember(string memberName) {
             return JsonUtils.getStringMember(json, memberName);
@@ -63,6 +70,16 @@ namespace Unity.UIWidgets.DevTools.inspector
                 return json.ContainsKey("children") || _children != null || !hasChildren;
             }
             
+        }
+        
+        public Widget icon {
+            get
+            {
+                if (isProperty) return null;
+
+                return iconMaker.fromWidgetName(widgetRuntimeType);
+            }
+
         }
         
         InspectorSourceLocation _creationLocation;

@@ -1,8 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using uiwidgets;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.DevTools.inspector;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using UnityEditor.Graphs;
 using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
@@ -13,9 +18,29 @@ namespace Unity.UIWidgets.DevTools.inspector
         public static readonly float columnWidth = 16.0f;
         public static readonly float verticalPadding = 10.0f;
         public static readonly float rowHeight = 24.0f;
+
+        public static bool isLight = false;
+        public static Color selectedRowBackgroundColor
+        {
+            get
+            {
+                
+                return isLight
+                    ? Color.fromARGB(255, 202, 191, 69)
+                    : Color.fromARGB(255, 99, 101, 103);
+            }
+        }
+
+        public static Color hoverColor
+        {
+            get
+            {
+                return isLight ? Colors.yellowAccent : Color.fromARGB(255, 70, 73, 76);
+            }
+        }
     }
     
-    abstract class InspectorTreeController
+    abstract class InspectorTreeController 
     {
         public abstract void setState(VoidCallback fn);
         public abstract InspectorTreeNode createNode();
@@ -43,15 +68,25 @@ namespace Unity.UIWidgets.DevTools.inspector
 
         InspectorTreeNode _root;
         
-        // InspectorTreeConfig config
-        // {
-        //     get
-        //     {
-        //         return _config;
-        //     }
-        // }
-        //
-        // InspectorTreeConfig _config;
+        bool _disposed = false;
+        InspectorObjectGroupManager _treeGroups;
+        
+        public InspectorTreeConfig config
+        {
+            get
+            {
+                return _config;
+            }
+            set
+            {
+                _config = value;
+            }
+        }
+        
+        InspectorTreeConfig _config;
+        
+        public InspectorTreeNode hover => _hover;
+        InspectorTreeNode _hover;
         
         public InspectorTreeRow getCachedRow(int index) {
             Debug.Log("getCachedRow");
@@ -61,7 +96,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             // }
             // cachedRows[index] ??= root.getRow(index);
             // return cachedRows[index];
-            return null;
+            return new InspectorTreeRow();
         }
         
         float horizontalPadding
@@ -73,7 +108,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
 
         public float getDepthIndent(int? depth) {
-            return (depth.Value + 1) * InspectorTreeUtils.columnWidth + horizontalPadding;
+            return ((depth??0) + 1) * InspectorTreeUtils.columnWidth + horizontalPadding;
         }
         
         void removeNodeFromParent(InspectorTreeNode node) {
@@ -89,7 +124,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             });
         }
         
-        InspectorTreeNode setupInspectorTreeNode(
+        public InspectorTreeNode setupInspectorTreeNode(
             InspectorTreeNode node,
             RemoteDiagnosticsNode diagnosticsNode,
             bool expandChildren = false,
@@ -102,23 +137,23 @@ namespace Unity.UIWidgets.DevTools.inspector
             //     config.onNodeAdded(node, diagnosticsNode);
             // }
 
-            if (diagnosticsNode.hasChildren ||
-                diagnosticsNode.inlineProperties.isNotEmpty()) {
-                if (diagnosticsNode.childrenReady || !diagnosticsNode.hasChildren) {
-                    bool styleIsMultiline =
-                        expandPropertiesByDefault(diagnosticsNode.style.Value);
-                    setupChildren(
-                        diagnosticsNode,
-                        node,
-                        node.diagnostic.childrenNow,
-                        expandChildren: expandChildren && styleIsMultiline,
-                        expandProperties: expandProperties && styleIsMultiline
-                    );
-                } else {
-                    node.clearChildren();
-                    node.appendChild(createNode());
-                }
-            }
+            // if (diagnosticsNode.hasChildren ||
+            //     diagnosticsNode.inlineProperties.isNotEmpty()) {
+            //     if (diagnosticsNode.childrenReady || !diagnosticsNode.hasChildren) {
+            //         bool styleIsMultiline =
+            //             expandPropertiesByDefault(diagnosticsNode.style.Value);
+            //         setupChildren(
+            //             diagnosticsNode,
+            //             node,
+            //             node.diagnostic.childrenNow,
+            //             expandChildren: expandChildren && styleIsMultiline,
+            //             expandProperties: expandProperties && styleIsMultiline
+            //         );
+            //     } else {
+            //         node.clearChildren();
+            //         node.appendChild(createNode());
+            //     }
+            // }
             return node;
         }
         
@@ -191,9 +226,39 @@ namespace Unity.UIWidgets.DevTools.inspector
                 }
             }
         }
-        
     }
 
+    }
+
+    public delegate void OnClientActiveChange(bool added);
+    
+    class InspectorTreeConfig {
+        public InspectorTreeConfig(
+            bool summaryTree = false,
+            FlutterTreeType treeType = FlutterTreeType.widget,
+            // NodeAddedCallback onNodeAdded,
+            OnClientActiveChange onClientActiveChange = null,
+            VoidCallback onSelectionChange = null
+            // TreeEventCallback onExpand,
+            // TreeEventCallback onHover
+        )
+        {
+            this.summaryTree = summaryTree;
+            this.treeType = treeType;
+            this.onSelectionChange = onSelectionChange;
+            this.onClientActiveChange = onClientActiveChange;
+        }
+
+        public readonly bool summaryTree;
+        public readonly FlutterTreeType treeType;
+        // public readonly NodeAddedCallback onNodeAdded;
+        public readonly VoidCallback onSelectionChange;
+        public readonly OnClientActiveChange onClientActiveChange;
+        // public readonly TreeEventCallback onExpand;
+        // public readonly TreeEventCallback onHover;
+    }
+    
+    
     class InspectorTreeNode
     {
         bool showLinesToChildren {
@@ -250,6 +315,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         public readonly List<InspectorTreeNode> _children;
         public bool selected = false;
         RemoteDiagnosticsNode _diagnostic;
+        bool allowExpandCollapse = true;
         
         bool isProperty
         {
@@ -399,6 +465,15 @@ namespace Unity.UIWidgets.DevTools.inspector
             isDirty = true;
         }
         
+        public bool showExpandCollapse {
+            get
+            {
+                return (diagnostic?.hasChildren == true || children.isNotEmpty()) &&
+                       allowExpandCollapse;
+            }
+            
+        }
+        
     }
     
     class InspectorTreeRow {
@@ -424,13 +499,13 @@ namespace Unity.UIWidgets.DevTools.inspector
     public readonly int? index;
     public readonly bool? lineToParent;
 
-    bool isSelected
+    public bool isSelected
     {
         get
         {
             return node.selected;
         }
     }
-    }
+    
 
 }

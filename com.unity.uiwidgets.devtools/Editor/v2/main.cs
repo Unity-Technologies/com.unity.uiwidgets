@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.UIWidgets.DevTools.config_specific.framework_initialize;
 using Unity.UIWidgets.Editor;
 using Unity.UIWidgets.widgets;
@@ -13,6 +14,12 @@ namespace Unity.UIWidgets.DevTools
         {
             CreateWindow<EditorWindowDevtools>();
         }
+        
+        protected override void onEnable()
+        {
+            AddFont("Material Icons", new List<string> {"MaterialIcons-Regular.ttf"}, new List<int> {0});
+        }
+        
         protected override void main()
         {
             var preferences = new PreferencesController();

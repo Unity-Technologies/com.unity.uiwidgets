@@ -47,6 +47,7 @@ namespace Unity.UIWidgets.DevTools
         public const float defaultIconSize = 16.0f;
         public const float buttonMinWidth = 36.0f;
         public const float denseRowSpacing = 6.0f;
+        public const float denseSpacing = 8.0f;
         public const float defaultSpacing = 16.0f;
         public static readonly NeverScrollableScrollPhysics defaultTabBarViewPhysics = new NeverScrollableScrollPhysics();
         
