@@ -561,7 +561,7 @@ namespace uiwidgets
   }
 
   UIWIDGETS_API(void)
-  UIWidgetsPanel_onMouseMove(UIWidgetsPanel *panel, float x, float y)
+  UIWidgetsPanel_onMouseMove(UIWidgetsPanel *panel, float x, float y, int button)
   {
     panel->OnMouseMove(x, y);
   }

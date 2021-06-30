@@ -6,6 +6,7 @@
 
 #include <flutter/fml/memory/ref_counted.h>
 #include "shell/platform/unity/gfx_worker_task_runner.h"
+#include "lib/ui/window/pointer_data.h"
 #include "runtime/mono_api.h"
 #include "cocoa_task_runner.h"
 #include "unity_surface_manager.h"
@@ -18,10 +19,12 @@ enum UIWidgetsWindowType {
   EditorWindowPanel = 2
 };
 
-struct MouseState {
-  bool state_is_down = false;
-  bool state_is_added = false;
-  uint64_t buttons = 0;
+enum UIWidgetsTouchPhase
+{
+  TouchBegan,
+  TouchEnded,
+  TouchMoved,
+  TouchCancelled
 };
 
 class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
@@ -60,7 +63,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void OnKeyDown(int keyCode, bool isKeyDown);
 
-  void OnMouseMove(float x, float y);
+  void OnMouseMove(float x, float y, int button);
 
   void OnScroll(float x, float y, float px, float py);
 
@@ -79,31 +82,11 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings);
 
-  MouseState GetMouseState() { return mouse_state_; }
+  void dispatchTouches(float x, float y, int button, UIWidgetsTouchPhase evtType);
 
-  void ResetMouseState() { mouse_state_ = MouseState(); }
+  static PointerData::Change PointerDataChangeFromUITouchPhase(UIWidgetsTouchPhase phase);
 
-  void SetMouseStateDown(bool is_down) { mouse_state_.state_is_down = is_down; }
-
-  void SetMouseStateAdded(bool is_added) {
-    mouse_state_.state_is_added = is_added;
-  }
-
-  void SetMouseButtons(uint64_t buttons) { mouse_state_.buttons = buttons; }
-
-  void SendMouseMove(float x, float y);
-
-  void SendMouseDown(float x, float y);
-
-  void SendMouseUp(float x, float y);
-
-  void SendMouseLeave();
-
-  void SendScroll(float delta_x, float delta_y, float px, float py);
-
-  void SetEventPhaseFromCursorButtonState(UIWidgetsPointerEvent* event_data);
-
-  void SendPointerEventWithData(const UIWidgetsPointerEvent& event_data);
+  static PointerData::DeviceKind DeviceKindFromTouchType();
 
   Mono_Handle handle_;
   EntrypointCallback entrypoint_callback_;
@@ -117,7 +100,6 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   std::vector<intptr_t> vsync_batons_;
 
-  MouseState mouse_state_;
   bool process_events_ = false;
 };
 
