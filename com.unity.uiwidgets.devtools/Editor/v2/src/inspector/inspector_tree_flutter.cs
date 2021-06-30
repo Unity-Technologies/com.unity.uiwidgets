@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.DevTools.ui;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -190,6 +191,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                 return new Center(child: new CircularProgressIndicator());
             }
 
+            GestureTapCallback gestureTapCallback = () =>  _focusNode.requestFocus();
             return new Scrollbar(
                 child: new SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -198,7 +200,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                         width: controller.rowWidth + controller.maxRowIndent,
                         child: new Scrollbar(
                             child: new GestureDetector(
-                                onTap: null,//_focusNode.requestFocus,
+                                onTap:  null,// gestureTapCallback,
                                 child: new Focus(
                                     onKey: _handleKeyEvent,
                                     autofocus: widget.isSummaryTree,
@@ -276,7 +278,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                   node.showExpandCollapse
                       ? new SizedBox(child:
                           new InkWell(
-                          onTap: null,//onToggle,
+                          onTap: () => { onToggle();},
                           child: new RotationTransition(
                               turns: expandArrowAnimation,
                               child: new Icon(

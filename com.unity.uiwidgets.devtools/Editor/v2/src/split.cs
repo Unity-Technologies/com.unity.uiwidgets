@@ -66,7 +66,8 @@ namespace Unity.UIWidgets.DevTools
         public static Axis axisFor(BuildContext context, float horizontalAspectRatio) {
             var screenSize = MediaQuery.of(context).size;
             var aspectRatio = screenSize.width / screenSize.height;
-            if (aspectRatio >= horizontalAspectRatio) return Axis.horizontal;
+            if (aspectRatio >= horizontalAspectRatio)
+                return Axis.horizontal;
             return Axis.vertical;
         }
         

@@ -69,22 +69,74 @@ namespace Unity.UIWidgets.DevTools.inspector
             Dictionary<string, object> widgetTree = new Dictionary<string, object>();
             widgetTree["hasChildren"] = true;
             widgetTree["name"] = "inspector";
-            widgetTree["children"] = new List<Widget>()
+            widgetTree["creationLocation"] = new Dictionary<string, object>()
             {
-                new Text("text1"),
-                new Text("text2"),
-                new Text("text3"),
-                new Text("text4"),
-                new Text("text5"),
+                {"creationLocation1",new Text("creationLocation1")},
             };
-            widgetTree["properties"] = new List<object>()
+
+            widgetTree["parameterLocations"] = new List<object>()
             {
-                "properties_1",
-                "properties_2",
-                "properties_3",
-                "properties_4",
-                "properties_5",
+                new Text("properties_1")
             };
+            widgetTree["children"] = new List<Dictionary<string, object>>()
+            {
+                
+                new Dictionary<string, object>()
+                {
+                    {
+                        "text1", new List<Dictionary<string,object>>()
+                        {
+                            new Dictionary<string, object>()
+                            {
+                                {"hasChildren", true},
+                                {"name","inspector2"},
+                                {"creationLocation", new Dictionary<string, object>()
+                                    {
+                                        {"creationLocation1",new Text("creationLocation1")},
+                                    }
+                                },
+                                {"parameterLocations", new List<object>()
+                                    {
+                                        new Text("properties_1")
+                                    }
+                                },
+                                {"children", new Dictionary<string, object>()
+                                    {
+                                        {"te1",new Text("text1a")},
+                                    } 
+                                }
+                            }
+                        }
+                    },
+                },
+                new Dictionary<string, object>()
+                {
+                    {"te1",new Text("text1a")},
+                    {"te2",new Text("text2a")},
+                    {"te3",new Text("text3a")},
+                    {"te4",new Text("text4a")},
+                    {"te5",new Text("text5a")},
+                }
+            };
+            // widgetTree["properties"] = new List<Dictionary<string, object>>()
+            // {
+            //     new Dictionary<string, object>()
+            //     {
+            //         {"properties1",new Text("properties1")},
+            //         {"properties2",new Text("properties2")},
+            //         {"properties3",new Text("properties3")},
+            //         {"properties4",new Text("properties4")},
+            //         {"properties5",new Text("properties5")},
+            //     },
+            //     new Dictionary<string, object>()
+            //     {
+            //         {"pro1",new Text("pro1a")},
+            //         {"pro2",new Text("pro2a")},
+            //         {"pro3",new Text("pro3a")},
+            //         {"pro4",new Text("pro4a")},
+            //         {"pro5",new Text("pro5a")},
+            //     }
+            // };
             return new RemoteDiagnosticsNode(widgetTree,
                 inspectorService: FutureOr.value(inspectorService),  
                 true,
@@ -96,7 +148,9 @@ namespace Unity.UIWidgets.DevTools.inspector
             // return invokeServiceMethodReturningNode('getRootWidgetSummaryTree');
 
             Dictionary<string, object> widgetTree = new Dictionary<string, object>();
-            widgetTree["children"] = new List<Widget>()
+            widgetTree["hasChildren"] = true;
+            widgetTree["name"] = "inspector";
+            widgetTree["children"] = new List<object>()
             {
                 new Text("text1"),
                 new Text("text2"),

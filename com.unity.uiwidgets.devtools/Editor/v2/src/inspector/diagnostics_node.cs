@@ -148,20 +148,30 @@ namespace Unity.UIWidgets.DevTools.inspector
         public bool hasChildren {
             get
             {
-                List<object> children = json["children"] as List<object>;
-                if (children != null) {
-                    return children.isNotEmpty();
+                if (json.ContainsKey("children"))
+                {
+                    List<Dictionary<string, object>> children = (List<Dictionary<string, object>>)json["children"];
+                    if (children != null) {
+                        return children.isNotEmpty();
+                    }
+                    
                 }
                 return getBooleanMember("hasChildren", false);
             }
             
         }
         
-        bool getBooleanMember(string memberName, bool defaultValue) {
-            if (json[memberName] == null) {
-                return defaultValue;
+        bool getBooleanMember(string memberName, bool defaultValue)
+        {
+            if (json.ContainsKey(memberName))
+            {
+                if (json[memberName] == null) {
+                    return defaultValue;
+                }
+                return (bool)json[memberName];
             }
-            return (bool)json[memberName];
+
+            return false;
         }
             
         public List<RemoteDiagnosticsNode> inlineProperties {
@@ -170,7 +180,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                 if (cachedProperties == null) {
                     cachedProperties = new List<RemoteDiagnosticsNode>();
                     if (json.ContainsKey("properties")) {
-                        List<object> jsonArray = (List<object>)json["properties"];
+                        List<Dictionary<string,object>> jsonArray = (List<Dictionary<string,object>>)json["properties"];
                         foreach (Dictionary<string, object> element in jsonArray) {
                             cachedProperties.Add(
                                 new RemoteDiagnosticsNode(element, inspectorService, true, parent));
@@ -212,10 +222,28 @@ namespace Unity.UIWidgets.DevTools.inspector
         public List<RemoteDiagnosticsNode> childrenNow {
             get
             {
-                // _maybePopulateChildren();
+                _maybePopulateChildren();
                 return _children;
             }
             
+        }
+        
+        void _maybePopulateChildren() {
+            if (!hasChildren || _children != null) {
+                return;
+            }
+            
+            List<Dictionary<string, object>> jsonArray = (List<Dictionary<string, object>>)json["children"];
+            if (jsonArray?.isNotEmpty() == true) {
+                List<RemoteDiagnosticsNode> nodes = new List<RemoteDiagnosticsNode>();
+                foreach (Dictionary<string, object> element in jsonArray) {
+                    var child =
+                        new RemoteDiagnosticsNode(element, inspectorService, false, parent);
+                    child.parent = this;
+                    nodes.Add(child);
+                }
+                _children = nodes;
+            }
         }
         
     }

@@ -5,7 +5,8 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.DevTools.ui;
-using Unity.UIWidgets.ui;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
@@ -143,22 +144,23 @@ namespace Unity.UIWidgets.DevTools.inspector
                             children: new List<Widget>
                             {
                                 new SizedBox(width: ThemeUtils.denseSpacing),
-                                new Container(
-                                    height: Theme.of(context).buttonTheme.height,
-                                    child: new OutlineButton(
-                                        onPressed: _refreshInspector,
-                                        child: new MaterialIconLabel(
-                                            Icons.refresh,
-                                            "Refresh Tree",
-                                            includeTextWidth: 750
-                                        )
-                                    )
-                                ),
+                                // new Container(
+                                //     height: 36,// Theme.of(context).buttonTheme.height,
+                                //     child: new OutlineButton(
+                                //         onPressed: _refreshInspector,
+                                //         child: new MaterialIconLabel(
+                                //             Icons.refresh,
+                                //             "Refresh Tree",
+                                //             includeTextWidth: 750
+                                //         )
+                                //     )
+                                // ),
                                 new Spacer()
                             }),
                         new SizedBox(height: ThemeUtils.denseRowSpacing),
                         new Expanded(
-                            child: new Split(
+                            child: 
+                            new Split(
                                 axis: splitAxis,
                                 initialFractions: new List<float?> {0.33f, 0.67f},
                                 children: new List<Widget>
@@ -169,7 +171,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                                         controller: inspectorController,
                                         actionButtons: null,
                                         layoutExplorerSupported: _layoutExplorerSupported
-                                    )
+                                    ),
                                 }
                             )
                         )

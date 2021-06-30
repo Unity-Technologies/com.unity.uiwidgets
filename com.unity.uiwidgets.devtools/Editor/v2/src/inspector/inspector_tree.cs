@@ -87,16 +87,29 @@ namespace Unity.UIWidgets.DevTools.inspector
         
         public InspectorTreeNode hover => _hover;
         InspectorTreeNode _hover;
+        List<InspectorTreeRow> cachedRows = new List<InspectorTreeRow>();
+        
+        void _maybeClearCache() {
+            if (root.isDirty) {
+                cachedRows.Clear();
+                root.isDirty = false;
+                lastContentWidth = null;
+            }
+        }
+        
         
         public InspectorTreeRow getCachedRow(int index) {
-            Debug.Log("getCachedRow");
-            // _maybeClearCache();
-            // while (cachedRows.length <= index) {
-            //     cachedRows.add(null);
-            // }
-            // cachedRows[index] ??= root.getRow(index);
-            // return cachedRows[index];
-            return new InspectorTreeRow();
+            Debug.Log("getCachedRow: " + index);
+            _maybeClearCache();
+            while (cachedRows.Count <= index) {
+                cachedRows.Add(null);
+            }
+
+            if (cachedRows.Count <= index || cachedRows[index] == null)
+            {
+                cachedRows[index] = root.getRow(index);
+            }
+            return cachedRows[index];
         }
         
         float horizontalPadding
@@ -137,23 +150,23 @@ namespace Unity.UIWidgets.DevTools.inspector
             //     config.onNodeAdded(node, diagnosticsNode);
             // }
 
-            // if (diagnosticsNode.hasChildren ||
-            //     diagnosticsNode.inlineProperties.isNotEmpty()) {
-            //     if (diagnosticsNode.childrenReady || !diagnosticsNode.hasChildren) {
-            //         bool styleIsMultiline =
-            //             expandPropertiesByDefault(diagnosticsNode.style.Value);
-            //         setupChildren(
-            //             diagnosticsNode,
-            //             node,
-            //             node.diagnostic.childrenNow,
-            //             expandChildren: expandChildren && styleIsMultiline,
-            //             expandProperties: expandProperties && styleIsMultiline
-            //         );
-            //     } else {
-            //         node.clearChildren();
-            //         node.appendChild(createNode());
-            //     }
-            // }
+            if (diagnosticsNode.hasChildren ||
+                diagnosticsNode.inlineProperties.isNotEmpty()) {
+                if (diagnosticsNode.childrenReady || !diagnosticsNode.hasChildren) {
+                    bool styleIsMultiline =
+                        expandPropertiesByDefault(diagnosticsNode.style.Value);
+                    setupChildren(
+                        diagnosticsNode,
+                        node,
+                        node.diagnostic.childrenNow,
+                        expandChildren: expandChildren && styleIsMultiline,
+                        expandProperties: expandProperties && styleIsMultiline
+                    );
+                } else {
+                    node.clearChildren();
+                    node.appendChild(createNode());
+                }
+            }
             return node;
         }
         
@@ -312,7 +325,7 @@ namespace Unity.UIWidgets.DevTools.inspector
 
         bool _isDirty = true;
         bool? _shouldShow;
-        public readonly List<InspectorTreeNode> _children;
+        public readonly List<InspectorTreeNode> _children = new List<InspectorTreeNode>();
         public bool selected = false;
         RemoteDiagnosticsNode _diagnostic;
         bool allowExpandCollapse = true;
