@@ -78,7 +78,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                     expandArrowAnimation: expandArrowAnimation,
                     controller: widget.inspectorTreeState.controller,
                     onToggle: () => {
-                        setExpanded(!isExpanded);
+                        // setExpanded(!isExpanded);
                     }
                 )
             );

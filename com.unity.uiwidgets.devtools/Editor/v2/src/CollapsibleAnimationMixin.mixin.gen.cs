@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.DevTools
         
             AnimationController expandController;
                           
-            Animation<float> expandArrowAnimation;
+            public Animation<float> expandArrowAnimation;
           
             Animation<float> expandCurve;
 
