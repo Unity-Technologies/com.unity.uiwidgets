@@ -35,7 +35,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
     }
     
-    class _InspectorTreeRowWidget : StatefulWidget {
+    public class _InspectorTreeRowWidget : StatefulWidget {
         public _InspectorTreeRowWidget(
             Key key = null,
             InspectorTreeRow row = null,
@@ -66,7 +66,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
     }
 
-    class _InspectorTreeRowState : TickerProviderStateMixin<_InspectorTreeRowWidget>
+    class _InspectorTreeRowState : CollapsibleAnimationMixinTickerProviderStateMixin<_InspectorTreeRowWidget>
     {
         
         public override Widget build(BuildContext context)
@@ -78,14 +78,14 @@ namespace Unity.UIWidgets.DevTools.inspector
                     expandArrowAnimation: expandArrowAnimation,
                     controller: widget.inspectorTreeState.controller,
                     onToggle: () => {
-                        // setExpanded(!isExpanded);
+                        setExpanded(!isExpanded);
                     }
                 )
             );
         }
     }
     
-    class InspectorTreeControllerFlutter : InspectorTreeController
+    public class InspectorTreeControllerFlutter : InspectorTreeController
     {
         public readonly float rowWidth = 1200;
         float _maxIndent;
@@ -129,7 +129,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
     }
 
-    class InspectorTree : StatefulWidget
+    public class InspectorTree : StatefulWidget
     {
         public InspectorTree(
             Key key = null,
@@ -150,7 +150,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
     }
 
-    class _InspectorTreeState : State<InspectorTree>
+    public class _InspectorTreeState : State<InspectorTree>
     {
         ScrollController _scrollControllerY;
         ScrollController _scrollControllerX;

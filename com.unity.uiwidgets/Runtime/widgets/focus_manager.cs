@@ -613,8 +613,7 @@ namespace Unity.UIWidgets.widgets {
                 $"{(hasPrimaryFocus ? "[PRIMARY FOCUS]" : nullStr)}";
             return $"{foundation_.describeIdentity(this)}" + $"{(extraData.isNotEmpty() ? extraData : nullStr)}";
             }
-        
-    }
+        }
     }
 
     public class FocusScopeNode : FocusNode {

@@ -40,7 +40,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
     }
     
-    abstract class InspectorTreeController 
+    public abstract class InspectorTreeController 
     {
         public abstract void setState(VoidCallback fn);
         public abstract InspectorTreeNode createNode();
@@ -245,7 +245,7 @@ namespace Unity.UIWidgets.DevTools.inspector
 
     public delegate void OnClientActiveChange(bool added);
     
-    class InspectorTreeConfig {
+    public class InspectorTreeConfig {
         public InspectorTreeConfig(
             bool summaryTree = false,
             FlutterTreeType treeType = FlutterTreeType.widget,
@@ -272,7 +272,7 @@ namespace Unity.UIWidgets.DevTools.inspector
     }
     
     
-    class InspectorTreeNode
+    public class InspectorTreeNode
     {
         bool showLinesToChildren {
             get
@@ -489,7 +489,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         
     }
     
-    class InspectorTreeRow {
+    public class InspectorTreeRow {
         public InspectorTreeRow(
             InspectorTreeNode node = null,
             int? index = null,

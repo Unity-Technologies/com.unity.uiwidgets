@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
 
@@ -140,16 +139,6 @@ namespace Unity.UIWidgets.widgets {
     // in AutomaticKeepAliveClientWithTickerProviderStateMixin, remember to keep the copy up to date
     public abstract class TickerProviderStateMixin<T> : State<T>, TickerProvider where T : StatefulWidget {
         HashSet<Ticker> _tickers;
-        public Animation<float> expandArrowAnimation;
-        
-        public override void initState() {
-            base.initState();
-            expandArrowAnimation = new CurvedAnimation(curve: Curves.easeInOutCubic, parent: new AnimationController(
-                duration: new TimeSpan(0,0,0,0,200),
-                vsync: this,
-                value: 0.0f
-            ));
-        }
         
         public Ticker createTicker(TickerCallback onTick) {
             _tickers = _tickers ?? new HashSet<Ticker>();

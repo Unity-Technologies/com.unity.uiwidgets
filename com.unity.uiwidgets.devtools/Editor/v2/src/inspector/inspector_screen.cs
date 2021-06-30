@@ -144,17 +144,17 @@ namespace Unity.UIWidgets.DevTools.inspector
                             children: new List<Widget>
                             {
                                 new SizedBox(width: ThemeUtils.denseSpacing),
-                                // new Container(
-                                //     height: 36,// Theme.of(context).buttonTheme.height,
-                                //     child: new OutlineButton(
-                                //         onPressed: _refreshInspector,
-                                //         child: new MaterialIconLabel(
-                                //             Icons.refresh,
-                                //             "Refresh Tree",
-                                //             includeTextWidth: 750
-                                //         )
-                                //     )
-                                // ),
+                                new Container(
+                                    height: Theme.of(context).buttonTheme.height + 0.01f,
+                                    child: new OutlineButton(
+                                        onPressed: _refreshInspector,
+                                        child: new MaterialIconLabel(
+                                            Icons.refresh,
+                                            "Refresh Tree",
+                                            includeTextWidth: 750
+                                        )
+                                    )
+                                ),
                                 new Spacer()
                             }),
                         new SizedBox(height: ThemeUtils.denseRowSpacing),
