@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using uiwidgets;
+using Unity.UIWidgets.DevTools.inspector;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -67,5 +68,13 @@ namespace Unity.UIWidgets.DevTools
             {600, new Color(0xFF0175C2)},
             {400, new Color(0xFF13B9FD)},
     });
+    
+    public static Color defaultBackground => InspectorTreeUtils.isLight ? Colors.white : Colors.black;
+    
+    public static Color defaultForeground =>
+        InspectorTreeUtils.isLight ? Colors.black : Color.fromARGB(255, 187, 187, 187);
+    
+    public static Color grey => Color.fromARGB(255, 128, 128, 128);
+    
     }
 }

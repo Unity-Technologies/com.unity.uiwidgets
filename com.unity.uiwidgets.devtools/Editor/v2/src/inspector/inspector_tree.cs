@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+using System;using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using uiwidgets;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.DevTools.inspector;
@@ -18,7 +19,9 @@ namespace Unity.UIWidgets.DevTools.inspector
         public static readonly float columnWidth = 16.0f;
         public static readonly float verticalPadding = 10.0f;
         public static readonly float rowHeight = 24.0f;
-
+        public static readonly Regex treeNodePrimaryDescriptionPattern = new Regex(@"^([\w ]+)(.*)$");
+        public static readonly Regex assertionThrownBuildingError = new Regex(
+            @"^(The following assertion was thrown building [a-zA-Z]+)(\(.*\))(:)$");
         public static bool isLight = false;
         public static Color selectedRowBackgroundColor
         {
@@ -53,6 +56,9 @@ namespace Unity.UIWidgets.DevTools.inspector
                 return root != null ? root.subtreeSize : 0;
             }
         }
+        
+        InspectorTreeNode selection => _selection;
+        InspectorTreeNode _selection;
         
         public InspectorTreeNode root
         {
@@ -89,6 +95,14 @@ namespace Unity.UIWidgets.DevTools.inspector
         InspectorTreeNode _hover;
         List<InspectorTreeRow> cachedRows = new List<InspectorTreeRow>();
         
+        void nodeChanged(InspectorTreeNode node) {
+            if (node == null) return;
+            setState(() => {
+                node.isDirty = true;
+            });
+        }
+        
+        
         void _maybeClearCache() {
             if (root.isDirty) {
                 cachedRows.Clear();
@@ -97,6 +111,20 @@ namespace Unity.UIWidgets.DevTools.inspector
             }
         }
         
+        void expandPath(InspectorTreeNode node) {
+            setState(() => {
+                _expandPath(node);
+            });
+        }
+
+        void _expandPath(InspectorTreeNode node) {
+            while (node != null) {
+                if (!node.isExpanded) {
+                    node.isExpanded = true;
+                }
+                node = node.parent;
+            }
+        }
         
         public InspectorTreeRow getCachedRow(int index) {
             Debug.Log("getCachedRow: " + index);
@@ -239,10 +267,53 @@ namespace Unity.UIWidgets.DevTools.inspector
                 }
             }
         }
+        
+        public void onExpandRow(InspectorTreeRow row) {
+            setState(() => {
+                row.node.isExpanded = true;
+                if (config.onExpand != null) {
+                    config.onExpand(row.node);
+                }
+            });
+        }
+
+        public void onCollapseRow(InspectorTreeRow row) {
+            setState(() => {
+                row.node.isExpanded = false;
+            });
+        }
+        
+        public void maybePopulateChildren(InspectorTreeNode treeNode) {
+            RemoteDiagnosticsNode diagnostic = treeNode.diagnostic;
+            if (diagnostic != null &&
+                diagnostic.hasChildren &&
+                (treeNode.hasPlaceholderChildren || treeNode.children.isEmpty())) {
+                try {
+                    var children = diagnostic.children;
+                    if (treeNode.hasPlaceholderChildren || treeNode.children.isEmpty()) {
+                        setupChildren(
+                            diagnostic,
+                            treeNode,
+                            children,
+                            expandChildren: true,
+                            expandProperties: false
+                        );
+                        nodeChanged(treeNode);
+                        if (treeNode == selection) {
+                            expandPath(treeNode);
+                        }
+                    }
+                } catch (Exception e) {
+                    Debug.Log(e.ToString());
+                }
+            }
+        }
+        
     }
 
     }
 
+    public delegate void TreeEventCallback(InspectorTreeNode node);
     public delegate void OnClientActiveChange(bool added);
     
     public class InspectorTreeConfig {
@@ -251,15 +322,17 @@ namespace Unity.UIWidgets.DevTools.inspector
             FlutterTreeType treeType = FlutterTreeType.widget,
             // NodeAddedCallback onNodeAdded,
             OnClientActiveChange onClientActiveChange = null,
-            VoidCallback onSelectionChange = null
-            // TreeEventCallback onExpand,
-            // TreeEventCallback onHover
+            VoidCallback onSelectionChange = null,
+            TreeEventCallback onExpand = null,
+            TreeEventCallback onHover = null
         )
         {
             this.summaryTree = summaryTree;
             this.treeType = treeType;
             this.onSelectionChange = onSelectionChange;
             this.onClientActiveChange = onClientActiveChange;
+            this.onExpand = onExpand;
+            this.onHover = onHover;
         }
 
         public readonly bool summaryTree;
@@ -267,8 +340,8 @@ namespace Unity.UIWidgets.DevTools.inspector
         // public readonly NodeAddedCallback onNodeAdded;
         public readonly VoidCallback onSelectionChange;
         public readonly OnClientActiveChange onClientActiveChange;
-        // public readonly TreeEventCallback onExpand;
-        // public readonly TreeEventCallback onHover;
+        public readonly TreeEventCallback onExpand;
+        public readonly TreeEventCallback onHover;
     }
     
     
@@ -483,6 +556,27 @@ namespace Unity.UIWidgets.DevTools.inspector
             {
                 return (diagnostic?.hasChildren == true || children.isNotEmpty()) &&
                        allowExpandCollapse;
+            }
+            
+        }
+        
+        public bool? shouldShow {
+            get
+            {
+                if (_shouldShow != null)
+                {
+                    return _shouldShow;
+                }
+                _shouldShow = (parent == null || parent.isExpanded && (parent._shouldShow != null && parent.shouldShow.Value));
+                return _shouldShow;
+            }
+            
+        }
+        
+        public bool hasPlaceholderChildren {
+            get
+            {
+                return children.Count == 1 && children.First().diagnostic == null;
             }
             
         }

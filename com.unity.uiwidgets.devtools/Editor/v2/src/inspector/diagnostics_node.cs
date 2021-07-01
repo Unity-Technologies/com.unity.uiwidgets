@@ -10,6 +10,25 @@ using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
+
+    public static class DiagnosticsNodeUtils
+    {
+        
+        public static EnumUtils<DiagnosticLevel> diagnosticLevelUtils
+        {
+            get
+            {
+                List<DiagnosticLevel> styles = new List<DiagnosticLevel>();
+                foreach (DiagnosticLevel style in Enum.GetValues(typeof(DiagnosticLevel)))
+                {
+                    styles.Add(style);
+                }
+                return new EnumUtils<DiagnosticLevel>(styles);
+            }
+        }
+        
+    }
+    
     public class RemoteDiagnosticsNode : DiagnosticableTree {
         public RemoteDiagnosticsNode(
             Dictionary<string, object> json,
@@ -49,6 +68,21 @@ namespace Unity.UIWidgets.DevTools.inspector
             
         }
 
+        public string separator => showSeparator ? ":" : "";
+        
+        public bool showSeparator => getBooleanMember("showSeparator", true);
+        public bool hasDefaultValue => json.ContainsKey("defaultValue");
+        
+        public bool isSummaryTree => getBooleanMember("summaryTree", false);
+        public bool isCreatedByLocalProject {
+            get
+            {
+                return getBooleanMember("createdByLocalProject", false);
+            }
+        }
+        
+        public string description => getStringMember("description");
+        
         public string name
         {
             get
@@ -145,6 +179,18 @@ namespace Unity.UIWidgets.DevTools.inspector
             }
         }
         
+        public Dictionary<string, object>  valuePropertiesJson
+        {
+            get
+            {
+                if (json.ContainsKey("valueProperties"))
+                {
+                    return (Dictionary<string, object>) json["valueProperties"];
+                }
+                return new Dictionary<string, object>(){{"valueProperties","null"}};
+            }
+        }
+
         public bool hasChildren {
             get
             {
@@ -161,6 +207,18 @@ namespace Unity.UIWidgets.DevTools.inspector
             
         }
         
+        public bool isDiagnosticableValue {
+            get
+            {
+                return getBooleanMember("isDiagnosticableValue", false);
+            }
+            
+        }
+        public bool showName => getBooleanMember("showName", true);
+        public DiagnosticLevel level => getLevelMember("level", DiagnosticLevel.info);
+        
+        public string propertyType => getStringMember("propertyType");
+        
         bool getBooleanMember(string memberName, bool defaultValue)
         {
             if (json.ContainsKey(memberName))
@@ -171,9 +229,61 @@ namespace Unity.UIWidgets.DevTools.inspector
                 return (bool)json[memberName];
             }
 
-            return false;
+            return defaultValue;
         }
             
+        DiagnosticLevel getLevelMember(
+            string memberName, DiagnosticLevel defaultValue)
+        {
+            string value = null;
+            if (json.ContainsKey(memberName))
+            {
+                value = (string)json[memberName];
+            }
+            if (value == null) {
+                return defaultValue;
+            }
+            var level = DiagnosticsNodeUtils.diagnosticLevelUtils.enumEntry(value);
+            D.assert(level != null, () => $"Unabled to find level for {value}");
+            if (level != null)
+            {
+                return level;
+            }
+            return defaultValue;
+        }
+        
+        List<RemoteDiagnosticsNode> _childrenFuture;
+        
+        public List<RemoteDiagnosticsNode> children {
+            get
+            {
+                // _computeChildren();
+                return _childrenFuture;
+            }
+            
+        }
+        
+        // void _computeChildren() {
+        //     _maybePopulateChildren();
+        //     if (!hasChildren || _children != null) {
+        //         return;
+        //     }
+        //
+        //     if (_childrenFuture != null) {
+        //         return;
+        //     }
+        //
+        //     _childrenFuture = _getChildrenHelper();
+        //     try {
+        //         _children = _childrenFuture;
+        //     } finally {
+        //         if (_children == null)
+        //         {
+        //             _children = new List<RemoteDiagnosticsNode>();
+        //         }
+        //     }
+        // }
+        
         public List<RemoteDiagnosticsNode> inlineProperties {
             get
             {
@@ -228,7 +338,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             
         }
         
-        void _maybePopulateChildren() {
+        public void _maybePopulateChildren() {
             if (!hasChildren || _children != null) {
                 return;
             }

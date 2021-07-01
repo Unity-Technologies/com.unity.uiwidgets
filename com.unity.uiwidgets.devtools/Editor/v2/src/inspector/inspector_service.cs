@@ -69,8 +69,12 @@ namespace Unity.UIWidgets.DevTools.inspector
             Dictionary<string, object> widgetTree = new Dictionary<string, object>();
             widgetTree["hasChildren"] = true;
             widgetTree["name"] = "inspector";
+            widgetTree["type"] = "root";
+            widgetTree["propertyType"] = "IconData";
+            widgetTree["description"] = "root widget";
             widgetTree["creationLocation"] = new Dictionary<string, object>()
             {
+                {"name", "inspector2"},
                 {"creationLocation1",new Text("creationLocation1")},
             };
 
@@ -80,16 +84,19 @@ namespace Unity.UIWidgets.DevTools.inspector
             };
             widgetTree["children"] = new List<Dictionary<string, object>>()
             {
-                
                 new Dictionary<string, object>()
-                {
+                {   
+                    {"name", "inspector3"},
+                    {"type", "class"},
+                    {"description","second level widget"},
                     {
-                        "text1", new List<Dictionary<string,object>>()
+                        "text", new List<Dictionary<string,object>>()
                         {
                             new Dictionary<string, object>()
                             {
                                 {"hasChildren", true},
-                                {"name","inspector2"},
+                                {"name","inspector4"},
+                                {"description","third level widget"},
                                 {"creationLocation", new Dictionary<string, object>()
                                     {
                                         {"creationLocation1",new Text("creationLocation1")},
@@ -111,6 +118,9 @@ namespace Unity.UIWidgets.DevTools.inspector
                 },
                 new Dictionary<string, object>()
                 {
+                    {"name", "inspector5"},
+                    {"type", "class"},
+                    {"description","second level widget"},
                     {"te1",new Text("text1a")},
                     {"te2",new Text("text2a")},
                     {"te3",new Text("text3a")},
@@ -118,25 +128,21 @@ namespace Unity.UIWidgets.DevTools.inspector
                     {"te5",new Text("text5a")},
                 }
             };
-            // widgetTree["properties"] = new List<Dictionary<string, object>>()
-            // {
-            //     new Dictionary<string, object>()
-            //     {
-            //         {"properties1",new Text("properties1")},
-            //         {"properties2",new Text("properties2")},
-            //         {"properties3",new Text("properties3")},
-            //         {"properties4",new Text("properties4")},
-            //         {"properties5",new Text("properties5")},
-            //     },
-            //     new Dictionary<string, object>()
-            //     {
-            //         {"pro1",new Text("pro1a")},
-            //         {"pro2",new Text("pro2a")},
-            //         {"pro3",new Text("pro3a")},
-            //         {"pro4",new Text("pro4a")},
-            //         {"pro5",new Text("pro5a")},
-            //     }
-            // };
+            widgetTree["properties"] = new List<Dictionary<string, object>>()
+            {
+                new Dictionary<string, object>()
+                {
+                    {"name","properties1"},
+                    {"type", "property"},
+                    {"description","this is a description"},
+                },
+                new Dictionary<string, object>()
+                {
+                    {"name","properties2"},
+                    {"type", "property"},
+                    {"description","this is a description"},
+                }
+            };
             return new RemoteDiagnosticsNode(widgetTree,
                 inspectorService: FutureOr.value(inspectorService),  
                 true,

@@ -2,11 +2,33 @@ using System;
 using System.Text.RegularExpressions;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
+
+    public static class InspectorControllerUtils
+    {
+        public static TextStyle textStyleForLevel(DiagnosticLevel level, ColorScheme colorScheme) {
+            switch (level) {
+                case DiagnosticLevel.hidden:
+                    return inspector_text_styles.unimportant(colorScheme);
+                case DiagnosticLevel.warning:
+                    return inspector_text_styles.warning(colorScheme);
+                case DiagnosticLevel.error:
+                    return inspector_text_styles.error(colorScheme);
+                case DiagnosticLevel.debug:
+                case DiagnosticLevel.info:
+                case DiagnosticLevel.fine:
+                default:
+                    return inspector_text_styles.regular;
+            }
+        }
+    }
+    
     class InspectorController
     {
         public InspectorController(
@@ -39,7 +61,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                 // onNodeAdded: _onNodeAdded,
                 // onHover: highlightShowNode,
                 // onSelectionChange: selectionChanged,
-                // onExpand: _onExpand,
+                onExpand: _onExpand,
                 onClientActiveChange: _onClientChange
             );
                 if (isSummaryTree) {
@@ -124,6 +146,11 @@ namespace Unity.UIWidgets.DevTools.inspector
             }
         }
        
+        void _onExpand(InspectorTreeNode node) {
+            inspectorTree.maybePopulateChildren(node);
+        }
+        
+        
         
         void _onClientChange(bool added) {
             _clientCount += added ? 1 : -1;

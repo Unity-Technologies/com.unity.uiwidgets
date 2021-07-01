@@ -8,20 +8,16 @@ namespace Unity.UIWidgets.DevTools
             public abstract class CollapsibleAnimationMixinTickerProviderStateMixin<T> : TickerProviderStateMixin<T> where T : StatefulWidget {
         
             AnimationController expandController;
-                          
+                                      
             public Animation<float> expandArrowAnimation;
           
             Animation<float> expandCurve;
 
-            bool shouldShow()
-            {
-              return isExpanded;
-            }
+            public abstract bool shouldShow();
 
-            void onExpandChanged(bool expanded)
-            {
-              
-            }
+
+            public abstract void onExpandChanged(bool expanded);
+            
 
             public bool isExpanded
             {
@@ -30,11 +26,12 @@ namespace Unity.UIWidgets.DevTools
           
             public override void initState() {
               base.initState();
-              expandArrowAnimation = new CurvedAnimation(curve: Curves.easeInOutCubic, parent: new AnimationController(
-                duration: new TimeSpan(0,0,0,0,200),
+              expandController = new AnimationController(
+                duration: new TimeSpan(0, 0, 0, 0, 200),
                 vsync: this,
                 value: 0.0f
-              ));
+              );
+              expandArrowAnimation = new CurvedAnimation(curve: Curves.easeInOutCubic, parent: expandController);
             }
             
           

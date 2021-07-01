@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace Unity.UIWidgets.DevTools
 {
@@ -16,7 +17,12 @@ namespace Unity.UIWidgets.DevTools
         public static string getStringMember(Dictionary<string, object> json, string memberName) {
             // TODO(jacobr): should we handle non-string values with a reasonable
             // toString differently?
-            return json[memberName] as string;
+            if (json.ContainsKey(memberName))
+            {
+                return json[memberName] as string;
+            }
+            Debug.Log("key not found: " + memberName);
+            return "key not found: " + memberName;
         }
 
         public static int getIntMember(Dictionary<string, object> json, string memberName) {

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Unity.UIWidgets.DevTools.inspector;
 using Unity.UIWidgets.DevTools.ui;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -16,15 +18,23 @@ namespace Unity.UIWidgets.DevTools.ui
     {
         public static Image createImageIcon(string url, float size = ThemeUtils.defaultIconSize) {
             return new Image(
-                image: new AssetImage(url),
+                image: new FileImage(url),
                 height: size,
                 width: size
             );
         }
     }
     
+    public class ColorIconMaker {
+        
+         Dictionary<Color, ColorIcon> iconCache = new Dictionary<Color, ColorIcon>();
+         public ColorIcon getCustomIcon(Color color) {
+            return iconCache.putIfAbsent(color, () => new ColorIcon(color));
+        }
+    }
     
-    class CustomIcon : StatelessWidget {
+    
+    public class CustomIcon : StatelessWidget {
         public CustomIcon(
             IconKind kind = null,
             string text = null,
@@ -62,89 +72,90 @@ namespace Unity.UIWidgets.DevTools.ui
 }
     
     
-    class CustomIconMaker {
+    public class CustomIconMaker {
         Dictionary<string, CustomIcon> iconCache = new Dictionary<string, CustomIcon>();
 
-    CustomIcon getCustomIcon(string fromText,
-    IconKind kind = null, bool isAbstract = false) {
-        if (kind == null)
+        CustomIcon getCustomIcon(string fromText,
+        IconKind kind = null, bool isAbstract = false)
         {
-            kind = IconKind.classIcon;
-        }
-        if (fromText?.isEmpty() != false) {
-            return null;
-        }
-        
-        string text = toUpperCase(fromText[0].ToString());
-        string mapKey = $"{text}_{kind.name}_{isAbstract}";
-
-        return iconCache.putIfAbsent(mapKey, () => {
-            return new CustomIcon(kind: kind, text: text, isAbstract: isAbstract);
-        });
-    }
-
-    string toUpperCase(string str)
-    {
-        if (str != null)
-        {
-            string retStr = string.Empty;
-            for (int i = 0; i < str.Length; i++)
+            if (kind == null)
             {
-                if (str[i]>='a'&&str[i]<='z')
-                {
-                    retStr += (char)(str[i] - 'a' + 'A');
-                    continue;
-                }
-                retStr += str[i];
+                kind = IconKind.classIcon;
             }
-            return retStr;
+            if (fromText?.isEmpty() != false) {
+                return null;
+            }
+            
+            string text = toUpperCase(fromText[0].ToString());
+            string mapKey = $"{text}_{kind.name}_{isAbstract}";
+
+            return iconCache.putIfAbsent(mapKey, () => {
+                return new CustomIcon(kind: kind, text: text, isAbstract: isAbstract);
+            });
         }
 
-        return "str is null";
-    }
+        string toUpperCase(string str)
+        {
+            if (str != null)
+            {
+                string retStr = string.Empty;
+                for (int i = 0; i < str.Length; i++)
+                {
+                    if (str[i]>='a'&&str[i]<='z')
+                    {
+                        retStr += (char)(str[i] - 'a' + 'A');
+                        continue;
+                    }
+                    retStr += str[i];
+                }
+                return retStr;
+            }
+
+            return "str is null";
+        }
 
 
-    public CustomIcon fromWidgetName(string name) {
-    if (name == null) {
-        return null;
-    }
+        public CustomIcon fromWidgetName(string name) {
+            if (name == null) {
+                return null;
+            }
 
-    bool isPrivate = name.StartsWith("_");
-    while (name.isNotEmpty() && !isAlphabetic(name[0])) {
-        name = name.Substring(1);
-    }
+            bool isPrivate = name.StartsWith("_");
+            while (name.isNotEmpty() && !isAlphabetic(name[0])) {
+                name = name.Substring(1);
+            }
 
-    if (name.isEmpty()) {
-        return null;
-    }
+            if (name.isEmpty()) {
+                return null;
+            }
 
-    return getCustomIcon(
-        name,
-        kind: isPrivate ? IconKind.method : IconKind.classIcon
-    );
-}
+            return getCustomIcon(
+                name,
+                kind: isPrivate ? IconKind.method : IconKind.classIcon
+            );
+        }
 
-CustomIcon fromInfo(String name) {
-    if (name == null) {
-        return null;
-    }
+        public CustomIcon fromInfo(String name) {
+            if (name == null) {
+                return null;
+            }
 
-    if (name.isEmpty()) {
-        return null;
-    }
+            if (name.isEmpty()) {
+                return null;
+            }
 
-    return getCustomIcon(name, kind: IconKind.info);
-}
+            return getCustomIcon(name, kind: IconKind.info);
+        }
 
-bool isAlphabetic(int _char) {
-    return (_char < '0' || _char > '9') &&
-           _char != '_' &&
-           _char != '$';
-}
-}
+        bool isAlphabetic(int _char) {
+            return (_char < '0' || _char > '9') &&
+                   _char != '_' &&
+                   _char != '$';
+        }
+    }   
     
     
-    class IconKind {
+    public class IconKind {
         public IconKind(string name, Image icon, Image abstractIcon = null)
         {
             this.name = name;
@@ -182,6 +193,107 @@ bool isAlphabetic(int _char) {
         public readonly string name;
         public readonly Image icon;
         public readonly Image abstractIcon;
+    }
+    
+    public class ColorIcon : StatelessWidget {
+        public ColorIcon(Color color)
+        {
+            this.color = color;
+        }
+
+        public readonly Color color;
+    
+        public override Widget build(BuildContext context) {
+            var colorScheme = Theme.of(context).colorScheme;
+            return new CustomPaint(
+                painter: new _ColorIconPainter(color, colorScheme),
+                size: new Size(ThemeUtils.defaultIconSize, ThemeUtils.defaultIconSize)
+                );
+        }
+    }
+    
+    public static class FlutterMaterialIcons {
+
+        public static Icon getIconForCodePoint(int charCode, ColorScheme colorScheme) {
+            return new Icon(new IconData(charCode), color: ThemeUtils.defaultForeground);
+        }
+    }
+    
+    
+    class _ColorIconPainter : AbstractCustomPainter {
+        public _ColorIconPainter(Color color, ColorScheme colorScheme)
+        {
+            this.color = color;
+            this.colorScheme = colorScheme;
+        }
+
+        public readonly Color color;
+
+        public readonly ColorScheme colorScheme;
+        public static readonly float iconMargin = 1.0f;
+
+    
+        public override void paint(Canvas canvas, Size size) {
+            // draw a black and gray grid to use as the background to disambiguate
+            // opaque colors from translucent colors.
+            Paint greyPaint = new Paint();
+            Paint defaultPaint = new Paint();
+            Paint paint = new Paint();
+            Paint paint2 = new Paint();
+            paint2.style = PaintingStyle.stroke;
+            paint2.color = ThemeUtils.defaultForeground;
+            paint.color = color;
+            defaultPaint.color = ThemeUtils.defaultBackground;
+            greyPaint.color = ThemeUtils.grey;
+            var iconRect = Rect.fromLTRB(
+                iconMargin,
+                iconMargin,
+                size.width - iconMargin,
+                size.height - iconMargin
+            );
+            canvas.drawRect(
+                Rect.fromLTRB(
+                    iconMargin,
+                    iconMargin,
+                    size.width - iconMargin,
+                    size.height - iconMargin
+                ),
+                defaultPaint
+            );
+            canvas.drawRect(
+                Rect.fromLTRB(
+                    iconMargin,
+                    iconMargin,
+                    size.width * 0.5f,
+                    size.height * 0.5f
+                ),
+                greyPaint
+            );
+            canvas.drawRect(
+                Rect.fromLTRB(
+                    size.width * 0.5f,
+                    size.height * 0.5f,
+                    size.width - iconMargin,
+                    size.height - iconMargin
+                ),
+                greyPaint
+            );
+            canvas.drawRect(
+                iconRect,
+                paint
+            );
+            canvas.drawRect(
+                    iconRect,
+                    paint2
+                );
+        }
+    
+        public override bool shouldRepaint(CustomPainter oldDelegate) {
+            // if (oldDelegate is _ColorIconPainter) {
+            //     return ((_ColorIconPainter)oldDelegate).colorScheme.isLight != InspectorTreeUtils.isLight;
+            // }
+            return true;
+        }
     }
     
 }

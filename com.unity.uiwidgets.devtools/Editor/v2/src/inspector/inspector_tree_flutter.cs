@@ -48,7 +48,7 @@ namespace Unity.UIWidgets.DevTools.inspector
 
         public readonly _InspectorTreeState inspectorTreeState;
 
-        InspectorTreeNode node
+        public InspectorTreeNode node
         {
             get
             {
@@ -78,11 +78,29 @@ namespace Unity.UIWidgets.DevTools.inspector
                     expandArrowAnimation: expandArrowAnimation,
                     controller: widget.inspectorTreeState.controller,
                     onToggle: () => {
-                        // setExpanded(!isExpanded);
+                        setExpanded(!isExpanded);
                     }
                 )
             );
         }
+        
+        
+        public new bool isExpanded => widget.node.isExpanded;
+
+        
+        public override void onExpandChanged(bool expanded) {
+            setState(() => {
+                var row = widget.row;
+                if (expanded) {
+                    widget.inspectorTreeState.controller.onExpandRow(row);
+                } else {
+                    widget.inspectorTreeState.controller.onCollapseRow(row);
+                }
+            });
+        }
+        
+        public override bool shouldShow() => widget.node.shouldShow.Value;
+        
     }
     
     public class InspectorTreeControllerFlutter : InspectorTreeController
@@ -179,7 +197,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             //     controller.navigateRight();
             //     return true;
             // }
-
+            Debug.Log("enter _handleKeyEvent");
             return false;
         }
         
@@ -200,7 +218,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                         width: controller.rowWidth + controller.maxRowIndent,
                         child: new Scrollbar(
                             child: new GestureDetector(
-                                onTap:  null,// gestureTapCallback,
+                                onTap: null, // gestureTapCallback,
                                 child: new Focus(
                                     onKey: _handleKeyEvent,
                                     autofocus: widget.isSummaryTree,
@@ -301,7 +319,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                       child: new Container(
                         height: _InspectorTreeRowWidgetUtils.rowHeight,
                         padding: EdgeInsets.symmetric(horizontal: 4.0f),
-                        child: new Text(node.ToString())// new DiagnosticsNodeDescription(node.diagnostic)
+                        child: new DiagnosticsNodeDescription(node.diagnostic)
                       )
                     )
                   ),
