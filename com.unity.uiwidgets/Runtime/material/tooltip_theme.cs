@@ -116,16 +116,16 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
 
-            return height.Equals(other.height) 
-                   && padding.Equals(other.padding) 
-                   && margin.Equals(other.margin) 
-                   && verticalOffset.Equals(other.verticalOffset) 
+            return Equals(height, other.height) 
+                   && Equals(padding, other.padding) 
+                   && Equals(margin, other.margin) 
+                   && Equals(verticalOffset, other.verticalOffset) 
                    && preferBelow == other.preferBelow 
                    && excludeFromSemantics == other.excludeFromSemantics 
-                   && decoration.Equals(other.decoration) 
-                   && textStyle.Equals(other.textStyle) 
-                   && waitDuration.Equals(other.waitDuration) 
-                   && showDuration.Equals(other.showDuration);
+                   && Equals(decoration, other.decoration) 
+                   && Equals(textStyle, other.textStyle) 
+                   && Equals(waitDuration, other.waitDuration) 
+                   && Equals(showDuration, other.showDuration);
         }
         public override bool Equals(object obj)
         { 

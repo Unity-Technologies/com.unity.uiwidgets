@@ -139,21 +139,21 @@ namespace Unity.UIWidgets.material {
                 return true;
             }
             
-            return  textStyle.Equals(other.textStyle)
-                    && constraints.Equals(other.constraints)
-                    && color.Equals(other.color)
-                    && selectedColor.Equals(other.selectedColor)
-                    && disabledColor.Equals(other.disabledColor)
-                    && fillColor.Equals(other.fillColor)
-                    && focusColor.Equals(other.focusColor)
-                    && highlightColor.Equals(other.highlightColor)
-                    && hoverColor.Equals(other.hoverColor)
-                    && splashColor.Equals(other.splashColor)
-                    && borderColor.Equals(other.borderColor)
-                    && selectedBorderColor.Equals(other.selectedBorderColor)
-                    && disabledBorderColor.Equals(other.disabledBorderColor)
-                    && borderRadius.Equals(other.borderRadius)
-                    && borderWidth.Equals(other.borderWidth);
+            return  Equals(textStyle, other.textStyle)
+                    && Equals(constraints, other.constraints)
+                    && Equals(color, other.color)
+                    && Equals(selectedColor, other.selectedColor)
+                    && Equals(disabledColor,other.disabledColor)
+                    && Equals(fillColor, other.fillColor)
+                    && Equals(focusColor, other.focusColor)
+                    && Equals(highlightColor, other.highlightColor)
+                    && Equals(hoverColor, other.hoverColor)
+                    && Equals(splashColor, other.splashColor)
+                    && Equals(borderColor, other.borderColor)
+                    && Equals(selectedBorderColor, other.selectedBorderColor)
+                    && Equals(disabledBorderColor, other.disabledBorderColor)
+                    && Equals(borderRadius, other.borderRadius)
+                    && Equals(borderWidth, other.borderWidth);
         }
 
        
