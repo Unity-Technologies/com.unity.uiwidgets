@@ -62,7 +62,7 @@ namespace UIWidgetsSample
                     child: new Column(
                         children: new List<Widget>
                         {
-                            AnimatedLottie.file("wine.json", frame: frame, curve: Curves.linear),
+                            new Lottie("wine.json", size: new Size(100, 100)),
                             new Container(
                                 width: 100,
                                 height: 100,

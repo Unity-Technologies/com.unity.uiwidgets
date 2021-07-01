@@ -10,13 +10,15 @@ namespace Unity.UIWidgets.widgets {
         public int _round = 0;
         public float _frame = 0;
         public float _duration = 0;
+        public Size _size = null;
 
-        public Lottie(string path, float frame = 0, int round = -1) {
+        public Lottie(string path, float frame = 0, Size size = null, int round = -1) {
             D.assert(path != null);
             _skottie = new Skottie(Path.Combine(Application.streamingAssetsPath, path));
             _duration = _skottie.duration();
             _round = round;
             _frame = frame * _duration;
+            _size = size;
         }
 
         public override State createState() {
@@ -49,7 +51,7 @@ namespace Unity.UIWidgets.widgets {
             }
             
             return new CustomPaint(
-                size: Size.infinite,
+                size: widget._size,
                 painter: new LottiePainter(
                     skottie: widget._skottie,
                     frame: _frame
