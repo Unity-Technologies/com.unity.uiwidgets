@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.DevTools.ui;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
@@ -16,6 +18,7 @@ using UnityEditor.Graphs;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
+using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
@@ -103,18 +106,37 @@ namespace Unity.UIWidgets.DevTools.inspector
         
     }
     
+
+    public interface InspectorControllerClient {
+        void onChanged();
+
+        void scrollToRect(Rect rect);
+
+        void requestFocus();
+    }
+    
     public class InspectorTreeControllerFlutter : InspectorTreeController
     {
         public readonly float rowWidth = 1200;
         float _maxIndent;
-        // InspectorControllerClient client
-        // {
-        //     get
-        //     {
-        //         return _client;
-        //     }
-        // }
-        // InspectorControllerClient _client;
+        public InspectorControllerClient client
+        {
+            get
+            {
+                return _client;
+            }
+            set {
+                if (_client == value) return;
+                // Do not set a new client if there is still an old client.
+                D.assert(value == null || _client == null);
+                _client = value;
+
+                if (config.onClientActiveChange != null) {
+                    config.onClientActiveChange(value != null);
+                }
+            }
+        }
+        InspectorControllerClient _client;
         
         
         public float maxRowIndent {
@@ -138,7 +160,12 @@ namespace Unity.UIWidgets.DevTools.inspector
         public override void setState(VoidCallback fn)
         {
             fn();
-            // client?.onChanged();
+            Debug.Log("setState here");
+            if (client != null)
+            {
+                client.onChanged();
+            }
+            
         }
 
         public override InspectorTreeNode createNode()
@@ -149,6 +176,11 @@ namespace Unity.UIWidgets.DevTools.inspector
 
     public class InspectorTree : StatefulWidget
     {
+        
+        
+        
+        
+        
         public InspectorTree(
             Key key = null,
             InspectorTreeController controller = null,
@@ -168,11 +200,48 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
     }
 
-    public class _InspectorTreeState : State<InspectorTree>
+    
+    public class _InspectorTreeState : State<InspectorTree>, InspectorControllerClient, TickerProvider
     {
         ScrollController _scrollControllerY;
         ScrollController _scrollControllerX;
         FocusNode _focusNode;
+
+        bool isSummaryTree => widget.isSummaryTree;
+        
+        Future<object> currentAnimateY;
+        Rect currentAnimateTarget;
+
+        AnimationController constraintDisplayController;
+
+        
+        public override void initState() {
+            base.initState();
+            _scrollControllerX = new ScrollController();
+            _scrollControllerY = new ScrollController();
+            // TODO(devoncarew): Commented out as per flutter/devtools/pull/2001.
+            //_scrollControllerY.addListener(_onScrollYChange);
+            if (isSummaryTree) {
+                constraintDisplayController = ThemeUtils.longAnimationController(this);
+            }
+            _focusNode = new FocusNode();
+            _bindToController();
+        }
+        
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
+            if (((InspectorTree)oldWidget).controller != widget.controller) {
+                InspectorTreeControllerFlutter oldController = ((InspectorTree)oldWidget).controller as InspectorTreeControllerFlutter;
+                if (oldController != null)
+                {
+                    oldController.client = null;
+                }
+                // cancel();
+
+                _bindToController();
+            }
+            base.didUpdateWidget(oldWidget);
+        }
+        
         public InspectorTreeControllerFlutter controller
         {
             get
@@ -201,6 +270,14 @@ namespace Unity.UIWidgets.DevTools.inspector
             return false;
         }
         
+        public void _bindToController() {
+            if (controller != null)
+            {
+                controller.client = this;
+            }
+        }
+        
+        
         public override Widget build(BuildContext context)
         {
             // base.build(context);
@@ -218,7 +295,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                         width: controller.rowWidth + controller.maxRowIndent,
                         child: new Scrollbar(
                             child: new GestureDetector(
-                                onTap: null, // gestureTapCallback,
+                                onTap: gestureTapCallback,
                                 child: new Focus(
                                     onKey: _handleKeyEvent,
                                     autofocus: widget.isSummaryTree,
@@ -244,6 +321,27 @@ namespace Unity.UIWidgets.DevTools.inspector
                     )
                 )
             );
+        }
+
+        public void onChanged()
+        {
+            setState(() => {});
+        }
+
+        public void scrollToRect(Rect rect)
+        {
+            Debug.Log("scrollToRect");
+        }
+
+        public void requestFocus()
+        {
+            Debug.Log("requestFocus");
+        }
+
+        public Ticker createTicker(TickerCallback onTick)
+        {
+            Debug.Log("CreateTicker");
+            return null;
         }
     }
     

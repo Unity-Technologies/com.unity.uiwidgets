@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using uiwidgets;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.DevTools.inspector;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -14,6 +17,17 @@ namespace Unity.UIWidgets.DevTools
             return isDarkTheme ? _darkTheme() : _lightTheme();
         }
         
+        
+        public static AnimationController longAnimationController(
+            TickerProvider vsync, 
+            float value = 0.0f
+        ) {
+            return new AnimationController(
+                duration: longDuration,
+                vsync: vsync,
+                value: value
+            );
+        }
         
         static ThemeData _darkTheme() {
             var theme = ThemeData.dark();
@@ -75,6 +89,9 @@ namespace Unity.UIWidgets.DevTools
         InspectorTreeUtils.isLight ? Colors.black : Color.fromARGB(255, 187, 187, 187);
     
     public static Color grey => Color.fromARGB(255, 128, 128, 128);
+    
+    public static TimeSpan longDuration = new TimeSpan(0,0,0,0, 400);
+    
     
     }
 }
