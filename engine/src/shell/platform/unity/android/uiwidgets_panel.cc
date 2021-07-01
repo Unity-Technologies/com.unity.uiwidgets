@@ -311,103 +311,57 @@ namespace uiwidgets
     vsync_batons_.push_back(baton);
   }
 
-  void UIWidgetsPanel::SetEventPhaseFromCursorButtonState(
-      UIWidgetsPointerEvent *event_data)
-  {
-    MouseState state = GetMouseState();
-    event_data->phase = state.buttons == 0
-                            ? state.state_is_down ? UIWidgetsPointerPhase::kUp
-                                                  : UIWidgetsPointerPhase::kHover
-                        : state.state_is_down ? UIWidgetsPointerPhase::kMove
-                                              : UIWidgetsPointerPhase::kDown;
-  }
+  void UIWidgetsPanel::dispatchTouches(float x, float y, int button, UIWidgetsTouchPhase phase)
+{
+  PointerData pointer_data;
+  pointer_data.Clear();
 
-  void UIWidgetsPanel::SendMouseMove(float x, float y)
-  {
-    UIWidgetsPointerEvent event = {};
-    event.x = x;
-    event.y = y;
-    SetEventPhaseFromCursorButtonState(&event);
-    SendPointerEventWithData(event);
-  }
+  auto packet = std::make_unique<PointerDataPacket>(1);
 
-  void UIWidgetsPanel::SendMouseDown(float x, float y)
-  {
-    UIWidgetsPointerEvent event = {};
-    SetEventPhaseFromCursorButtonState(&event);
-    event.x = x;
-    event.y = y;
-    SendPointerEventWithData(event);
-    SetMouseStateDown(true);
-  }
-
-  void UIWidgetsPanel::SendMouseUp(float x, float y)
-  {
-    UIWidgetsPointerEvent event = {};
-    SetEventPhaseFromCursorButtonState(&event);
-    event.x = x;
-    event.y = y;
-    SendPointerEventWithData(event);
-    if (event.phase == UIWidgetsPointerPhase::kUp)
-    {
-      SetMouseStateDown(false);
-    }
-  }
-
-  void UIWidgetsPanel::SendMouseLeave()
-  {
-    UIWidgetsPointerEvent event = {};
-    event.phase = UIWidgetsPointerPhase::kRemove;
-    SendPointerEventWithData(event);
-  }
-
-  void UIWidgetsPanel::SendPointerEventWithData(
-      const UIWidgetsPointerEvent &event_data)
-  {
-    MouseState mouse_state = GetMouseState();
-    // If sending anything other than an add, and the pointer isn't already added,
-    // synthesize an add to satisfy Flutter's expectations about events.
-    if (!mouse_state.state_is_added &&
-        event_data.phase != UIWidgetsPointerPhase::kAdd)
-    {
-      UIWidgetsPointerEvent event = {};
-      event.phase = UIWidgetsPointerPhase::kAdd;
-      event.x = event_data.x;
-      event.y = event_data.y;
-      event.buttons = 0;
-      SendPointerEventWithData(event);
-    }
-    // Don't double-add (e.g., if events are delivered out of order, so an add has
-    // already been synthesized).
-    if (mouse_state.state_is_added &&
-        event_data.phase == UIWidgetsPointerPhase::kAdd)
-    {
-      return;
-    }
-
-    UIWidgetsPointerEvent event = event_data;
-    event.device_kind = kUIWidgetsPointerDeviceKindMouse;
-    event.buttons = mouse_state.buttons;
-
-    // Set metadata that's always the same regardless of the event.
-    event.struct_size = sizeof(event);
-    event.timestamp =
-        std::chrono::duration_cast<std::chrono::microseconds>(
+  pointer_data.time_stamp = std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::high_resolution_clock::now().time_since_epoch())
             .count();
+  
+  pointer_data.change = UIWidgetsPanel::PointerDataChangeFromUITouchPhase(phase);
+  pointer_data.kind = UIWidgetsPanel::DeviceKindFromTouchType();
+  pointer_data.device = -button;
+  pointer_data.pointer_identifier = 0;
+  pointer_data.physical_x = x;
+  pointer_data.physical_y = y;
+  pointer_data.physical_delta_x = 0.0;
+  pointer_data.physical_delta_y = 0.0;
+  pointer_data.pressure = 1.0;
+  pointer_data.pressure_max = 1.0;
+  pointer_data.signal_kind = PointerData::SignalKind::kNone;
+  packet->SetPointerData(0, pointer_data);
 
-    UIWidgetsEngineSendPointerEvent(engine_, &event, 1);
+  reinterpret_cast<EmbedderEngine*>(engine_)->DispatchPointerDataPacket(
+             std::move(packet));
+}
 
-    if (event_data.phase == UIWidgetsPointerPhase::kAdd)
-    {
-      SetMouseStateAdded(true);
-    }
-    else if (event_data.phase == UIWidgetsPointerPhase::kRemove)
-    {
-      SetMouseStateAdded(false);
-      ResetMouseState();
-    }
+PointerData::Change UIWidgetsPanel::PointerDataChangeFromUITouchPhase(UIWidgetsTouchPhase phase)
+{
+  switch(phase) {
+    case TouchBegan:
+      return PointerData::Change::kDown;
+    case TouchMoved:
+      return PointerData::Change::kMove;
+    case TouchEnded:
+      return PointerData::Change::kUp;
+    case TouchCancelled:
+      return PointerData::Change::kCancel;
+    default:
+      std::cerr << "Unhandled touch phase: " << phase << std::endl;
+      break;
   }
+
+  return PointerData::Change::kCancel;
+}
+
+PointerData::DeviceKind UIWidgetsPanel::DeviceKindFromTouchType()
+{
+  return PointerData::DeviceKind::kTouch;
+}
 
   void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown)
   {
@@ -428,40 +382,19 @@ namespace uiwidgets
     }
   }
 
-  void UIWidgetsPanel::OnMouseMove(float x, float y)
+  void UIWidgetsPanel::OnMouseMove(float x, float y, int button)
   {
     if (process_events_)
     {
-      SendMouseMove(x, y);
+      dispatchTouches(x, y, button, TouchMoved);
     }
-  }
-
-  static uint64_t ConvertToUIWidgetsButton(int button)
-  {
-    switch (button)
-    {
-    case -1:
-      return kUIWidgetsPointerButtonMousePrimary;
-    case -2:
-      return kUIWidgetsPointerButtonMouseSecondary;
-    case -3:
-      return kUIWidgetsPointerButtonMouseMiddle;
-    }
-    std::cerr << "Mouse button not recognized: " << button << std::endl;
-    return 0;
   }
 
   void UIWidgetsPanel::OnMouseDown(float x, float y, int button)
   {
     if (process_events_)
     {
-      uint64_t uiwidgets_button = ConvertToUIWidgetsButton(button);
-      if (uiwidgets_button != 0)
-      {
-        uint64_t mouse_buttons = GetMouseState().buttons | uiwidgets_button;
-        SetMouseButtons(mouse_buttons);
-        SendMouseDown(x, y);
-      }
+      dispatchTouches(x, y, button, TouchBegan);
     }
   }
 
@@ -469,22 +402,14 @@ namespace uiwidgets
   {
     if (process_events_)
     {
-      uint64_t uiwidgets_button = ConvertToUIWidgetsButton(button);
-      if (uiwidgets_button != 0)
-      {
-        uint64_t mouse_buttons = GetMouseState().buttons & ~uiwidgets_button;
-        SetMouseButtons(mouse_buttons);
-        SendMouseUp(x, y);
-      }
+      dispatchTouches(x, y, button, TouchEnded);
     }
   }
 
   void UIWidgetsPanel::OnMouseLeave()
   {
-    if (process_events_)
-    {
-      SendMouseLeave();
-    }
+    //there should not be mouse leave events on iPhone!
+    std::cerr << "Invalid input on iPhone: mouse leave" << std::endl;
   }
 
   UIWIDGETS_API(UIWidgetsPanel *)
@@ -563,7 +488,7 @@ namespace uiwidgets
   UIWIDGETS_API(void)
   UIWidgetsPanel_onMouseMove(UIWidgetsPanel *panel, float x, float y, int button)
   {
-    panel->OnMouseMove(x, y);
+    panel->OnMouseMove(x, y, button);
   }
 
   UIWIDGETS_API(void)
