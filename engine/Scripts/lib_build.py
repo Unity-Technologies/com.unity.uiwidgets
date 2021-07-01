@@ -127,7 +127,7 @@ def set_env_verb():
     global flutter_root_path
     flutter_root_path = os.getenv('FLUTTER_ROOT_PATH', 'null')
     if flutter_root_path == 'null':
-        os.environ["FLUTTER_ROOT_PATH"] = engine_path + "/engine/src"
+        os.environ["FLUTTER_ROOT_PATH"] = os.path.join(engine_path, "engine","src")
         flutter_root_path = os.getenv('FLUTTER_ROOT_PATH')
     else:
         print("This environment variable has been set, skip")

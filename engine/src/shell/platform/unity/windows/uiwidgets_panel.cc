@@ -539,7 +539,8 @@ UIWidgetsPanel_onMouseUp(UIWidgetsPanel* panel, float x, float y, int button) {
 }
 
 UIWIDGETS_API(void)
-UIWidgetsPanel_onMouseMove(UIWidgetsPanel* panel, float x, float y) {
+UIWidgetsPanel_onMouseMove(UIWidgetsPanel* panel, float x, float y, int button) {
+  //button id is not useful for desktop since the motions happens on the mouse (including all buttons)
   panel->OnMouseMove(x, y);
 }
 

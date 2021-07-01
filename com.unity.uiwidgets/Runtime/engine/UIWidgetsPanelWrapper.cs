@@ -289,8 +289,8 @@ public partial class UIWidgetsPanelWrapper {
             if (pos == null) {
                 return;
             }
-
-            UIWidgetsPanel_onMouseMove(ptr: _ptr, x: pos.Value.x, y: pos.Value.y);
+            
+            UIWidgetsPanel_onMouseMove(ptr: _ptr, x: pos.Value.x, y: pos.Value.y, -1);
         }
 
         public void OnMouseScroll(Vector2 delta, Vector2? pos) {
@@ -330,7 +330,7 @@ public partial class UIWidgetsPanelWrapper {
 
             // mouse event
             if (pointerId < 0) {
-                UIWidgetsPanel_onMouseMove(ptr: _ptr, x: pos.Value.x, y: pos.Value.y);
+                UIWidgetsPanel_onMouseMove(ptr: _ptr, x: pos.Value.x, y: pos.Value.y, pointerId);
             }
         }
 
@@ -360,7 +360,7 @@ public partial class UIWidgetsPanelWrapper {
         static extern void UIWidgetsPanel_onMouseUp(IntPtr ptr, float x, float y, int button);
 
         [DllImport(dllName: NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onMouseMove(IntPtr ptr, float x, float y);
+        static extern void UIWidgetsPanel_onMouseMove(IntPtr ptr, float x, float y, int button);
 
         [DllImport(dllName: NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onMouseLeave(IntPtr ptr);
