@@ -1,104 +1,81 @@
-using System;
-using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using Canvas = Unity.UIWidgets.ui.Canvas;
 using Path = System.IO.Path;
 
 namespace Unity.UIWidgets.widgets {
     public class Lottie : StatefulWidget {
         public Skottie _skottie = null;
+        public int _round = 0;
         public float _frame = 0;
+        public float _duration = 0;
 
-        public Lottie(string path, float frame) {
+        public Lottie(string path, float frame = 0, int round = -1) {
             D.assert(path != null);
             _skottie = new Skottie(Path.Combine(Application.streamingAssetsPath, path));
-            _frame = frame;
+            _duration = _skottie.duration();
+            _round = round;
+            _frame = frame * _duration;
         }
 
         public override State createState() {
-            return new LottieState();
+            return new LottieState(_frame, _round);
         }
     }
 
     public class LottieState : State<Lottie> {
+        float _frame = 0;
+        int _round = 0;
+
+        public LottieState(float frame, int round) {
+            _frame = frame;
+            _round = round;
+        }
+
         public override Widget build(BuildContext context) {
-            return new LottieRenderObjectWidget(widget._skottie, widget._frame);
+            if (_round != 0) {
+                WidgetsBinding.instance.addPostFrameCallback((_) => {
+                    setState(() => {
+                        _frame += 0.01f;
+                        if (_frame > widget._duration) {
+                            _frame = 0;
+                            if (_round > 0) {
+                                _round--;
+                            }
+                        }
+                    });
+                });
+            }
+            
+            return new CustomPaint(
+                size: Size.infinite,
+                painter: new LottiePainter(
+                    skottie: widget._skottie,
+                    frame: _frame
+                )
+            );
         }
     }
 
-    public class LottieRenderObjectWidget : LeafRenderObjectWidget {
-        Skottie _anime;
-        float _frame;
-        float _duration;
-
-        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
-            base.updateRenderObject(context, renderObject);
-            var a = (RenderLottie) renderObject;
-            a.frame = _frame*_duration;
-        }
-
-        public LottieRenderObjectWidget(Skottie anime, float frame) {
-            _anime = anime;
-            _frame = frame;
-            _duration = anime.duration();
-        }
-
-        public override RenderObject createRenderObject(BuildContext context) {
-            return new RenderLottie(_anime, 100, 100, frame: _frame);
-        }
-    }
-
-    public class AnimatedLottie : ImplicitlyAnimatedWidget {
+    public class LottiePainter : AbstractCustomPainter {
         public Skottie _skottie = null;
-        public float _frame = 0;
+        float _frame = 0;
 
-        public AnimatedLottie(
-            string path,
-            Key key = null,
-            Curve curve = null,
-            TimeSpan? duration = null,
-            float frame = 0
-        ) :base(key: key, curve: curve, duration: duration){
-            _skottie = new Skottie(Path.Combine(Application.streamingAssetsPath, path));
-            _frame = frame;
-        }
-
-        AnimatedLottie(
-            Skottie skottie,
-            Key key = null,
-            Curve curve = null,
-            TimeSpan? duration = null,
-            float frame = 0
-        ) :base(key: key, curve: curve, duration: duration){
+        public LottiePainter(Skottie skottie, float frame) {
             _skottie = skottie;
             _frame = frame;
         }
 
-        public static AnimatedLottie file(string path, Key key = null, Curve curve = null, TimeSpan? duration = null,
-            float frame = 0) {
-            var skottie = new Skottie(Path.Combine(Application.streamingAssetsPath, path));
-            duration = duration ?? TimeSpan.FromSeconds(skottie.duration());
-            return new AnimatedLottie(skottie, key, curve, duration, frame);
+        public override void paint(Canvas canvas, Size size) {
+            _skottie.paint(canvas, Offset.zero, size.width, size.height, _frame);
         }
 
-        public override State createState() {
-            return new _AnimatedLottieState();
-        }
-    }
-
-    class _AnimatedLottieState : AnimatedWidgetBaseState<AnimatedLottie> {
-        FloatTween frame;
-
-        protected override void forEachTween(TweenVisitor visitor) {
-            frame = (FloatTween) visitor.visit(this, frame, widget._frame,
-                (value) => new FloatTween(begin: value, value));
-        }
-
-        public override Widget build(BuildContext context) {
-            return new LottieRenderObjectWidget(widget._skottie, frame.lerp(animation.value));
+        public override bool shouldRepaint(CustomPainter oldDelegate) {
+            if (oldDelegate is LottiePainter oldLottiePainter) {
+                return _frame != oldLottiePainter._frame;
+            }
+            return true;
         }
     }
 }
