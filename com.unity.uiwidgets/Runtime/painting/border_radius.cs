@@ -427,10 +427,10 @@ namespace Unity.UIWidgets.painting {
                 return true;
             }
 
-            return topLeft.Equals(other.topLeft)
-                   && topRight.Equals(other.topRight)
-                   && bottomRight.Equals(other.bottomRight)
-                   && bottomLeft.Equals(other.bottomLeft);
+            return Equals(topLeft, topLeft)
+                   && Equals(topRight, other.topRight)
+                   && Equals(bottomRight, other.bottomRight)
+                   && Equals(bottomLeft, other.bottomLeft);
         }
 
         public override bool Equals(object obj) {

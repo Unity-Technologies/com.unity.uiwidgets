@@ -99,8 +99,8 @@ namespace Unity.UIWidgets.material {
             }
 
             return alignment == other.alignment && mainAxisSize == other.mainAxisSize &&
-                   buttonTextTheme == other.buttonTextTheme && buttonMinWidth.Equals(other.buttonMinWidth) &&
-                   buttonHeight.Equals(other.buttonHeight) && Equals(buttonPadding, other.buttonPadding) &&
+                   buttonTextTheme == other.buttonTextTheme && Equals(buttonMinWidth, other.buttonMinWidth) &&
+                   Equals(buttonHeight, other.buttonHeight) && Equals(buttonPadding, other.buttonPadding) &&
                    buttonAlignedDropdown == other.buttonAlignedDropdown && layoutBehavior == other.layoutBehavior &&
                    overflowDirection == other.overflowDirection;
         }
