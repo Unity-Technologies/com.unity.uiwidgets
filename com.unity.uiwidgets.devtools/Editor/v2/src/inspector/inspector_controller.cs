@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
     }
     
-    class InspectorController
+    public class InspectorController
     {
         public InspectorController(
             InspectorService inspectorService,
@@ -124,6 +124,8 @@ namespace Unity.UIWidgets.DevTools.inspector
 
         public readonly VoidCallback onLayoutExplorerSupported;
         
+        public InspectorTreeNode selectedNode;
+        
         
         bool isActive = false;
         bool visibleToUser = true;
@@ -145,6 +147,8 @@ namespace Unity.UIWidgets.DevTools.inspector
                 shutdownTree(false);
             }
         }
+        
+        
        
         void _onExpand(InspectorTreeNode node) {
             inspectorTree.maybePopulateChildren(node);
@@ -250,12 +254,16 @@ namespace Unity.UIWidgets.DevTools.inspector
                 inspectorService.inferPubRootDirectoryIfNeeded();
                 // updateSelectionFromService(firstFrame: true);
             } else {
-                // var ready = inspectorService.isWidgetTreeReady();
-                bool ready = true;
-                flutterAppFrameReady = ready;
-                if (isActive && ready) {
-                    maybeLoadUI();
-                }
+                var ready = inspectorService.isWidgetTreeReady();
+                ready.then_<bool>((v) =>
+                {
+                    flutterAppFrameReady = v;
+                    if (isActive && v) {
+                        maybeLoadUI();
+                    }
+                    
+                    return FutureOr.value(null);
+                });
             }
         }
         

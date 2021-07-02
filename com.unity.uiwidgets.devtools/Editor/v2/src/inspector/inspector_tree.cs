@@ -127,7 +127,6 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
         
         public InspectorTreeRow getCachedRow(int index) {
-            Debug.Log("getCachedRow: " + index);
             _maybeClearCache();
             while (cachedRows.Count <= index) {
                 cachedRows.Add(null);

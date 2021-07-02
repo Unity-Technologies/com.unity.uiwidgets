@@ -4,6 +4,7 @@ using System.ComponentModel;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
@@ -80,9 +81,14 @@ namespace Unity.UIWidgets.DevTools.inspector
             
             if (methodName == "getRootWidgetSummaryTree")
             {
-                return _callServiceExtensionLocal();
+                return getRootWidgetSummaryTreeFake();
             }
             
+            if (methodName == "getRootRenderObject")
+            {
+                return getRootRenderObjectFake();
+            }
+
             
             var callMethodName = $"ext.flutter.inspector.{methodName}";
             if (!Globals.serviceManager.serviceExtensionManager
@@ -116,7 +122,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             // });
         }
 
-        public Future<object> _callServiceExtensionLocal()
+        public Future<object> getRootWidgetSummaryTreeFake()
         {
             Dictionary<string, object> widgetTree = new Dictionary<string, object>();
             widgetTree["hasChildren"] = true;
@@ -124,6 +130,8 @@ namespace Unity.UIWidgets.DevTools.inspector
             widgetTree["type"] = "root";
             widgetTree["propertyType"] = "IconData";
             widgetTree["description"] = "root widget";
+            widgetTree["widgetRuntimeType"] = "class";
+            widgetTree["propertyType"] = "Widget";
             widgetTree["creationLocation"] = new Dictionary<string, object>()
             {
                 {"name", "inspector2"},
@@ -140,6 +148,8 @@ namespace Unity.UIWidgets.DevTools.inspector
                 {   
                     {"name", "inspector3"},
                     {"type", "class"},
+                    {"widgetRuntimeType", "class"},
+                    {"propertyType", "RenderObject"},
                     {"description","second level widget"},
                     {
                         "text", new List<Dictionary<string,object>>()
@@ -148,6 +158,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                             {
                                 {"hasChildren", true},
                                 {"name","inspector4"},
+                                {"propertyType", "RenderObject"},
                                 {"description","third level widget"},
                                 {"creationLocation", new Dictionary<string, object>()
                                     {
@@ -172,6 +183,8 @@ namespace Unity.UIWidgets.DevTools.inspector
                 {
                     {"name", "inspector5"},
                     {"type", "class"},
+                    {"propertyType", "RenderObject"},
+                    {"widgetRuntimeType", "class"},
                     {"description","second level widget"},
                     {"te1",new Text("text1a")},
                     {"te2",new Text("text2a")},
@@ -186,19 +199,26 @@ namespace Unity.UIWidgets.DevTools.inspector
                 {
                     {"name","properties1"},
                     {"type", "property"},
+                    {"propertyType", "RenderObject"},
                     {"description","this is a description"},
                 },
                 new Dictionary<string, object>()
                 {
                     {"name","properties2"},
                     {"type", "property"},
+                    {"propertyType", "RenderObject"},
                     {"description","this is a description"},
                 }
             };
             
             return new SynchronousFuture<object>(widgetTree);
         }
-        
+
+        Future<object> getRootRenderObjectFake()
+        {
+            Debug.Log("At getRootRenderObjectFake : not implement yet");
+            return new SynchronousFuture<object>("At getRootRenderObjectFake : not implement yet");
+        }
         
         Future<RemoteDiagnosticsNode> parseDiagnosticsNodeDaemon(
             Future<object> json) {
@@ -239,15 +259,22 @@ namespace Unity.UIWidgets.DevTools.inspector
         
         Future<RemoteDiagnosticsNode> getRootWidget() {
             return invokeServiceMethodReturningNode("getRootWidgetSummaryTree");
-
-            
+        }
+        
+        Future<RemoteDiagnosticsNode> getRootWidgetFullTree() {
+            return invokeServiceMethodReturningNode("getRootWidget");
         }
 
+        Future<RemoteDiagnosticsNode> getSummaryTreeWithoutIds() {
+            return parseDiagnosticsNodeDaemon(
+                invokeServiceMethodDaemon("getRootWidgetSummaryTree"));
+        }   
 
-        Future<RemoteDiagnosticsNode> getRootRenderObject()
-        {
-            return Future.value(FutureOr.value(null)).to<RemoteDiagnosticsNode>();
+        Future<RemoteDiagnosticsNode> getRootRenderObject() {
+            D.assert(!disposed);
+            return invokeServiceMethodReturningNode("getRootRenderObject");
         }
+        
         
         
         public Future<RemoteDiagnosticsNode> getDetailsSubtree(
@@ -362,6 +389,7 @@ namespace Unity.UIWidgets.DevTools.inspector
     public class InspectorService
     {
 
+        // VmService vmService;
         public static int nextGroupId = 0;
         public Future<string> inferPubRootDirectoryIfNeeded()
         {
@@ -381,6 +409,70 @@ namespace Unity.UIWidgets.DevTools.inspector
             }
         }
         
+        public Future<bool> isWidgetTreeReady() {
+            return invokeBoolServiceMethodNoArgs("isWidgetTreeReady");
+        }
+        
+        Future<bool> invokeBoolServiceMethodNoArgs(string methodName) {
+            if (useDaemonApi) {
+                return invokeServiceMethodDaemonNoGroupArgs(methodName).then_<bool>((v)=>
+                {
+                    if (v == null)
+                    {
+                        return false;
+                    }
+                    return (bool)v;
+                });
+            } 
+            else {
+                // return (invokeServiceMethodObservatoryNoGroup(methodName))
+                //        ?.valueAsString ==
+                //        "true";
+                return null;
+            }
+        }
+        
+        Future<object> invokeServiceMethodDaemonNoGroupArgs(string methodName,
+            List<string> args = null) {
+            Dictionary<string, object> _params = new Dictionary<string, object>();
+            if (args != null) {
+                for (int i = 0; i < args.Count; ++i) {
+                    _params[$"arg{i}"] = args[i];
+                }
+            }
+            return invokeServiceMethodDaemonNoGroup(methodName, _params);
+        }
+        
+        Future<object> invokeServiceMethodDaemonNoGroup(
+            string methodName, Dictionary<string, object> args) {
+
+            if (methodName == "isWidgetTreeReady")
+            {
+                return new SynchronousFuture<object>(true);
+            }
+            
+            Debug.Log("Function invokeServiceMethodDaemonNoGroup : not implement yet");
+            return new SynchronousFuture<object>(false);
+            // string callMethodName = $"ext.flutter.inspector.{methodName}";
+            // if (!Globals.serviceManager.serviceExtensionManager
+            //     .isServiceExtensionAvailable(callMethodName)) {
+            //     return new SynchronousFuture<object>(new Dictionary<string,object>()
+            //     {
+            //         {"result", null}
+            //     });
+            // }
+            //
+            // var r = vmService.callServiceExtension(
+            //     callMethodName,
+            //     isolateId: inspectorLibrary.isolateId,
+            //     args: args
+            // );
+            // var json = r.json;
+            // if (json["errorMessage"] != null) {
+            //     throw new Exception($"{methodName} -- {json["errorMessage"]}");
+            // }
+            // return json["result"];
+        }
         
         // static Future<InspectorService> create(VmService vmService) async {
         //     assert(_inspectorDependenciesLoaded);
