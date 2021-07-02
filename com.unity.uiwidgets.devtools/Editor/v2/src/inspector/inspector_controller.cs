@@ -180,51 +180,30 @@ namespace Unity.UIWidgets.DevTools.inspector
             try
             {
 
-                // var group = _treeGroups.next;
-                var group = new ObjectGroup("inspector",inspectorService);
-                // var node =  detailsSubtree
-                //     ? group.getDetailsSubtree(subtreeRoot, subtreeDepth: subtreeDepth)
-                //     : group.getRoot(treeType);
-                // RemoteDiagnosticsNode node = null;
-                // group.getRoot(treeType).then_<RemoteDiagnosticsNode>((v) =>
-                // {
-                //     node = v;
-                //     if (node == null || group.disposed) {
-                //         return new SynchronousFuture(null);
-                //     }
-                //     _treeGroups.promoteNext();
-                //     // clearValueToInspectorTreeNodeMapping();
-                //     if (node != null) {
-                //         InspectorTreeNode rootNode = inspectorTree.setupInspectorTreeNode(
-                //             node:inspectorTree.createNode(),
-                //             diagnosticsNode: node,
-                //             expandChildren: true,
-                //             expandProperties: false
-                //         );
-                //         inspectorTree.root = rootNode;
-                //     } else {
-                //         inspectorTree.root = inspectorTree.createNode();
-                //     }
-                //     return FutureOr.nil;
-                // });
-                RemoteDiagnosticsNode node = group._getRoot(treeType);
-                if (node == null || group.disposed) {
-                    return new SynchronousFuture(null);
-                }
-                _treeGroups.promoteNext();
-                // clearValueToInspectorTreeNodeMapping();
-                if (node != null) {
-                    InspectorTreeNode rootNode = inspectorTree.setupInspectorTreeNode(
-                        node:inspectorTree.createNode(),
-                        diagnosticsNode: node,
-                        expandChildren: true,
-                        expandProperties: false
-                    );
-                    inspectorTree.root = rootNode;
-                } else {
-                    inspectorTree.root = inspectorTree.createNode();
-                }
-                
+                var group = _treeGroups.next;
+                RemoteDiagnosticsNode node = null;
+                group.getRoot(treeType).then_<RemoteDiagnosticsNode>((v) =>
+                {
+                    node = v;
+                    if (node == null || group.disposed) {
+                        return new SynchronousFuture(null);
+                    }
+                    _treeGroups.promoteNext();
+                    // clearValueToInspectorTreeNodeMapping();
+                    if (node != null) {
+                        InspectorTreeNode rootNode = inspectorTree.setupInspectorTreeNode(
+                            node:inspectorTree.createNode(),
+                            diagnosticsNode: node,
+                            expandChildren: true,
+                            expandProperties: false
+                        );
+                        inspectorTree.root = rootNode;
+                    } else {
+                        inspectorTree.root = inspectorTree.createNode();
+                    }
+                    return FutureOr.nil;
+                });
+
                 // refreshSelection(newSelection, detailsSelection, setSubtreeRoot);
             } catch (Exception e) {
                 Debug.Log(e);

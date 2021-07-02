@@ -4,8 +4,8 @@ namespace Unity.UIWidgets.DevTools.framework
     {
         public static void initGlobals()
         {
-            // setGlobal(ServiceConnectionManager, ServiceConnectionManager());
-            // setGlobal(MessageBus, MessageBus());
+            Globals.setGlobal(typeof(ServiceConnectionManager), new ServiceConnectionManager());
+            // Globals.setGlobal(MessageBus, MessageBus());
             Globals.setGlobal(typeof(FrameworkController), new FrameworkController());
         }
     }

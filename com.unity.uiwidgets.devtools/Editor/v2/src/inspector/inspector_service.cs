@@ -23,13 +23,15 @@ namespace Unity.UIWidgets.DevTools.inspector
         {
             groupName = $"{debugName}_${InspectorService.nextGroupId}";
             InspectorService.nextGroupId++;
-            
+            this.inspectorService = inspectorService;
         }
     
         /// Object group all objects in this arena are allocated with.
         public readonly string groupName;
         public readonly InspectorService inspectorService;
         public bool disposed = false;
+        
+        // EvalOnDartLibrary inspectorLibrary => inspectorService.inspectorLibrary;
         
         public Future dispose() {
             // var disposeComplete = invokeVoidServiceMethod("disposeGroup", groupName);
@@ -38,9 +40,9 @@ namespace Unity.UIWidgets.DevTools.inspector
             return new SynchronousFuture(null);
         }
         
+        bool useDaemonApi => inspectorService.useDaemonApi;
         
         public Future<RemoteDiagnosticsNode> getRoot(FlutterTreeType type) {
-            // There is no excuse to call this method on a disposed group.
             D.assert(!disposed);
             switch (type) {
                 case FlutterTreeType.widget:
@@ -51,21 +53,71 @@ namespace Unity.UIWidgets.DevTools.inspector
             throw new Exception("Unexpected FlutterTreeType");
         }
         
-        public RemoteDiagnosticsNode _getRoot(FlutterTreeType type) {
-            // There is no excuse to call this method on a disposed group.
-            D.assert(!disposed);
-            switch (type) {
-                case FlutterTreeType.widget:
-                    return _getRootWidget();
-                case FlutterTreeType.renderObject:
-                    return null;
+        Future<RemoteDiagnosticsNode> invokeServiceMethodReturningNode(string methodName) {
+            if (disposed) return null;
+            if (useDaemonApi) {
+                return parseDiagnosticsNodeDaemon(invokeServiceMethodDaemon(methodName));
             }
-            throw new Exception("Unexpected FlutterTreeType");
+            // else {
+            //     return parseDiagnosticsNodeObservatory(
+            //         invokeServiceMethodObservatory(methodName));
+            // }
+            return null;
         }
         
-        RemoteDiagnosticsNode _getRootWidget() {
-            // return invokeServiceMethodReturningNode('getRootWidgetSummaryTree');
+        Future<object> invokeServiceMethodDaemon(string methodName, string objectGroup = null) {
+            return invokeServiceMethodDaemonParams(methodName,
+            new Dictionary<string, object>(){
+                    {"objectGroup",objectGroup ?? groupName}
+                }
+            );
+        }
+        
+        Future<object> invokeServiceMethodDaemonParams(
+            string methodName,
+            Dictionary<string, object> _params
+        ) {
+            
+            if (methodName == "getRootWidgetSummaryTree")
+            {
+                return _callServiceExtensionLocal();
+            }
+            
+            
+            var callMethodName = $"ext.flutter.inspector.{methodName}";
+            if (!Globals.serviceManager.serviceExtensionManager
+                .isServiceExtensionAvailable(callMethodName)) {
+                return null;
+            }
+            
+            return _callServiceExtension(callMethodName, _params);
+        }
+        
+        Future<object> _callServiceExtension(
+            string extension, Dictionary<string, object> args) {
+            if (disposed)
+            {
+                return new SynchronousFuture<object>(null);
+            }
 
+            return null;
+            // return inspectorLibrary.addRequest(this, () => {
+            //     var r = inspectorService.vmService.callServiceExtension(
+            //         extension,
+            //         isolateId: inspectorService.inspectorLibrary.isolateId,
+            //         args: args
+            //     );
+            //     if (disposed) return null;
+            //     var json = r.json;
+            //     if (json["errorMessage"] != null) {
+            //         throw new Exception($"{extension} -- {json["errorMessage"]}");
+            //     }
+            //     return json["result"];
+            // });
+        }
+
+        public Future<object> _callServiceExtensionLocal()
+        {
             Dictionary<string, object> widgetTree = new Dictionary<string, object>();
             widgetTree["hasChildren"] = true;
             widgetTree["name"] = "inspector";
@@ -143,39 +195,52 @@ namespace Unity.UIWidgets.DevTools.inspector
                     {"description","this is a description"},
                 }
             };
-            return new RemoteDiagnosticsNode(widgetTree,
-                inspectorService: FutureOr.value(inspectorService),  
-                true,
-                null);
+            
+            return new SynchronousFuture<object>(widgetTree);
         }
         
         
+        Future<RemoteDiagnosticsNode> parseDiagnosticsNodeDaemon(
+            Future<object> json) {
+            if (disposed) return null;
+            
+            return json.then((value) =>
+            {
+                var res = FutureOr.value(parseDiagnosticsNodeHelper((Dictionary<string,object>)value));
+                return res;
+            }).to<RemoteDiagnosticsNode>();
+        }
+        
+        RemoteDiagnosticsNode parseDiagnosticsNodeHelper(
+            Dictionary<string, object> jsonElement) {
+            if (disposed) return null;
+            if (jsonElement == null) return null;
+            return new RemoteDiagnosticsNode(jsonElement, FutureOr.value(this), false, null);
+        }
+        
+        
+        // Future<RemoteDiagnosticsNode> parseDiagnosticsNodeObservatory(
+        //     FutureOr<InstanceRef> instanceRefFuture) {
+        //     return parseDiagnosticsNodeHelper(instanceRefToJson(instanceRefFuture));
+        // }
+        //
+        // Future<InstanceRef> invokeServiceMethodObservatory(string methodName) {
+        //     return invokeServiceMethodObservatory1(methodName, groupName);
+        // }
+        //
+        // Future<InstanceRef> invokeServiceMethodObservatory1(
+        //     string methodName, string arg1) {
+        //     return inspectorLibrary.eval(
+        //         "WidgetInspectorService.instance.$methodName('$arg1')",
+        //         isAlive: this
+        //     );
+        // }
+        
+        
         Future<RemoteDiagnosticsNode> getRootWidget() {
-            // return invokeServiceMethodReturningNode('getRootWidgetSummaryTree');
+            return invokeServiceMethodReturningNode("getRootWidgetSummaryTree");
 
-            Dictionary<string, object> widgetTree = new Dictionary<string, object>();
-            widgetTree["hasChildren"] = true;
-            widgetTree["name"] = "inspector";
-            widgetTree["children"] = new List<object>()
-            {
-                new Text("text1"),
-                new Text("text2"),
-                new Text("text3"),
-                new Text("text4"),
-                new Text("text5"),
-            };
-            widgetTree["properties"] = new List<object>()
-            {
-                "properties_1",
-                "properties_2",
-                "properties_3",
-                "properties_4",
-                "properties_5",
-            };
-            return Future.value(FutureOr.value(new RemoteDiagnosticsNode(widgetTree,
-                inspectorService: FutureOr.value(inspectorService),  
-                true,
-                null))).to<RemoteDiagnosticsNode>();
+            
         }
 
 
@@ -245,7 +310,10 @@ namespace Unity.UIWidgets.DevTools.inspector
         public ObjectGroup next {
             get
             {
-                // _next ??= inspectorService.createObjectGroup(debugName);
+                if (_next == null)
+                {
+                    _next = inspectorService.createObjectGroup(debugName);
+                }
                 return _next;
             }
             
@@ -299,12 +367,20 @@ namespace Unity.UIWidgets.DevTools.inspector
         {
             var group = createObjectGroup("temp");
             var root =  group.getRoot(FlutterTreeType.widget);
-            return Future.value("aaa").to<string>();
+            return Future.value("null").to<string>();
         }
 
-        ObjectGroup createObjectGroup(string debugName) {
+        public ObjectGroup createObjectGroup(string debugName) {
             return new ObjectGroup(debugName, this);
         }
+        
+        public bool useDaemonApi {
+            get
+            {
+                return true;
+            }
+        }
+        
         
         // static Future<InspectorService> create(VmService vmService) async {
         //     assert(_inspectorDependenciesLoaded);
