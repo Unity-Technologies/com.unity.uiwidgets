@@ -4,6 +4,17 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.3-preview.1] - 2021-07-02
+
+### Fixes
+- Touch input on mobiles [\#187](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/187)
+- Crash when font file not found [\#183](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/183)
+- Incorrect renderView init transform [\#182](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/182)
+
+### New Features
+- Incremental GC [\#184](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/184)
+
+
 ## [2.0.2-preview.1] - 2021-05-31
 
 Major changes are as follows:
