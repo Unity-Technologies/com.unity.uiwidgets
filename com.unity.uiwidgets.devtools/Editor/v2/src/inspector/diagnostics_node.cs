@@ -43,7 +43,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             this.parent = parent;
         }
 
-        RemoteDiagnosticsNode parent;
+        public RemoteDiagnosticsNode parent;
 
         Future<string> propertyDocFuture;
 
@@ -56,6 +56,8 @@ namespace Unity.UIWidgets.DevTools.inspector
         List<RemoteDiagnosticsNode> _children;
         static readonly CustomIconMaker iconMaker = new CustomIconMaker();
 
+        public bool isFlex => new List<string>{"Row", "Column", "Flex"}.Contains(widgetRuntimeType);
+        
         // Future<Dictionary<string, InstanceRef>> _valueProperties;
 
         public readonly bool isProperty;

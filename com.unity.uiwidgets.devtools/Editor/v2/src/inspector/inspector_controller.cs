@@ -29,7 +29,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         }
     }
     
-    class InspectorController
+    public class InspectorController
     {
         public InspectorController(
             InspectorService inspectorService,
@@ -124,6 +124,8 @@ namespace Unity.UIWidgets.DevTools.inspector
 
         public readonly VoidCallback onLayoutExplorerSupported;
         
+        public InspectorTreeNode selectedNode;
+        
         
         bool isActive = false;
         bool visibleToUser = true;
@@ -145,6 +147,8 @@ namespace Unity.UIWidgets.DevTools.inspector
                 shutdownTree(false);
             }
         }
+        
+        
        
         void _onExpand(InspectorTreeNode node) {
             inspectorTree.maybePopulateChildren(node);
@@ -180,51 +184,30 @@ namespace Unity.UIWidgets.DevTools.inspector
             try
             {
 
-                // var group = _treeGroups.next;
-                var group = new ObjectGroup("inspector",inspectorService);
-                // var node =  detailsSubtree
-                //     ? group.getDetailsSubtree(subtreeRoot, subtreeDepth: subtreeDepth)
-                //     : group.getRoot(treeType);
-                // RemoteDiagnosticsNode node = null;
-                // group.getRoot(treeType).then_<RemoteDiagnosticsNode>((v) =>
-                // {
-                //     node = v;
-                //     if (node == null || group.disposed) {
-                //         return new SynchronousFuture(null);
-                //     }
-                //     _treeGroups.promoteNext();
-                //     // clearValueToInspectorTreeNodeMapping();
-                //     if (node != null) {
-                //         InspectorTreeNode rootNode = inspectorTree.setupInspectorTreeNode(
-                //             node:inspectorTree.createNode(),
-                //             diagnosticsNode: node,
-                //             expandChildren: true,
-                //             expandProperties: false
-                //         );
-                //         inspectorTree.root = rootNode;
-                //     } else {
-                //         inspectorTree.root = inspectorTree.createNode();
-                //     }
-                //     return FutureOr.nil;
-                // });
-                RemoteDiagnosticsNode node = group._getRoot(treeType);
-                if (node == null || group.disposed) {
-                    return new SynchronousFuture(null);
-                }
-                _treeGroups.promoteNext();
-                // clearValueToInspectorTreeNodeMapping();
-                if (node != null) {
-                    InspectorTreeNode rootNode = inspectorTree.setupInspectorTreeNode(
-                        node:inspectorTree.createNode(),
-                        diagnosticsNode: node,
-                        expandChildren: true,
-                        expandProperties: false
-                    );
-                    inspectorTree.root = rootNode;
-                } else {
-                    inspectorTree.root = inspectorTree.createNode();
-                }
-                
+                var group = _treeGroups.next;
+                RemoteDiagnosticsNode node = null;
+                group.getRoot(treeType).then_<RemoteDiagnosticsNode>((v) =>
+                {
+                    node = v;
+                    if (node == null || group.disposed) {
+                        return new SynchronousFuture(null);
+                    }
+                    _treeGroups.promoteNext();
+                    // clearValueToInspectorTreeNodeMapping();
+                    if (node != null) {
+                        InspectorTreeNode rootNode = inspectorTree.setupInspectorTreeNode(
+                            node:inspectorTree.createNode(),
+                            diagnosticsNode: node,
+                            expandChildren: true,
+                            expandProperties: false
+                        );
+                        inspectorTree.root = rootNode;
+                    } else {
+                        inspectorTree.root = inspectorTree.createNode();
+                    }
+                    return FutureOr.nil;
+                });
+
                 // refreshSelection(newSelection, detailsSelection, setSubtreeRoot);
             } catch (Exception e) {
                 Debug.Log(e);
@@ -271,12 +254,16 @@ namespace Unity.UIWidgets.DevTools.inspector
                 inspectorService.inferPubRootDirectoryIfNeeded();
                 // updateSelectionFromService(firstFrame: true);
             } else {
-                // var ready = inspectorService.isWidgetTreeReady();
-                bool ready = true;
-                flutterAppFrameReady = ready;
-                if (isActive && ready) {
-                    maybeLoadUI();
-                }
+                var ready = inspectorService.isWidgetTreeReady();
+                ready.then_<bool>((v) =>
+                {
+                    flutterAppFrameReady = v;
+                    if (isActive && v) {
+                        maybeLoadUI();
+                    }
+                    
+                    return FutureOr.value(null);
+                });
             }
         }
         

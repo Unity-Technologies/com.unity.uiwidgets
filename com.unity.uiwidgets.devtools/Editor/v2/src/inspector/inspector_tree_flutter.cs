@@ -160,7 +160,6 @@ namespace Unity.UIWidgets.DevTools.inspector
         public override void setState(VoidCallback fn)
         {
             fn();
-            Debug.Log("setState here");
             if (client != null)
             {
                 client.onChanged();
@@ -340,8 +339,7 @@ namespace Unity.UIWidgets.DevTools.inspector
 
         public Ticker createTicker(TickerCallback onTick)
         {
-            Debug.Log("CreateTicker");
-            return null;
+            return new Ticker(null);
         }
     }
     
