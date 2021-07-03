@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -15,7 +15,6 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
-using Debug = System.Diagnostics.Debug;
 using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -449,13 +448,9 @@ namespace Unity.UIWidgets.widgets {
     public class WidgetInspectorService {
         public readonly List<string> _serializeRing = new List<string>(20);
         int _serializeRingIndex = 0;
-        public readonly WidgetsBinding widgetsBinding;
-        bool _debugShowInspector;
-
-        public DeveloperInspect developerInspect;
-        public InspectorShowCallback inspectorShowCallback;
+        
         public static WidgetInspectorService instance {
-            get { //return WidgetsBinding.instance.widgetInspectorService;
+            get {
                 return _instance;
             }
             set {
@@ -464,18 +459,17 @@ namespace Unity.UIWidgets.widgets {
         }
         static WidgetInspectorService _instance = new WidgetInspectorService();
         static bool _debugServiceExtensionsRegistered = false;
+        
         public readonly InspectorSelection selection = new InspectorSelection();
         public InspectorSelectionChangedCallback selectionChangedCallback;
         
         readonly Dictionary<string, HashSet<_InspectorReferenceData>> _groups =
             new Dictionary<string, HashSet<_InspectorReferenceData>>();
-
         readonly Dictionary<string, _InspectorReferenceData> _idToReferenceData =
             new Dictionary<string, _InspectorReferenceData>();
-
         readonly Dictionary<object, string> _objectToId = new Dictionary<object, string>();
-        
         int _nextId = 0;
+        
         List<string> _pubRootDirectories;
 
         bool _trackRebuildDirtyWidgets = false;
@@ -493,7 +487,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public void _registerSignalServiceExtension(
             string name = null,
-            CallBack callback = null // callback()
+            CallBack callback = null
         ) {
             registerServiceExtension(
                 name: name,
@@ -512,8 +506,11 @@ namespace Unity.UIWidgets.widgets {
             registerServiceExtension(
               name: name,
               callback: (IDictionary<string, string> parameters) => {
-                  var result = Future.value(FutureOr.value((new Dictionary<string, object>{{"result", callback(parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
-                  return result;
+                  using (Isolate.getScope(UIWidgetsPanel.anyIsolate)) {
+                      var result = Future.value(FutureOr.value((new Dictionary<string, object>
+                          {{"result", callback(parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
+                      return result;
+                  }
               }
             );
         }
@@ -546,21 +543,23 @@ namespace Unity.UIWidgets.widgets {
                     }
             );
         }*/
-        /*void _registerServiceExtensionWithArg(
+        void _registerServiceExtensionWithArg(
             string name = null,
             CallBackObjectId callback = default
         ) {
             registerServiceExtension(
                 name: name,
-                callback: (Dictionary<string, string> parameters) =>{
+                callback: (IDictionary<string, string> parameters) =>{
+                    D.assert(parameters.ContainsKey("arg"));
                     D.assert(parameters.ContainsKey("objectGroup"));
-                    return new Dictionary<string, object> {
-                        {"result", callback(parameters["arg"], parameters["objectGroup"])}
-                    };
-
+                    using (Isolate.getScope(UIWidgetsPanel.anyIsolate)) {
+                        var result = Future.value(FutureOr.value((new Dictionary<string, object>
+                            {{"result", callback(parameters["arg"], parameters["objectGroup"])}}))).to<IDictionary<string, object>>();
+                        return result;
+                    }
                 }
             );
-        }*/
+        }
 
         
         /*void _registerServiceExtensionVarArgs(
@@ -623,29 +622,29 @@ namespace Unity.UIWidgets.widgets {
             _errorsSinceReload = 0;
         }
         
-        /*void initServiceExtensions(_RegisterServiceExtensionCallback registerServiceExtensionCallback) {
+        public void initServiceExtensions(_RegisterServiceExtensionCallback registerServiceExtensionCallback) {
             _registerServiceExtensionCallback = registerServiceExtensionCallback;
-            D.assert(!_debugServiceExtensionsRegistered);
-            D.assert(()=> {
+            //D.assert(!_debugServiceExtensionsRegistered);
+            /*D.assert(()=> {
               _debugServiceExtensionsRegistered = true;
               return true;
-            });
+            });*/
 
-            SchedulerBinding.instance.addPersistentFrameCallback(_onFrameStart);
+            //SchedulerBinding.instance.addPersistentFrameCallback(_onFrameStart);
 
-            FlutterExceptionHandler structuredExceptionHandler = _reportError;
-            FlutterExceptionHandler defaultExceptionHandler = FlutterError.onError;
+            //FlutterExceptionHandler structuredExceptionHandler = _reportError;
+            //FlutterExceptionHandler defaultExceptionHandler = FlutterError.onError;
 
-            _registerBoolServiceExtension(
+            /*_registerBoolServiceExtension(
                 name: "structuredErrors",
                 getter: ()  => FlutterError.onError == structuredExceptionHandler,
                 setter: (bool value)=> {
                     FlutterError.onError = value ? structuredExceptionHandler : defaultExceptionHandler;
                     return Future.value();
                 }
-            );
+            );*/
 
-            _registerBoolServiceExtension(
+            /*_registerBoolServiceExtension(
                 name: "show",
                 getter: ()  => WidgetsApp.debugShowWidgetInspectorOverride,
                 setter: (bool value)=> {
@@ -655,8 +654,8 @@ namespace Unity.UIWidgets.widgets {
                 WidgetsApp.debugShowWidgetInspectorOverride = value;
                 return forceRebuild();
                 }
-            );
-            if (isWidgetCreationTracked()) {
+            );*/
+            /*if (isWidgetCreationTracked()) {
                 _registerBoolServiceExtension(
                     name: "trackRebuildDirtyWidgets",
                     getter: ()  => _trackRebuildDirtyWidgets,
@@ -702,8 +701,8 @@ namespace Unity.UIWidgets.widgets {
                         }
                     }
                 );
-            }
-            _registerSignalServiceExtension(
+            }*/
+            /*_registerSignalServiceExtension(
                 name: "disposeAllGroups",
                 callback: disposeAllGroups
             );
@@ -726,7 +725,7 @@ namespace Unity.UIWidgets.widgets {
             _registerServiceExtensionWithArg(
                 name: "setSelectionById",
                 callback: setSelectionById
-            );
+            );*/
             _registerServiceExtensionWithArg(
                 name: "getParentChain",
                 callback: _getParentChain
@@ -764,19 +763,22 @@ namespace Unity.UIWidgets.widgets {
             );
             registerServiceExtension(
                 name: "getDetailsSubtree",
-                callback: (Dictionary<string, string> parameters) => {
+                callback: (IDictionary<string, string> parameters) => {
                     D.assert(parameters.ContainsKey("objectGroup"));
                     string subtreeDepth = parameters["subtreeDepth"];
-                    return new Dictionary<string, object>{{
-                        "result", _getDetailsSubtree(
-                        parameters["arg"],
-                        parameters["objectGroup"],
-                        subtreeDepth != null ? int.Parse(subtreeDepth) : 2
-                    )
-                }};
+                    
+                    using (Isolate.getScope(UIWidgetsPanel.anyIsolate)) {
+                        var result = Future.value(FutureOr.value((new Dictionary<string, object>
+                            {{"result", _getDetailsSubtree(
+                                parameters["arg"],
+                                parameters["objectGroup"],
+                                subtreeDepth != null ? int.Parse(subtreeDepth) : 2
+                            )}}))).to<IDictionary<string, object>>();
+                        return result;
+                    }
                 }
             );
-            _registerServiceExtensionWithArg(
+            /*_registerServiceExtensionWithArg(
                 name: "getSelectedRenderObject",
                 callback: _getSelectedRenderObject
             );
@@ -817,8 +819,8 @@ namespace Unity.UIWidgets.widgets {
                     
                 };
                 }
-            );
-        }*/
+            );*/
+        }
 
         /*void _clearStats() {
             _rebuildStats.resetCounts();
@@ -1205,7 +1207,9 @@ namespace Unity.UIWidgets.widgets {
             return _safeJsonEncode(_getRootWidget(groupName));
         }
         public Dictionary<string, object> _getRootWidget(string groupName) {
-            return _nodeToJson(WidgetsBinding.instance?.renderViewElement?.toDiagnosticsNode(), new InspectorSerializationDelegate(groupName: groupName, service: this));
+            var node = WidgetsBinding.instance?.renderViewElement?.toDiagnosticsNode();
+            var del = new InspectorSerializationDelegate(groupName: groupName, service: this);
+            return _nodeToJson(node , del);
         }
         
         string getRootWidgetSummaryTree(string groupName) {
@@ -1942,9 +1946,9 @@ namespace Unity.UIWidgets.widgets {
                 _inspectAt(_lastPointerLocation);
 
                 if (selection != null) {
-                    if (WidgetInspectorService.instance.developerInspect != null) {
-                        WidgetInspectorService.instance.developerInspect();
-                    }
+                    //if (WidgetInspectorService.instance.developerInspect != null) {
+                    //    WidgetInspectorService.instance.developerInspect();
+                    //}
                 }
             }
 

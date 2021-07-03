@@ -39,6 +39,17 @@ namespace Unity.UIWidgets.foundation {
         protected virtual void initServiceExtensions() {
         }
 
+        protected void registerServiceExtension(string name, ServiceExtensionCallback callback) {
+            D.assert(name != null);
+            D.assert(callback != null);
+
+            string methodName = name;
+            developer_.registerExtension(methodName, (method, parameters) => {
+                var result = callback.Invoke(parameters);
+                return result;
+            });
+        }
+
         protected bool locked => _lockCount > 0;
         int _lockCount = 0;
 

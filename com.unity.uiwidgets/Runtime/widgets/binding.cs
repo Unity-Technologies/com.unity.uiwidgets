@@ -62,6 +62,12 @@ namespace Unity.UIWidgets.widgets {
             set { RendererBinding.instance = value; }
         }
 
+        protected override void initServiceExtensions() {
+            base.initServiceExtensions();
+
+            WidgetInspectorService.instance.initServiceExtensions(registerServiceExtension);
+        }
+
         protected override void initInstances() {
             base.initInstances();
             instance = this;

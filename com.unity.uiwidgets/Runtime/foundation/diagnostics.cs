@@ -41,9 +41,7 @@ namespace Unity.UIWidgets.foundation {
 
         public static string describeEnum(object enumEntry) {
             string description = enumEntry.ToString();
-            int indexOfDot = description.IndexOf(".");
-            D.assert(indexOfDot != -1 && indexOfDot < description.Length - 1);
-            return description.Substring(indexOfDot + 1);
+            return description;
         }
     }
 
@@ -1138,7 +1136,11 @@ namespace Unity.UIWidgets.foundation {
                     result["allowNameWrap"] = allowNameWrap;
                 }
 
-                Delegate.additionalNodeProperties(this);
+                var additional = Delegate.additionalNodeProperties(this);
+                foreach (var key in additional.Keys) {
+                    result[key] = additional[key];
+                }
+                
                 if (Delegate.includeProperties) {
                     result["properties"] = toJsonList(
                         Delegate.filterProperties(getProperties(), this),
@@ -2531,7 +2533,8 @@ namespace Unity.UIWidgets.foundation {
             int subtreeDepth = 0,
             bool includeProperties = false
         ) {
-            new _DefaultDiagnosticsSerializationDelegate(includeProperties, subtreeDepth);
+            this.subtreeDepth = subtreeDepth;
+            this.includeProperties = includeProperties;
         }
 
         public abstract Dictionary<string, object> additionalNodeProperties(DiagnosticsNode node);
