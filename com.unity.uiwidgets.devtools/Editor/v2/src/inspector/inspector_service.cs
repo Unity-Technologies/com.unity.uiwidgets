@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Text;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using developer;
 
 namespace Unity.UIWidgets.DevTools.inspector
 {
@@ -56,7 +59,9 @@ namespace Unity.UIWidgets.DevTools.inspector
         
         Future<RemoteDiagnosticsNode> invokeServiceMethodReturningNode(string methodName) {
             if (disposed) return null;
-            if (useDaemonApi) {
+            if (useDaemonApi)
+            {
+
                 return parseDiagnosticsNodeDaemon(invokeServiceMethodDaemon(methodName));
             }
             // else {
@@ -81,7 +86,20 @@ namespace Unity.UIWidgets.DevTools.inspector
             
             if (methodName == "getRootWidgetSummaryTree")
             {
-                return getRootWidgetSummaryTreeFake();
+                var result = developer_.callExtension("inspector.getRootWidgetSummaryTree", new Dictionary<string, string> {
+                    {"objectGroup", "root"}
+                });
+
+                return result.then_<object>(o =>
+                {
+                    if (!o.ContainsKey("result"))
+                    {
+                        return new SynchronousFuture<object>(null);
+                    }
+                    var res = (Dictionary<string, object>) o["result"];
+                    return new SynchronousFuture<object>(res);
+                });
+                
             }
             
             if (methodName == "getRootRenderObject")
@@ -121,97 +139,71 @@ namespace Unity.UIWidgets.DevTools.inspector
             //     return json["result"];
             // });
         }
+        
+        List<RemoteDiagnosticsNode> parseDiagnosticsNodesHelper(
+            List<object> jsonObject, RemoteDiagnosticsNode parent) {
+            if (disposed || jsonObject == null) return null;
+            List<RemoteDiagnosticsNode> nodes = new List<RemoteDiagnosticsNode>();
+            foreach (Dictionary<string, object> element in jsonObject) {
+                nodes.Add(new RemoteDiagnosticsNode(element, FutureOr.value(this), false, parent));
+            }
+            return nodes;
+        }
+        
+        Future<List<RemoteDiagnosticsNode>> parseDiagnosticsNodesDaemon(
+            Future<object> jsonFuture, RemoteDiagnosticsNode parent) {
+            if (disposed || jsonFuture == null) return null;
 
-        public Future<object> getRootWidgetSummaryTreeFake()
-        {
-            Dictionary<string, object> widgetTree = new Dictionary<string, object>();
-            widgetTree["hasChildren"] = true;
-            widgetTree["name"] = "inspector";
-            widgetTree["type"] = "root";
-            widgetTree["propertyType"] = "IconData";
-            widgetTree["description"] = "root widget";
-            widgetTree["widgetRuntimeType"] = "class";
-            widgetTree["propertyType"] = "Widget";
-            widgetTree["creationLocation"] = new Dictionary<string, object>()
+            return jsonFuture.then_<List<RemoteDiagnosticsNode>>((v) =>
             {
-                {"name", "inspector2"},
-                {"creationLocation1",new Text("creationLocation1")},
-            };
-
-            widgetTree["parameterLocations"] = new List<object>()
-            {
-                new Text("properties_1")
-            };
-            widgetTree["children"] = new List<Dictionary<string, object>>()
-            {
-                new Dictionary<string, object>()
-                {   
-                    {"name", "inspector3"},
-                    {"type", "class"},
-                    {"widgetRuntimeType", "class"},
-                    {"propertyType", "RenderObject"},
-                    {"description","second level widget"},
-                    {
-                        "text", new List<Dictionary<string,object>>()
-                        {
-                            new Dictionary<string, object>()
-                            {
-                                {"hasChildren", true},
-                                {"name","inspector4"},
-                                {"propertyType", "RenderObject"},
-                                {"description","third level widget"},
-                                {"creationLocation", new Dictionary<string, object>()
-                                    {
-                                        {"creationLocation1",new Text("creationLocation1")},
-                                    }
-                                },
-                                {"parameterLocations", new List<object>()
-                                    {
-                                        new Text("properties_1")
-                                    }
-                                },
-                                {"children", new Dictionary<string, object>()
-                                    {
-                                        {"te1",new Text("text1a")},
-                                    } 
-                                }
-                            }
-                        }
-                    },
-                },
-                new Dictionary<string, object>()
-                {
-                    {"name", "inspector5"},
-                    {"type", "class"},
-                    {"propertyType", "RenderObject"},
-                    {"widgetRuntimeType", "class"},
-                    {"description","second level widget"},
-                    {"te1",new Text("text1a")},
-                    {"te2",new Text("text2a")},
-                    {"te3",new Text("text3a")},
-                    {"te4",new Text("text4a")},
-                    {"te5",new Text("text5a")},
-                }
-            };
-            widgetTree["properties"] = new List<Dictionary<string, object>>()
-            {
-                new Dictionary<string, object>()
-                {
-                    {"name","properties1"},
-                    {"type", "property"},
-                    {"propertyType", "RenderObject"},
-                    {"description","this is a description"},
-                },
-                new Dictionary<string, object>()
-                {
-                    {"name","properties2"},
-                    {"type", "property"},
-                    {"propertyType", "RenderObject"},
-                    {"description","this is a description"},
-                }
-            };
-            
-            return new SynchronousFuture<object>(widgetTree);
+                return new SynchronousFuture<List<RemoteDiagnosticsNode>>(parseDiagnosticsNodesHelper((List<object>)v, parent));
+            }); 
+        }
+        
+        Future<object> invokeServiceMethodDaemonInspectorRef(
+            string methodName, InspectorInstanceRef arg) {
+            return invokeServiceMethodDaemonArg(methodName, arg?.id, groupName);
+        }
+        
+        Future<object> invokeServiceMethodDaemonArg(
+            string methodName, string arg, string objectGroup) {
+            var args = new Dictionary<string, object>(){{"objectGroup", objectGroup}};
+            if (arg != null) {
+                args["arg"] = arg;
+            }
+            return invokeServiceMethodDaemonParams(methodName, args);
+        }
+        
+        
+        public Future<List<RemoteDiagnosticsNode>> getChildren(
+            InspectorInstanceRef instanceRef,
+            bool summaryTree,
+            RemoteDiagnosticsNode parent
+        ) {
+            return getListHelper(
+                instanceRef,
+                summaryTree ? "getChildrenSummaryTree" : "getChildrenDetailsSubtree",
+                parent
+            );
+        }
+        
+        Future<List<RemoteDiagnosticsNode>> getListHelper(
+            InspectorInstanceRef instanceRef,
+            String methodName,
+            RemoteDiagnosticsNode parent
+        ) {
+            if (disposed) return null;
+            if (useDaemonApi) {
+                return parseDiagnosticsNodesDaemon(
+                    invokeServiceMethodDaemonInspectorRef(methodName, instanceRef),
+                    parent);
+            } 
+            // else {
+            //     return parseDiagnosticsNodesObservatory(
+            //         invokeServiceMethodObservatoryInspectorRef(methodName, instanceRef),
+            //         parent);
+            // }
+            return null;
         }
 
         Future<object> getRootRenderObjectFake()
@@ -224,11 +216,10 @@ namespace Unity.UIWidgets.DevTools.inspector
             Future<object> json) {
             if (disposed) return null;
             
-            return json.then((value) =>
+            return json.then_<RemoteDiagnosticsNode>((value) =>
             {
-                var res = FutureOr.value(parseDiagnosticsNodeHelper((Dictionary<string,object>)value));
-                return res;
-            }).to<RemoteDiagnosticsNode>();
+                return FutureOr.value(parseDiagnosticsNodeHelper((Dictionary<string,object>)value));
+            });
         }
         
         RemoteDiagnosticsNode parseDiagnosticsNodeHelper(
@@ -516,6 +507,33 @@ namespace Unity.UIWidgets.DevTools.inspector
         //
         
         
+    }
+    
+    public class InspectorInstanceRef: IEquatable<InspectorInstanceRef> {
+        public InspectorInstanceRef(string id)
+        {
+            this.id = id;
+        }
+        
+
+        
+        public new int hashCode => id.GetHashCode();
+        
+        public new string toString() => $"instance-{id}";
+
+        public readonly string id;
+        public bool Equals(InspectorInstanceRef other)
+        {
+            if (ReferenceEquals(null, other)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other)) {
+                return true;
+            }
+
+            return  other is InspectorInstanceRef && Equals(id, other.id);
+        }
     }
     
     

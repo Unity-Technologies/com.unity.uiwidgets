@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -117,8 +118,12 @@ namespace Unity.UIWidgets.DevTools.inspector
 
             void _refreshInspector()
             {
-                inspectorController?.onForceRefresh();
+                inspectorController?.onForceRefresh().then((v) =>
+                {
+                    setState(()=>{});
+                });
             }
+            
 
             public override Widget build(BuildContext context)
             {
@@ -159,8 +164,7 @@ namespace Unity.UIWidgets.DevTools.inspector
                             }),
                         new SizedBox(height: ThemeUtils.denseRowSpacing),
                         new Expanded(
-                            child: 
-                            new Split(
+                            child: new Split(
                                 axis: splitAxis,
                                 initialFractions: new List<float?> {0.33f, 0.67f},
                                 children: new List<Widget>

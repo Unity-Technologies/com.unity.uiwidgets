@@ -12,7 +12,9 @@ namespace Unity.UIWidgets.DevTools
         [MenuItem("UIWidgets/DevTools")]
         public static void CountDemo()
         {
-            CreateWindow<EditorWindowDevtools>();
+            var myWindow = (EditorWindowDevtools) EditorWindow.GetWindow(typeof(EditorWindowDevtools));
+            myWindow.Show();
+            // CreateWindow<EditorWindowDevtools>();
         }
         
         protected override void onEnable()

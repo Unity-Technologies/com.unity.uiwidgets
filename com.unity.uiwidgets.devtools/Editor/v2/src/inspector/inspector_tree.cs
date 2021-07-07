@@ -67,7 +67,6 @@ namespace Unity.UIWidgets.DevTools.inspector
                 return _root;
             }
             set {
-
                 _root = value;
             }
         }
@@ -173,9 +172,9 @@ namespace Unity.UIWidgets.DevTools.inspector
             D.assert(expandChildren != null);
             D.assert(expandProperties != null);
             node.diagnostic = diagnosticsNode;
-            // if (config.onNodeAdded != null) {
-            //     config.onNodeAdded(node, diagnosticsNode);
-            // }
+            if (config.onNodeAdded != null) {
+                config.onNodeAdded(node, diagnosticsNode);
+            }
 
             if (diagnosticsNode.hasChildren ||
                 diagnosticsNode.inlineProperties.isNotEmpty()) {
@@ -314,12 +313,13 @@ namespace Unity.UIWidgets.DevTools.inspector
 
     public delegate void TreeEventCallback(InspectorTreeNode node);
     public delegate void OnClientActiveChange(bool added);
-    
+    public delegate void NodeAddedCallback(InspectorTreeNode node, RemoteDiagnosticsNode diagnosticsNode);
+
     public class InspectorTreeConfig {
         public InspectorTreeConfig(
             bool summaryTree = false,
             FlutterTreeType treeType = FlutterTreeType.widget,
-            // NodeAddedCallback onNodeAdded,
+            NodeAddedCallback onNodeAdded = null,
             OnClientActiveChange onClientActiveChange = null,
             VoidCallback onSelectionChange = null,
             TreeEventCallback onExpand = null,
@@ -328,6 +328,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         {
             this.summaryTree = summaryTree;
             this.treeType = treeType;
+            this.onNodeAdded = onNodeAdded;
             this.onSelectionChange = onSelectionChange;
             this.onClientActiveChange = onClientActiveChange;
             this.onExpand = onExpand;
@@ -336,11 +337,14 @@ namespace Unity.UIWidgets.DevTools.inspector
 
         public readonly bool summaryTree;
         public readonly FlutterTreeType treeType;
-        // public readonly NodeAddedCallback onNodeAdded;
+        public readonly NodeAddedCallback onNodeAdded;
         public readonly VoidCallback onSelectionChange;
         public readonly OnClientActiveChange onClientActiveChange;
         public readonly TreeEventCallback onExpand;
         public readonly TreeEventCallback onHover;
+        
+        
+        
     }
     
     

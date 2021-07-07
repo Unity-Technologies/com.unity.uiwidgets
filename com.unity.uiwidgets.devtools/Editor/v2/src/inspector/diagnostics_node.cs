@@ -100,14 +100,8 @@ namespace Unity.UIWidgets.DevTools.inspector
             return JsonUtils.getStringMember(json, memberName);
         }
         
-        public bool childrenReady {
-            get
-            {
-                return json.ContainsKey("children") || _children != null || !hasChildren;
-            }
-            
-        }
-        
+        public bool childrenReady => json.ContainsKey("children") || _children != null || !hasChildren;
+
         public Widget icon {
             get
             {
@@ -120,7 +114,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         
         InspectorSourceLocation _creationLocation;
 
-        InspectorSourceLocation creationLocation {
+        public InspectorSourceLocation creationLocation {
             get
             {
                 if (_creationLocation != null) {
@@ -163,7 +157,7 @@ namespace Unity.UIWidgets.DevTools.inspector
             }
             var style1 = treeStyleUtils.enumEntry(value);
             D.assert(style1 != null);
-            return style ?? defaultValue;
+            return style1;  // ?? defaultValue
         }
 
         private EnumUtils<DiagnosticsTreeStyle> _treeStyleUtils;
@@ -265,6 +259,18 @@ namespace Unity.UIWidgets.DevTools.inspector
             
         }
         
+        public InspectorInstanceRef dartDiagnosticRef {
+            get
+            {
+                if (json.ContainsKey("objectId"))
+                {
+                    return new InspectorInstanceRef((string)json["objectId"]);
+                }
+                return new InspectorInstanceRef("The key 'objectId' doesn't exist");
+            }
+            
+        }
+        
         // void _computeChildren() {
         //     _maybePopulateChildren();
         //     if (!hasChildren || _children != null) {
@@ -360,7 +366,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         
     }
     
-    class InspectorSourceLocation {
+    public class InspectorSourceLocation {
         public InspectorSourceLocation(Dictionary<string, object> json, InspectorSourceLocation parent)
         {
             this.json = json;
@@ -370,7 +376,7 @@ namespace Unity.UIWidgets.DevTools.inspector
         public readonly Dictionary<string, object> json;
         public readonly InspectorSourceLocation parent;
 
-        string path
+        public string path
         {
             get
             {
