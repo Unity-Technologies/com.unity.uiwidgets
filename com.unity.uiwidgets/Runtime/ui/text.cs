@@ -573,10 +573,16 @@ namespace Unity.UIWidgets.ui {
 
         internal static unsafe void setFloat(this byte[] bytes, int byteOffset, float value) {
             D.assert(byteOffset >= 0 && byteOffset + 4 < bytes.Length);
-            var intVal = *(int*) &value;
-            fixed (byte* b = &bytes[byteOffset]) {
-                *(int*) b = intVal;
+#if UNITY_ANDROID
+            byte[] vOut = BitConverter.GetBytes(value);
+            for (int i = 0; i < vOut.Length; i++) {
+                bytes[byteOffset + i] = vOut[i];
             }
+#else
+            fixed (byte* b = &bytes[byteOffset]) {
+                *(float*) b = value;
+            }
+#endif        
         }
 
         internal static byte[] _encodeStrut(
