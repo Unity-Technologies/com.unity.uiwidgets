@@ -21,7 +21,17 @@ void UIWidgetsSystem::UnregisterPanel(UIWidgetsPanel* panel) {
 }
 
 void UIWidgetsSystem::Wait(std::chrono::nanoseconds max_duration) {
-  Update();
+  //TODO zxw: Rename this function to VSync, should be done after Engine side changes land
+  //Process VSync at the end of this frame
+  for (auto* uiwidgets_panel : uiwidgets_panels_) {
+    if (!uiwidgets_panel->NeedUpdateByPlayerLoop()) {
+      continue;
+    }
+    uiwidgets_panel->ProcessVSync();
+  }
+
+  //TODO zxw: Move this function to a better place
+  /*Update();
 	
   std::chrono::nanoseconds wait_duration =
       std::max(std::chrono::nanoseconds(0),
@@ -32,7 +42,7 @@ void UIWidgetsSystem::Wait(std::chrono::nanoseconds max_duration) {
 
   ::MsgWaitForMultipleObjects(0, nullptr, FALSE,
                               static_cast<DWORD>(wait_duration.count() / 1000000),
-                              QS_ALLINPUT);
+                              QS_ALLINPUT);*/
 }
 
 void UIWidgetsSystem::Update() {
@@ -51,12 +61,7 @@ void UIWidgetsSystem::Update() {
 }
 
 void UIWidgetsSystem::VSync() {
-  for (auto* uiwidgets_panel : uiwidgets_panels_) {
-    if (!uiwidgets_panel->NeedUpdateByPlayerLoop()) {
-      continue;
-    }
-    uiwidgets_panel->ProcessVSync();
-  }
+  //TODO zxw: Remove this function, should be done after Engine side changes land
 }
 
 void UIWidgetsSystem::WakeUp() {}
