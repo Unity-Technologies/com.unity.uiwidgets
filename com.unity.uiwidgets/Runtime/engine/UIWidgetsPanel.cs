@@ -181,6 +181,8 @@ namespace Unity.UIWidgets.engine {
             CollectGarbageOnDemand();
 #endif
 
+
+
             Input_Update();
         }
 
@@ -431,13 +433,22 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Input_OnEnable() {
+            Input.touchRawProcess += LogTouch;
+
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
         }
 
+        public static int count = 0;
+        public void LogTouch(Input.ProcessRawTouchesParam param) {
+            _wrapper.OnDrag(new Vector2(param.x, param.y), (int) param.pointerId);
+        }
+
         void Input_OnDisable() {
+            Input.touchRawProcess -= LogTouch;
         }
 
         void Input_Update() {
+            Debug.Log($"count {count}");
             //we only process hover events for desktop applications
             if (_inputMode == UIWidgetsInputMode.Mouse) {
                 if (_isEntered) {
