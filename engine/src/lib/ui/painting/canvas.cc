@@ -268,7 +268,12 @@ void Canvas::drawShadow(const CanvasPath* path, SkColor color, float elevation,
 
 void Canvas::Clear() { canvas_ = nullptr; }
 
-bool Canvas::IsRecording() const { return !!canvas_; }
+int Canvas::IsRecording() const { 
+  if( canvas_ == nullptr ){
+    return 2;
+  } 
+  return 1; 
+}
 
 UIWIDGETS_API(Canvas*)
 Canvas_constructor(PictureRecorder* recorder, float left, float top,

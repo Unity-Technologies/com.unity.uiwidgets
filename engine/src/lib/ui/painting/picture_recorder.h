@@ -17,7 +17,7 @@ class PictureRecorder : public fml::RefCountedThreadSafe<PictureRecorder> {
 
   SkCanvas* BeginRecording(SkRect bounds);
   fml::RefPtr<Picture> endRecording();
-  bool isRecording();
+  int isRecording();
 
   void set_canvas(fml::RefPtr<Canvas> canvas) { canvas_ = std::move(canvas); }
 
