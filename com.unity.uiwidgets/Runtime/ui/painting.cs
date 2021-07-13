@@ -2324,7 +2324,7 @@ namespace Unity.UIWidgets.ui {
     public class Canvas : NativeWrapper {
         public Canvas(PictureRecorder recorder, Rect cullRect = null) {
             D.assert(recorder != null);
-            if (recorder.isRecording == 1) {
+            if (recorder.isRecording) {
                 throw new ArgumentException("\"recorder\" must not already be associated with another Canvas.");
             }
 
@@ -2914,7 +2914,7 @@ namespace Unity.UIWidgets.ui {
             PictureRecorder_dispose(ptr);
         }
 
-        public int isRecording => PictureRecorder_isRecording(_ptr);
+        public bool isRecording => PictureRecorder_isRecording(_ptr);
 
         public Picture endRecording() {
             return new Picture(PictureRecorder_endRecording(_ptr));
@@ -2927,7 +2927,7 @@ namespace Unity.UIWidgets.ui {
         static extern void PictureRecorder_dispose(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern int PictureRecorder_isRecording(IntPtr ptr);
+        static extern bool PictureRecorder_isRecording(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern IntPtr PictureRecorder_endRecording(IntPtr ptr);

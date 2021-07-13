@@ -14,11 +14,8 @@ PictureRecorder::PictureRecorder() {}
 
 PictureRecorder::~PictureRecorder() {}
 
-int PictureRecorder::isRecording() {
-  if(canvas_ && canvas_->IsRecording() == 1){
-      return 1;
-    }
-  return 2;
+bool PictureRecorder::isRecording() {
+  return canvas_ && canvas_->IsRecording();
 }
 
 SkCanvas* PictureRecorder::BeginRecording(SkRect bounds) {
@@ -47,7 +44,7 @@ UIWIDGETS_API(void) PictureRecorder_dispose(PictureRecorder* ptr) {
   ptr->Release();
 }
 
-UIWIDGETS_API(int) PictureRecorder_isRecording(PictureRecorder* ptr) {
+UIWIDGETS_API(bool) PictureRecorder_isRecording(PictureRecorder* ptr) {
   return ptr->isRecording();
 }
 

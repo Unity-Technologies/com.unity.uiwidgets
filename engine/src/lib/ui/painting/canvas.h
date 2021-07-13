@@ -89,7 +89,7 @@ class Canvas : public fml::RefCountedThreadSafe<Canvas> {
 
   SkCanvas* canvas() const { return canvas_; }
   void Clear();
-  int IsRecording() const;
+  bool IsRecording() const;
 
  private:
   explicit Canvas(SkCanvas* canvas);
