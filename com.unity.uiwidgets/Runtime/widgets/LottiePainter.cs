@@ -39,9 +39,9 @@ namespace Unity.UIWidgets.widgets {
             if (_round != 0) {
                 WidgetsBinding.instance.addPostFrameCallback((_) => {
                     setState(() => {
-                        _frame += 0.01f;
+                        _frame += Time.deltaTime;
                         if (_frame > widget._duration) {
-                            _frame = 0;
+                            _frame -= widget._duration;
                             if (_round > 0) {
                                 _round--;
                             }

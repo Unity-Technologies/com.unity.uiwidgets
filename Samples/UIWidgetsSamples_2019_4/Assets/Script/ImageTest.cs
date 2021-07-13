@@ -54,8 +54,6 @@ namespace UIWidgetsSample
 
         class ExampleState : State<ExampleApp>
         {
-            private float frame = 0;
-
             public override Widget build(BuildContext context)
             {
                 return new Container(
@@ -80,15 +78,6 @@ namespace UIWidgetsSample
                                 child: Image.network(
                                     "https://unity-cn-cms-prd-1254078910.cos.ap-shanghai.myqcloud.com/assetstore-cms-media/img-7dfe215f-0075-4f9c-9b5a-be5ee88b866b",
                                     gaplessPlayback: true)
-                            ),
-                            new GestureDetector(
-                                onTap: () => { setState(() => { frame += 1; }); },
-                                child: new Container(
-                                    color: Color.black,
-                                    padding: EdgeInsets.symmetric(20, 20),
-                                    child: new Text("Click Me",
-                                        style: new TextStyle(fontWeight: FontWeight.w700))
-                                )
                             )
                         }
                     )
