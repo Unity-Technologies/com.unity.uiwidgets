@@ -257,8 +257,10 @@ namespace Unity.UIWidgets.ui {
             return null;
         }
 
-        List<string> _computePlatformResolvedLocale(List<string> supportedLocalesData) =>
-            Window_computePlatformResolvedLocale(supportedLocalesData);
+        // Window_computePlatformResolvedLocale not implement yet, TODO _computePlatformResolvedLocale
+        List<string> _computePlatformResolvedLocale(List<string> supportedLocalesData) {
+            return Window_computePlatformResolvedLocale(supportedLocalesData)?? new List<string>();
+        }
 
         /// A callback that is invoked whenever [locale] changes value.
         ///

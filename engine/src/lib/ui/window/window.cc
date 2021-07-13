@@ -137,7 +137,6 @@ UIWIDGETS_API(void) Window_render(Window* ptr, Scene* scene) {
 
 // TODO: ComputePlatformResolvedLocale
 UIWIDGETS_API(void) Window_computePlatformResolvedLocale(Window* ptr, Scene* scene) {
-  ptr->client()->Render(scene);
 }
 
 }  // namespace

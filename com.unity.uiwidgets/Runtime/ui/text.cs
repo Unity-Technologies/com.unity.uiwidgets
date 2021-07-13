@@ -366,6 +366,7 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    [StructLayout(LayoutKind.Sequential)]
     public struct Float32List {
         public IntPtr data;
         public int length;
