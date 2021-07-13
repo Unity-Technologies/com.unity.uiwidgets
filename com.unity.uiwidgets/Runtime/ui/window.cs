@@ -259,7 +259,8 @@ namespace Unity.UIWidgets.ui {
 
         // Window_computePlatformResolvedLocale not implement yet, TODO _computePlatformResolvedLocale
         List<string> _computePlatformResolvedLocale(List<string> supportedLocalesData) {
-            return Window_computePlatformResolvedLocale(supportedLocalesData)?? new List<string>();
+            Window_computePlatformResolvedLocale(supportedLocalesData);
+            return new List<string>();
         }
 
         /// A callback that is invoked whenever [locale] changes value.
@@ -422,7 +423,7 @@ namespace Unity.UIWidgets.ui {
         static extern void Window_render(IntPtr ptr, IntPtr scene);
 
         [DllImport(NativeBindings.dllName)]
-        static extern List<string> Window_computePlatformResolvedLocale(List<string> supportedLocalesData);
+        static extern void Window_computePlatformResolvedLocale(List<string> supportedLocalesData);
 
         [MonoPInvokeCallback(typeof(Window_sendPlatformMessageCallback))]
         static unsafe void _sendPlatformMessageCallback(IntPtr callbackHandle, byte* data, int dataLength) {
