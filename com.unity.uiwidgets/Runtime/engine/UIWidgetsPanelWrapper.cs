@@ -67,6 +67,7 @@ public partial class UIWidgetsPanelWrapper {
         int width, int height, float dpi, string streamingAssetsPath, string font_settings);
 
     [DllImport(NativeBindings.dllName)]
+    [return: MarshalAs(UnmanagedType.U1)]
     static extern bool UIWidgetsPanel_releaseNativeTexture(IntPtr ptr);
 
     [DllImport(NativeBindings.dllName)]
