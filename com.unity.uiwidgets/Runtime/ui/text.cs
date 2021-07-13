@@ -1546,6 +1546,7 @@ namespace Unity.UIWidgets.ui {
         static extern float Paragraph_ideographicBaseline(IntPtr ptr);
 
         [DllImport(dllName: NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
         static extern bool Paragraph_didExceedMaxLines(IntPtr ptr);
 
         [DllImport(dllName: NativeBindings.dllName)]
