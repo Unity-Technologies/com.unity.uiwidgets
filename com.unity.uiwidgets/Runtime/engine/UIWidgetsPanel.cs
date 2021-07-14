@@ -438,23 +438,32 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Input_OnEnable() {
-            Input.touchRawProcess += ProcessRawTouch;
-
+#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
+            Input.RawTouchEvent += ProcessRawTouch;
+#endif
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
         }
 
-        public void ProcessRawTouch(Input.ProcessRawTouchesParam param) {
+        enum TouchPhase {
+            Began = 0,
+            Moved = 1,
+            Stationary = 2,
+            Ended = 3,
+            Canceled = 4
+        }
+
+        void ProcessRawTouch(Input.RawTouchEventParam param) {
             var position = _getPointerPosition(new Vector2(param.x, param.y));
             var pointerId = -1 - param.pointerId;
-            switch (param.phase) {
-                case 0:
+            switch ((TouchPhase)param.phase) {
+                case TouchPhase.Began:
                     _wrapper.OnPointerDown(position, pointerId);
                     break;
-                case 1:
+                case TouchPhase.Moved:
                     _wrapper.OnDrag(position, pointerId);
                     break;
 
-                case 3:
+                case TouchPhase.Ended:
                     _wrapper.OnPointerUp(position, pointerId);
                     break;
                 default:
@@ -463,7 +472,9 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Input_OnDisable() {
-            Input.touchRawProcess -= ProcessRawTouch;
+#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
+            Input.RawTouchEvent -= ProcessRawTouch;
+#endif
         }
 
         void Input_Update() {
@@ -540,26 +551,31 @@ namespace Unity.UIWidgets.engine {
             _isEntered = false;
             _wrapper.OnPointerLeave();
         }
-
-        public void OnPointerDown(PointerEventData eventData) {
+        
 #if UNITY_EDITOR || (!UNITY_IOS && !UNITY_ANDROID)
+        public void OnPointerDown(PointerEventData eventData) {
             _convertPointerData(eventData, out var pos, out var pointerId);
             _wrapper.OnPointerDown(pos, pointerId);
-#endif
         }
 
         public void OnPointerUp(PointerEventData eventData) {
-#if UNITY_EDITOR || (!UNITY_IOS && !UNITY_ANDROID)
             _convertPointerData(eventData, out var pos, out var pointerId);
             _wrapper.OnPointerUp(pos, pointerId);
-#endif
         }
 
         public void OnDrag(PointerEventData eventData) {
-#if UNITY_EDITOR || (!UNITY_IOS && !UNITY_ANDROID)
             _convertPointerData(eventData, out var pos, out var pointerId);
             _wrapper.OnDrag(pos, pointerId);
-#endif
         }
+#else
+        public void OnPointerDown(PointerEventData eventData) {
+        }
+
+        public void OnPointerUp(PointerEventData eventData) {
+        }
+
+        public void OnDrag(PointerEventData eventData) {
+        }
+#endif
     }
 }

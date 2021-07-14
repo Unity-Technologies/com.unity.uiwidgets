@@ -28,7 +28,6 @@ namespace Unity.UIWidgets.Editor {
         }
 
         void Update() {
-            
             _wrapper.onEditorUpdate();
         }
 
