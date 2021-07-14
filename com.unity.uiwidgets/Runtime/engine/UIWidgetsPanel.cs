@@ -47,16 +47,18 @@ namespace Unity.UIWidgets.engine {
 
         UIWidgetsWindowType getWindowType();
     }
+
     public class Configurations {
-        
         private Dictionary<string, TextFont> _textFonts = new Dictionary<string, TextFont>();
 
         public void Clear() {
             _textFonts.Clear();
         }
+
         public void AddFont(string family, TextFont font) {
-           _textFonts[key: family] = font;
+            _textFonts[key: family] = font;
         }
+
         public object fontsToObject() {
             Dictionary<string, TextFont> settings = _textFonts;
             if (settings == null || settings.Count == 0) {
@@ -72,7 +74,7 @@ namespace Unity.UIWidgets.engine {
                 for (var j = 0; j < setting.Value.fonts.Length; j++) {
                     var fontDic = new Dictionary<string, object>();
                     var fileExist = false;
-                    
+
                     if (setting.Value.fonts[j].asset.Length > 0) {
                         var assetPath = setting.Value.fonts[j].asset;
                         var assetAbsolutePath = Path.Combine(Application.streamingAssetsPath, assetPath);
@@ -81,11 +83,13 @@ namespace Unity.UIWidgets.engine {
 #else
                         if (!File.Exists(assetAbsolutePath)) {
 #endif
-                            Debug.LogError($"The font asset (family: \"{setting.Key}\", path: \"{assetPath}\") is not found");
+                            Debug.LogError(
+                                $"The font asset (family: \"{setting.Key}\", path: \"{assetPath}\") is not found");
                         }
                         else {
                             fileExist = true;
                         }
+
                         fontDic.Add("asset", value: setting.Value.fonts[j].asset);
                     }
 
@@ -176,17 +180,17 @@ namespace Unity.UIWidgets.engine {
                 UIWidgetsMessageManager.instance?.AddChannelMessageDelegate("ViewportMetricsChanged",
                     _handleViewMetricsChanged);
             }
-            
+
 #if !UNITY_EDITOR
             CollectGarbageOnDemand();
 #endif
-
 
 
             Input_Update();
         }
 
         #region OnDemandGC
+
 #if !UNITY_EDITOR
         // 8 MB
         const long kCollectAfterAllocating = 8 * 1024 * 1024;
@@ -235,6 +239,7 @@ namespace Unity.UIWidgets.engine {
             lastFrameMemory = mem;
         }
 #endif
+
         #endregion
 
 #if !UNITY_EDITOR && UNITY_ANDROID
@@ -265,7 +270,7 @@ namespace Unity.UIWidgets.engine {
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
 #endif
-            
+
 #if !UNITY_EDITOR
             TryEnableOnDemandGC();
             Application.lowMemory += () => {
@@ -276,7 +281,7 @@ namespace Unity.UIWidgets.engine {
 #endif
 
             base.OnEnable();
-            
+
             D.assert(_wrapper == null);
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
@@ -286,6 +291,7 @@ namespace Unity.UIWidgets.engine {
                     AddFont(family: font.family, font: font);
                 }
             }
+
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 _configurations: _configurations);
             _configurations.Clear();
@@ -357,9 +363,9 @@ namespace Unity.UIWidgets.engine {
 
         protected virtual void onEnable() {
         }
-        
+
         protected void AddFont(string family, TextFont font) {
-            _configurations.AddFont(family,font);
+            _configurations.AddFont(family, font);
         }
 
         protected void AddFont(string family, List<string> assets, List<int> weights) {
@@ -378,13 +384,12 @@ namespace Unity.UIWidgets.engine {
             textFont.fonts = fonts;
             AddFont(family: family, font: textFont);
         }
-        
+
         protected virtual void main() {
         }
     }
 
-    enum UIWidgetsInputMode 
-    {
+    enum UIWidgetsInputMode {
         Mouse,
         Touch
     }
@@ -433,22 +438,35 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Input_OnEnable() {
-            Input.touchRawProcess += LogTouch;
+            Input.touchRawProcess += ProcessRawTouch;
 
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
         }
 
-        public static int count = 0;
-        public void LogTouch(Input.ProcessRawTouchesParam param) {
-            _wrapper.OnDrag(new Vector2(param.x, param.y), (int) param.pointerId);
+        public void ProcessRawTouch(Input.ProcessRawTouchesParam param) {
+            var position = _getPointerPosition(new Vector2(param.x, param.y));
+            var pointerId = -1 - param.pointerId;
+            switch (param.phase) {
+                case 0:
+                    _wrapper.OnPointerDown(position, pointerId);
+                    break;
+                case 1:
+                    _wrapper.OnDrag(position, pointerId);
+                    break;
+
+                case 3:
+                    _wrapper.OnPointerUp(position, pointerId);
+                    break;
+                default:
+                    break;
+            }
         }
 
         void Input_OnDisable() {
-            Input.touchRawProcess -= LogTouch;
+            Input.touchRawProcess -= ProcessRawTouch;
         }
 
         void Input_Update() {
-            Debug.Log($"count {count}");
             //we only process hover events for desktop applications
             if (_inputMode == UIWidgetsInputMode.Mouse) {
                 if (_isEntered) {
@@ -468,7 +486,7 @@ namespace Unity.UIWidgets.engine {
                     }
                 }
             }
-            
+
 #if UNITY_ANDROID && !UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Escape)) {
                 using (Isolate.getScope(anyIsolate)) {
@@ -489,6 +507,7 @@ namespace Unity.UIWidgets.engine {
             if (_inputMode != UIWidgetsInputMode.Mouse) {
                 return;
             }
+
             var pos = _getPointerPosition(Input.mousePosition);
             _wrapper.OnMouseMove(pos);
         }
@@ -497,6 +516,7 @@ namespace Unity.UIWidgets.engine {
             if (_inputMode != UIWidgetsInputMode.Mouse) {
                 return;
             }
+
             var pos = _getPointerPosition(Input.mousePosition);
             _wrapper.OnMouseScroll(Input.mouseScrollDelta, pos);
         }
@@ -505,6 +525,7 @@ namespace Unity.UIWidgets.engine {
             if (_inputMode != UIWidgetsInputMode.Mouse) {
                 return;
             }
+
             D.assert(eventData.pointerId < 0);
             _isEntered = true;
             _lastMousePosition = Input.mousePosition;
@@ -514,24 +535,31 @@ namespace Unity.UIWidgets.engine {
             if (_inputMode != UIWidgetsInputMode.Mouse) {
                 return;
             }
+
             D.assert(eventData.pointerId < 0);
             _isEntered = false;
             _wrapper.OnPointerLeave();
         }
 
         public void OnPointerDown(PointerEventData eventData) {
+#if UNITY_EDITOR || (!UNITY_IOS && !UNITY_ANDROID)
             _convertPointerData(eventData, out var pos, out var pointerId);
             _wrapper.OnPointerDown(pos, pointerId);
+#endif
         }
 
         public void OnPointerUp(PointerEventData eventData) {
+#if UNITY_EDITOR || (!UNITY_IOS && !UNITY_ANDROID)
             _convertPointerData(eventData, out var pos, out var pointerId);
             _wrapper.OnPointerUp(pos, pointerId);
+#endif
         }
 
         public void OnDrag(PointerEventData eventData) {
+#if UNITY_EDITOR || (!UNITY_IOS && !UNITY_ANDROID)
             _convertPointerData(eventData, out var pos, out var pointerId);
             _wrapper.OnDrag(pos, pointerId);
+#endif
         }
     }
 }
