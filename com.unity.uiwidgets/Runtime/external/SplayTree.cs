@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Unity.UIWidgets.external {    
-    class SplayTree<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey> {
+namespace Unity.UIWidgets.external {
+    public class SplayTree<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey> {
         SplayTreeNode root;
         int count;
         int version = 0;
@@ -127,6 +127,18 @@ namespace Unity.UIWidgets.external {
                 node = node.RightChild;
             }
             return node.Key;
+        }
+        
+        public TKey firstKey() {
+            if (root == null) return default; // TODO: this is suppose to be null
+            var first = First().Value;
+            return first.Key;
+        }
+        
+        public TKey lastKey() {
+            if (root == null) return default; // TODO: this is suppose to be null
+            var last = Last().Value;
+            return last.Key;
         }
         
         public TKey firstKeyAfter(TKey key) {

@@ -1780,7 +1780,7 @@ namespace Unity.UIWidgets.widgets {
 
         HashSet<Element> _debugForgottenChildrenWithGlobalKey = new HashSet<Element>();
 
-        internal virtual void forgetChild(Element child) {
+        public virtual void forgetChild(Element child) {
             D.assert(() => {
                 if (child.widget.key is GlobalKey)
                     _debugForgottenChildrenWithGlobalKey.Add(child);
@@ -2629,7 +2629,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(child == _child);
             _child = null;
             base.forgetChild(child);
@@ -3054,7 +3054,7 @@ namespace Unity.UIWidgets.widgets {
         protected RenderObjectElement(RenderObjectWidget widget) : base(widget) {
         }
 
-        public new RenderObjectWidget widget {
+        public new virtual RenderObjectWidget widget {
             get { return (RenderObjectWidget) base.widget; }
         }
 
@@ -3430,7 +3430,7 @@ namespace Unity.UIWidgets.widgets {
         public LeafRenderObjectElement(LeafRenderObjectWidget widget) : base(widget) {
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(false);
             base.forgetChild(child);
         }
@@ -3468,7 +3468,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(child == _child);
             _child = null;
             base.forgetChild(child);
@@ -3554,7 +3554,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(_children.Contains(child));
             D.assert(!_forgottenChildren.Contains(child));
             _forgottenChildren.Add(child);
