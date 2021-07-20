@@ -444,17 +444,15 @@ namespace Unity.UIWidgets.cupertino {
                 return (new DateTime(
                     initialDateTime.Year,
                     initialDateTime.Month,
-                    initialDateTime.Day,
-                    selectedHour,
-                    selectedMinute,
-                    0
-                )).AddDays(selectedDayFromInitial);
+                    initialDateTime.Day
+                   
+                )).AddHours(selectedHour).AddMinutes(selectedMinute).AddDays(selectedDayFromInitial);
             }
         }
         void _onSelectedItemChange(int index) {
             DateTime selected = selectedDateTime;
-            bool isDateInvalid = widget.minimumDate?.CompareTo(selected) < 0
-                                 || widget.maximumDate?.CompareTo(selected) > 0;
+            bool isDateInvalid = widget.minimumDate?.CompareTo(selected) > 0
+                                 || widget.maximumDate?.CompareTo(selected) < 0;
             if (isDateInvalid)
                 return;
             widget.onDateTimeChanged(selected);
@@ -513,17 +511,14 @@ namespace Unity.UIWidgets.cupertino {
             DateTime rangeStart = (new DateTime(
                 initialDateTime.Year, 
                 initialDateTime.Month, 
-                initialDateTime.Day,
-                _selectedHour(meridiemIndex, hourIndex),
-                0,
-                0
-            )).AddDays(selectedDayFromInitial);
+                initialDateTime.Day
+            )).AddHours( _selectedHour(meridiemIndex, hourIndex)).AddDays(selectedDayFromInitial);
 
             // The end value of the range is exclusive, i.e. [rangeStart, rangeEnd).
             DateTime rangeEnd = rangeStart.Add(new TimeSpan(0,1,0,0));
-
-            return (widget.minimumDate?.CompareTo(rangeEnd) < 0 )
-                   && !(widget.maximumDate?.CompareTo(rangeStart) > 0);
+            bool minimum = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(rangeEnd) < 0;
+            bool maxmum = widget.maximumDate == null ? false :  (widget.maximumDate?.CompareTo(rangeStart) < 0);
+            return minimum && !maxmum;
         }
         Widget _buildHourPicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) { 
            
@@ -535,7 +530,6 @@ namespace Unity.UIWidgets.cupertino {
                     context,
                     new Text(
                         localizations.datePickerHour(displayHour),
-                        //semanticsLabel: localizations.datePickerHourSemanticsLabel(displayHour),
                         style: CupertinoDatePickerUtils._themeTextStyle(context,
                             isValid: _isValidHour(selectedAmPm, index))
                     )
@@ -564,10 +558,15 @@ namespace Unity.UIWidgets.cupertino {
                     onSelectedItemChanged: (int index) =>{
                       bool regionChanged = meridiemRegion != (int)(index / 12);
                       bool debugIsFlipped = isHourRegionFlipped;
-
+                      //Debug.Log("region " + meridiemRegion + "ampm " + selectedAmPm);
                       if (regionChanged) {
                         meridiemRegion = (int)(index / 12);
                         selectedAmPm = 1 - selectedAmPm;
+                      }
+                      //Debug.Log("change region " + meridiemRegion + "ampm " + selectedAmPm);
+                      if (debugIsFlipped != isHourRegionFlipped) {
+                          var test = debugIsFlipped;
+                          int i = 1;
                       }
 
                       if (!widget.use24hFormat && regionChanged) {
@@ -590,20 +589,18 @@ namespace Unity.UIWidgets.cupertino {
         }
         Widget _buildMinutePicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) { 
             List<Widget> widgets = new List<Widget>();
-            for (int index = 0; index < 24; index++) {
+            for (int index = 0; index < 60; index++) {
                 int minute = index * widget.minuteInterval;
 
                 DateTime date = (new DateTime(
                     initialDateTime.Year,
                     initialDateTime.Month,
-                    initialDateTime.Day,
-                    selectedHour,
-                    minute,
-                    0
-                )).AddDays(selectedDayFromInitial);
+                    initialDateTime.Day
+                )).AddMinutes(selectedHour * 60 + minute).AddDays(selectedDayFromInitial);
 
-                bool isInvalidMinute = (widget.minimumDate?.CompareTo(date) < 0 )
-                                       || (widget.maximumDate?.CompareTo(date) > 0);
+                var minimum = widget.minimumDate == null ? false : widget.minimumDate?.CompareTo(date) > 0;
+                var maxmum = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(date) < 0;
+                bool isInvalidMinute = minimum || maxmum;
 
                 widgets.Add( itemPositioningBuilder(
                     context,
@@ -686,8 +683,8 @@ namespace Unity.UIWidgets.cupertino {
 
             DateTime selectedDate = selectedDateTime;
 
-            bool minCheck = widget.minimumDate?.CompareTo(selectedDate) < 0 ;
-            bool maxCheck = widget.maximumDate?.CompareTo(selectedDate) > 0 ;
+            bool minCheck = widget.minimumDate == null ? false : widget.minimumDate?.CompareTo(selectedDate) > 0 ;
+            bool maxCheck = widget.maximumDate == null ? false :widget.maximumDate?.CompareTo(selectedDate) < 0 ;
 
             if (minCheck || maxCheck) {
                 // We have minCheck === !maxCheck.
@@ -1038,7 +1035,7 @@ namespace Unity.UIWidgets.cupertino {
                 maxSelectedDate = maxSelectedDate.AddDays(1);
 
                 bool minCheck = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(maxSelectedDate) < 0;
-                bool maxCheck = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(minSelectedDate) > 0;
+                bool maxCheck = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(minSelectedDate) < 0;
 
                 return minCheck && !maxCheck && minSelectedDate.Day == selectedDay;
             }
@@ -1054,9 +1051,9 @@ namespace Unity.UIWidgets.cupertino {
             DateTime minSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay);
             DateTime maxSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay + 1);
 
-            bool minCheck = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(maxSelectDate) < 0 ;
+            bool minCheck = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(maxSelectDate) > 0 ;
            
-            bool maxCheck =  widget.maximumDate == null ? false :widget.maximumDate?.CompareTo(minSelectDate) > 0;
+            bool maxCheck =  widget.maximumDate == null ? false :widget.maximumDate?.CompareTo(minSelectDate) < 0;
 
             if (!minCheck || maxCheck) {
                 DateTime targetDate = minCheck ? (DateTime) widget.maximumDate : (DateTime) widget.minimumDate;

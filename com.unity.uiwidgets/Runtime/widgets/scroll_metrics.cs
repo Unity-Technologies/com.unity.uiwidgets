@@ -37,16 +37,16 @@ namespace Unity.UIWidgets.widgets {
                 );
             }
 
-            if (it is IFixedExtentMetrics) {
+            /*if (it is IFixedExtentMetrics) {
                 return new FixedExtentMetrics(
                     minScrollExtent: minScrollExtent ?? it.minScrollExtent,
                     maxScrollExtent: maxScrollExtent ?? it.maxScrollExtent,
                     pixels: pixels ?? it.pixels,
                     viewportDimension: viewportDimension ?? it.viewportDimension,
                     axisDirection: axisDirection ?? it.axisDirection,
-                    itemIndex: ((IFixedExtentMetrics) it).itemIndex
+                    itemIndex: ((IFixedExtentMetrics)it).itemIndex
                 );
-            }
+            }*/
 
             return new FixedScrollMetrics(
                 minScrollExtent: minScrollExtent ?? it.minScrollExtent,
