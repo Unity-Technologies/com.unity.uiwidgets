@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.cupertino {
         public const float _kPickerHeight = 216.0f;
         public const bool _kUseMagnifier = true;
         public const float _kMagnification = 1.05f;
-        public const float _kDatePickerPadSize = 12.0f;
+        public const float _kDatePickerPadSize = 5f;//12.0f;
         public const float _kSqueeze = 1.25f;
         public static TextStyle _kDefaultPickerTextStyle = new TextStyle(
             letterSpacing: -0.83f
@@ -34,7 +34,8 @@ namespace Unity.UIWidgets.cupertino {
 
         public static TextStyle _themeTextStyle(BuildContext context,  bool isValid = true ) {
             TextStyle style = CupertinoTheme.of(context).textTheme.dateTimePickerTextStyle;
-            return isValid ? style : style.copyWith(color: CupertinoDynamicColor.resolve(CupertinoColors.inactiveGray, context));
+            return isValid ? style : style.copyWith(color: CupertinoDynamicColor.resolve(CupertinoColors.inactiveGray, context)
+            );
         }
 
         public static void _animateColumnControllerToItem(FixedExtentScrollController controller, int targetItem) {
@@ -354,7 +355,15 @@ namespace Unity.UIWidgets.cupertino {
         int selectedAmPm;
 
         bool isHourRegionFlipped {
-            get { return  _isHourRegionFlipped(selectedAmPm);}
+            get {
+                
+                if (_isHourRegionFlipped(selectedAmPm)) {
+                    int x = 0;
+                }
+                return  _isHourRegionFlipped(selectedAmPm);
+               
+               
+            }
         }
         bool _isHourRegionFlipped(int selectedAmPm) => selectedAmPm != meridiemRegion;
         int meridiemRegion;
@@ -441,12 +450,14 @@ namespace Unity.UIWidgets.cupertino {
         }
         DateTime  selectedDateTime {
             get {
-                return (new DateTime(
+                var hours = selectedHour;
+                var minutes = selectedMinute;
+                var initialDate = new DateTime(
                     initialDateTime.Year,
                     initialDateTime.Month,
                     initialDateTime.Day
-                   
-                )).AddHours(selectedHour).AddMinutes(selectedMinute).AddDays(selectedDayFromInitial);
+                );
+                return initialDate.AddMinutes( hours * 60 + minutes).AddDays(selectedDayFromInitial);
             }
         }
         void _onSelectedItemChange(int index) {
@@ -512,12 +523,13 @@ namespace Unity.UIWidgets.cupertino {
                 initialDateTime.Year, 
                 initialDateTime.Month, 
                 initialDateTime.Day
-            )).AddHours( _selectedHour(meridiemIndex, hourIndex)).AddDays(selectedDayFromInitial);
+            )).AddHours(_selectedHour(meridiemIndex, hourIndex)).AddDays(selectedDayFromInitial);
 
             // The end value of the range is exclusive, i.e. [rangeStart, rangeEnd).
             DateTime rangeEnd = rangeStart.Add(new TimeSpan(0,1,0,0));
-            bool minimum = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(rangeEnd) < 0;
-            bool maxmum = widget.maximumDate == null ? false :  (widget.maximumDate?.CompareTo(rangeStart) < 0);
+
+            var minimum = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(rangeEnd) < 0;
+            var maxmum = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(rangeStart) < 0;
             return minimum && !maxmum;
         }
         Widget _buildHourPicker(float offAxisFraction, TransitionBuilder itemPositioningBuilder) { 
@@ -530,6 +542,7 @@ namespace Unity.UIWidgets.cupertino {
                     context,
                     new Text(
                         localizations.datePickerHour(displayHour),
+                        //semanticsLabel: localizations.datePickerHourSemanticsLabel(displayHour),
                         style: CupertinoDatePickerUtils._themeTextStyle(context,
                             isValid: _isValidHour(selectedAmPm, index))
                     )
@@ -558,15 +571,10 @@ namespace Unity.UIWidgets.cupertino {
                     onSelectedItemChanged: (int index) =>{
                       bool regionChanged = meridiemRegion != (int)(index / 12);
                       bool debugIsFlipped = isHourRegionFlipped;
-                      //Debug.Log("region " + meridiemRegion + "ampm " + selectedAmPm);
+
                       if (regionChanged) {
                         meridiemRegion = (int)(index / 12);
                         selectedAmPm = 1 - selectedAmPm;
-                      }
-                      //Debug.Log("change region " + meridiemRegion + "ampm " + selectedAmPm);
-                      if (debugIsFlipped != isHourRegionFlipped) {
-                          var test = debugIsFlipped;
-                          int i = 1;
                       }
 
                       if (!widget.use24hFormat && regionChanged) {
@@ -578,6 +586,10 @@ namespace Unity.UIWidgets.cupertino {
                         );
                       } else {
                         _onSelectedItemChange(index);
+                      }
+
+                      if (debugIsFlipped != isHourRegionFlipped) {
+                          int i = 1;
                       }
 
                       D.assert(debugIsFlipped == isHourRegionFlipped);
@@ -596,11 +608,12 @@ namespace Unity.UIWidgets.cupertino {
                     initialDateTime.Year,
                     initialDateTime.Month,
                     initialDateTime.Day
+                    
                 )).AddMinutes(selectedHour * 60 + minute).AddDays(selectedDayFromInitial);
 
-                var minimum = widget.minimumDate == null ? false : widget.minimumDate?.CompareTo(date) > 0;
-                var maxmum = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(date) < 0;
-                bool isInvalidMinute = minimum || maxmum;
+                bool miniDate = widget.minimumDate == null ? false : widget.minimumDate?.CompareTo(date) > 0;
+                bool maxDate = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(date) < 0;
+                bool isInvalidMinute = miniDate || maxDate;
 
                 widgets.Add( itemPositioningBuilder(
                     context,
@@ -684,7 +697,7 @@ namespace Unity.UIWidgets.cupertino {
             DateTime selectedDate = selectedDateTime;
 
             bool minCheck = widget.minimumDate == null ? false : widget.minimumDate?.CompareTo(selectedDate) > 0 ;
-            bool maxCheck = widget.maximumDate == null ? false :widget.maximumDate?.CompareTo(selectedDate) < 0 ;
+            bool maxCheck = widget.maximumDate == null ? false : widget.maximumDate?.CompareTo(selectedDate) < 0 ;
 
             if (minCheck || maxCheck) {
                 // We have minCheck === !maxCheck.
@@ -732,7 +745,7 @@ namespace Unity.UIWidgets.cupertino {
                 _buildHourPicker,
                 _buildMinutePicker
             };
-
+            var test = 1;
             if (!widget.use24hFormat) { 
                 if (localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.date_time_dayPeriod
                                             || localizations.datePickerDateTimeOrder == DatePickerDateTimeOrder.time_dayPeriod_date) { 
@@ -924,6 +937,9 @@ namespace Unity.UIWidgets.cupertino {
                     backgroundColor: widget.backgroundColor,
                     squeeze: CupertinoDatePickerUtils._kSqueeze,
                     onSelectedItemChanged: (int index) => {
+                        if (index < 0) {
+                            index += 31;
+                        }
                         selectedDay = index + 1;
                         if (_isCurrentDateValid)
                             widget.onDateTimeChanged(new DateTime(selectedYear, selectedMonth, selectedDay));
@@ -971,7 +987,13 @@ namespace Unity.UIWidgets.cupertino {
                     backgroundColor: widget.backgroundColor,
                     squeeze: CupertinoDatePickerUtils._kSqueeze,
                     onSelectedItemChanged: (int index) => {
+                        if (index < 0)
+                            index += 12;
                         selectedMonth = index + 1;
+                        Debug.Log("month is " + selectedMonth);
+                        if (selectedMonth == 0) {
+                            int j = 100;
+                        }
                         if (_isCurrentDateValid)
                             widget.onDateTimeChanged(new DateTime(selectedYear, selectedMonth, selectedDay));
                     },
@@ -1049,13 +1071,12 @@ namespace Unity.UIWidgets.cupertino {
             }
 
             DateTime minSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay);
-            DateTime maxSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay + 1);
+            DateTime maxSelectDate = new DateTime(selectedYear, selectedMonth, selectedDay ).AddDays(1);
 
-            bool minCheck = widget.minimumDate == null ? true : widget.minimumDate?.CompareTo(maxSelectDate) > 0 ;
-           
+            bool minCheck = widget.minimumDate == null ? false : widget.minimumDate?.CompareTo(maxSelectDate) > 0 ;
             bool maxCheck =  widget.maximumDate == null ? false :widget.maximumDate?.CompareTo(minSelectDate) < 0;
 
-            if (!minCheck || maxCheck) {
+            if (minCheck || maxCheck) {
                 DateTime targetDate = minCheck ? (DateTime) widget.maximumDate : (DateTime) widget.minimumDate;
                 _scrollToDate(targetDate);
                 return;
@@ -1554,6 +1575,7 @@ namespace Unity.UIWidgets.cupertino {
           
             float totalWidth = CupertinoDatePickerUtils._kPickerWidth;
             D.assert(paddingValue >= 0);
+
 
             switch (widget.mode) {
               case CupertinoTimerPickerMode.hm:
