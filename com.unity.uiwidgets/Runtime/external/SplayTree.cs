@@ -120,7 +120,7 @@ namespace Unity.UIWidgets.external {
             if (key == null) throw new Exception("should input null");
             if (root == null) throw new Exception("root is null");
             int comp = Splay(key);
-            if (comp < 0) return root.Key;
+            if (comp > 0) return root.Key;
             SplayTreeNode node = root.LeftChild;
             if (node == null) throw new Exception("does not exist");
             while (node.RightChild != null) {
@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.external {
             if (key == null) throw new Exception("should input null");
             if (root == null) throw new Exception("root is null");
             int comp = Splay(key);
-            if (comp > 0) return root.Key;
+            if (comp < 0) return root.Key;
             SplayTreeNode node = root.LeftChild;
             if (node == null)  throw new Exception("does not exist");
             while (node.LeftChild != null) {

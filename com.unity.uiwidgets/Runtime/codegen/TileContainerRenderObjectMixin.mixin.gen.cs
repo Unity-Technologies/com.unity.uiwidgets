@@ -39,7 +39,7 @@ public abstract class TileContainerRenderObjectMixinRenderSliver<ChildType, Pare
     {
         D.assert(() =>
         {
-            if (child is ChildType)
+            if (!(child is ChildType))
             {
                 throw new UIWidgetsError(
                     "A $runtimeType expected a child of type $ChildType but received a " +
@@ -73,7 +73,7 @@ public abstract class TileContainerRenderObjectMixinRenderSliver<ChildType, Pare
                 throw new ArgumentException($"index {index}");
             }
 
-            _removeChild(_childRenderObjects[index]);
+            _removeChild(_childRenderObjects.getOrDefault(index, null));
             adoptChild(value);
             _childRenderObjects[index] = value;
         }
@@ -112,13 +112,13 @@ public abstract class TileContainerRenderObjectMixinRenderSliver<ChildType, Pare
 
     public override void attach(object owner)
     {
-     //   base.attach(owner);
+        base.attach(owner);
         _childRenderObjects.Values.ToList().ForEach((child) => child.attach(owner));
     }
 
     public override void detach()
     {
-       // base.detach();
+        base.detach();
         _childRenderObjects.Values.ToList().ForEach((child) => child.detach());
     }
 
