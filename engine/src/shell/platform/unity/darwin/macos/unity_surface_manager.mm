@@ -28,14 +28,11 @@ GLContextPair UnitySurfaceManager::GetFreeOpenGLContext()
       gl_resource = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl];  
     
       if (gl_resource == nil) {
-        CGLReleaseContext(gl.CGLContextObj);
+        CGLReleaseContext([gl CGLContextObj]);
         gl = nullptr;
       }
     }
-
-
-
-    gl_context_pool_.push_back(GLContextPair(gl, gl_resource));
+    return GLContextPair(gl, gl_resource);
   }
 
   auto context_pair = gl_context_pool_.back();
@@ -52,6 +49,17 @@ void UnitySurfaceManager::RecycleOpenGLContext(NSOpenGLContext* gl, NSOpenGLCont
   ClearCurrentContext();
 
   gl_context_pool_.push_back(GLContextPair(gl, gl_resource));
+}
+
+void UnitySurfaceManager::ReleaseResource()
+{
+  while(gl_context_pool_.size() > 0)
+  {
+    auto context_pair = gl_context_pool_.back();
+    CGLReleaseContext([context_pair.gl_context_ CGLContextObj]);
+    CGLReleaseContext([context_pair.gl_resource_context_ CGLContextObj]);
+    gl_context_pool_.pop_back();
+  }
 }
 
 UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)

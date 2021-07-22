@@ -16,7 +16,7 @@ GLContextPair UnitySurfaceManager::GetFreeOpenGLContext()
   {
     EAGLContext* gl = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     EAGLContext* gl_resource = [[EAGLContext alloc] initWithAPI:[gl API] sharegroup: [gl sharegroup]];
-    gl_context_pool_.push_back(GLContextPair(gl, gl_resource));
+    return GLContextPair(gl, gl_resource);
   }
   auto context_pair = gl_context_pool_.back();
   gl_context_pool_.pop_back();
@@ -32,6 +32,14 @@ void UnitySurfaceManager::RecycleOpenGLContext(EAGLContext* gl, EAGLContext* gl_
   ClearCurrentContext();
 
   gl_context_pool_.push_back(GLContextPair(gl, gl_resource));
+}
+
+void UnitySurfaceManager::ReleaseResource()
+{
+  while(gl_context_pool_.size() > 0)
+  {
+    gl_context_pool_.pop_back();
+  }
 }
 
 UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
