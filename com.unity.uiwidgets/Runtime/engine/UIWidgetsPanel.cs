@@ -402,7 +402,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         Vector2? _getPointerPosition(Vector2 position) {
-            var worldCamera = canvas.worldCamera;
+            var worldCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rect: rectTransform, screenPoint: position, cam: worldCamera, out var localPoint)) {
                 var scaleFactor = canvas.scaleFactor;

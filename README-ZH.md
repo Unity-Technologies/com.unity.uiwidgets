@@ -241,7 +241,7 @@ using(Isolate.getScope(the isolate of your App)) {
 #### Wiki
 
 目前开发团队仍在改进UIWidgets Wiki。 由于UIWidgets主要来源于Flutter，你也可以参考Flutter Wiki中与UIWidgets API对应部分的详细描述。
-同时，你可以加入我们的讨论组( https://learn.unity.com/g/uiwidgets )。
+同时，你也可以加入我们的[讨论组](https://unity.cn/plate/uiwidgets)来和大家交流使用心得。
 
 #### 常问问题解答
 
