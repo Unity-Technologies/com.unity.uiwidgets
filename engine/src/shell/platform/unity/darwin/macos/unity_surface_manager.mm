@@ -6,8 +6,53 @@
 
 namespace uiwidgets {
 
-NSOpenGLContext* UnitySurfaceManager::gl_context_ = nullptr;
-NSOpenGLContext* UnitySurfaceManager::gl_resource_context_ = nullptr;
+std::vector<GLContextPair> UnitySurfaceManager::gl_context_pool_;
+
+GLContextPair UnitySurfaceManager::GetFreeOpenGLContext()
+{
+  if (gl_context_pool_.size() == 0)
+  {
+    NSOpenGLPixelFormatAttribute attrs[] =
+    {
+      NSOpenGLPFAAccelerated,
+      0
+    };
+
+    NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+
+    NSOpenGLContext* gl_resource;
+    NSOpenGLContext* gl;
+
+    while(gl_resource == nil) {
+      gl = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+      gl_resource = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl];  
+    
+      if (gl_resource == nil) {
+        CGLReleaseContext(gl.CGLContextObj);
+        gl = nullptr;
+      }
+    }
+
+
+
+    gl_context_pool_.push_back(GLContextPair(gl, gl_resource));
+  }
+
+  auto context_pair = gl_context_pool_.back();
+  gl_context_pool_.pop_back();
+
+  return context_pair;
+}
+
+void UnitySurfaceManager::RecycleOpenGLContext(NSOpenGLContext* gl, NSOpenGLContext* gl_resource)
+{
+  MakeCurrentContext();
+  ClearCurrentContext();
+  MakeCurrentResourceContext();
+  ClearCurrentContext();
+
+  gl_context_pool_.push_back(GLContextPair(gl, gl_resource));
+}
 
 UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 {
@@ -24,25 +69,9 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 
   //create opengl context
   if (gl_context_ == nullptr && gl_resource_context_ == nullptr) {
-    NSOpenGLPixelFormatAttribute attrs[] =
-    {
-      NSOpenGLPFAAccelerated,
-      0
-    };
-
-    NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
-    
-    //gl_context_ may be created unproperly, we can check this using the relevant gl_resource_context_
-    //loop until the created gl_context_ is ok, otherwise the program will crash anyway
-    while(gl_resource_context_ == nil) {
-      gl_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
-      gl_resource_context_ = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl_context_];  
-    
-      if (gl_resource_context_ == nil) {
-        CGLReleaseContext(gl_context_.CGLContextObj);
-        gl_context_ = nullptr;
-      }
-    }
+    auto new_context = GetFreeOpenGLContext();
+    gl_context_ = new_context.gl_context_;
+    gl_resource_context_ = new_context.gl_resource_context_;
   }
 
   FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
@@ -158,8 +187,11 @@ uint32_t UnitySurfaceManager::GetFbo()
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
   FML_DCHECK(gl_resource_context_);
-
   FML_DCHECK(gl_context_);
+
+  RecycleOpenGLContext(gl_context_, gl_resource_context_);
+  gl_context_ = nullptr;
+  gl_resource_context_ = nullptr;
 
   FML_DCHECK(metal_device_ != nullptr);
   metal_device_ = nullptr;
