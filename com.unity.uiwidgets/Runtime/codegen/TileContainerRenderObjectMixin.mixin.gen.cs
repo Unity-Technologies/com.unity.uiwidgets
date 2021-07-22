@@ -62,9 +62,8 @@ public abstract class TileContainerRenderObjectMixinRenderSliver<ChildType, Pare
         return true;
     }
 
-    public ChildType this[int index]
-    {
-        get => _childRenderObjects[index];
+    public ChildType this[int index] {
+        get { return _childRenderObjects.ContainsKey(index) ? _childRenderObjects[index] : null; }
         set
 
         {
