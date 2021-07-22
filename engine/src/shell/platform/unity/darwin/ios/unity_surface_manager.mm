@@ -8,8 +8,39 @@
 
 namespace uiwidgets {
 
-EAGLContext* UnitySurfaceManager::gl_context_ = nullptr;
-EAGLContext* UnitySurfaceManager::gl_resource_context_ = nullptr;
+std::vector<GLContextPair> UnitySurfaceManager::gl_context_pool_;
+
+GLContextPair UnitySurfaceManager::GetFreeOpenGLContext()
+{
+  if (gl_context_pool_.size() == 0)
+  {
+    EAGLContext* gl = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    EAGLContext* gl_resource = [[EAGLContext alloc] initWithAPI:[gl API] sharegroup: [gl sharegroup]];
+    return GLContextPair(gl, gl_resource);
+  }
+  auto context_pair = gl_context_pool_.back();
+  gl_context_pool_.pop_back();
+
+  return context_pair;
+}
+
+void UnitySurfaceManager::RecycleOpenGLContext(EAGLContext* gl, EAGLContext* gl_resource)
+{
+  MakeCurrentContext();
+  ClearCurrentContext();
+  MakeCurrentResourceContext();
+  ClearCurrentContext();
+
+  gl_context_pool_.push_back(GLContextPair(gl, gl_resource));
+}
+
+void UnitySurfaceManager::ReleaseResource()
+{
+  while(gl_context_pool_.size() > 0)
+  {
+    gl_context_pool_.pop_back();
+  }
+}
 
 UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 {
@@ -26,8 +57,9 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 
   //create opengl context
   if (gl_context_ == nullptr && gl_resource_context_ == nullptr) {
-    gl_context_ = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    gl_resource_context_ = [[EAGLContext alloc] initWithAPI:[gl_context_ API] sharegroup: [gl_context_ sharegroup]];
+    auto new_context = GetFreeOpenGLContext();
+    gl_context_ = new_context.gl_context_;
+    gl_resource_context_ = new_context.gl_resource_context_;
   }
 
   FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
@@ -157,8 +189,10 @@ uint32_t UnitySurfaceManager::GetFbo()
 void UnitySurfaceManager::ReleaseNativeRenderContext()
 {
   FML_DCHECK(gl_resource_context_);
-
   FML_DCHECK(gl_context_);
+  RecycleOpenGLContext(gl_context_, gl_resource_context_);
+  gl_context_ = nullptr;
+  gl_resource_context_ = nullptr;
 
   [EAGLContext setCurrentContext:nil];
 
