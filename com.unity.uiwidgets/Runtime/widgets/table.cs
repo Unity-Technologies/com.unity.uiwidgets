@@ -321,7 +321,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             _forgottenChildren.Add(child);
         }
     }

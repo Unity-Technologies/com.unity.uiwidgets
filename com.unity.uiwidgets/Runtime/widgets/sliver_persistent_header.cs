@@ -140,7 +140,7 @@ namespace Unity.UIWidgets.widgets {
             });
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(child == this.child);
             this.child = null;
             base.forgetChild(child);
