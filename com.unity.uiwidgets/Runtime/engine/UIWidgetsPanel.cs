@@ -235,20 +235,20 @@ namespace Unity.UIWidgets.engine {
 #endif
         #endregion
 
-#if !UNITY_EDITOR && UNITY_ANDROID
-        bool AndroidInitialized = true;
-
-        IEnumerator DoInitAndroid() {
-            yield return new WaitForEndOfFrame();
-            AndroidPlatformUtil.Init();
+        IEnumerator ReEnableUIWidgetsNextFrame() {
             yield return new WaitForEndOfFrame();
             enabled = true;
         }
+
+#if !UNITY_EDITOR && UNITY_ANDROID
+        bool AndroidInitialized = true;
+
         bool IsAndroidInitialized() {
             if (AndroidInitialized) {
                 enabled = false;
                 AndroidInitialized = false;
-                startCoroutine(DoInitAndroid());
+                AndroidPlatformUtil.Init();
+                startCoroutine(ReEnableUIWidgetsNextFrame());
                 return false;
             }
             return true;
