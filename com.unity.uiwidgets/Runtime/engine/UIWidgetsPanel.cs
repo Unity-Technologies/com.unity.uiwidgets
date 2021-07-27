@@ -260,6 +260,7 @@ namespace Unity.UIWidgets.engine {
 #if !UNITY_EDITOR && UNITY_ANDROID
             if (!IsAndroidInitialized()) {return ;}
 #endif
+            // if duplicate uiwidgets gameobject in scene, canvas could be null during OnEnable. Skip to avoid error.
             if(canvas == null){
                 enabled = false;
                 startCoroutine(ReEnableUIWidgetsNextFrame());
@@ -301,7 +302,7 @@ namespace Unity.UIWidgets.engine {
         protected override void OnDisable() {
             if (_wrapper != null) {
                 unregisterPanel(this);
-                _wrapper?.Destroy();
+                _wrapper.Destroy();
             }
 
             _wrapper = null;
