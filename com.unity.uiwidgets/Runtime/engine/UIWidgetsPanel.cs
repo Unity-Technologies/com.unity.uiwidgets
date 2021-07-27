@@ -261,7 +261,6 @@ namespace Unity.UIWidgets.engine {
             if (!IsAndroidInitialized()) {return ;}
 #endif
             if(canvas == null){
-                Debug.Log("get null canvas");
                 enabled = false;
                 startCoroutine(ReEnableUIWidgetsNextFrame());
                 return;
