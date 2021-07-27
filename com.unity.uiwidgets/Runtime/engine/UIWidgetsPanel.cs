@@ -260,7 +260,8 @@ namespace Unity.UIWidgets.engine {
 #if !UNITY_EDITOR && UNITY_ANDROID
             if (!IsAndroidInitialized()) {return ;}
 #endif
-            // if duplicate uiwidgets gameobject in scene, canvas could be null during OnEnable. Skip to avoid error.
+            // If user duplicates uiwidgets gameobject in scene, canvas could be null during OnEnable, which results in error. Skip to avoid error.
+            // More explanation: during duplication, editor wakes and enables behaviors in certain order. GameObject behaviors are enabled before canvas.
             if(canvas == null){
                 enabled = false;
                 startCoroutine(ReEnableUIWidgetsNextFrame());
