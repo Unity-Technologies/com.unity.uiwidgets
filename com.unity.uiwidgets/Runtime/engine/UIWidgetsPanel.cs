@@ -107,6 +107,7 @@ namespace Unity.UIWidgets.engine {
         }
     }
 
+    [ExecuteInEditMode]  
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
@@ -236,7 +237,7 @@ namespace Unity.UIWidgets.engine {
         #endregion
 
         IEnumerator ReEnableUIWidgetsNextFrame() {
-            yield return new WaitForEndOfFrame();
+            yield return null;
             enabled = true;
         }
 
@@ -259,6 +260,12 @@ namespace Unity.UIWidgets.engine {
 #if !UNITY_EDITOR && UNITY_ANDROID
             if (!IsAndroidInitialized()) {return ;}
 #endif
+            if(canvas == null){
+                Debug.Log("get null canvas");
+                enabled = false;
+                startCoroutine(ReEnableUIWidgetsNextFrame());
+                return;
+            }
 #if !UNITY_EDITOR && UNITY_IOS
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
@@ -293,9 +300,11 @@ namespace Unity.UIWidgets.engine {
         }
 
         protected override void OnDisable() {
-            unregisterPanel(this);
-            D.assert(_wrapper != null);
-            _wrapper?.Destroy();
+            if (_wrapper != null) {
+                unregisterPanel(this);
+                _wrapper?.Destroy();
+            }
+
             _wrapper = null;
             texture = null;
             Input_OnDisable();
