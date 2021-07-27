@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.foundation;
@@ -68,7 +69,7 @@ namespace Unity.UIWidgets.gestures {
 
         }
     }
-    public class MouseTrackerAnnotation {
+    public class MouseTrackerAnnotation : Diagnosticable {
         public MouseTrackerAnnotation(
             PointerEnterEventListener onEnter = null,
             PointerHoverEventListener onHover = null,
@@ -103,6 +104,18 @@ namespace Unity.UIWidgets.gestures {
             return
                 $"{GetType()}#{GetHashCode()}{(onEnter == null ? "" : " onEnter")}{(onHover == null ? "" : " onHover")}{(onExit == null ? "" : " onExit")}";
         }
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new FlagsSummary<Delegate>(
+                               "callbacks",
+                               new Dictionary<string, Delegate> {
+                                   {"enter", onEnter},
+                                   {"hover", onHover},
+                                   {"exit", onExit},
+                               },
+                               ifEmpty: "<none>"
+                ));
+        }
     }
 
     public class _TrackedAnnotation {
@@ -136,12 +149,11 @@ namespace Unity.UIWidgets.gestures {
         }
        
         public readonly MouseDetectorAnnotationFinder annotationFinder;
-        readonly Dictionary<int, PointerEvent> _lastMouseEvent = new Dictionary<int, PointerEvent>();
         readonly PointerRouter _router;
         public readonly Dictionary<int, _MouseState> _mouseStates = new Dictionary<int, _MouseState>();
         
         public bool mouseIsConnected {
-            get { return _lastMouseEvent.isNotEmpty(); }
+            get { return _mouseStates.isNotEmpty(); }
         }
         public static bool _shouldMarkStateDirty(_MouseState state, PointerEvent value) {
             if (state == null)
