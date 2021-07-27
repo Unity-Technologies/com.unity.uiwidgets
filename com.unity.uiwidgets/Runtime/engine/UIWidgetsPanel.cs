@@ -139,6 +139,10 @@ namespace Unity.UIWidgets.engine {
 
         UIWidgetsPanelWrapper _wrapper;
 
+        protected UIWidgetsPanelWrapper wrapper {
+            get { return _wrapper; }
+        }
+
         int _currentWidth {
             get { return Mathf.RoundToInt(rectTransform.rect.width * canvas.scaleFactor); }
         }
@@ -147,7 +151,7 @@ namespace Unity.UIWidgets.engine {
             get { return Mathf.RoundToInt(rectTransform.rect.height * canvas.scaleFactor); }
         }
 
-        float _currentDevicePixelRatio {
+        protected float _currentDevicePixelRatio {
             get {
 #if !UNITY_EDITOR
                 return _wrapper.displayMetrics.DevicePixelRatioByDefault;
@@ -359,7 +363,7 @@ namespace Unity.UIWidgets.engine {
             return new Offset(dx: screenPos.x, Screen.height - screenPos.y);
         }
 
-        public void mainEntry() {
+        public virtual void mainEntry() {
             main();
         }
 

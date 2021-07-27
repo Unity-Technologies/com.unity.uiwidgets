@@ -3,13 +3,13 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.engine.raycast {
+namespace Unity.UIWidgets.engine {
     class RaycastableBox : SingleChildRenderObjectWidget {
         public RaycastableBox(
             Key key = null,
             Widget child = null
         ) : base(key, child) {
-            windowHashCode = Window.instance.GetHashCode();
+            windowHashCode = Isolate.current.GetHashCode();
         }
 
         readonly int windowHashCode;
