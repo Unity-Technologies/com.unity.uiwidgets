@@ -8,33 +8,33 @@ namespace Unity.UIWidgets.engine {
 
         public override void mainEntry() {
             base.mainEntry();
-            this.windowHashCode = wrapper.isolate.GetHashCode();
-            RaycastManager.NewWindow(this.windowHashCode);
+            windowHashCode = wrapper.isolate.GetHashCode();
+            RaycastManager.NewWindow(windowHashCode);
         }
 
         protected override void OnDisable() {
             base.OnDisable();
-            RaycastManager.DisposeWindow(this.windowHashCode);
+            RaycastManager.DisposeWindow(windowHashCode);
         }
 
         public bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera) {
-            if (!this.enabled) {
+            if (!enabled) {
                 return true;
             }
 
             Vector2 local;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(this.rectTransform, screenPoint, eventCamera,
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, screenPoint, eventCamera,
                 out local);
 
-            Rect rect = this.rectTransform.rect;
+            Rect rect = rectTransform.rect;
 
             // Convert top left corner as reference origin point.
-            local.x += this.rectTransform.pivot.x * rect.width;
-            local.y -= this.rectTransform.pivot.y * rect.height;
-            local.x = local.x / this._currentDevicePixelRatio;
-            local.y = -local.y / this._currentDevicePixelRatio;
+            local.x += rectTransform.pivot.x * rect.width;
+            local.y -= rectTransform.pivot.y * rect.height;
+            local.x = local.x / _currentDevicePixelRatio;
+            local.y = -local.y / _currentDevicePixelRatio;
 
-            return !RaycastManager.CheckCastThrough(this.windowHashCode, local);
+            return !RaycastManager.CheckCastThrough(windowHashCode, local);
         }
     }
 }
