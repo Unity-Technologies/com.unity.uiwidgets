@@ -31,8 +31,8 @@ namespace Unity.UIWidgets.engine {
             // Convert top left corner as reference origin point.
             local.x += rectTransform.pivot.x * rect.width;
             local.y -= rectTransform.pivot.y * rect.height;
-            local.x = local.x / _currentDevicePixelRatio;
-            local.y = -local.y / _currentDevicePixelRatio;
+            local.x = local.x / (_currentDevicePixelRatio / canvas.scaleFactor);
+            local.y = -local.y / (_currentDevicePixelRatio / canvas.scaleFactor);
 
             return !RaycastManager.CheckCastThrough(windowHashCode, local);
         }
