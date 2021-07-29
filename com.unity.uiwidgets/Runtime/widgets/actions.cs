@@ -225,7 +225,7 @@ namespace Unity.UIWidgets.widgets {
        
     }
 
-    class FocusableActionDetector : StatefulWidget {
+    public class FocusableActionDetector : StatefulWidget {
 
         public FocusableActionDetector(
             Key key = null,
