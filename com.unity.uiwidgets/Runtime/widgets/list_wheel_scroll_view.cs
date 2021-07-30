@@ -66,19 +66,8 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public int trueIndexOf(int index) {
-            var result = index;
-            if (index < 0) {
-                if (index % children.Count == 0) {
-                    result = 0;
-                }
-                else {
-                    result = index % children.Count + children.Count;
-                }
-            }
-            else {
-                result = index % children.Count;
-            }
-
+            var result = index % children.Count;
+            if (index < 0) {result = result + children.Count; }
             return result;
         }
 
