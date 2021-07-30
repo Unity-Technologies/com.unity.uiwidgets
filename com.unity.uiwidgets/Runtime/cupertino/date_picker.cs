@@ -859,12 +859,11 @@ namespace Unity.UIWidgets.cupertino {
     }
 
     class _CupertinoDatePickerDateState : State<CupertinoDatePicker> {
+        readonly Dictionary<int, float> estimatedColumnWidths = new Dictionary<int, float>();
         Alignment alignCenterLeft;
         Alignment alignCenterRight;
 
         FixedExtentScrollController dayController;
-
-        readonly Dictionary<int, float> estimatedColumnWidths = new Dictionary<int, float>();
 
         bool isDayPickerScrolling;
         bool isMonthPickerScrolling;
@@ -885,7 +884,6 @@ namespace Unity.UIWidgets.cupertino {
         bool _isCurrentDateValid {
             // The current date selection represents a range [minSelectedData, maxSelectDate].
             get {
-               
                 var minSelectedDate = new DateTime(year: selectedYear, month: selectedMonth, 1);
                 minSelectedDate = minSelectedDate.AddDays(selectedDay - 1);
                 var maxSelectedDate = minSelectedDate.AddDays(1);
@@ -997,9 +995,9 @@ namespace Unity.UIWidgets.cupertino {
                     onSelectedItemChanged: index => {
                         selectedDay = index + 1;
                         if (_isCurrentDateValid) {
-                            var date = new DateTime(year: selectedYear, month: selectedMonth,day:1);
+                            var date = new DateTime(year: selectedYear, month: selectedMonth, 1);
                             date.AddDays(selectedDay - 1);
-                            widget.onDateTimeChanged(date);
+                            widget.onDateTimeChanged(value: date);
                         }
                     },
                     children: widgets,
@@ -1047,9 +1045,9 @@ namespace Unity.UIWidgets.cupertino {
                     onSelectedItemChanged: index => {
                         selectedMonth = index + 1;
                         if (_isCurrentDateValid) {
-                            var date = new DateTime(year: selectedYear, month: selectedMonth,day:1);
+                            var date = new DateTime(year: selectedYear, month: selectedMonth, 1);
                             date.AddDays(selectedDay - 1);
-                            widget.onDateTimeChanged(date);
+                            widget.onDateTimeChanged(value: date);
                         }
                     },
                     children: widgets,
@@ -1081,9 +1079,9 @@ namespace Unity.UIWidgets.cupertino {
                     onSelectedItemChanged: index => {
                         selectedYear = index;
                         if (_isCurrentDateValid) {
-                            var date = new DateTime(year: selectedYear, month: selectedMonth,day:1);
+                            var date = new DateTime(year: selectedYear, month: selectedMonth, 1);
                             date.AddDays(selectedDay - 1);
-                            widget.onDateTimeChanged(date);
+                            widget.onDateTimeChanged(value: date);
                         }
                     },
                     itemBuilder: (_context, year) => {
