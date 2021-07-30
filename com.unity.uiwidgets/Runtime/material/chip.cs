@@ -1927,7 +1927,7 @@ namespace Unity.UIWidgets.material {
             slotToChild.Values.Each((value) => { visitor(value); });
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(slotToChild.ContainsValue(child));
             D.assert(childToSlot.ContainsKey(child));
             _ChipSlot slot = childToSlot[child];

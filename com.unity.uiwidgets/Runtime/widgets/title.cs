@@ -14,7 +14,9 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) : base(key: key) {
             D.assert(title != null);
-            D.assert(color != null && color.alpha == 0xFF);
+            //in flutter, the background color is not allowed to be transparent because there is nothing behind the UI. But in UIWidgets it is 
+            //possible to put a unity scene under the ui panel. Therefore we can discard the assertion on "color.alpha == 0xFF" here 
+            D.assert(color != null);
             this.color = color;
             this.child = child;
             this.title = title;

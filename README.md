@@ -263,7 +263,7 @@ many best practice cases.
 The develop team is still working on the UIWidgets Wiki. However, since UIWidgets is mainly derived from Flutter,
  you can refer to Flutter Wiki to access detailed descriptions of UIWidgets APIs
  from those of their Flutter counterparts.
-Meanwhile, you can join the discussion channel at (https://learn.unity.com/g/uiwidgets)
+Meanwhile, you can join our [discussion channel](https://unity.cn/plate/uiwidgets) to keep in touch with the community.
 
 #### FAQ
 

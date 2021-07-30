@@ -38,6 +38,9 @@ namespace Unity.UIWidgets.widgets {
         public override Widget build(BuildContext context) {
             if (_round != 0) {
                 WidgetsBinding.instance.addPostFrameCallback((_) => {
+                    if (!mounted) {
+                        return;
+                    }
                     setState(() => {
                         _frame += Time.deltaTime;
                         if (_frame > widget._duration) {

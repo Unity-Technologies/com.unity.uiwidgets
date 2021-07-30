@@ -107,6 +107,7 @@ namespace Unity.UIWidgets.engine {
         }
     }
 
+    [ExecuteInEditMode]  
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
@@ -138,6 +139,10 @@ namespace Unity.UIWidgets.engine {
 
         UIWidgetsPanelWrapper _wrapper;
 
+        protected UIWidgetsPanelWrapper wrapper {
+            get { return _wrapper; }
+        }
+
         int _currentWidth {
             get { return Mathf.RoundToInt(rectTransform.rect.width * canvas.scaleFactor); }
         }
@@ -146,7 +151,7 @@ namespace Unity.UIWidgets.engine {
             get { return Mathf.RoundToInt(rectTransform.rect.height * canvas.scaleFactor); }
         }
 
-        float _currentDevicePixelRatio {
+        protected float _currentDevicePixelRatio {
             get {
 #if !UNITY_EDITOR
                 return _wrapper.displayMetrics.DevicePixelRatioByDefault;
@@ -235,20 +240,20 @@ namespace Unity.UIWidgets.engine {
 #endif
         #endregion
 
+        IEnumerator ReEnableUIWidgetsNextFrame() {
+            yield return null;
+            enabled = true;
+        }
+
 #if !UNITY_EDITOR && UNITY_ANDROID
         bool AndroidInitialized = true;
 
-        IEnumerator DoInitAndroid() {
-            yield return new WaitForEndOfFrame();
-            AndroidPlatformUtil.Init();
-            yield return new WaitForEndOfFrame();
-            enabled = true;
-        }
         bool IsAndroidInitialized() {
             if (AndroidInitialized) {
                 enabled = false;
                 AndroidInitialized = false;
-                startCoroutine(DoInitAndroid());
+                AndroidPlatformUtil.Init();
+                startCoroutine(ReEnableUIWidgetsNextFrame());
                 return false;
             }
             return true;
@@ -259,6 +264,13 @@ namespace Unity.UIWidgets.engine {
 #if !UNITY_EDITOR && UNITY_ANDROID
             if (!IsAndroidInitialized()) {return ;}
 #endif
+            // If user duplicates uiwidgets gameobject in scene, canvas could be null during OnEnable, which results in error. Skip to avoid error.
+            // More explanation: during duplication, editor wakes and enables behaviors in certain order. GameObject behaviors are enabled before canvas.
+            if(canvas == null){
+                enabled = false;
+                startCoroutine(ReEnableUIWidgetsNextFrame());
+                return;
+            }
 #if !UNITY_EDITOR && UNITY_IOS
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
@@ -293,9 +305,11 @@ namespace Unity.UIWidgets.engine {
         }
 
         protected override void OnDisable() {
-            unregisterPanel(this);
-            D.assert(_wrapper != null);
-            _wrapper?.Destroy();
+            if (_wrapper != null) {
+                unregisterPanel(this);
+                _wrapper.Destroy();
+            }
+
             _wrapper = null;
             texture = null;
             Input_OnDisable();
@@ -349,7 +363,7 @@ namespace Unity.UIWidgets.engine {
             return new Offset(dx: screenPos.x, Screen.height - screenPos.y);
         }
 
-        public void mainEntry() {
+        public virtual void mainEntry() {
             main();
         }
 
@@ -402,7 +416,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         Vector2? _getPointerPosition(Vector2 position) {
-            var worldCamera = canvas.worldCamera;
+            var worldCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rect: rectTransform, screenPoint: position, cam: worldCamera, out var localPoint)) {
                 var scaleFactor = canvas.scaleFactor;

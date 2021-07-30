@@ -628,7 +628,7 @@ namespace Unity.UIWidgets.widgets {
             
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(child != null);
             D.assert(child.slot != null);
             D.assert(_childElements.ContainsKey((int) child.slot));

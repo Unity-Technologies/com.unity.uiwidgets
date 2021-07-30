@@ -201,9 +201,12 @@ public partial class UIWidgetsPanelWrapper {
             }
         }
         public void Destroy() {
-            UIWidgetsPanel_onDisable(ptr: _ptr);
-            UIWidgetsPanel_dispose(ptr: _ptr);
-            _ptr = IntPtr.Zero;
+            if (_ptr != IntPtr.Zero) {
+                UIWidgetsPanel_onDisable(ptr: _ptr);
+                UIWidgetsPanel_dispose(ptr: _ptr);
+                _ptr = IntPtr.Zero;
+            }
+
             _handle.Free();
             _handle = default;
 
