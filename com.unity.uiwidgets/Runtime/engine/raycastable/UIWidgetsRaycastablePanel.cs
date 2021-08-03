@@ -17,6 +17,11 @@ namespace Unity.UIWidgets.engine {
             RaycastManager.DisposeWindow(windowHashCode);
         }
 
+        protected override void OnRectTransformDimensionsChange() {
+            base.OnRectTransformDimensionsChange();
+            RaycastManager.OnScreenSizeChanged(windowHashCode);
+        }
+
         public bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera) {
             if (!enabled) {
                 return true;

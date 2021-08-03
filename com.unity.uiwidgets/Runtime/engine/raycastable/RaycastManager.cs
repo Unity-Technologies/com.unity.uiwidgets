@@ -78,6 +78,14 @@ namespace Unity.UIWidgets.engine {
             instance.raycastHandlerMap[windowHashCode][widgetHashCode] = new RaycastableRect();
         }
 
+        public static void OnScreenSizeChanged(int windowHashCode) {
+            if (!instance.raycastHandlerMap.ContainsKey(windowHashCode)) return;
+            Dictionary<int, RaycastableRect> raycastableWidgets = RaycastManager.instance.raycastHandlerMap[windowHashCode];
+            foreach (var item in raycastableWidgets) {
+                MarkDirty(item.Key, windowHashCode);
+            }
+        }
+
         public static void MarkDirty(int widgetHashCode, int windowHashCode) {
             D.assert(instance.raycastHandlerMap.ContainsKey(windowHashCode), () =>
                 $"Raycast Handler Map doesn't contain Window {windowHashCode}");
