@@ -140,6 +140,8 @@ def set_env_verb():
         flutter_root_path = os.getenv('FLUTTER_ROOT_PATH')
     else:
         print("This environment variable has been set, skip")
+    if architecture == "arm64":
+        os.environ["BUILD_ARCHITECTURE"]="arm64";
     env_path = os.getenv('PATH')
     path_strings = re.split("[;:]", env_path)
     for path in path_strings:
@@ -294,7 +296,8 @@ def build_engine():
         dest_folder = "android"
         os.chdir(work_path + "/../")
         if architecture == "arm64":
-            os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64/bin/aarch64-linux-android-objcopy  --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch aarch64")
+            os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64/bin/aarch64-linux-android-objcopy  --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm64")
+            dest_folder = os.path.join(dest_folder, "arm64")
         else:
             os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm")
     elif platform == "ios":
@@ -323,7 +326,7 @@ def build_engine():
                 os.system("artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " + "@\"" + rsp + "\"")
                 os.system(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++ " + "@\"" + rsp + "\"")
                 if architecture == "arm64":
-                    copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm64/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
+                    copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm64/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android/arm64"))
                 else:
                     copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
             elif platform == "ios":

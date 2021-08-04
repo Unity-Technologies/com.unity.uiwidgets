@@ -263,7 +263,7 @@ If the compilation fails because "no available Mac SDK is found" (in flutter-1.1
 ### build icu
 ```
 cd <uiwidigets_dir>\engine
-python $FLUTTER_ROOT/flutter/sky/tools/objcopy.py --objcopy $FLUTTER_ROOT/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input $FLUTTER_ROOT/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm
+python $FLUTTER_ROOT_PATH/flutter/sky/tools/objcopy.py --objcopy $FLUTTER_ROOT_PATH/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input $FLUTTER_ROOT_PATH/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm
 ```
 ### build uiwidgets
 ```
