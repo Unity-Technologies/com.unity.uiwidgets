@@ -227,6 +227,8 @@ class Build
         }
         skiaRoot = flutterRoot + "/third_party/skia";
 
+        buildArchitexture = Environment.GetEnvironmentVariable("BUILD_ARCHITECTURE");
+
          try
         {
             if(File.Exists("Scripts/bitcode.conf"))
@@ -275,6 +277,7 @@ class Build
 
     private static string skiaRoot;
     private static string flutterRoot;
+    private static string buildArchitexture;
 
     //this setting is disabled by default, don't change it unless you know what you are doing
     //it must be set the same as the settings we choose to build the flutter txt library
@@ -701,6 +704,7 @@ class Build
             "-I"+ flutterRoot+"/flutter/third_party/txt/src",
             "-I" + flutterRoot + "/third_party/harfbuzz/src",
             "-I" + skiaRoot + "/third_party/externals/icu/source/common",
+            //"-I/Users/siyao/Documents/GitHub/com.unity.uiwidgets/engine/artifacts/Stevedore/android-ndk-mac/sources/cxx-stl/llvm-libc++/include/memory",
 
             // "-Igen",
             "-I"+ flutterRoot+"/third_party/libcxx/include",
@@ -712,9 +716,9 @@ class Build
             "-Wno-deprecated-declarations",
 
             "-fno-strict-aliasing",
-            "-march=armv7-a",
+            // "-march=armv7-a",
             "-mfloat-abi=softfp",
-            "-mtune=generic-armv7-a",
+            //"-mtune=generic-armv7-a",
             "-mthumb",
             "-fPIC",
             "-pipe",
@@ -723,7 +727,8 @@ class Build
             "-funwind-tables",
             "-fno-short-enums",
             "-nostdinc++",
-            "--target=arm-linux-androideabi",
+            // "--target=arm-linux-androideabi",
+            "--target=aarch64-linux-android",
             "-mfpu=neon",
             "-Wall",
             "-Wextra",
@@ -737,7 +742,8 @@ class Build
             // "-Wno-non-c-typedef-for-linkage",
             "-isystem"+ flutterRoot+"/third_party/android_tools/ndk/sources/android/support/include",
             "-isystem"+ flutterRoot +
-            "/third_party/android_tools/ndk/sysroot/usr/include/arm-linux-androideabi",
+            //"/third_party/android_tools/ndk/sysroot/usr/include/arm-linux-androideabi",
+            "/third_party/android_tools/ndk/sysroot/usr/include/aarch64-linux-android",
             //"-D__ANDROID_API__=16",
             // "-fvisibility=hidden",
             "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/sysroot",
@@ -768,6 +774,7 @@ class Build
         np.LinkerSettings().Add(c => {
             return IsWindows(c) && c.CodeGen == CodeGen.Debug;
         }, l => l.WithCustomFlags_workaround(new[] { "/DEBUG:FULL" }));
+        Console.WriteLine("???????" + "-L" + flutterRoot + "/third_party/android_tools/ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64");
 
         np.LinkerSettings().Add(c => IsAndroid(c), l => l.WithCustomFlags_workaround(new[] {
             "-Wl,--fatal-warnings",
@@ -777,17 +784,21 @@ class Build
             "-Wl,-z,relro",
             "-Wl,-z,defs",
             "--gcc-toolchain="+ flutterRoot +
-            "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64",
+            //"/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64",
+            "/third_party/android_tools/ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64",
             "-Wl,--no-undefined",
             "-Wl,--exclude-libs,ALL",
             "-fuse-ld=lld",
             "-Wl,--icf=all",
-            "--target=arm-linux-androideabi",
+            //"--target=arm-linux-androideabi",
             "-nostdlib++",
             "-Wl,--warn-shared-textrel",
             "-nostdlib",
-            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
-            "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
+            //"--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm",
+            "--sysroot="+ flutterRoot+"/third_party/android_tools/ndk/platforms/android-22/arch-arm64",
+            //"-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/armeabi-v7a",
+            "-L"+ flutterRoot + "/third_party/android_tools/ndk/sources/cxx-stl/llvm-libc++/libs/arm64-v8a",
+            "-L/Users/siyao/Documents/GitHub/com.unity.uiwidgets/engine/Scripts/engine/src/third_party/android_tools/ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64/lib/gcc/aarch64-linux-android/4.9.x",
             "-Wl,--build-id=sha1",
             "-g",
             "-Wl,-soname=libUIWidgets.so",
@@ -827,7 +838,8 @@ class Build
         }
         else if (platform == UIWidgetsBuildTargetPlatform.android)
         {
-            var androidToolchain = ToolChain.Store.Android().r19().Armv7();
+            //var androidToolchain = ToolChain.Store.Android().r19().Armv7();
+            var androidToolchain = ToolChain.Store.Android().r19().Arm64();
 
             var validConfigurations = new List<NativeProgramConfiguration>();
 
@@ -1279,7 +1291,7 @@ class Build
         {
             if(c.CodeGen == CodeGen.Debug){
                 return new PrecompiledLibrary[]{
-                    new StaticLibrary(flutterRoot+"/out/android_debug_unopt/obj/flutter/third_party/txt/libtxt_lib.a"),
+                    new StaticLibrary(flutterRoot+"/out/android_debug_unopt_arm64/obj/flutter/third_party/txt/libtxt_lib.a"),
                 };
             } else {
                 return new PrecompiledLibrary[]{
@@ -1296,11 +1308,15 @@ class Build
                 // icudtl
                 new StaticLibrary("icudtl.o"),
 
-                new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
-                new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
+                //new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtbegin_so.o"),
+                new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-22/arch-arm64/usr/lib/crtbegin_so.o"),
+                
+                //new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-16/arch-arm/usr/lib/crtend_so.o"),
+                new StaticLibrary(flutterRoot+"/third_party/android_tools/ndk/platforms/android-22/arch-arm64/usr/lib/crtbegin_so.o"),
 
-                new SystemLibrary("android_support"),
-                new SystemLibrary("unwind"),
+
+                // new SystemLibrary("android_support"),
+                // new SystemLibrary("unwind"),
                 new SystemLibrary("gcc"),
                 new SystemLibrary("c"),
                 new SystemLibrary("dl"),

@@ -20,6 +20,7 @@ runtime_mode=""
 bitcode=""
 flutter_root_path=""
 visual_studio_path=""
+architecture=""
 
 def get_opts():
     # get intput agrs
@@ -29,11 +30,12 @@ def get_opts():
     global bitcode
     global visual_studio_path
     global platform
+    global architecture
 
     if len(sys.argv) < 2:
         show_help()
         sys.exit()
-    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:eh',["help"])
+    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:eh',["arm64","help"])
     for opt, arg in options:
         if opt == '-r':
             engine_path = arg # set engine_path, depot_tools and flutter engine folder will be put into this path
@@ -48,6 +50,10 @@ def get_opts():
             visual_studio_path = arg
         elif opt == '-e':
             bitcode="-bitcode_bundle -bitcode_verify"
+        elif opt == '--arm64':
+            architecture = "arm64"
+            if platform == "android":
+                gn_params += " --android-cpu=arm64"
         elif opt in ("-h","--help"):
             show_help()
             sys.exit()
@@ -109,7 +115,10 @@ def set_params():
         output_path="android_release"
     elif runtime_mode == "debug" and platform == "android":
         optimize="--unoptimized"
-        output_path="android_debug_unopt"
+        if architecture == "arm64":
+            output_path="android_debug_unopt_arm64"
+        else:
+            output_path="android_debug_unopt"
     elif runtime_mode == "release" and platform == "ios":
         optimize=""
         output_path="ios_release"
@@ -284,7 +293,10 @@ def build_engine():
     elif platform == "android":
         dest_folder = "android"
         os.chdir(work_path + "/../")
-        os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm")
+        if architecture == "arm64":
+            os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64/bin/aarch64-linux-android-objcopy  --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch aarch64")
+        else:
+            os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm")
     elif platform == "ios":
         dest_folder = "ios"
     if not os.path.exists(Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder)):
@@ -310,7 +322,10 @@ def build_engine():
                 os.chdir(Path(work_path + "/../"))
                 os.system("artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " + "@\"" + rsp + "\"")
                 os.system(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++ " + "@\"" + rsp + "\"")
-                copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
+                if architecture == "arm64":
+                    copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm64/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
+                else:
+                    copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
             elif platform == "ios":
                 print("\nStarting prlink library...")
                 os.chdir(Path(work_path + "/../"))
