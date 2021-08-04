@@ -170,17 +170,18 @@ class Build
     }
 
     //bee.exe mac
-    static void DeployAndroid()
+    static void DeployAndroid(bool isArm64 = false)
     {
+        buildArm64 = isArm64;
         var libUIWidgets = SetupLibUIWidgets(UIWidgetsBuildTargetPlatform.android, out var dependencies_debug, out var dependencies_release);
         var androidProject = AndroidNativeProgramExtensions.DynamicLinkerSettingsForAndroid(libUIWidgets);
         foreach (var dep in dependencies_debug)
         {
-            Backend.Current.AddAliasDependency("android_debug", dep);
+            Backend.Current.AddAliasDependency(isArm64 ? "android_debug_arm64" : "android_debug", dep);
         }
         foreach (var dep in dependencies_release)
         {
-            Backend.Current.AddAliasDependency("android_release", dep);
+            Backend.Current.AddAliasDependency(isArm64 ? "android_release_arm64" : "android_release", dep);
         }
     }
 
@@ -229,8 +230,6 @@ class Build
         }
         skiaRoot = flutterRoot + "/third_party/skia";
 
-        buildArchitexture = Environment.GetEnvironmentVariable("BUILD_ARCHITECTURE");
-
          try
         {
             if(File.Exists("Scripts/bitcode.conf"))
@@ -273,13 +272,14 @@ class Build
         {
             DeployMac();
             DeployAndroid();
+            DeployAndroid(true);
             DeployIOS();
         }
     }
 
     private static string skiaRoot;
     private static string flutterRoot;
-    private static string buildArchitexture;
+    private static bool buildArm64;
 
     //this setting is disabled by default, don't change it unless you know what you are doing
     //it must be set the same as the settings we choose to build the flutter txt library
@@ -755,7 +755,7 @@ class Build
                     "-fno-exceptions",
                     "-nostdlib"
                 };
-                if (buildArchitexture!= null && buildArchitexture.Equals("arm64"))
+                if (buildArm64)
                 {
                     flags.Add(new []
                     {
@@ -819,7 +819,7 @@ class Build
                 "-Wl,--whole-archive",
             };
             
-            if (buildArchitexture!= null && buildArchitexture.Equals("arm64"))
+            if (buildArm64)
             {
                 flags.Add(new []
                 {
@@ -878,7 +878,7 @@ class Build
         else if (platform == UIWidgetsBuildTargetPlatform.android)
         {
             AndroidNdkToolchain androidToolchain = null;
-            if (buildArchitexture != null && buildArchitexture.Equals("arm64"))
+            if (buildArm64)
             {
                 androidToolchain = ToolChain.Store.Android().r19().Arm64();
             }
@@ -897,12 +897,14 @@ class Build
                 
                 if(codegen == CodeGen.Debug)
                 {
-                    var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build_debug");
+                    var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat)
+                        .DeployTo(buildArm64 ? "build_debug_arm64" : "build_debug");
                     dependencies_debug.Add(buildNP.Path);
                 }
                 else if(codegen == CodeGen.Release)
                 {
-                    var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat).DeployTo("build_release");
+                    var buildNP = np.SetupSpecificConfiguration(config, androidToolchain.DynamicLibraryFormat)
+                        .DeployTo(buildArm64 ? "build_release_64" : "build_release");
                     dependencies_release.Add(buildNP.Path);
                 }
                 
@@ -1337,7 +1339,7 @@ class Build
         {
             if (c.CodeGen == CodeGen.Debug)
             {
-                if (buildArchitexture != null && buildArchitexture == "arm64")
+                if (buildArm64)
                 {
                     return new PrecompiledLibrary[]
                     {
@@ -1358,7 +1360,10 @@ class Build
             {
                 return new PrecompiledLibrary[]
                 {
-                    new StaticLibrary(flutterRoot + "/out/android_release/obj/flutter/third_party/txt/libtxt_lib.a"),
+                    new StaticLibrary(buildArm64 ?
+                        flutterRoot + "/out/android_release_arm64/obj/flutter/third_party/txt/libtxt_lib.a"
+                        :flutterRoot + "/out/android_release/obj/flutter/third_party/txt/libtxt_lib.a"
+                        ),
                 };
             }
         });
@@ -1380,7 +1385,7 @@ class Build
                 new SystemLibrary("GLESv2"),
                 new SystemLibrary("log"),
             };
-            if (buildArchitexture != null && buildArchitexture == "arm64")
+            if (buildArm64)
             {
                 libraries.Add(new PrecompiledLibrary[]
                 {

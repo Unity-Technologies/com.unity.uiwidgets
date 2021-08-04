@@ -1,6 +1,6 @@
 engine_path=$(pwd)
 runtime_mode=release
-architecture=false
+architecture=32
 while getopts ":r:m:a:" opt
 do
     case $opt in
@@ -11,7 +11,7 @@ do
         runtime_mode=$OPTARG
         ;;
         a)
-        architecture=true
+        architecture=$OPTARG
         ;;
         ?)
         echo "unknown param"
@@ -19,7 +19,7 @@ do
     esac
 done
 
-if [ $architecture ]; then
+if [ $architecture = "64" ]; then
     python3 lib_build.py -r $engine_path -p android -m $runtime_mode --arm64
 else
     python3 lib_build.py -r $engine_path -p android -m $runtime_mode

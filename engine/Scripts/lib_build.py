@@ -112,7 +112,10 @@ def set_params():
         ninja_params3=" -C out/" +output_path + " third_party/angle:libEGL_static"
     elif runtime_mode == "release" and platform == "android":
         optimize=""
-        output_path="android_release"
+        if architecture == "arm64":
+                output_path="android_release_arm64"
+        else:
+            output_path="android_release"
     elif runtime_mode == "debug" and platform == "android":
         optimize="--unoptimized"
         if architecture == "arm64":
@@ -140,8 +143,6 @@ def set_env_verb():
         flutter_root_path = os.getenv('FLUTTER_ROOT_PATH')
     else:
         print("This environment variable has been set, skip")
-    if architecture == "arm64":
-        os.environ["BUILD_ARCHITECTURE"]="arm64";
     env_path = os.getenv('PATH')
     path_strings = re.split("[;:]", env_path)
     for path in path_strings:
@@ -308,12 +309,20 @@ def build_engine():
     if runtime_mode == "release":
         if os.path.exists(Path(work_path + "/../build_release")):
             shutil.rmtree(Path(work_path + "/../build_release"))
+        if os.path.exists(Path(work_path + "/../build_release_arm64")):
+            shutil.rmtree(Path(work_path + "/../build_release_arm64"))
         if platform == "windows":
             os.system("bee.exe win_release")
             copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
         else:
-            os.system("mono bee.exe " + platform +"_release")
-            copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+            if platform == "android" and architecture == "arm64":
+                os.system("mono bee.exe " + platform +"_release_arm64")
+            else:
+                os.system("mono bee.exe " + platform +"_release")
+            if architecture == "arm64":
+                copy_file(Path(work_path + "/../build_release_arm64/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+            else:
+                copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
             if platform == "android":
                 tundra_file=Path(work_path + "/../artifacts/tundra.dag.json")
                 rsp = get_rsp(tundra_file, runtime_mode)
@@ -337,11 +346,18 @@ def build_engine():
     elif runtime_mode == "debug":
         if os.path.exists(Path(work_path + "/../build_debug")):
             shutil.rmtree(Path(work_path + "/../build_debug"))
+        if os.path.exists(Path(work_path + "/../build_debug")):
+            shutil.rmtree(Path(work_path + "/../build_debug"))
         if platform == "windows":
             os.system("bee.exe win_debug")
+        if platform == "android" and architecture == "arm64":
+            os.system("mono bee.exe " + platform +"_debug_arm64")
         else:
             os.system("mono bee.exe " + platform +"_debug")
-        copy_file(Path(work_path + "/../build_debug/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+        if architecture == "arm64":
+            copy_file(Path(work_path + "/../build_debug_arm64/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+        else:
+            copy_file(Path(work_path + "/../build_debug/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
         if platform == "ios":
             print("\nStarting prlink library...")
             os.chdir(Path(work_path + "/../"))
@@ -449,7 +465,7 @@ def get_rsp(tundra_file, runtime_mode):
         json_list = temp['Nodes']
         target_files=''
         for item in json_list:
-            if item['Annotation'].startswith('Link_Android_arm32') and item['Annotation'].find(runtime_mode) != -1:
+            if item['Annotation'].startswith('Link_Android_arm64' if architecture == "arm64" else 'Link_Android_arm32') and item['Annotation'].find(runtime_mode) != -1:
                 action_list = item['Inputs']
                 for o in action_list:
                     if o.endswith('.rsp'):
