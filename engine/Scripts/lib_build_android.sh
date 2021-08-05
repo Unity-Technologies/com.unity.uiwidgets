@@ -24,5 +24,5 @@ if [ $architecture = "arm64" ]; then
 elif [ ! $architecture  ] || [ $architecture = "arm32" ]; then
     python3 lib_build.py -r $engine_path -p android -m $runtime_mode
 else
-    echo "If you want to build android arm64, please enter '-a arm64'. \nWihtout entering this, it will build android arm32 by default"
+    echo "If you want to build android arm64, please enter '-a arm64'. \Without entering this, it will build android arm32 by default"
 fi
