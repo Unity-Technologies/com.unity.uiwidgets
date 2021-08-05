@@ -344,13 +344,13 @@ def build_engine():
                 tundra_file=Path(work_path + "/../artifacts/tundra.dag.json")
                 prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode)
     elif runtime_mode == "debug":
-        if os.path.exists(Path(work_path + "/../build_debug")):
-            shutil.rmtree(Path(work_path + "/../build_debug"))
+        if os.path.exists(Path(work_path + "/../build_debug_arm64")):
+            shutil.rmtree(Path(work_path + "/../build_debug_arm64"))
         if os.path.exists(Path(work_path + "/../build_debug")):
             shutil.rmtree(Path(work_path + "/../build_debug"))
         if platform == "windows":
             os.system("bee.exe win_debug")
-        if platform == "android" and architecture == "arm64":
+        elif platform == "android" and architecture == "arm64":
             os.system("mono bee.exe " + platform +"_debug_arm64")
         else:
             os.system("mono bee.exe " + platform +"_debug")

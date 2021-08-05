@@ -1,6 +1,6 @@
 engine_path=$(pwd)
 runtime_mode=release
-architecture=32
+architecture=""
 while getopts ":r:m:a:" opt
 do
     case $opt in
@@ -21,6 +21,8 @@ done
 
 if [ $architecture = "64" ]; then
     python3 lib_build.py -r $engine_path -p android -m $runtime_mode --arm64
-else
+elif [ ! $architecture ]; then
     python3 lib_build.py -r $engine_path -p android -m $runtime_mode
+else
+    echo "If you want to build android arm64, please enter '-a 64'. \nWihtout enter this, it will build android arm32 by default"
 fi
