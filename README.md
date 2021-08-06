@@ -220,9 +220,9 @@ Long time garbage collection may cause App to stuck frequently. You can enable i
 
 ## Debug UIWidgets Application
 
-In Unity editor, you can switch debug/release mode by “UIWidgets->EnableDebug”.
+In the Editor, you can switch debug/release mode by “UIWidgets->EnableDebug”.
 
-You can also enable debug mode in runtime by setting ```UIWidgetsGlobalConfiguration.EnableDebugAtRuntime = true``` in your project. Note that this value is set to false by default.
+In the Player, the debug/development build will enable debug mode. The release build will disable debug mode automatically.
 
 ## Using Window Scope
 If you see the error `AssertionError: Window.instance is null` or null pointer error of `Window.instance`,

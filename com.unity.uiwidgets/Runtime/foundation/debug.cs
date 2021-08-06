@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Unity.UIWidgets.engine;
@@ -68,6 +69,7 @@ namespace Unity.UIWidgets.foundation {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
+        
         [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
             if ( enableDebug && !result ) {
@@ -77,6 +79,7 @@ namespace Unity.UIWidgets.foundation {
 
 #if UNITY_EDITOR
         static bool? _enableDebug = null;
+
         public static bool enableDebug {
             get {
                 if (_enableDebug == null) {
@@ -93,7 +96,9 @@ namespace Unity.UIWidgets.foundation {
             }
         }
 #else
-        public static bool enableDebug => UIWidgetsGlobalConfiguration.EnableDebugAtRuntime;
+        //In the runtime, we use the Conditional decorator instead of this to enable/disable debug mode
+        //The rule is simple: the debug mode is on for Debug/Development build, and is off for Release build
+        public static bool enableDebug => true;
 #endif
 
         public static void _debugDrawDoubleRect(Canvas canvas, Rect outerRect, Rect innerRect, Color color) { 
