@@ -209,7 +209,9 @@ UIWidgets也支持Gif！
 
 ## 调试UIWidgets应用程序
 
-在编辑器菜单栏选择```UIWidgets->EnableDebug```
+在Editor模式下，编辑器菜单栏选择```UIWidgets->EnableDebug```。
+
+在Runtime模式下，Debug/Development build会自动开启Debug，Release build则会自动关闭Debug。
 
 ## 使用Window Scope保护外部调用
 如果您在调试时遇到 `AssertionError: Window.instance is null` 或者在调用 `Window.instance` 时得到空指针, 那么您需要

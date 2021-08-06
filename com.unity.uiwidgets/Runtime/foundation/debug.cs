@@ -54,8 +54,6 @@ namespace Unity.UIWidgets.foundation {
 
         public static bool debugPrintMouseHoverEvents = false;
 
-        public const string debugScriptingDefineSymbol = "DebugUIWidgets";
-
         public static HSVColor debugCurrentRepaintColor =
             HSVColor.fromAHSV(0.4f, 60.0f, 1.0f, 1.0f);
 
@@ -65,14 +63,14 @@ namespace Unity.UIWidgets.foundation {
             Debug.LogException(new AssertionError(message: message, innerException: ex));
         }
 
-        [Conditional(debugScriptingDefineSymbol)]
+        [Conditional("UNITY_ASSERTIONS")]
         public static void assert(Func<bool> result, Func<string> message = null) {
             if ( enableDebug && !result() ) {
                 throw new AssertionError(message != null ? message() : "");
             }
         }
         
-        [Conditional(debugScriptingDefineSymbol)]
+        [Conditional("UNITY_ASSERTIONS")]
         public static void assert(bool result, Func<string> message = null) {
             if ( enableDebug && !result ) {
                 throw new AssertionError(message != null ? message() : "");
@@ -82,23 +80,6 @@ namespace Unity.UIWidgets.foundation {
 #if UNITY_EDITOR
         static bool? _enableDebug = null;
 
-        private static void setRuntimeSymbolsForTarget(BuildTargetGroup targetGroup, bool enabled) {
-            string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(targetGroup);
-            var defineList = defines.Split(';');
-            var newDefineList = new List<string>();
-            foreach (var define in defineList) {
-                if (define != debugScriptingDefineSymbol) {
-                    newDefineList.Add(define);
-                }
-            }
-
-            if (enabled) {
-                newDefineList.Add(debugScriptingDefineSymbol);
-            }
-            
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(targetGroup, String.Join(";", newDefineList));
-        }
-        
         public static bool enableDebug {
             get {
                 if (_enableDebug == null) {
@@ -112,13 +93,11 @@ namespace Unity.UIWidgets.foundation {
                 }
                 _enableDebug = value;
                 EditorPrefs.SetInt("UIWidgetsDebug",value ? 1 : 0);
-                setRuntimeSymbolsForTarget(BuildTargetGroup.Android, value);
-                setRuntimeSymbolsForTarget(BuildTargetGroup.iOS, value);
-                setRuntimeSymbolsForTarget(BuildTargetGroup.Standalone, value);
             }
         }
 #else
-        //In runtime, we use the Conditional decorator "debugScriptingDefineSymbol" instead of this to enable/disable debug mode 
+        //In the runtime, we use the Conditional decorator instead of this to enable/disable debug mode
+        //The rule is simple: the debug mode is on for Debug/Development build, and is off for Release build
         public static bool enableDebug => true;
 #endif
 
