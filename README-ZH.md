@@ -211,8 +211,6 @@ UIWidgets也支持Gif！
 
 在编辑器菜单栏选择```UIWidgets->EnableDebug```
 
-如果想在runtime开启debug模式，请在项目代码中设置```UIWidgetsGlobalConfiguration.EnableDebugAtRuntime = true```。在默认情况下debug模式为关闭状态。
-
 ## 使用Window Scope保护外部调用
 如果您在调试时遇到 `AssertionError: Window.instance is null` 或者在调用 `Window.instance` 时得到空指针, 那么您需要
 使用以下方式来保护您的调用，使之可以在正确的Isolate上执行回调逻辑：
