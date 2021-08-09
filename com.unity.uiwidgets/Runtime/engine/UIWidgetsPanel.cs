@@ -267,7 +267,7 @@ namespace Unity.UIWidgets.engine {
         void DisableUIWidgets() {
             Debug.Log("Please change graphic api for UIWidgets.\n" +
                       "Metal for iOS and MacOS.\n" +
-                      "Direct3D for Windows\n" +
+                      "Direct3D11 for Windows\n" +
                       "Vulkan for Android\n");
             UIWidgetsDisabled = true;
             enabled = false;
@@ -295,7 +295,7 @@ namespace Unity.UIWidgets.engine {
             }
 #endif
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            if (type != GraphicsDeviceType.Direct3D11 && type != GraphicsDeviceType.Direct3D12) {
+            if (type != GraphicsDeviceType.Direct3D11) {
                 DisableUIWidgets();
                 return;
             }
