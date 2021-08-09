@@ -57,3 +57,8 @@ build.bat.meta
 Samples/Assets/Plugins/**
 engine/build/**
 engine/third_party/skia
+engine/Scripts/depot_tools/
+engine/Scripts/engine/
+engine/Scripts/engine2/
+engine/build_debug/
+engine/icudtl.o

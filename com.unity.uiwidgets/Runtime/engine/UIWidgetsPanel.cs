@@ -10,6 +10,7 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
+using UnityEngine.Rendering;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
 using Path = System.IO.Path;
@@ -48,14 +49,13 @@ namespace Unity.UIWidgets.engine {
         UIWidgetsWindowType getWindowType();
     }
     public class Configurations {
-        
         private Dictionary<string, TextFont> _textFonts = new Dictionary<string, TextFont>();
 
         public void Clear() {
             _textFonts.Clear();
         }
         public void AddFont(string family, TextFont font) {
-           _textFonts[key: family] = font;
+            _textFonts[key: family] = font;
         }
         public object fontsToObject() {
             Dictionary<string, TextFont> settings = _textFonts;
@@ -72,7 +72,7 @@ namespace Unity.UIWidgets.engine {
                 for (var j = 0; j < setting.Value.fonts.Length; j++) {
                     var fontDic = new Dictionary<string, object>();
                     var fileExist = false;
-                    
+
                     if (setting.Value.fonts[j].asset.Length > 0) {
                         var assetPath = setting.Value.fonts[j].asset;
                         var assetAbsolutePath = Path.Combine(Application.streamingAssetsPath, assetPath);
@@ -107,7 +107,7 @@ namespace Unity.UIWidgets.engine {
         }
     }
 
-    [ExecuteInEditMode]  
+    [ExecuteInEditMode]
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
@@ -184,7 +184,7 @@ namespace Unity.UIWidgets.engine {
                 UIWidgetsMessageManager.instance?.AddChannelMessageDelegate("ViewportMetricsChanged",
                     _handleViewMetricsChanged);
             }
-            
+
 #if !UNITY_EDITOR
             CollectGarbageOnDemand();
 #endif
@@ -262,14 +262,47 @@ namespace Unity.UIWidgets.engine {
             return true;
         }
 #endif
+        static bool UIWidgetsDisabled;
+
+        void DisableUIWidgets() {
+            Debug.Log("Please change graphic api for UIWidgets.\n" +
+                      "Metal for iOS and MacOS.\n" +
+                      "Direct3D for Windows\n" +
+                      "Vulkan for Android\n");
+            UIWidgetsDisabled = true;
+            enabled = false;
+        }
+
 
         protected void OnEnable() {
+            if (UIWidgetsDisabled) {
+                enabled = false;
+                return;
+            }
+
+            var type = SystemInfo.graphicsDeviceType;
 #if !UNITY_EDITOR && UNITY_ANDROID
+            if(type != GraphicsDeviceType.OpenGLES2 && type != GraphicsDeviceType.OpenGLES3){
+                DisableUIWidgets();
+                return;
+            }
             if (!IsAndroidInitialized()) {return ;}
+#endif
+#if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+            if (type != GraphicsDeviceType.Metal) {
+                DisableUIWidgets();
+                return;
+            }
+#endif
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            if (type != GraphicsDeviceType.Direct3D11 && type != GraphicsDeviceType.Direct3D12) {
+                DisableUIWidgets();
+                return;
+            }
 #endif
             // If user duplicates uiwidgets gameobject in scene, canvas could be null during OnEnable, which results in error. Skip to avoid error.
             // More explanation: during duplication, editor wakes and enables behaviors in certain order. GameObject behaviors are enabled before canvas.
-            if(canvas == null){
+            if (canvas == null) {
                 enabled = false;
                 startCoroutine(ReEnableUIWidgetsNextFrame());
                 return;
@@ -278,7 +311,7 @@ namespace Unity.UIWidgets.engine {
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
 #endif
-            
+
 #if !UNITY_EDITOR
             TryEnableOnDemandGC();
             Application.lowMemory += () => {
@@ -289,7 +322,7 @@ namespace Unity.UIWidgets.engine {
 #endif
 
             base.OnEnable();
-            
+
             D.assert(_wrapper == null);
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
@@ -372,9 +405,9 @@ namespace Unity.UIWidgets.engine {
 
         protected virtual void onEnable() {
         }
-        
+
         protected void AddFont(string family, TextFont font) {
-            _configurations.AddFont(family,font);
+            _configurations.AddFont(family, font);
         }
 
         protected void AddFont(string family, List<string> assets, List<int> weights) {
@@ -393,7 +426,7 @@ namespace Unity.UIWidgets.engine {
             textFont.fonts = fonts;
             AddFont(family: family, font: textFont);
         }
-        
+
         protected virtual void main() {
         }
     }
@@ -474,7 +507,7 @@ namespace Unity.UIWidgets.engine {
                     }
                 }
             }
-            
+
 #if UNITY_ANDROID && !UNITY_EDITOR
             if (Input.GetKeyDown(KeyCode.Escape)) {
                 using (Isolate.getScope(anyIsolate)) {
