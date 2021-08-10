@@ -54,7 +54,7 @@ class UIWidgetsSystem {
     GetInstancePtr()->Wait(std::chrono::nanoseconds(max_duration));
   }
 
-  UIWIDGETS_CALLBACK(void) _VSync() { GetInstancePtr()->VSync(); }
+  UIWIDGETS_CALLBACK(void) _VSync(double frame_duration) { GetInstancePtr()->VSync(frame_duration); }
 
   UIWIDGETS_CALLBACK(void) _WakeUp() { GetInstancePtr()->WakeUp(); }
 
@@ -69,7 +69,7 @@ class UIWidgetsSystem {
 
   void Update();
   void Wait(std::chrono::nanoseconds max_duration);
-  void VSync();
+  void VSync(double frame_duration);
   void WakeUp();
   void GfxWorkerCallback(int eventId, void* data);
 

@@ -21,18 +21,7 @@ void UIWidgetsSystem::UnregisterPanel(UIWidgetsPanel* panel) {
 }
 
 void UIWidgetsSystem::Wait(std::chrono::nanoseconds max_duration) {
-  Update();
-	
-  std::chrono::nanoseconds wait_duration =
-      std::max(std::chrono::nanoseconds(0),
-               next_uiwidgets_event_time_ - TimePoint::clock::now());
-
-  wait_duration = std::min(max_duration, wait_duration);
-  wait_duration = std::max(std::chrono::nanoseconds(0), wait_duration);
-
-  ::MsgWaitForMultipleObjects(0, nullptr, FALSE,
-                              static_cast<DWORD>(wait_duration.count() / 1000000),
-                              QS_ALLINPUT);
+  //do nothing
 }
 
 void UIWidgetsSystem::Update() {
@@ -50,12 +39,18 @@ void UIWidgetsSystem::Update() {
   next_uiwidgets_event_time_ = next_event_time;
 }
 
-void UIWidgetsSystem::VSync() {
+void UIWidgetsSystem::VSync(double frame_duration) {
+  //use default frame_duration if undefined in Unity engine
+  if (frame_duration <= 0)
+  {
+    frame_duration = 1.0 / 60;
+  }
+
   for (auto* uiwidgets_panel : uiwidgets_panels_) {
     if (!uiwidgets_panel->NeedUpdateByPlayerLoop()) {
       continue;
     }
-    uiwidgets_panel->ProcessVSync();
+    uiwidgets_panel->ProcessVSync(frame_duration);
   }
 }
 
