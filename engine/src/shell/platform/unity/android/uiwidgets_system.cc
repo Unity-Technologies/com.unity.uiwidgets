@@ -42,7 +42,7 @@ void UIWidgetsSystem::VSync(double frame_duration) {
   {
     frame_duration = 1.0 / 60;
   }
-  
+
   for (auto* uiwidgets_panel : uiwidgets_panels_) {
     uiwidgets_panel->ProcessVSync(frame_duration);
   }
