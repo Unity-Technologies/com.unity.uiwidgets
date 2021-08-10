@@ -495,6 +495,7 @@ namespace Unity.UIWidgets.engine {
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
         }
 
+#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)       
         enum TouchPhase {
             Began = 0,
             Moved = 1,
@@ -521,6 +522,7 @@ namespace Unity.UIWidgets.engine {
                     break;
             }
         }
+#endif
 
         void Input_OnDisable() {
 #if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
