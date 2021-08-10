@@ -1,0 +1,59 @@
+diff --git a/src/core/SkRRect.cpp b/src/core/SkRRect.cpp
+index 3527cd1f77..a5323b4bad 100644
+--- a/src/core/SkRRect.cpp
++++ b/src/core/SkRRect.cpp
+@@ -288,6 +288,17 @@ bool SkRRect::checkCornerContainment(SkScalar x, SkScalar y) const {
+     return dist <= SkScalarSquare(fRadii[index].fX * fRadii[index].fY);
+ }
+ 
++bool SkRRectPriv::IsNearlySimpleCircular(const SkRRect& rr, SkScalar tolerance) {
++    SkScalar simpleRadius = rr.fRadii[0].fX;
++    return SkScalarNearlyEqual(simpleRadius, rr.fRadii[0].fY, tolerance) &&
++           SkScalarNearlyEqual(simpleRadius, rr.fRadii[1].fX, tolerance) &&
++           SkScalarNearlyEqual(simpleRadius, rr.fRadii[1].fY, tolerance) &&
++           SkScalarNearlyEqual(simpleRadius, rr.fRadii[2].fX, tolerance) &&
++           SkScalarNearlyEqual(simpleRadius, rr.fRadii[2].fY, tolerance) &&
++           SkScalarNearlyEqual(simpleRadius, rr.fRadii[3].fX, tolerance) &&
++           SkScalarNearlyEqual(simpleRadius, rr.fRadii[3].fY, tolerance);
++}
++
+ bool SkRRectPriv::AllCornersCircular(const SkRRect& rr, SkScalar tolerance) {
+     return SkScalarNearlyEqual(rr.fRadii[0].fX, rr.fRadii[0].fY, tolerance) &&
+            SkScalarNearlyEqual(rr.fRadii[1].fX, rr.fRadii[1].fY, tolerance) &&
+diff --git a/src/core/SkRRectPriv.h b/src/core/SkRRectPriv.h
+index 4cf529569b..6a20791cb3 100644
+--- a/src/core/SkRRectPriv.h
++++ b/src/core/SkRRectPriv.h
+@@ -34,6 +34,8 @@ public:
+ 
+     static const SkVector* GetRadiiArray(const SkRRect& rr) { return rr.fRadii; }
+ 
++    static bool IsNearlySimpleCircular(const SkRRect& rr, SkScalar tolerance = SK_ScalarNearlyZero);
++    
+     static bool AllCornersCircular(const SkRRect& rr, SkScalar tolerance = SK_ScalarNearlyZero);
+ 
+     static bool ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr);
+diff --git a/src/gpu/GrRenderTargetContext.cpp b/src/gpu/GrRenderTargetContext.cpp
+index 2eadfccac4..c556833191 100644
+--- a/src/gpu/GrRenderTargetContext.cpp
++++ b/src/gpu/GrRenderTargetContext.cpp
+@@ -1201,8 +1201,8 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
+     SkRRect rrect;
+     SkRect rect;
+     // we can only handle rects, circles, and rrects with circular corners
+-    bool isRRect = path.isRRect(&rrect) && SkRRectPriv::IsSimpleCircular(rrect) &&
+-        rrect.radii(SkRRect::kUpperLeft_Corner).fX > SK_ScalarNearlyZero;
++    bool isRRect = path.isRRect(&rrect) && SkRRectPriv::IsNearlySimpleCircular(rrect) &&
++                   rrect.getSimpleRadii().fX > SK_ScalarNearlyZero;
+     if (!isRRect &&
+         path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height()) &&
+         rect.width() > SK_ScalarNearlyZero) {
+@@ -1299,7 +1299,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
+         SkMatrix shadowTransform;
+         shadowTransform.setScaleTranslate(spotScale, spotScale, spotOffset.fX, spotOffset.fY);
+         rrect.transform(shadowTransform, &spotShadowRRect);
+-        SkScalar spotRadius = SkRRectPriv::GetSimpleRadii(spotShadowRRect).fX;
++        SkScalar spotRadius = spotShadowRRect.getSimpleRadii().fX;
+ 
+         // Compute the insetWidth
+         SkScalar blurOutset = srcSpaceSpotBlur;

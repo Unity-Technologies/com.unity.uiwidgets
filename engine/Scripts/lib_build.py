@@ -242,6 +242,10 @@ def compile_engine():
         copy_file(Path(work_path + "/patches/windows/BUILD_2.gn.patch"), Path(flutter_root_path + "/third_party/skia"))
         os.system("patch < BUILD_2.gn.patch -N")
 
+    os.chdir(Path(flutter_root_path + "/third_party/skia/"))
+    copy_file(Path(work_path + "/patches/skia.patch"), Path(flutter_root_path + "/third_party/skia"))
+    os.system("git apply skia.patch")
+
     os.chdir(Path(flutter_root_path))
     os.system("python ./flutter/tools/gn " + gn_params)
 
