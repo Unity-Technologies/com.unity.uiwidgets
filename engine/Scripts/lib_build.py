@@ -205,6 +205,10 @@ def compile_engine():
 
     print("\nSCompiling engine...")
 
+    os.chdir(Path(flutter_root_path + "/third_party/skia/"))
+    copy_file(Path(work_path + "/patches/skia.patch"), Path(flutter_root_path + "/third_party/skia"))
+    os.system("patch -p1 < skia.patch -N")
+
     if platform == "ios" or platform == "mac":
         os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
         copy_file(Path(work_path + "/patches/BUILD.gn.patch"), Path(flutter_root_path + "/flutter/third_party/txt"))
@@ -367,6 +371,9 @@ def build_engine():
 def revert_patches():
     global flutter_root_path
     print("\nRevert patches...")
+
+    os.chdir(Path(flutter_root_path + "/third_party/skia/"))
+    os.system("patch -p1 -R < skia.patch")
 
     os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
     os.system("patch -R < BUILD.gn.patch")
