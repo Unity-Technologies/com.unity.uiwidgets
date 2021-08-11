@@ -154,7 +154,7 @@ namespace Unity.UIWidgets.engine {
 #if !UNITY_EDITOR
                 return _wrapper.displayMetrics.DevicePixelRatioByDefault;
 #endif
-                if (devicePixelRatioEditorOnlyOverride != 0) {
+                if (devicePixelRatioEditorOnlyOverride > 0) {
                     return devicePixelRatioEditorOnlyOverride;
                 }
                 
