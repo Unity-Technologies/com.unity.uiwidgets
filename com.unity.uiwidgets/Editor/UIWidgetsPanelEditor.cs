@@ -13,6 +13,7 @@ namespace Unity.UIWidgets.Editor {
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
             EditorGUILayout.PropertyField(serializedObject.FindProperty("fonts"), true);
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("devicePixelRatioEditorOnlyOverride"), new GUIContent(text: "[EditorOnly]DPR Override"), false);
             EditorGUI.BeginChangeCheck();
             UIWidgetsPanel panel = (UIWidgetsPanel)target;
             serializedObject.ApplyModifiedProperties(); 
