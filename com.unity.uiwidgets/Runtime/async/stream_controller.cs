@@ -27,33 +27,32 @@ public abstract class StreamController<T> : StreamSink<T> {
   /** The stream that this controller is controlling. */
   internal Stream<T>  stream { get; }
 
-  public StreamController(
-      Action onListen = null,
-      Action onPause = null,
-      Action onResume = null,
-     Action onCancel = null,
+  public static StreamController<T> create(
+      _stream.ControllerCallback onListen,
+      _stream.ControllerCallback onPause, 
+      _stream.ControllerCallback onResume, 
+      _stream.ControllerCancelCallback onCancel,
+     //  Action onListen = null,
+     //  Action onPause = null,
+     //  Action onResume = null,
+     // Action onCancel = null,
       bool sync =  false) {
     return sync
-        ? new _SyncStreamController<T>(onListen, onPause, onResume, onCancel)
+        ? (StreamController<T>) new _SyncStreamController<T>(onListen, onPause, onResume, onCancel)
         : new _AsyncStreamController<T>(onListen, onPause, onResume, onCancel);
   }
   
-  public static StreamController<T> create(
-      Action onListen = null,
-      Action onPause = null,
-      Action onResume = null,
-      Action onCancel = null,
-      bool sync =  false) {
-      return sync
-          ? new _SyncStreamController<T>(onListen, onPause, onResume, onCancel)
-          : new _AsyncStreamController<T>(onListen, onPause, onResume, onCancel);
-  }
-
   public  static StreamController<T> broadcast(
       Action onListen = null, Action onCancel = null, bool sync = false) {
     return sync
-        ? new _SyncBroadcastStreamController<T>(onListen, onCancel)
-        : new _AsyncBroadcastStreamController<T>(onListen, onCancel);
+        ? (StreamController<T>) new _SyncBroadcastStreamController<T>(()=>onListen(), ()=> {
+            onCancel();
+            return Future._nullFuture;
+        })
+        : new _AsyncBroadcastStreamController<T>(()=>onListen(), ()=> {
+            onCancel();
+            return Future._nullFuture;
+        });
   }
 
      public _stream.ControllerCallback onListen {
@@ -88,9 +87,9 @@ public abstract class StreamController<T> : StreamSink<T> {
   //
   // public abstract void addError(object error, string stackTrace);
 
-  public abstract Future closeConsumer();
+  public abstract override Future close();
 
-  public abstract Future addStream(Stream<T> source, bool cancelOnError = false);
+  public abstract Future addStream(Stream<T> source, bool? cancelOnError = false);
 }
 
 public interface SynchronousStreamController<T> {//: StreamController<T> {
@@ -264,7 +263,7 @@ abstract class _StreamController<T> : _StreamControllerBase<T> {
   }
 
   // StreamSink interface.
-  Future addStream(Stream<T> source, bool? cancelOnError = false) {
+  public override Future addStream(Stream<T> source, bool? cancelOnError = false) {
     if (!_mayAddEvent) throw _badEventState();
     if (_isCanceled) return _Future.immediate(FutureOr.nil);
     _StreamControllerAddStreamState<T> addState =
@@ -302,7 +301,7 @@ abstract class _StreamController<T> : _StreamControllerBase<T> {
     _addError(error, stackTrace);
   }
 
- public override Future closeConsumer() {
+ public override Future close() {
     if (isClosed) {
       return _ensureDoneFuture();
     }
@@ -323,7 +322,7 @@ abstract class _StreamController<T> : _StreamControllerBase<T> {
   // EventSink interface. Used by the [addStream] events.
 
   // Add data event, used both by the [addStream] events and by [add].
-  void _add(T value) {
+  public override void _add(T value) {
     if (hasListener) {
       _sendData(value);
     } else if (_isInitialState) {
@@ -331,7 +330,7 @@ abstract class _StreamController<T> : _StreamControllerBase<T> {
     }
   }
 
-  void _addError(object error, string stackTrace) {
+  public override void _addError(object error, string stackTrace) {
     if (hasListener) {
       _sendError(error, stackTrace);
     } else if (_isInitialState) {
@@ -339,7 +338,7 @@ abstract class _StreamController<T> : _StreamControllerBase<T> {
     }
   }
 
-  void _close() {
+  public override void _close() {
     // End of addStream stream.
     D.assert(_isAddingStream);
     _StreamControllerAddStreamState<T> addState = _varData;
@@ -447,15 +446,15 @@ abstract class _SyncStreamControllerDispatch<T>
     : _StreamController<T>, SynchronousStreamController<T> {
   int  _state { get; set; }
 
-  void _sendData(T data) {
+  public override void _sendData(T data) {
     _subscription._add(data);
   }
 
-  void _sendError(object error, string stackTrace) {
+  public override void _sendError(object error, string stackTrace) {
     _subscription._addError(error, stackTrace);
   }
 
-  void _sendDone() {
+  public override void _sendDone() {
     _subscription._close();
   }
 
@@ -466,15 +465,15 @@ abstract class _SyncStreamControllerDispatch<T>
 
 abstract class _AsyncStreamControllerDispatch<T>
     : _StreamController<T> {
-  void _sendData(T data) {
+    public override void _sendData(T data) {
     _subscription._addPending(new _DelayedData<T>(data));
   }
 
-  void _sendError(object error, string stackTrace) {
+    public override void _sendError(object error, string stackTrace) {
     _subscription._addPending(new _DelayedError((Exception) error, stackTrace));
   }
 
-  void _sendDone() {
+    public override void _sendDone() {
     _subscription._addPending(new  _DelayedDone());
   }
 
@@ -490,10 +489,15 @@ class _AsyncStreamController<T> : _AsyncStreamControllerDispatch<T> {
     // public override void close() {
     //     throw new NotImplementedException();
     // }
+    public _AsyncStreamController(_stream.ControllerCallback onListen, _stream.ControllerCallback onPause, _stream.ControllerCallback onResume, _stream.ControllerCancelCallback onCancel) : base(onListen, onPause, onResume, onCancel)
+    {
+    }
 }
 
 class _SyncStreamController<T> : _SyncStreamControllerDispatch<T> {
-    
+    public _SyncStreamController(_stream.ControllerCallback onListen, _stream.ControllerCallback onPause, _stream.ControllerCallback onResume, _stream.ControllerCancelCallback onCancel) : base(onListen, onPause, onResume, onCancel)
+    {
+    }
 }
 
 
@@ -557,46 +561,58 @@ class _ControllerStream<T> : _StreamImpl<T>, IEquatable<_ControllerStream<T>> {
       return _controller.GetHashCode() ^ 0x35323532;
   }
 }
-//
-// class _ControllerSubscription<T> extends _BufferingStreamSubscription<T> {
-//   final _StreamControllerLifecycle<T> _controller;
-//
-//   _ControllerSubscription(this._controller, void onData(T data),
-//       Function onError, void onDone(), bool cancelOnError)
-//       : super(onData, onError, onDone, cancelOnError);
-//
-//   Future _onCancel() {
-//     return _controller._recordCancel(this);
-//   }
-//
-//   void _onPause() {
-//     _controller._recordPause(this);
-//   }
-//
-//   void _onResume() {
-//     _controller._recordResume(this);
-//   }
-// }
-//
-// /** A class that exposes only the [StreamSink] interface of an object. */
-// class _StreamSinkWrapper<T> implements StreamSink<T> {
-//   final StreamController _target;
-//   _StreamSinkWrapper(this._target);
-//   void add(T data) {
-//     _target.add(data);
-//   }
-//
-//   void addError(object error, [string stackTrace]) {
-//     _target.addError(error, stackTrace);
-//   }
-//
-//   Future close() => _target.close();
-//
-//   Future addStream(Stream<T> source) => _target.addStream(source);
-//
-//   Future get done => _target.done;
-// }
-//
+
+class _ControllerSubscription<T> : _BufferingStreamSubscription<T> {
+    internal readonly _StreamControllerLifecycle<T> _controller;
+
+  internal _ControllerSubscription(
+      _StreamControllerLifecycle<T> _controller,
+      Action<T> onData,
+      Action<object, string> onError,
+      Action onDone, bool cancelOnError
+  )
+      : base(onData, onError, onDone, cancelOnError) {
+      this._controller = _controller;
+  }
+
+  Future _onCancel() {
+    return _controller._recordCancel(this);
+  }
+
+  void _onPause() {
+    _controller._recordPause(this);
+  }
+
+  void _onResume() {
+    _controller._recordResume(this);
+  }
+}
+
+/** A class that exposes only the [StreamSink] interface of an object. */
+class _StreamSinkWrapper<T> : StreamSink<T> {
+  readonly StreamController<T> _target;
+
+  internal _StreamSinkWrapper(StreamController<T> _target) {
+      this._target = _target;
+  }
+
+  public override void add(T data) {
+    _target.add(data);
+  }
+
+  public override void addError(object error, string stackTrace) {
+      _target.addError(error, stackTrace);
+  }
+
+  public override Future close() => _target.close();
+
+  Future addStream(Stream<T> source) => _target.addStream(source);
+
+  Future  done {
+      get { return _target.done; }
+  }
+}
+
 class _AddStreamState<T> {
   // [_Future] returned by call to addStream.
   internal readonly _Future addStreamFuture;
@@ -641,7 +657,7 @@ class _AddStreamState<T> {
     });
   }
 
-  void complete() {
+  public void complete() {
     addStreamFuture._asyncComplete(FutureOr.nil);
   }
 }

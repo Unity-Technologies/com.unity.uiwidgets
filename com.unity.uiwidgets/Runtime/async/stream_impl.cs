@@ -1,28 +1,34 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.async {
     static partial class _stream {
-        public delegate void _DataHandler<T>(T value);
+        internal delegate void _DataHandler<T>(T value);
 
-        public delegate void _DoneHandler();
+        internal delegate void _DoneHandler();
 
-        public static void _nullDataHandler<T>(T obj) {
+        internal static void _nullDataHandler<T>(T obj) {
         }
 
-        public static void _nullErrorHandler(Exception error) {
+        internal static void _nullErrorHandler(Exception error) {
             Zone.current.handleUncaughtError(error);
         }
 
-        public static void _nullDoneHandler() {
+        internal static void _nullDoneHandler() {
         }
+        
+        internal delegate _PendingEvents<T> _EventGenerator<T>();
+
     }
 
     abstract class _StreamImpl<T> : Stream<T> {
         // ------------------------------------------------------------------
         // Stream interface.
 
-        StreamSubscription<T> listen(
+        public override StreamSubscription<T> listen(
             Action<T> onData, Action<object, string> onError = null, Action onDone = null, bool cancelOnError = false) {
             // void onData(T data),
             // {Function onError, void onDone(), bool cancelOnError}) {
@@ -45,6 +51,69 @@ namespace Unity.UIWidgets.async {
         void _onListen(StreamSubscription<T> subscription) {
         }
     }
+    
+    class _GeneratedStreamImpl<T> : _StreamImpl<T> {
+        readonly _stream._EventGenerator<T> _pending;
+        bool _isUsed = false;
+
+        internal _GeneratedStreamImpl(_stream._EventGenerator<T> _pending) {
+            this._pending = _pending;
+        }
+
+        StreamSubscription<T> _createSubscription(
+            Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError   ) {
+            if (_isUsed) throw new Exception("Stream has already been listened to.");
+            _isUsed = true;
+            var result = new _BufferingStreamSubscription<T>(
+                onData, onError, onDone, cancelOnError);
+                result._setPendingEvents(_pending());
+            return result;
+        }
+    }
+    
+    class _IterablePendingEvents<T> : _PendingEvents<T> {
+        IEnumerator<T> _iterator;
+
+        internal _IterablePendingEvents(IEnumerable<T> data) {
+            _iterator = data.GetEnumerator();
+        }
+
+        bool  isEmpty {
+            get { return _iterator == null; }
+        }
+
+        public override void handleNext(_EventDispatch<T> dispatch) {
+            if (_iterator == null) {
+                throw new Exception("No events pending.");
+            }
+            bool? hasMore = null;
+            try {
+                hasMore = _iterator.MoveNext();
+                if (hasMore ?? false) {
+                    dispatch._sendData(_iterator.Current);
+                } else {
+                    _iterator = null;
+                    dispatch._sendDone();
+                }
+            } catch (Exception e) {
+                if (hasMore == null) {
+                    // Threw in .moveNext().
+                    // Ensure that we send a done afterwards.
+                    _iterator =Enumerable.Empty<T>().GetEnumerator();// new EmptyIterator<Null>();
+                    dispatch._sendError(e, e.StackTrace);
+                } else {
+                    // Threw in .current.
+                    dispatch._sendError(e, e.StackTrace);
+                }
+            }
+        }
+
+        public override void clear() {
+            if (isScheduled) cancelSchedule();
+            _iterator = null;
+        }
+    }
+
 
     abstract class _DelayedEvent<T> {
         /** Added as a linked list on the [StreamController]. */
@@ -67,7 +136,7 @@ namespace Unity.UIWidgets.async {
     }
 
     /** A delayed error event. */
-    class _DelayedError : _DelayedEvent<object> {
+    class _DelayedError<T> : _DelayedEvent<T> {
         readonly Exception error;
         readonly string stackTrace;
 
@@ -76,16 +145,16 @@ namespace Unity.UIWidgets.async {
             this.stackTrace = stackTrace;
         }
 
-        public override void perform(_EventDispatch<object> dispatch) {
+        public override void perform(_EventDispatch<T> dispatch) {
             dispatch._sendError(error, stackTrace);
         }
     }
 
-    class _DelayedDone : _DelayedEvent<object> {
+    class _DelayedDone<T> : _DelayedEvent<T> {
         internal _DelayedDone() {
         }
 
-        public override void perform(_EventDispatch<object> dispatch) {
+        public override void perform(_EventDispatch<T> dispatch) {
             dispatch._sendDone();
         }
 
@@ -143,7 +212,7 @@ namespace Unity.UIWidgets.async {
             this.onDone(onDone);
         }
 
-        void _setPendingEvents(_PendingEvents<T> pendingEvents) {
+        internal void _setPendingEvents(_PendingEvents<T> pendingEvents) {
             D.assert(_pending == null);
             if (pendingEvents == null) return;
             _pending = pendingEvents;
@@ -314,7 +383,7 @@ namespace Unity.UIWidgets.async {
                 _sendData(data);
             }
             else {
-                _addPending(new _DelayedData<object>(data));
+                _addPending(new _DelayedData<T>(data));
             }
         }
 
@@ -324,7 +393,7 @@ namespace Unity.UIWidgets.async {
                 _sendError(error, stackTrace); // Reports cancel after sending.
             }
             else {
-                _addPending(new _DelayedError((Exception) error, stackTrace));
+                _addPending(new _DelayedError<T>((Exception) error, stackTrace));
             }
         }
 
@@ -336,7 +405,7 @@ namespace Unity.UIWidgets.async {
                 _sendDone();
             }
             else {
-                _addPending(new _DelayedDone());
+                _addPending(new _DelayedDone<T>());
             }
         }
 
@@ -359,7 +428,7 @@ namespace Unity.UIWidgets.async {
 
         // Handle pending events.
 
-        void _addPending(_DelayedEvent<object> evt) {
+        internal void _addPending(_DelayedEvent<T> evt) {
             _StreamImplEvents<T> pending = _pending as _StreamImplEvents<T>;
             if (_pending == null) {
                 pending = (_StreamImplEvents<T>) (_pending = new _StreamImplEvents<T>());
@@ -580,16 +649,16 @@ namespace Unity.UIWidgets.async {
 
     class _StreamImplEvents<T> : _PendingEvents<T> {
         /// Single linked list of [_DelayedEvent] objects.
-        _DelayedEvent<object> firstPendingEvent;
+        _DelayedEvent<T> firstPendingEvent;
 
         /// Last element in the list of pending events. New events are added after it.
-        _DelayedEvent<object> lastPendingEvent;
+        _DelayedEvent<T> lastPendingEvent;
 
         bool isEmpty {
             get { return lastPendingEvent == null; }
         }
 
-        internal void add(_DelayedEvent<object> evt) {
+        internal void add(_DelayedEvent<T> evt) {
             if (lastPendingEvent == null) {
                 firstPendingEvent = lastPendingEvent = evt;
             }
@@ -600,13 +669,13 @@ namespace Unity.UIWidgets.async {
 
         public override void handleNext(_EventDispatch<T> dispatch) {
             D.assert(!isScheduled);
-            _DelayedEvent<object> evt = firstPendingEvent;
+            _DelayedEvent<T> evt = firstPendingEvent;
             firstPendingEvent = evt.next;
             if (firstPendingEvent == null) {
                 lastPendingEvent = null;
             }
 
-            evt.perform((_EventDispatch<object>) dispatch);
+            evt.perform((_EventDispatch<T>) dispatch);
         }
 
         public override void clear() {
@@ -615,31 +684,83 @@ namespace Unity.UIWidgets.async {
         }
     }
 
-    internal class _StreamIterator<T> : StreamIterator<T> {
-        // The stream iterator is always in one of four states.
-        // The value of the [_stateData] field depends on the state.
-        //
-        // When `_subscription == null` and `_stateData != null`:
-        // The stream iterator has been created, but [moveNext] has not been called
-        // yet. The [_stateData] field contains the stream to listen to on the first
-        // call to [moveNext] and [current] returns `null`.
-        //
-        // When `_subscription != null` and `!_isPaused`:
-        // The user has called [moveNext] and the iterator is waiting for the next
-        // event. The [_stateData] field contains the [_Future] returned by the
-        // [_moveNext] call and [current] returns `null.`
-        //
-        // When `_subscription != null` and `_isPaused`:
-        // The most recent call to [moveNext] has completed with a `true` value
-        // and [current] provides the value of the data event.
-        // The [_stateData] field contains the [current] value.
-        //
-        // When `_subscription == null` and `_stateData == null`:
-        // The stream has completed or been canceled using [cancel].
-        // The stream completes on either a done event or an error event.
-        // The last call to [moveNext] has completed with `false` and [current]
-        // returns `null`.
+    class _DoneStreamSubscription<T> : StreamSubscription<T> {
+        internal const int _DONE_SENT = 1;
+        internal const int _SCHEDULED = 2;
+        internal const int _PAUSED = 4;
 
+        readonly Zone _zone;
+        int _state = 0;
+        _stream._DoneHandler _onDone;
+
+        internal _DoneStreamSubscription(_stream._DoneHandler _onDone) {
+            _zone = Zone.current;
+            this._onDone = _onDone;
+            _schedule();
+        }
+
+        bool _isSent {
+            get => (_state & _DONE_SENT) != 0;
+        }
+
+        bool _isScheduled {
+            get => (_state & _SCHEDULED) != 0;
+        }
+
+        bool isPaused {
+            get => _state >= _PAUSED;
+        }
+
+        void _schedule() {
+            if (_isScheduled) return;
+            _zone.scheduleMicrotask(() => {
+                _sendDone();
+                return null;
+            });
+            _state |= _SCHEDULED;
+        }
+
+        public override void onData(Action<T> handleData) {
+        }
+
+        public override void onError(Action<object, string> action) {
+        }
+
+        public override void onDone(Action handleDone) {
+            _onDone = () => handleDone();
+        }
+
+        public override void pause(Future resumeSignal = null) {
+            _state += _PAUSED;
+            if (resumeSignal != null) resumeSignal.whenComplete(resume);
+        }
+
+        public override void resume() {
+            if (isPaused) {
+                _state -= _PAUSED;
+                if (!isPaused && !_isSent) {
+                    _schedule();
+                }
+            }
+        }
+
+        public override Future cancel() => Future._nullFuture;
+
+        public override Future<E> asFuture<E>(E futureValue) {
+            _Future result = new _Future();
+            _onDone = () => { result._completeWithValue(futureValue); };
+            return result.to<E>();
+        }
+
+        void _sendDone() {
+            _state &= ~_SCHEDULED;
+            if (isPaused) return;
+            _state |= _DONE_SENT;
+            if (_onDone != null) _zone.runGuarded(() => _onDone);
+        }
+    }
+
+    internal class _StreamIterator<T> : StreamIterator<T> {
         StreamSubscription<T> _subscription;
 
         //@pragma("vm:entry-point")
@@ -741,17 +862,18 @@ namespace Unity.UIWidgets.async {
             moveNextFuture._complete(false);
         }
     }
-    
+
     class _EmptyStream<T> : Stream<T> {
         internal _EmptyStream() : base() {
-            
         }
-        bool  isBroadcast {
+
+        bool isBroadcast {
             get { return true; }
         }
 
-        public override StreamSubscription<T> listen(Action<T> onData, Action<object, string> onError = null, Action onDone = null, bool cancelOnError = false) {
-            return new _DoneStreamSubscription<T>(onDone);
+        public override StreamSubscription<T> listen(Action<T> onData, Action<object, string> onError = null,
+            Action onDone = null, bool cancelOnError = false) {
+            return new _DoneStreamSubscription<T>(() => onDone());
         }
     }
 }

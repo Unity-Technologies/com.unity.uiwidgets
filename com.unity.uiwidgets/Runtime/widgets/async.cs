@@ -1,30 +1,9 @@
-// Copyright 2014 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-
-// import 'dart:async' show Future, Stream, StreamSubscription;
-//
-// import 'package:flutter/foundation.dart';
-//
-// import 'framework.dart';
-
-// Examples can assume:
-// dynamic _lot;
-// Future<String> _calculation;
-
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 
-
-// public class Stream<T> {
-// }
-
-// public class StreamSubscription<T> {
-// }
 
 public abstract class StreamBuilderBase<T, S> : StatefulWidget {
     public StreamBuilderBase(Key key = null, Stream<T> stream = null) : base(key: key) {
@@ -90,7 +69,7 @@ class _StreamBuilderBaseState<T, S> : State<StreamBuilderBase<T, S>> {
         if (widget.stream != null) {
             _subscription = widget.stream.listen(
                 (T data) => { setState(() => { _summary = widget.afterData(_summary, data); }); },
-                onError: (object error) => { setState(() => { _summary = widget.afterError(_summary, error); }); },
+                onError: (object error, string stackTrace) => { setState(() => { _summary = widget.afterError(_summary, error); }); },
                 onDone: () => { setState(() => { _summary = widget.afterDone(_summary); }); });
             _summary = widget.afterConnected(_summary);
         }

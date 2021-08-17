@@ -97,9 +97,9 @@ namespace Unity.UIWidgets.async {
     return controller.stream;
   }
 
-  public static  Stream fromIterable(IEnumerable<T> elements) {
+  public static  Stream<T> fromIterable(IEnumerable<T> elements) {
     return new _GeneratedStreamImpl<T>(
-        () => new _IterablePendingEvents<T>(elements));
+        () => (_PendingEvents<T>) new _IterablePendingEvents<T>(elements));
   }
 
   public static Stream<T> periodic(TimeSpan period,
@@ -159,55 +159,55 @@ namespace Unity.UIWidgets.async {
         onCancel: () => {
           if (timer != null) timer.cancel();
           timer = null;
-          // return Future._nullFuture;
+          return Future._nullFuture;
         });
     return controller.stream;
   }
 
-  factory Stream.eventTransformed(
-      Stream source, EventSink mapSink(EventSink<T> sink)) {
-    return new _BoundSinkStream(source, mapSink);
+  public  static Stream<T> eventTransformed(
+      Stream<T> source, _async._SinkMapper<T, T> mapSink) {
+    return new _BoundSinkStream<T, T>(source, mapSink);
   }
 
-  static Stream<T> castFrom<S, T>(Stream<S> source) =>
+  static Stream<T> castFrom<S, T>(Stream<S> source) where T : class =>
       new CastStream<S, T>(source);
 
   public bool  isBroadcast {
       get { return false; }
   }
 
-  Stream<T> asBroadcastStream(
-      {void onListen(StreamSubscription<T> subscription),
-      void onCancel(StreamSubscription<T> subscription)}) {
+  public Stream<T> asBroadcastStream(
+      Action<StreamSubscription<T>> onListen = null,
+      Action<StreamSubscription<T>> onCancel = null) {
     return new _AsBroadcastStream<T>(this, onListen, onCancel);
   }
 
      public abstract StreamSubscription<T> listen(
           Action<T> onData,Action<object, string> onError = null, Action onDone = null, bool cancelOnError = false);
     
-  Stream<T> where(bool test(T event)) {
+  public Stream<T> where(Func<T, bool> test) {
     return new _WhereStream<T>(this, test);
   }
 
-  Stream<S> map<S>(S convert(T event)) {
+  public Stream<S> map<S>(Func<T,S> convert) {
     return new _MapStream<T, S>(this, convert);
   }
 
-  Stream<E> asyncMap<E>(FutureOr<E> convert(T event)) {
+  public Stream<E> asyncMap<E>(Func<T,FutureOr> convert) {
     _StreamControllerBase<E> controller;
     StreamSubscription<T> subscription;
 
     void onListen() {
-      final add = controller.add;
-      assert(controller is _StreamController<E> ||
-          controller is _BroadcastStreamController);
-      final addError = controller._addError;
-      subscription = this.listen((T event) {
-        FutureOr<E> newValue;
+      var add = new Action<E>(controller.add);
+      D.assert(controller is _StreamController<E> ||
+          controller is _BroadcastStreamController<E>);
+      var addError = new Action<object, string>(controller._addError);
+      subscription = this.listen((T evt) => {
+        FutureOr newValue;
         try {
-          newValue = convert(event);
-        } catch (e, s) {
-          controller.addError(e, s);
+          newValue = convert(evt);
+        } catch (Exception e) {
+          controller.addError(e, e.StackTrace);
           return;
         }
         if (newValue is Future<E>) {
@@ -247,7 +247,7 @@ namespace Unity.UIWidgets.async {
     _StreamControllerBase<E> controller;
     StreamSubscription<T> subscription;
     void onListen() {
-      assert(controller is _StreamController ||
+      D.assert(controller is _StreamController ||
           controller is _BroadcastStreamController);
       subscription = this.listen((T event) {
         Stream<E> newStream;
@@ -764,7 +764,7 @@ namespace Unity.UIWidgets.async {
 
     void onError(error, StackTrace stackTrace) {
       timer.cancel();
-      assert(controller is _StreamController ||
+      D.assert(controller is _StreamController ||
           controller is _BroadcastStreamController);
       controller._addError(error, stackTrace); // Avoid Zone error replacement.
       timer = zone.createTimer(timeLimit, timeout);

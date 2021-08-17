@@ -280,8 +280,7 @@ namespace Unity.UIWidgets.async {
     }
 
     class _BoundSubscriptionStream<S, T> : Stream<T> {
-        
-         _BoundSubscriptionStream(Stream<S> _stream, _async._SubscriptionTransformer<S, T> _onListen) {
+        internal _BoundSubscriptionStream(Stream<S> _stream, _async._SubscriptionTransformer<S, T> _onListen) {
             this._stream = _stream;
             this._onListen = _onListen;
         }
