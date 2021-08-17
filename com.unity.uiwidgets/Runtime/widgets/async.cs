@@ -20,11 +20,11 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 
 
-public class Stream<T> {
-}
+// public class Stream<T> {
+// }
 
-public class StreamSubscription<T> {
-}
+// public class StreamSubscription<T> {
+// }
 
 public abstract class StreamBuilderBase<T, S> : StatefulWidget {
     public StreamBuilderBase(Key key = null, Stream<T> stream = null) : base(key: key) {

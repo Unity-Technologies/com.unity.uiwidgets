@@ -2,7 +2,7 @@ using System.Runtime.Versioning;
 using Unity.UIWidgets.async;
 
 class CastStreamTransformer<SS, ST, TS, TT>
-    : StreamTransformerBase<TS, TT> {
+    : StreamTransformerBase<TS, TT> where TT : class where ST : class {
     public readonly StreamTransformer<SS, ST> _source;
 
     public CastStreamTransformer(StreamTransformer<SS, ST> _source) {
