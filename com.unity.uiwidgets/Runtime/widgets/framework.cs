@@ -1031,7 +1031,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _debugStateLockLevel > 0; }
         }
 
-        internal bool debugBuilding {
+        public bool debugBuilding {
             get { return _debugBuilding; }
         }
         bool _debugBuilding = false;
@@ -2897,7 +2897,7 @@ namespace Unity.UIWidgets.widgets {
             notifyClients(oldWidget);
         }
 
-        protected abstract void notifyClients(ProxyWidget oldWidget);
+        public abstract void notifyClients(ProxyWidget oldWidget);
     }
 
     public class ParentDataElement : ProxyElement {
@@ -2929,7 +2929,7 @@ namespace Unity.UIWidgets.widgets {
             _applyParentData(newWidget);
         }
 
-        protected override void notifyClients(ProxyWidget oldWidget) {
+        public override void notifyClients(ProxyWidget oldWidget) {
             _applyParentData((ParentDataWidget) widget);
         }
     }
@@ -2963,7 +2963,7 @@ namespace Unity.UIWidgets.widgets {
             _applyParentData(newWidget);
         }
 
-        protected override void notifyClients(ProxyWidget oldWidget) {
+        public override void notifyClients(ProxyWidget oldWidget) {
             _applyParentData((ParentDataWidget<T>) widget);
         }
 
@@ -3031,7 +3031,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        protected override void notifyClients(ProxyWidget oldWidgetRaw) {
+        public override void notifyClients(ProxyWidget oldWidgetRaw) {
             var oldWidget = (InheritedWidget) oldWidgetRaw;
 
             D.assert(_debugCheckOwnerBuildTargetExists("notifyClients"));
