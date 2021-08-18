@@ -355,7 +355,7 @@ namespace Unity.UIWidgets.rendering {
 
         void _computeChildrenWidthWithMaxIntrinsics(float height) {
             RenderBox child = firstChild;
-            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(childCount);
+            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(new PlaceholderDimensions[childCount]);
             int childIndex = 0;
             while (child != null) {
                 placeholderDimensions[childIndex] = new PlaceholderDimensions(
@@ -372,7 +372,7 @@ namespace Unity.UIWidgets.rendering {
 
         void _computeChildrenWidthWithMinIntrinsics(float height) {
             RenderBox child = firstChild;
-            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(childCount);
+            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(new PlaceholderDimensions[childCount]);
             int childIndex = 0;
             while (child != null) {
                 float intrinsicWidth = child.getMinIntrinsicWidth(height);
@@ -391,7 +391,7 @@ namespace Unity.UIWidgets.rendering {
 
         void _computeChildrenHeightWithMinIntrinsics(float width) {
             RenderBox child = firstChild;
-            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(childCount);
+            List<PlaceholderDimensions> placeholderDimensions = new List<PlaceholderDimensions>(new PlaceholderDimensions[childCount]);
             int childIndex = 0;
             while (child != null) {
                 float intrinsicHeight = child.getMinIntrinsicHeight(width);
@@ -599,7 +599,7 @@ namespace Unity.UIWidgets.rendering {
                 return;
             }
             RenderBox child = firstChild;
-            _placeholderDimensions = new List<PlaceholderDimensions>(childCount);
+            _placeholderDimensions = new List<PlaceholderDimensions>(new PlaceholderDimensions[childCount]);
             int childIndex = 0;
             while (child != null) {
                 child.layout(
