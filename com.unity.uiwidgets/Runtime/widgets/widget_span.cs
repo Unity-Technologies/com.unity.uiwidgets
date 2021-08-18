@@ -76,7 +76,7 @@ namespace Unity.UIWidgets.widgets {
         public override RenderComparison compareTo(InlineSpan other) {
             if (this == other)
                 return RenderComparison.identical;
-            if (style.GetType() != GetType())
+            if (other.GetType() != GetType())
                 return RenderComparison.layout;
             if ((style == null) != (other.style == null))
                 return RenderComparison.layout;
