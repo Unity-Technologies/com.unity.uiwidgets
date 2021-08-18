@@ -106,7 +106,7 @@ class CastStreamSubscription<S, T> : StreamSubscription<T> where T : class {
 
 
 class CastStreamTransformer<SS, ST, TS, TT>
-    : StreamTransformerBase<TS, TT> where TT : class where ST : class {
+    : StreamTransformerBase<TS, TT> where TT : class where ST : class where SS : class {
     public readonly StreamTransformer<SS, ST> _source;
 
     public CastStreamTransformer(StreamTransformer<SS, ST> _source) {

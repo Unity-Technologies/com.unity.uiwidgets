@@ -502,12 +502,12 @@ class _AsyncBroadcastStreamController<T> : _BroadcastStreamController<T> {
 //  * an "asBroadcastStream" stream are always initiated by events
 //  * on another stream, and it is fine to forward them synchronously.
 //  */
-// class _AsBroadcastStreamController<T> extends _SyncBroadcastStreamController<T>
-//     implements _EventDispatch<T> {
+// class _AsBroadcastStreamController<T> : _SyncBroadcastStreamController<T>
+//     , _EventDispatch<T> {
 //   _StreamImplEvents<T> _pending;
 //
-//   _AsBroadcastStreamController(void onListen(), void onCancel())
-//       : base(onListen, onCancel);
+//   _AsBroadcastStreamController(Action onListen, Action onCancel)
+//       : base(()=>onListen(), onCancel);
 //
 //   bool get _hasPending => _pending != null && !_pending.isEmpty;
 //
