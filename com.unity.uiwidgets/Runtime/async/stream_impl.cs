@@ -531,7 +531,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        void _guardCallback(Action callback) {
+        internal void _guardCallback(Action callback) {
             D.assert(!_inCallback);
             bool wasInputPaused = _isInputPaused;
             _state |= _STATE_IN_CALLBACK;
