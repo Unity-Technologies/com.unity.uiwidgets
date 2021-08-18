@@ -4,7 +4,7 @@ using System.Runtime.Versioning;
 using Unity.UIWidgets.async;
 
 
-public class CastStream<S, T> : Stream<T> where T : class {
+public class CastStream<S, T> : Stream<T> {
     readonly Stream<S> _source;
 
     public CastStream(Stream<S> _source) {
@@ -27,7 +27,7 @@ public class CastStream<S, T> : Stream<T> where T : class {
 }
 
 
-class CastStreamSubscription<S, T> : StreamSubscription<T> where T : class {
+class CastStreamSubscription<S, T> : StreamSubscription<T> {
     readonly StreamSubscription<S> _source;
 
     /// Zone where listen was called.
@@ -77,7 +77,8 @@ class CastStreamSubscription<S, T> : StreamSubscription<T> where T : class {
         if (_handleData == null) return;
         T targetData;
         try {
-            targetData = data as T;
+            // siyao: this might go wrong
+            targetData = (T)(object) data ;
         } catch (Exception error) {
             if (_handleError == null) {
                 _zone.handleUncaughtError(error);
@@ -106,7 +107,7 @@ class CastStreamSubscription<S, T> : StreamSubscription<T> where T : class {
 
 
 class CastStreamTransformer<SS, ST, TS, TT>
-    : StreamTransformerBase<TS, TT> where TT : class where ST : class where SS : class {
+    : StreamTransformerBase<TS, TT> where TT : class where ST : class {
     public readonly StreamTransformer<SS, ST> _source;
 
     public CastStreamTransformer(StreamTransformer<SS, ST> _source) {

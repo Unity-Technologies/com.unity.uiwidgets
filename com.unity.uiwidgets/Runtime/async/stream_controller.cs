@@ -46,10 +46,7 @@ namespace Unity.UIWidgets.async {
         public static StreamController<T> broadcast(
             Action onListen = null, Action onCancel = null, bool sync = false) {
             return sync
-                ? (StreamController<T>) new _SyncBroadcastStreamController<T>(() => onListen(), () => {
-                    onCancel();
-                    return Future._nullFuture;
-                })
+                ? (StreamController<T>) new _SyncBroadcastStreamController<T>(() => onListen(), onCancel)
                 : new _AsyncBroadcastStreamController<T>(() => onListen(), () => {
                     onCancel();
                     return Future._nullFuture;
@@ -101,7 +98,7 @@ namespace Unity.UIWidgets.async {
 
     interface _StreamControllerLifecycle<T> {
         StreamSubscription<T> _subscribe(
-            Action<T> onData, Action onError, Action onDone, bool cancelOnError);
+            Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError);
 
         void _recordPause(StreamSubscription<T> subscription);
         void _recordResume(StreamSubscription<T> subscription);
@@ -116,10 +113,10 @@ namespace Unity.UIWidgets.async {
             _StreamControllerLifecycle<T>,
             _EventSink<T>,
             _EventDispatch<T> {
-        public StreamSubscription<T> _subscribe(Action<T> onData, Action onError, Action onDone, bool cancelOnError) {
-            throw new NotImplementedException();
-        }
-
+        public abstract StreamSubscription<T> _subscribe(Action<T> onData, Action<object, string> onError,
+            Action onDone, bool cancelOnError);
+        
+        
         public void _recordPause(StreamSubscription<T> subscription) {
         }
 
@@ -376,7 +373,7 @@ namespace Unity.UIWidgets.async {
 
         // _StreamControllerLifeCycle interface
 
-        StreamSubscription<T> _subscribe(
+        public override StreamSubscription<T> _subscribe(
             Action<T> onData,
             Action<object, string> onError,
             Action onDone, bool cancelOnError) {
@@ -552,7 +549,7 @@ namespace Unity.UIWidgets.async {
         }
 
         StreamSubscription<T> _createSubscription(
-            Action<T> onData, Action onError, Action onDone, bool cancelOnError) =>
+            Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError) =>
             _controller._subscribe(onData, onError, onDone, cancelOnError);
 
         // Override == and hashCode so that new streams returned by the same
