@@ -42,7 +42,7 @@ namespace Unity.UIWidgets.async {
 
         // -------------------------------------------------------------------
         /** Create a subscription object. Called by [subcribe]. */
-        StreamSubscription<T> _createSubscription(
+        internal virtual StreamSubscription<T> _createSubscription(
             Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError) {
             return new _BufferingStreamSubscription<T>(
                 onData, onError, onDone, cancelOnError);
@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.async {
             this._pending = _pending;
         }
 
-        StreamSubscription<T> _createSubscription(
+        internal override StreamSubscription<T> _createSubscription(
             Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError) {
             if (_isUsed) throw new Exception("Stream has already been listened to.");
             _isUsed = true;

@@ -128,7 +128,7 @@ namespace Unity.UIWidgets.async {
             get { return new _StreamSinkWrapper<T>(this); }
         }
 
-        bool isClosed {
+        public override bool isClosed {
             get { return (_state & _STATE_CLOSED) != 0; }
         }
 
@@ -138,12 +138,12 @@ namespace Unity.UIWidgets.async {
    * Each receiving stream may be paused individually, and they handle their
    * own buffering.
    */
-        bool isPaused {
+        public override bool isPaused {
             get => false;
         }
 
         /** Whether there are currently one or more subscribers. */
-        bool hasListener {
+        public override bool hasListener {
             get => !_isEmpty;
         }
 

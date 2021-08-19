@@ -71,12 +71,12 @@ namespace Unity.UIWidgets.async {
 
         public virtual StreamSink<T> sink { get; }
 
-        public bool isClosed { get; }
+        public virtual bool isClosed { get; }
 
-        public bool isPaused { get; }
+        public virtual bool isPaused { get; }
 
         /** Whether there is a subscriber on the [Stream]. */
-        public bool hasListener { get; }
+        public virtual bool hasListener { get; }
 
         // public abstract void add(T evt);
         //
@@ -197,7 +197,7 @@ namespace Unity.UIWidgets.async {
         }
 
         /** Whether there is an active listener. */
-        bool hasListener {
+        public override bool hasListener {
             get => (_state & _STATE_SUBSCRIBED) != 0;
         }
 
@@ -480,7 +480,7 @@ namespace Unity.UIWidgets.async {
 //
     abstract class _SyncStreamControllerDispatch<T>
         : _StreamController<T>, SynchronousStreamController<T> {
-        int _state { get; set; }
+        internal virtual int _state { get; set; }
 
         public override void _sendData(T data) {
             _subscription._add(data);
@@ -548,7 +548,7 @@ namespace Unity.UIWidgets.async {
             this._controller = _controller;
         }
 
-        StreamSubscription<T> _createSubscription(
+        internal override StreamSubscription<T> _createSubscription(
             Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError) =>
             _controller._subscribe(onData, onError, onDone, cancelOnError);
 
