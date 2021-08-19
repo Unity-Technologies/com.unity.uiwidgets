@@ -28,7 +28,7 @@ namespace Unity.UIWidgets.core {
         }
 
         public void stop() {
-            _stop ??= _now();
+            _stop = _stop ?? _now();
         }
 
         public void reset() {

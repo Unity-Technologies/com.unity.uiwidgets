@@ -214,7 +214,7 @@ namespace Unity.UIWidgets.async {
             }
 
             if (_handleError != null) {
-                stackTrace ??= AsyncError.defaultStackTrace(error);
+                stackTrace =  stackTrace ?? AsyncError.defaultStackTrace(error);
                 _handleError(error, stackTrace, _sink);
             }
             else {

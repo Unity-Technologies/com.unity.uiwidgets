@@ -229,7 +229,7 @@ namespace Unity.UIWidgets.async {
         public override StreamSubscription<T> _subscribe(
             Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError) {
             if (isClosed) {
-                onDone ??= _stream._nullDoneHandler;
+                onDone = onDone ?? _stream._nullDoneHandler;
                 return new _DoneStreamSubscription<T>(() => onDone());
             }
 
@@ -294,7 +294,7 @@ namespace Unity.UIWidgets.async {
                 stackTrace = replacement.StackTrace;
             }
 
-            stackTrace ??= AsyncError.defaultStackTrace(error);
+            stackTrace = stackTrace ?? AsyncError.defaultStackTrace(error);
             _sendError(error, stackTrace);
         }
 
@@ -521,7 +521,7 @@ namespace Unity.UIWidgets.async {
         }
 
         void _addPendingEvent(_DelayedEvent<T> evt) {
-            _pending ??= new _StreamImplEvents<T>();
+            _pending = _pending ?? new _StreamImplEvents<T>();
             _pending.add(evt);
         }
 
@@ -539,7 +539,7 @@ namespace Unity.UIWidgets.async {
 
         void addError(object error, string stackTrace) {
             // ArgumentError.checkNotNull(error, "error");
-            stackTrace ??= AsyncError.defaultStackTrace(error);
+            stackTrace = stackTrace ?? AsyncError.defaultStackTrace(error);
             if (!isClosed && _isFiring) {
                 _addPendingEvent(new _DelayedError<T>((Exception) error, stackTrace));
                 return;

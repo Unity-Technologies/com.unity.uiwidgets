@@ -131,7 +131,7 @@ namespace Unity.UIWidgets.async {
 
             Action startPeriodicTimer = () => {
                 D.assert(timer == null);
-                timer = Timer.periodic(period, (object timer) => {
+                timer = Timer.periodic(period, (object timer1) => {
                     sendEvent();
                     return null;
                 });
@@ -215,7 +215,7 @@ namespace Unity.UIWidgets.async {
                         return;
                     }
 
-                    if (newValue is Future<E> newFuture) {
+                    if (newValue.f is Future<E> newFuture) { // siyao: this if different from dart
                         subscription.pause();
                         newFuture
                             .then(d => add((E) d), onError: (e) => {

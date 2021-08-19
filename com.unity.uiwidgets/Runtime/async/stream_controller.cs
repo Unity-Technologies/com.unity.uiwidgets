@@ -248,7 +248,7 @@ namespace Unity.UIWidgets.async {
         _StreamImplEvents<T> _ensurePendingEvents() {
             D.assert(_isInitialState);
             if (!_isAddingStream) {
-                _varData ??= new _StreamImplEvents<T>();
+                _varData = _varData ?? new _StreamImplEvents<T>();
                 return (_StreamImplEvents<T>) _varData;
             }
 
@@ -298,7 +298,7 @@ namespace Unity.UIWidgets.async {
         }
 
         Future _ensureDoneFuture() {
-            _doneFuture ??= _isCanceled ? Future._nullFuture : new _Future();
+            _doneFuture = _doneFuture ?? (_isCanceled ? Future._nullFuture : new _Future());
             return _doneFuture;
         }
 
@@ -317,7 +317,7 @@ namespace Unity.UIWidgets.async {
                 // stackTrace = replacement.stackTrace;
             }
 
-            stackTrace ??= AsyncError.defaultStackTrace(error);
+            stackTrace = stackTrace ?? AsyncError.defaultStackTrace(error);
             _addError(error, stackTrace);
         }
 
