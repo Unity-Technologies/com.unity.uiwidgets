@@ -120,11 +120,11 @@ namespace Unity.UIWidgets.async {
         }
         // StreamController interface.
 
-        Stream<T> stream {
+        public override Stream<T> stream {
             get { return new _BroadcastStream<T>(this); }
         }
 
-        StreamSink<T> sink {
+        public override StreamSink<T> sink {
             get { return new _StreamSinkWrapper<T>(this); }
         }
 

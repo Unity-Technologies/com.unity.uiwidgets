@@ -26,13 +26,13 @@ namespace Unity.UIWidgets.async {
 
     public abstract class StreamController<T> : StreamSink<T> {
         /** The stream that this controller is controlling. */
-        internal Stream<T> stream { get; }
+        public virtual Stream<T> stream { get; }
 
         public static StreamController<T> create(
-            _stream.ControllerCallback onListen,
-            _stream.ControllerCallback onPause,
-            _stream.ControllerCallback onResume,
-            _stream.ControllerCancelCallback onCancel,
+            _stream.ControllerCallback onListen = null,
+            _stream.ControllerCallback onPause = null,
+            _stream.ControllerCallback onResume = null,
+            _stream.ControllerCancelCallback onCancel = null,
             //  Action onListen = null,
             //  Action onPause = null,
             //  Action onResume = null,
@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.async {
 
         // void set onCancel(onCancelHandler());
 
-        StreamSink<T> sink { get; }
+        public virtual StreamSink<T> sink { get; }
 
         public bool isClosed { get; }
 
@@ -184,11 +184,11 @@ namespace Unity.UIWidgets.async {
         }
 
         // Return a new stream every time. The streams are equal, but not identical.
-        public Stream<T> stream {
+        public override Stream<T> stream {
             get => new _ControllerStream<T>(this);
         }
 
-        StreamSink<T> sink {
+        public override StreamSink<T> sink {
             get => new _StreamSinkWrapper<T>(this);
         }
 
