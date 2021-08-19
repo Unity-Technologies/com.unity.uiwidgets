@@ -115,8 +115,8 @@ namespace Unity.UIWidgets.async {
             _EventDispatch<T> {
         public abstract StreamSubscription<T> _subscribe(Action<T> onData, Action<object, string> onError,
             Action onDone, bool cancelOnError);
-        
-        
+
+
         public void _recordPause(StreamSubscription<T> subscription) {
         }
 

@@ -90,7 +90,8 @@ namespace Unity.UIWidgets.async {
 
         internal _Future _doneFuture;
 
-        internal _BroadcastStreamController(_stream.ControllerCallback onListen, _stream.ControllerCancelCallback onCancel) {
+        internal _BroadcastStreamController(_stream.ControllerCallback onListen,
+            _stream.ControllerCancelCallback onCancel) {
             this.onListen = onListen;
             this.onCancel = onCancel;
             _state = _STATE_INITIAL;
@@ -229,7 +230,7 @@ namespace Unity.UIWidgets.async {
             Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError) {
             if (isClosed) {
                 onDone ??= _stream._nullDoneHandler;
-                return new _DoneStreamSubscription<T>(()=>onDone());
+                return new _DoneStreamSubscription<T>(() => onDone());
             }
 
             StreamSubscription<T> subscription = new _BroadcastSubscription<T>(
@@ -393,106 +394,108 @@ namespace Unity.UIWidgets.async {
         }
     }
 
-class _SyncBroadcastStreamController<T> : _BroadcastStreamController<T>
-    , SynchronousStreamController<T> {
-    internal _SyncBroadcastStreamController(
-      _stream.ControllerCallback onListen, Action onCancel)
-      : base(onListen, ()=> {
-           onCancel();
-           return Future._nullFuture;
-      }) {
-      
-  }
+    class _SyncBroadcastStreamController<T> : _BroadcastStreamController<T>
+        , SynchronousStreamController<T> {
+        internal _SyncBroadcastStreamController(
+            _stream.ControllerCallback onListen, Action onCancel)
+            : base(onListen, () => {
+                onCancel();
+                return Future._nullFuture;
+            }) {
+        }
 
-  // EventDispatch interface.
+        // EventDispatch interface.
 
-  bool  _mayAddEvent {
-      get { return base._mayAddEvent && !_isFiring; }
-  }
+        bool _mayAddEvent {
+            get { return base._mayAddEvent && !_isFiring; }
+        }
 
-  internal override Exception _addEventError() {
-    if (_isFiring) {
-      return new Exception(
-          "Cannot fire new event. Controller is already firing an event");
+        internal override Exception _addEventError() {
+            if (_isFiring) {
+                return new Exception(
+                    "Cannot fire new event. Controller is already firing an event");
+            }
+
+            return base._addEventError();
+        }
+
+        public override void _sendData(T data) {
+            if (_isEmpty) return;
+            if (_hasOneListener) {
+                _state |= _BroadcastStreamController<T>._STATE_FIRING;
+                _BroadcastSubscription<T> subscription = _firstSubscription;
+                subscription._add(data);
+                _state &= ~_BroadcastStreamController<T>._STATE_FIRING;
+                if (_isEmpty) {
+                    _callOnCancel();
+                }
+
+                return;
+            }
+
+            _forEachListener((_BufferingStreamSubscription<T> subscription) => { subscription._add(data); });
+        }
+
+        public override void _sendError(object error, string stackTrace) {
+            if (_isEmpty) return;
+            _forEachListener((_BufferingStreamSubscription<T> subscription) => {
+                subscription._addError(error, stackTrace);
+            });
+        }
+
+        public override void _sendDone() {
+            if (!_isEmpty) {
+                _forEachListener((_BufferingStreamSubscription<T> subscription) => { subscription._close(); });
+            }
+            else {
+                D.assert(_doneFuture != null);
+                D.assert(_doneFuture._mayComplete);
+                _doneFuture._asyncComplete(FutureOr.nil);
+            }
+        }
     }
-    return base._addEventError();
-  }
 
-  public override void _sendData(T data) {
-    if (_isEmpty) return;
-    if (_hasOneListener) {
-      _state |= _BroadcastStreamController<T>._STATE_FIRING;
-      _BroadcastSubscription<T> subscription = _firstSubscription;
-      subscription._add(data);
-      _state &= ~_BroadcastStreamController<T>._STATE_FIRING;
-      if (_isEmpty) {
-        _callOnCancel();
-      }
-      return;
-    }
-    _forEachListener((_BufferingStreamSubscription<T> subscription) =>{
-      subscription._add(data);
-    });
-  }
-
-  public override void _sendError(object error, string stackTrace) {
-    if (_isEmpty) return;
-    _forEachListener((_BufferingStreamSubscription<T> subscription) => {
-      subscription._addError(error, stackTrace);
-    });
-  }
-
-  public override void _sendDone() {
-    if (!_isEmpty) {
-      _forEachListener((_BufferingStreamSubscription<T> subscription) => {
-        subscription._close();
-      });
-    } else {
-      D.assert(_doneFuture != null);
-      D.assert(_doneFuture._mayComplete);
-      _doneFuture._asyncComplete(FutureOr.nil);
-    }
-  }
-}
 //
-class _AsyncBroadcastStreamController<T> : _BroadcastStreamController<T> {
-    internal _AsyncBroadcastStreamController(_stream.ControllerCallback onListen, _stream.ControllerCancelCallback onCancel)
-      : base(onListen, onCancel) {
-      
-  }
+    class _AsyncBroadcastStreamController<T> : _BroadcastStreamController<T> {
+        internal _AsyncBroadcastStreamController(_stream.ControllerCallback onListen,
+            _stream.ControllerCancelCallback onCancel)
+            : base(onListen, onCancel) {
+        }
 
-  // EventDispatch interface.
+        // EventDispatch interface.
 
-  public override void _sendData(T data) {
-    for (_BroadcastSubscription<T> subscription = _firstSubscription;
-        subscription != null;
-        subscription = subscription._next) {
-      subscription._addPending(new _DelayedData<T>(data));
+        public override void _sendData(T data) {
+            for (_BroadcastSubscription<T> subscription = _firstSubscription;
+                subscription != null;
+                subscription = subscription._next) {
+                subscription._addPending(new _DelayedData<T>(data));
+            }
+        }
+
+        public override void _sendError(object error, string stackTrace) {
+            for (_BroadcastSubscription<T> subscription = _firstSubscription;
+                subscription != null;
+                subscription = subscription._next) {
+                subscription._addPending(new _DelayedError<T>((Exception) error, stackTrace));
+            }
+        }
+
+        public override void _sendDone() {
+            if (!_isEmpty) {
+                for (_BroadcastSubscription<T> subscription = _firstSubscription;
+                    subscription != null;
+                    subscription = subscription._next) {
+                    subscription._addPending(new _DelayedDone<T>());
+                }
+            }
+            else {
+                D.assert(_doneFuture != null);
+                D.assert(_doneFuture._mayComplete);
+                _doneFuture._asyncComplete(FutureOr.nil);
+            }
+        }
     }
-  }
 
-  public override void _sendError(object error, string stackTrace) {
-    for (_BroadcastSubscription<T> subscription = _firstSubscription;
-        subscription != null;
-        subscription = subscription._next) {
-      subscription._addPending(new _DelayedError<T>((Exception) error, stackTrace));
-    }
-  }
-
-  public override void _sendDone() {
-    if (!_isEmpty) {
-      for (_BroadcastSubscription<T> subscription = _firstSubscription;
-          subscription != null;
-          subscription = subscription._next) {
-        subscription._addPending(new _DelayedDone<T>());
-      }
-    } else {
-      D.assert(_doneFuture != null);
-      D.assert(_doneFuture._mayComplete);
-      _doneFuture._asyncComplete(FutureOr.nil);
-    }
-  }
-}
 //
 // /**
 //  * Stream controller that is used by [Stream.asBroadcastStream].
@@ -505,66 +508,69 @@ class _AsyncBroadcastStreamController<T> : _BroadcastStreamController<T> {
 //  * an "asBroadcastStream" stream are always initiated by events
 //  * on another stream, and it is fine to forward them synchronously.
 //  */
-class _AsBroadcastStreamController<T> : _SyncBroadcastStreamController<T>
-    , _EventDispatch<T> {
-  _StreamImplEvents<T> _pending;
+    class _AsBroadcastStreamController<T> : _SyncBroadcastStreamController<T>
+        , _EventDispatch<T> {
+        _StreamImplEvents<T> _pending;
 
-  internal _AsBroadcastStreamController(Action onListen, Action onCancel)
-      : base(() => onListen(), onCancel) {
-      
-  }
+        internal _AsBroadcastStreamController(Action onListen, Action onCancel)
+            : base(() => onListen(), onCancel) {
+        }
 
-  bool  _hasPending {
-      get { return _pending != null && !_pending.isEmpty; }
-  }
+        bool _hasPending {
+            get { return _pending != null && !_pending.isEmpty; }
+        }
 
-  void _addPendingEvent(_DelayedEvent<T> evt) {
-    _pending ??= new _StreamImplEvents<T>();
-    _pending.add(evt);
-  }
+        void _addPendingEvent(_DelayedEvent<T> evt) {
+            _pending ??= new _StreamImplEvents<T>();
+            _pending.add(evt);
+        }
 
-  void add(T data) {
-    if (!isClosed && _isFiring) {
-      _addPendingEvent(new _DelayedData<T>(data));
-      return;
+        void add(T data) {
+            if (!isClosed && _isFiring) {
+                _addPendingEvent(new _DelayedData<T>(data));
+                return;
+            }
+
+            base.add(data);
+            while (_hasPending) {
+                _pending.handleNext(this);
+            }
+        }
+
+        void addError(object error, string stackTrace) {
+            // ArgumentError.checkNotNull(error, "error");
+            stackTrace ??= AsyncError.defaultStackTrace(error);
+            if (!isClosed && _isFiring) {
+                _addPendingEvent(new _DelayedError<T>((Exception) error, stackTrace));
+                return;
+            }
+
+            if (!_mayAddEvent) throw _addEventError();
+            _sendError(error, stackTrace);
+            while (_hasPending) {
+                _pending.handleNext(this);
+            }
+        }
+
+        Future close() {
+            if (!isClosed && _isFiring) {
+                _addPendingEvent(new _DelayedDone<T>());
+                _state |= _BroadcastStreamController<T>._STATE_CLOSED;
+                return base.done;
+            }
+
+            Future result = base.close();
+            D.assert(!_hasPending);
+            return result;
+        }
+
+        void _callOnCancel() {
+            if (_hasPending) {
+                _pending.clear();
+                _pending = null;
+            }
+
+            base._callOnCancel();
+        }
     }
-    base.add(data);
-    while (_hasPending) {
-      _pending.handleNext(this);
-    }
-  }
-
-  void addError(object error, string stackTrace) {
-    // ArgumentError.checkNotNull(error, "error");
-    stackTrace ??= AsyncError.defaultStackTrace(error);
-    if (!isClosed && _isFiring) {
-      _addPendingEvent(new _DelayedError<T>((Exception) error, stackTrace));
-      return;
-    }
-    if (!_mayAddEvent) throw _addEventError();
-    _sendError(error, stackTrace);
-    while (_hasPending) {
-      _pending.handleNext(this);
-    }
-  }
-
-  Future close() {
-    if (!isClosed && _isFiring) {
-      _addPendingEvent(new _DelayedDone<T>());
-      _state |= _BroadcastStreamController<T>._STATE_CLOSED;
-      return base.done;
-    }
-    Future result = base.close();
-    D.assert(!_hasPending);
-    return result;
-  }
-
-  void _callOnCancel() {
-    if (_hasPending) {
-      _pending.clear();
-      _pending = null;
-    }
-    base._callOnCancel();
-  }
-}
 }

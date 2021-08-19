@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.async {
 
         internal static void _nullDoneHandler() {
         }
-        
+
         internal delegate _PendingEvents<T> _EventGenerator<T>();
 
         internal delegate void _BroadcastCallback<T>(StreamSubscription<T> subscription);
@@ -52,7 +52,7 @@ namespace Unity.UIWidgets.async {
         void _onListen(StreamSubscription<T> subscription) {
         }
     }
-    
+
     class _GeneratedStreamImpl<T> : _StreamImpl<T> {
         readonly _stream._EventGenerator<T> _pending;
         bool _isUsed = false;
@@ -62,16 +62,16 @@ namespace Unity.UIWidgets.async {
         }
 
         StreamSubscription<T> _createSubscription(
-            Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError   ) {
+            Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError) {
             if (_isUsed) throw new Exception("Stream has already been listened to.");
             _isUsed = true;
             var result = new _BufferingStreamSubscription<T>(
                 onData, onError, onDone, cancelOnError);
-                result._setPendingEvents(_pending());
+            result._setPendingEvents(_pending());
             return result;
         }
     }
-    
+
     class _IterablePendingEvents<T> : _PendingEvents<T> {
         IEnumerator<T> _iterator;
 
@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.async {
             _iterator = data.GetEnumerator();
         }
 
-        bool  isEmpty {
+        bool isEmpty {
             get { return _iterator == null; }
         }
 
@@ -87,22 +87,26 @@ namespace Unity.UIWidgets.async {
             if (_iterator == null) {
                 throw new Exception("No events pending.");
             }
+
             bool? hasMore = null;
             try {
                 hasMore = _iterator.MoveNext();
                 if (hasMore ?? false) {
                     dispatch._sendData(_iterator.Current);
-                } else {
+                }
+                else {
                     _iterator = null;
                     dispatch._sendDone();
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 if (hasMore == null) {
                     // Threw in .moveNext().
                     // Ensure that we send a done afterwards.
-                    _iterator =Enumerable.Empty<T>().GetEnumerator();// new EmptyIterator<Null>();
+                    _iterator = Enumerable.Empty<T>().GetEnumerator(); // new EmptyIterator<Null>();
                     dispatch._sendError(e, e.StackTrace);
-                } else {
+                }
+                else {
                     // Threw in .current.
                     dispatch._sendError(e, e.StackTrace);
                 }
@@ -772,101 +776,149 @@ namespace Unity.UIWidgets.async {
         StreamSubscription<T> _subscription;
 
         internal _AsBroadcastStream(
-            Stream<T> _source,
-        Action<StreamSubscription<T>> onListenHandler,
-
-        Action<StreamSubscription<T>> onCancelHandler)
+                Stream<T> _source,
+                Action<StreamSubscription<T>> onListenHandler,
+                Action<StreamSubscription<T>> onCancelHandler)
             // TODO(floitsch): the return type should be void and should be
             // inferred.
         {
             this._source = _source;
-            _onListenHandler = a=>Zone.current
+            _onListenHandler = a => Zone.current
                 .registerUnaryCallback(
                     b => {
-                         onListenHandler((StreamSubscription<T>) b);
-                         return default;
+                        onListenHandler((StreamSubscription<T>) b);
+                        return default;
                     }
-                    )(a);
-            _onCancelHandler = d=> Zone.current
+                )(a);
+            _onCancelHandler = d => Zone.current
                 .registerUnaryCallback(
-                    c=> {
-                         onCancelHandler((StreamSubscription<T>) c);
-                         return default;
+                    c => {
+                        onCancelHandler((StreamSubscription<T>) c);
+                        return default;
                     })(d);
             _zone = Zone.current;
             _controller = new _AsBroadcastStreamController<T>(_onListen, _onCancel);
         }
 
-        bool  isBroadcast {
+        bool isBroadcast {
             get { return true; }
         }
 
 
-        public override StreamSubscription<T> listen(Action<T> onData, Action<object, string> onError = null, Action onDone = null, bool cancelOnError = false) {
-         
-    if (_controller == null || _controller.isClosed) {
-      // Return a dummy subscription backed by nothing, since
-      // it will only ever send one done event.
-      return new _DoneStreamSubscription<T>(()=>onDone());
+        public override StreamSubscription<T> listen(Action<T> onData, Action<object, string> onError = null,
+            Action onDone = null, bool cancelOnError = false) {
+            if (_controller == null || _controller.isClosed) {
+                // Return a dummy subscription backed by nothing, since
+                // it will only ever send one done event.
+                return new _DoneStreamSubscription<T>(() => onDone());
+            }
+
+            _subscription ??= _source.listen(_controller.add,
+                onError: _controller.addError, onDone: () => _controller.close());
+            cancelOnError = Equals(true, cancelOnError);
+            return _controller._subscribe(onData, onError, onDone, cancelOnError);
+        }
+
+        void _onCancel() {
+            bool shutdown = (_controller == null) || _controller.isClosed;
+            if (_onCancelHandler != null) {
+                _zone.runUnary(
+                    a => {
+                        _onCancelHandler((StreamSubscription<T>) a);
+                        return default;
+                    }, new _BroadcastSubscriptionWrapper<T>(this));
+            }
+
+            if (shutdown) {
+                if (_subscription != null) {
+                    _subscription.cancel();
+                    _subscription = null;
+                }
+            }
+        }
+
+        void _onListen() {
+            if (_onListenHandler != null) {
+                _zone.runUnary(
+                    a => {
+                        _onListenHandler((StreamSubscription<T>) a);
+                        return default;
+                    }, new _BroadcastSubscriptionWrapper<T>(this));
+            }
+        }
+
+        // Methods called from _BroadcastSubscriptionWrapper.
+        internal void _cancelSubscription() {
+            if (_subscription == null) return;
+            // Called by [_controller] when it has no subscribers left.
+            StreamSubscription<T> subscription = _subscription;
+            _subscription = null;
+            _controller = null; // Marks the stream as no longer listenable.
+            subscription.cancel();
+        }
+
+        internal void _pauseSubscription(Future resumeSignal) {
+            if (_subscription == null) return;
+            _subscription.pause(resumeSignal);
+        }
+
+        internal void _resumeSubscription() {
+            if (_subscription == null) return;
+            _subscription.resume();
+        }
+
+        internal bool _isSubscriptionPaused {
+            get {
+                if (_subscription == null) return false;
+                return _subscription.isPaused;
+            }
+        }
     }
-    _subscription ??= _source.listen(_controller.add,
-        onError: _controller.addError, onDone: ()=>_controller.close());
-    cancelOnError = Equals(true, cancelOnError);
-    return _controller._subscribe(onData, onError, onDone, cancelOnError);
-  }
 
-  void _onCancel() {
-    bool shutdown = (_controller == null) || _controller.isClosed;
-    if (_onCancelHandler != null) {
-      _zone.runUnary(
-          a=> {
-               _onCancelHandler((StreamSubscription<T>) a);
-               return default;
-          }, new _BroadcastSubscriptionWrapper<T>(this));
+    class _BroadcastSubscriptionWrapper<T> : StreamSubscription<T> {
+        readonly _AsBroadcastStream<T> _stream;
+
+        internal _BroadcastSubscriptionWrapper(_AsBroadcastStream<T> _stream) {
+            this._stream = _stream;
+        }
+
+        public override void onData(Action<T> handleData) {
+            throw new Exception(
+                "Cannot change handlers of asBroadcastStream source subscription.");
+        }
+
+        public override void onError(Action<object, string> action) {
+            throw new Exception(
+                "Cannot change handlers of asBroadcastStream source subscription.");
+        }
+
+        public override void onDone(Action handleDone) {
+            throw new Exception(
+                "Cannot change handlers of asBroadcastStream source subscription.");
+        }
+
+        public override void pause(Future resumeSignal = null) {
+            _stream._pauseSubscription(resumeSignal);
+        }
+
+        public override void resume() {
+            _stream._resumeSubscription();
+        }
+
+        public override Future cancel() {
+            _stream._cancelSubscription();
+            return Future._nullFuture;
+        }
+
+        bool isPaused {
+            get { return _stream._isSubscriptionPaused; }
+        }
+
+        public override Future<E> asFuture<E>(E futureValue) {
+            throw new Exception(
+                "Cannot change handlers of asBroadcastStream source subscription.");
+        }
     }
-    if (shutdown) {
-      if (_subscription != null) {
-        _subscription.cancel();
-        _subscription = null;
-      }
-    }
-  }
-
-  void _onListen() {
-    if (_onListenHandler != null) {
-      _zone.runUnary(
-          a => {
-               _onListenHandler((StreamSubscription<T>) a);
-               return default;
-          }, new _BroadcastSubscriptionWrapper<T>(this));
-    }
-  }
-
-  // Methods called from _BroadcastSubscriptionWrapper.
-  void _cancelSubscription() {
-    if (_subscription == null) return;
-    // Called by [_controller] when it has no subscribers left.
-    StreamSubscription<T> subscription = _subscription;
-    _subscription = null;
-    _controller = null; // Marks the stream as no longer listenable.
-    subscription.cancel();
-  }
-
-  void _pauseSubscription(Future resumeSignal) {
-    if (_subscription == null) return;
-    _subscription.pause(resumeSignal);
-  }
-
-  void _resumeSubscription() {
-    if (_subscription == null) return;
-    _subscription.resume();
-  }
-
-  bool  _isSubscriptionPaused{get {
-    if (_subscription == null) return false;
-    return _subscription.isPaused;
-  }}
-}
 
 
     internal class _StreamIterator<T> : StreamIterator<T> {

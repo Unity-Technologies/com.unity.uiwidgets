@@ -284,7 +284,7 @@ namespace Unity.UIWidgets.async {
             this._stream = _stream;
             this._onListen = _onListen;
         }
-        
+
         readonly _async._SubscriptionTransformer<S, T> _onListen;
         readonly Stream<S> _stream;
 

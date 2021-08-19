@@ -10,16 +10,18 @@ public class CastStream<S, T> : Stream<T> {
     public CastStream(Stream<S> _source) {
         this._source = _source;
     }
-    bool  isBroadcast {
+
+    bool isBroadcast {
         get { return _source.isBroadcast; }
     }
 
-    public override StreamSubscription<T> listen(Action<T> onData, Action<object, string> onError = null, Action onDone = null, bool cancelOnError = false) {
+    public override StreamSubscription<T> listen(Action<T> onData, Action<object, string> onError = null,
+        Action onDone = null, bool cancelOnError = false) {
         var result = new CastStreamSubscription<S, T>(
             _source.listen(null, onDone: onDone, cancelOnError: cancelOnError));
-                
-                result.onData(onData);
-            result.onError(onError);
+
+        result.onData(onData);
+        result.onError(onError);
         return result;
     }
 
@@ -40,7 +42,7 @@ class CastStreamSubscription<S, T> : StreamSubscription<T> {
     /// May be null.
     ZoneBinaryCallback _handleError;
 
-    public CastStreamSubscription( StreamSubscription<S> _source) {
+    public CastStreamSubscription(StreamSubscription<S> _source) {
         this._source = _source;
         _source.onData(_onData);
     }
@@ -51,8 +53,8 @@ class CastStreamSubscription<S, T> : StreamSubscription<T> {
         _handleData = handleData == null
             ? null
             : _zone.registerUnaryCallback(data => {
-                 handleData((T) data);
-                 return null;
+                handleData((T) data);
+                return null;
             });
     }
 
@@ -60,11 +62,12 @@ class CastStreamSubscription<S, T> : StreamSubscription<T> {
         _source.onError(handleError);
         if (handleError == null) {
             _handleError = null;
-        } else {
+        }
+        else {
             _handleError = _zone
-                .registerBinaryCallback((a, b)=> {
-                     handleError(a, (string) b);
-                     return null;
+                .registerBinaryCallback((a, b) => {
+                    handleError(a, (string) b);
+                    return null;
                 });
         }
     }
@@ -72,21 +75,25 @@ class CastStreamSubscription<S, T> : StreamSubscription<T> {
     public override void onDone(Action handleDone) {
         _source.onDone(handleDone);
     }
-    
+
     void _onData(S data) {
         if (_handleData == null) return;
         T targetData;
         try {
             // siyao: this might go wrong
-            targetData = (T)(object) data ;
-        } catch (Exception error) {
+            targetData = (T) (object) data;
+        }
+        catch (Exception error) {
             if (_handleError == null) {
                 _zone.handleUncaughtError(error);
-            } else {
+            }
+            else {
                 _zone.runBinaryGuarded(_handleError, error, error.StackTrace);
-            } 
+            }
+
             return;
         }
+
         _zone.runUnaryGuarded(_handleData, targetData);
     }
 
@@ -98,7 +105,7 @@ class CastStreamSubscription<S, T> : StreamSubscription<T> {
         _source.resume();
     }
 
-    bool  isPaused {
+    bool isPaused {
         get { return _source.isPaused; }
     }
 
@@ -116,6 +123,7 @@ class CastStreamTransformer<SS, ST, TS, TT>
 
     public override StreamTransformer<RS, RT> cast<RS, RT>() =>
         new CastStreamTransformer<SS, ST, RS, RT>(_source);
+
     public override Stream<TT> bind(Stream<TS> stream) =>
         _source.bind(stream.cast<SS>()).cast<TT>();
 }
