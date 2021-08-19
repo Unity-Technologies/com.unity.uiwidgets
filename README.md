@@ -122,7 +122,7 @@ in Unity Editor.
 
     namespace UIWidgetsSample
     {
-        public class CountDemo : UIWidgetsPanel
+        public class UIWidgetsExample : UIWidgetsPanel
         {
             protected void OnEnable()
             {
