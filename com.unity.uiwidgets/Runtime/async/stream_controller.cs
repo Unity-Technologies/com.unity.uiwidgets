@@ -43,9 +43,9 @@ namespace Unity.UIWidgets.async {
         public static StreamController<T> broadcast(
             Action onListen = null, Action onCancel = null, bool sync = false) {
             return sync
-                ? (StreamController<T>) new _SyncBroadcastStreamController<T>(() => onListen(), onCancel)
-                : new _AsyncBroadcastStreamController<T>(() => onListen(), () => {
-                    onCancel();
+                ? (StreamController<T>) new _SyncBroadcastStreamController<T>(() => onListen?.Invoke(), onCancel)
+                : new _AsyncBroadcastStreamController<T>(() => onListen?.Invoke(), () => {
+                    onCancel?.Invoke();
                     return Future._nullFuture;
                 });
         }
@@ -393,7 +393,7 @@ namespace Unity.UIWidgets.async {
             }
 
             subscription._setPendingEvents(pendingEvents);
-            subscription._guardCallback(() => { _stream._runGuarded(() => onListen()); });
+            subscription._guardCallback(() => { _stream._runGuarded(() => onListen?.Invoke()); });
 
             return subscription;
         }
@@ -461,7 +461,7 @@ namespace Unity.UIWidgets.async {
                 addState.pause();
             }
 
-            _stream._runGuarded(() => onPause());
+            _stream._runGuarded(() => onPause?.Invoke());
         }
 
         public override void _recordResume(StreamSubscription<T> subscription) {
@@ -470,7 +470,7 @@ namespace Unity.UIWidgets.async {
                 addState.resume();
             }
 
-            _stream._runGuarded(() => onResume());
+            _stream._runGuarded(() => onResume?.Invoke());
         }
     }
 

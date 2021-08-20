@@ -287,10 +287,36 @@ namespace Editor.Tests.Stream
                     Debug.Log("val = " + val);
                 });
             }
+
+            /**
+             * Test StreamController
+             */
+            private void test11()
+            {
+                StreamController<float> controller = StreamController<float>.create();
+                Stream<float> stream = controller.stream;
+
+                var value = 1f;
+                var timer = Timer.periodic(new TimeSpan(0, 0, 0, 1), (v) =>
+                {
+                    value = value * 1.2f;
+                    controller.add(value);
+                    return null;
+                });
+                
+                stream.listen((val) =>
+                {
+                    if (val >= 2)
+                    {
+                        timer.cancel();
+                    }
+                    Debug.Log("value = " + val);
+                });
+            }
             
             public override Widget build(BuildContext context)
             {
-                test10();
+                test11();
                 return new Container();
             }
         }
