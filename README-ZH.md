@@ -111,7 +111,7 @@ UIWidgets应用是用**C＃脚本**来编写的。 请按照以下步骤创建�
 
     namespace UIWidgetsSample
     {
-        public class CountDemo : UIWidgetsPanel
+        public class UIWidgetsExample : UIWidgetsPanel
         {
             protected void OnEnable()
             {

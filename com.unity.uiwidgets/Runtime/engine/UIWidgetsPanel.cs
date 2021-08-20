@@ -276,7 +276,7 @@ namespace Unity.UIWidgets.engine {
         }
 
 
-        protected void OnEnable() {
+        protected override void OnEnable() {
             if (UIWidgetsDisabled) {
                 enabled = false;
                 return;
