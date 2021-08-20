@@ -1,12 +1,6 @@
-//part of dart.async;
-
-
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Text;
-using Unity.UIWidgets.async;
 using Unity.UIWidgets.core;
 using Unity.UIWidgets.foundation;
 using Stopwatch = Unity.UIWidgets.core.Stopwatch;
@@ -16,21 +10,13 @@ namespace Unity.UIWidgets.async {
         public delegate void _TimerCallback();
     }
 
-    public abstract class Foo<T> {
-        public Foo() {
-        }
-    }
-
     public abstract class Stream<T> {
         public Stream() {
         }
 
-
         // const Stream._internal();
-
-
+        
         public static Stream<T> empty() => new _EmptyStream<T>();
-
 
         // @Since("2.5")
         public static Stream<T> value(T value) {
@@ -175,11 +161,11 @@ namespace Unity.UIWidgets.async {
         static Stream<T> castFrom<S, T>(Stream<S> source) =>
             new CastStream<S, T>(source);
 
-        public bool isBroadcast {
+        public virtual bool isBroadcast {
             get { return false; }
         }
 
-        public Stream<T> asBroadcastStream(
+        public virtual Stream<T> asBroadcastStream(
             Action<StreamSubscription<T>> onListen = null,
             Action<StreamSubscription<T>> onCancel = null) {
             return new _AsBroadcastStream<T>(this, onListen, onCancel);
@@ -870,7 +856,7 @@ namespace Unity.UIWidgets.async {
 
         public abstract void resume();
 
-        public bool isPaused { get; }
+        public virtual bool isPaused { get; }
 
         public abstract Future<E> asFuture<E>(E futureValue);
     }
@@ -914,9 +900,9 @@ namespace Unity.UIWidgets.async {
     public abstract class StreamSink<S> : EventSink<S>, StreamConsumer<S> {
         // Future close();
 
-        public Future done { get; }
+        public virtual Future done { get; }
 
-        public Future addStream(Stream<S> stream) {
+        public virtual Future addStream(Stream<S> stream) {
             throw new System.NotImplementedException();
         }
 

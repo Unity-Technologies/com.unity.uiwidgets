@@ -1,8 +1,5 @@
 using System;
-using System.Diagnostics;
-using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using UnityEditor.PackageManager;
 
 namespace Unity.UIWidgets.async {
     static partial class _stream {
@@ -53,19 +50,19 @@ namespace Unity.UIWidgets.async {
                 });
         }
 
-        public _stream.ControllerCallback onListen { get; set; }
+        public virtual _stream.ControllerCallback onListen { get; set; }
 
         // void  onListen(void onListenHandler());
 
-        public _stream.ControllerCallback onPause { get; set; }
+        public virtual _stream.ControllerCallback onPause { get; set; }
 
         // void set onPause(void onPauseHandler());
 
-        public _stream.ControllerCallback onResume { get; set; }
+        public virtual _stream.ControllerCallback onResume { get; set; }
 
         // void set onResume(void onResumeHandler());
 
-        public _stream.ControllerCancelCallback onCancel { get; set; }
+        public virtual _stream.ControllerCancelCallback onCancel { get; set; }
 
         // void set onCancel(onCancelHandler());
 
@@ -117,10 +114,10 @@ namespace Unity.UIWidgets.async {
             Action onDone, bool cancelOnError);
 
 
-        public void _recordPause(StreamSubscription<T> subscription) {
+        public virtual void _recordPause(StreamSubscription<T> subscription) {
         }
 
-        public void _recordResume(StreamSubscription<T> subscription) {
+        public virtual void _recordResume(StreamSubscription<T> subscription) {
         }
 
         public virtual Future _recordCancel(StreamSubscription<T> subscription) => null;
@@ -170,10 +167,10 @@ namespace Unity.UIWidgets.async {
         // accessed earlier, or if close is called before subscribing.
         _Future _doneFuture;
 
-        _stream.ControllerCallback onListen;
-        _stream.ControllerCallback onPause;
-        _stream.ControllerCallback onResume;
-        _stream.ControllerCancelCallback onCancel;
+        public override _stream.ControllerCallback onListen { get; set; }
+        public override _stream.ControllerCallback onPause  { get; set; }
+        public override _stream.ControllerCallback onResume  { get; set; }
+        public override _stream.ControllerCancelCallback onCancel  { get; set; }
 
         internal _StreamController(_stream.ControllerCallback onListen, _stream.ControllerCallback onPause,
             _stream.ControllerCallback onResume, _stream.ControllerCancelCallback onCancel) {
@@ -207,11 +204,11 @@ namespace Unity.UIWidgets.async {
                 (_state & _STATE_SUBSCRIPTION_MASK) == _STATE_INITIAL;
         }
 
-        bool isClosed {
+        public override bool isClosed {
             get => (_state & _STATE_CLOSED) != 0;
         }
 
-        bool isPaused {
+        public override bool isPaused {
             get =>
                 hasListener ? _subscription._isInputPaused : !_isCanceled;
         }
@@ -221,7 +218,7 @@ namespace Unity.UIWidgets.async {
         }
 
         /** New events may not be added after close, or during addStream. */
-        bool _mayAddEvent {
+        internal bool _mayAddEvent {
             get => (_state < _STATE_CLOSED);
         }
 
@@ -293,7 +290,7 @@ namespace Unity.UIWidgets.async {
             return addState.addStreamFuture;
         }
 
-        Future done {
+        public override Future done {
             get { return _ensureDoneFuture(); }
         }
 
@@ -458,7 +455,7 @@ namespace Unity.UIWidgets.async {
             return result;
         }
 
-        void _recordPause(StreamSubscription<T> subscription) {
+        public override void _recordPause(StreamSubscription<T> subscription) {
             if (_isAddingStream) {
                 _StreamControllerAddStreamState<T> addState = (_StreamControllerAddStreamState<T>) _varData;
                 addState.pause();
@@ -467,7 +464,7 @@ namespace Unity.UIWidgets.async {
             _stream._runGuarded(() => onPause());
         }
 
-        void _recordResume(StreamSubscription<T> subscription) {
+        public override void _recordResume(StreamSubscription<T> subscription) {
             if (_isAddingStream) {
                 _StreamControllerAddStreamState<T> addState = (_StreamControllerAddStreamState<T>) _varData;
                 addState.resume();
@@ -612,15 +609,15 @@ namespace Unity.UIWidgets.async {
             this._controller = _controller;
         }
 
-        Future _onCancel() {
+        protected override Future _onCancel() {
             return _controller._recordCancel(this);
         }
 
-        void _onPause() {
+        protected override void _onPause() {
             _controller._recordPause(this);
         }
 
-        void _onResume() {
+        protected override void _onResume() {
             _controller._recordResume(this);
         }
     }
@@ -643,9 +640,9 @@ namespace Unity.UIWidgets.async {
 
         public override Future close() => _target.close();
 
-        Future addStream(Stream<T> source) => _target.addStream(source);
+        public override Future addStream(Stream<T> source) => _target.addStream(source);
 
-        Future done {
+        public override Future done {
             get { return _target.done; }
         }
     }

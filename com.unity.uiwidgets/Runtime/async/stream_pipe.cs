@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Unity.UIWidgets.async {
     public static partial class _stream {
@@ -100,7 +98,7 @@ namespace Unity.UIWidgets.async {
             this._source = _source;
         }
 
-        bool isBroadcast {
+        public override bool isBroadcast {
             get { return _source.isBroadcast; }
         }
 
@@ -122,8 +120,9 @@ namespace Unity.UIWidgets.async {
             sink._add((T) (object) data);
         }
 
-        internal virtual void _handleError(Exception error, _EventSink<T> sink) {
-            sink._addError(error, error.StackTrace);
+        internal virtual void _handleError(object error, _EventSink<T> sink) {
+            string stackTrace = error is Exception ? ((Exception) error).StackTrace : "";
+            sink._addError(error, stackTrace);
         }
 
         internal virtual void _handleDone(_EventSink<T> sink) {
@@ -154,29 +153,29 @@ namespace Unity.UIWidgets.async {
         // Transformers sending more than one event have no way to know if the stream
         // is canceled or closed after the first, so we just ignore remaining events.
 
-        void _add(T data) {
+        public override void _add(T data) {
             if (_isClosed) return;
             base._add(data);
         }
 
-        void _addError(object error, string stackTrace) {
+        public override void _addError(object error, string stackTrace) {
             if (_isClosed) return;
             base._addError(error, stackTrace);
         }
 
         // StreamSubscription callbacks.
 
-        void _onPause() {
+        protected override void _onPause() {
             if (_subscription == null) return;
             _subscription.pause();
         }
 
-        void _onResume() {
+        protected override void _onResume() {
             if (_subscription == null) return;
             _subscription.resume();
         }
 
-        Future _onCancel() {
+        protected override Future _onCancel() {
             if (_subscription != null) {
                 StreamSubscription<S> subscription = _subscription;
                 _subscription = null;
@@ -298,7 +297,7 @@ namespace Unity.UIWidgets.async {
         }
 
 
-        void _handleError(object error, string stackTrace, _EventSink<T> sink) {
+        internal override void _handleError(object error, _EventSink<T> sink) {
             bool matches = true;
             if (_test != null) {
                 try {
@@ -310,6 +309,7 @@ namespace Unity.UIWidgets.async {
                 }
             }
 
+            string stackTrace = error is Exception ? ((Exception) error).StackTrace : "";
             if (matches) {
                 try {
                     _async._invokeErrorHandler(_transform, error, stackTrace);
@@ -522,7 +522,7 @@ namespace Unity.UIWidgets.async {
                 this, onData, onError, onDone, cancelOnError, _SENTINEL);
         }
 
-        void _handleData(T inputEvent, _EventSink<T> sink) {
+        internal override void _handleData(T inputEvent, _EventSink<T> sink) {
             _StateStreamSubscription<T> subscription = (_StateStreamSubscription<T>) sink;
             var previous = subscription._value;
             if (Equals(previous, _SENTINEL)) {

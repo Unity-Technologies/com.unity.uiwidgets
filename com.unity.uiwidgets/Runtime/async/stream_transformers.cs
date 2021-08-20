@@ -48,7 +48,7 @@ namespace Unity.UIWidgets.async {
 
         // _EventSink interface.
 
-        void _add(T data) {
+        public override void _add(T data) {
             if (_isClosed) {
                 throw new Exception("Stream is already closed");
             }
@@ -56,7 +56,7 @@ namespace Unity.UIWidgets.async {
             base._add(data);
         }
 
-        void _addError(object error, string stackTrace) {
+        public override void _addError(object error, string stackTrace) {
             if (_isClosed) {
                 throw new Exception("Stream is already closed");
             }
@@ -64,7 +64,7 @@ namespace Unity.UIWidgets.async {
             base._addError(error, stackTrace);
         }
 
-        void _close() {
+        public override void _close() {
             if (_isClosed) {
                 throw new Exception("Stream is already closed");
             }
@@ -74,15 +74,15 @@ namespace Unity.UIWidgets.async {
 
         // _BufferingStreamSubscription hooks.
 
-        void _onPause() {
+        protected override void _onPause() {
             if (_isSubscribed) _subscription.pause();
         }
 
-        void _onResume() {
+        protected override void _onResume() {
             if (_isSubscribed) _subscription.resume();
         }
 
-        Future _onCancel() {
+        protected override Future _onCancel() {
             if (_isSubscribed) {
                 StreamSubscription<S> subscription = _subscription;
                 _subscription = null;
@@ -141,7 +141,7 @@ namespace Unity.UIWidgets.async {
         readonly _async._SinkMapper<S, T> _sinkMapper;
         readonly Stream<S> _stream;
 
-        bool isBroadcast {
+        public override bool isBroadcast {
             get { return _stream.isBroadcast; }
         }
 
@@ -247,7 +247,7 @@ namespace Unity.UIWidgets.async {
             }) {
         }
 
-        Stream<T> bind(Stream<S> stream) {
+        public override Stream<T> bind(Stream<S> stream) {
             return base.bind(stream);
         }
     }
@@ -288,7 +288,7 @@ namespace Unity.UIWidgets.async {
         readonly _async._SubscriptionTransformer<S, T> _onListen;
         readonly Stream<S> _stream;
 
-        bool isBroadcast {
+        public override bool isBroadcast {
             get { return _stream.isBroadcast; }
         }
 

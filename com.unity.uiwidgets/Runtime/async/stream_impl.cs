@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.async {
             _iterator = data.GetEnumerator();
         }
 
-        bool isEmpty {
+        public override bool isEmpty {
             get { return _iterator == null; }
         }
 
@@ -122,7 +122,7 @@ namespace Unity.UIWidgets.async {
 
     abstract class _DelayedEvent<T> {
         /** Added as a linked list on the [StreamController]. */
-        internal _DelayedEvent<T> next;
+        internal virtual _DelayedEvent<T> next { get; set; }
 
         /** Execute the delayed event on the [StreamController]. */
         public abstract void perform(_EventDispatch<T> dispatch);
@@ -163,7 +163,7 @@ namespace Unity.UIWidgets.async {
             dispatch._sendDone();
         }
 
-        _DelayedEvent<object> next {
+        internal override _DelayedEvent<T> next {
             get { return null; }
             set { throw new Exception("No events after a done."); }
         }
@@ -363,7 +363,7 @@ namespace Unity.UIWidgets.async {
             get => (_state & _STATE_CANCEL_ON_ERROR) != 0;
         }
 
-        internal bool isPaused {
+        public override bool isPaused {
             get => _isPaused;
         }
 
@@ -384,7 +384,7 @@ namespace Unity.UIWidgets.async {
 
         // _EventSink interface.
 
-        public void _add(T data) {
+        public virtual void _add(T data) {
             D.assert(!_isClosed);
             if (_isCanceled) return;
             if (_canFire) {
@@ -395,7 +395,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        public void _addError(object error, string stackTrace) {
+        public virtual void _addError(object error, string stackTrace) {
             if (_isCanceled) return;
             if (_canFire) {
                 _sendError(error, stackTrace); // Reports cancel after sending.
@@ -405,7 +405,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        public void _close() {
+        public virtual void _close() {
             D.assert(!_isClosed);
             if (_isCanceled) return;
             _state |= _STATE_CLOSED;
@@ -421,15 +421,15 @@ namespace Unity.UIWidgets.async {
         // These must not throw. If overwritten to call user code, include suitable
         // try/catch wrapping and send any errors to
         // [_Zone.current.handleUncaughtError].
-        void _onPause() {
+        protected virtual void _onPause() {
             D.assert(_isInputPaused);
         }
 
-        void _onResume() {
+        protected virtual void _onResume() {
             D.assert(!_isInputPaused);
         }
 
-        Future _onCancel() {
+        protected virtual Future _onCancel() {
             D.assert(_isCanceled);
             return null;
         }
@@ -451,7 +451,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        public void _sendData(T data) {
+        public virtual void _sendData(T data) {
             D.assert(!_isCanceled);
             D.assert(!_isPaused);
             D.assert(!_inCallback);
@@ -465,7 +465,7 @@ namespace Unity.UIWidgets.async {
             _checkState(wasInputPaused);
         }
 
-        public void _sendError(object error, string stackTrace) {
+        public virtual void _sendError(object error, string stackTrace) {
             D.assert(!_isCanceled);
             D.assert(!_isPaused);
             D.assert(!_inCallback);
@@ -610,7 +610,7 @@ namespace Unity.UIWidgets.async {
    */
         int _state = _STATE_UNSCHEDULED;
 
-        public bool isEmpty { get; }
+        public virtual bool isEmpty { get; }
 
         public bool isScheduled {
             get => _state == _STATE_SCHEDULED;
@@ -662,7 +662,7 @@ namespace Unity.UIWidgets.async {
         /// Last element in the list of pending events. New events are added after it.
         _DelayedEvent<T> lastPendingEvent;
 
-        bool isEmpty {
+        public override bool isEmpty {
             get { return lastPendingEvent == null; }
         }
 
@@ -715,7 +715,7 @@ namespace Unity.UIWidgets.async {
             get => (_state & _SCHEDULED) != 0;
         }
 
-        bool isPaused {
+        public override bool isPaused {
             get => _state >= _PAUSED;
         }
 
@@ -803,7 +803,7 @@ namespace Unity.UIWidgets.async {
             _controller = new _AsBroadcastStreamController<T>(_onListen, _onCancel);
         }
 
-        bool isBroadcast {
+        public override bool isBroadcast {
             get { return true; }
         }
 
@@ -913,7 +913,7 @@ namespace Unity.UIWidgets.async {
             return Future._nullFuture;
         }
 
-        bool isPaused {
+        public override bool isPaused {
             get { return _stream._isSubscriptionPaused; }
         }
 
@@ -1031,7 +1031,7 @@ namespace Unity.UIWidgets.async {
         internal _EmptyStream() : base() {
         }
 
-        bool isBroadcast {
+        public override bool isBroadcast {
             get { return true; }
         }
 

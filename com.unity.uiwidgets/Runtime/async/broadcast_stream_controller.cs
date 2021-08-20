@@ -7,7 +7,7 @@ namespace Unity.UIWidgets.async {
             : base(controller) {
         }
 
-        bool isBroadcast {
+        public override bool isBroadcast {
             get { return true; }
         }
     }
@@ -56,12 +56,12 @@ namespace Unity.UIWidgets.async {
 
         // The controller._recordPause doesn't do anything for a broadcast controller,
         // so we don't bother calling it.
-        void _onPause() {
+        protected override void _onPause() {
         }
 
         // The controller._recordResume doesn't do anything for a broadcast
         // controller, so we don't bother calling it.
-        void _onResume() {
+        protected override void _onResume() {
         }
 
         // _onCancel is inherited.
@@ -75,8 +75,8 @@ namespace Unity.UIWidgets.async {
         protected const int _STATE_CLOSED = 4;
         const int _STATE_ADDSTREAM = 8;
 
-        _stream.ControllerCallback onListen;
-        _stream.ControllerCancelCallback onCancel;
+        public override _stream.ControllerCallback onListen { get; set; }
+        public override _stream.ControllerCancelCallback onCancel { get; set; }
 
         // State of the controller.
         internal int _state;
@@ -97,7 +97,7 @@ namespace Unity.UIWidgets.async {
             _state = _STATE_INITIAL;
         }
 
-        _stream.ControllerCallback onPause {
+        public override _stream.ControllerCallback onPause {
             get {
                 throw new Exception(
                     "Broadcast stream controllers do not support pause callbacks");
@@ -108,7 +108,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        _stream.ControllerCallback onResume {
+        public override _stream.ControllerCallback onResume {
             get {
                 throw new Exception(
                     "Broadcast stream controllers do not support pause callbacks");
@@ -160,15 +160,15 @@ namespace Unity.UIWidgets.async {
         }
 
         /** Whether an event is being fired (sent to some, but not all, listeners). */
-        internal bool _isFiring {
+        internal virtual bool _isFiring {
             get => (_state & _STATE_FIRING) != 0;
         }
 
-        bool _isAddingStream {
+        internal bool _isAddingStream {
             get => (_state & _STATE_ADDSTREAM) != 0;
         }
 
-        internal bool _mayAddEvent {
+        internal virtual bool _mayAddEvent {
             get => (_state < _STATE_CLOSED);
         }
 
@@ -179,7 +179,7 @@ namespace Unity.UIWidgets.async {
 
         // Linked list helpers
 
-        internal bool _isEmpty {
+        internal virtual bool _isEmpty {
             get { return _firstSubscription == null; }
         }
 
@@ -244,7 +244,7 @@ namespace Unity.UIWidgets.async {
             return subscription;
         }
 
-        Future _recordCancel(StreamSubscription<T> sub) {
+        public override Future _recordCancel(StreamSubscription<T> sub) {
             _BroadcastSubscription<T> subscription = (_BroadcastSubscription<T>) sub;
             // If already removed by the stream, don't remove it again.
             if (Equals(subscription._next, subscription)) return null;
@@ -263,10 +263,10 @@ namespace Unity.UIWidgets.async {
             return null;
         }
 
-        void _recordPause(StreamSubscription<T> subscription) {
+        public override void _recordPause(StreamSubscription<T> subscription) {
         }
 
-        void _recordResume(StreamSubscription<T> subscription) {
+        public override void _recordResume(StreamSubscription<T> subscription) {
         }
 
         // EventSink interface.
@@ -311,7 +311,7 @@ namespace Unity.UIWidgets.async {
             return doneFuture;
         }
 
-        Future done {
+        public override Future done {
             get { return _ensureDoneFuture(); }
         }
 
@@ -383,7 +383,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        internal void _callOnCancel() {
+        internal virtual void _callOnCancel() {
             D.assert(_isEmpty);
             if (isClosed && _doneFuture._mayComplete) {
                 // When closed, _doneFuture is not null.
@@ -406,7 +406,7 @@ namespace Unity.UIWidgets.async {
 
         // EventDispatch interface.
 
-        bool _mayAddEvent {
+        internal override bool _mayAddEvent {
             get { return base._mayAddEvent && !_isFiring; }
         }
 
@@ -525,7 +525,7 @@ namespace Unity.UIWidgets.async {
             _pending.add(evt);
         }
 
-        void add(T data) {
+        public override void add(T data) {
             if (!isClosed && _isFiring) {
                 _addPendingEvent(new _DelayedData<T>(data));
                 return;
@@ -537,7 +537,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        void addError(object error, string stackTrace) {
+        public override void addError(object error, string stackTrace) {
             // ArgumentError.checkNotNull(error, "error");
             stackTrace = stackTrace ?? AsyncError.defaultStackTrace(error);
             if (!isClosed && _isFiring) {
@@ -552,7 +552,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        Future close() {
+        public override Future close() {
             if (!isClosed && _isFiring) {
                 _addPendingEvent(new _DelayedDone<T>());
                 _state |= _BroadcastStreamController<T>._STATE_CLOSED;
@@ -564,7 +564,7 @@ namespace Unity.UIWidgets.async {
             return result;
         }
 
-        void _callOnCancel() {
+        internal override void _callOnCancel() {
             if (_hasPending) {
                 _pending.clear();
                 _pending = null;

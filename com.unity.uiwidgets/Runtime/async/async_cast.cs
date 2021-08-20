@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.async {
             this._source = _source;
         }
 
-        bool isBroadcast {
+        public override bool isBroadcast {
             get { return _source.isBroadcast; }
         }
 
@@ -73,7 +73,6 @@ namespace Unity.UIWidgets.async {
         public override void onDone(Action handleDone) {
             _source.onDone(handleDone);
         }
-
         void _onData(S data) {
             if (_handleData == null) return;
             T targetData;
@@ -103,13 +102,12 @@ namespace Unity.UIWidgets.async {
             _source.resume();
         }
 
-        bool isPaused {
+        public override bool isPaused {
             get { return _source.isPaused; }
         }
 
         public override Future<E> asFuture<E>(E futureValue) => _source.asFuture<E>(futureValue);
     }
-
 
     class CastStreamTransformer<SS, ST, TS, TT>
         : StreamTransformerBase<TS, TT> where TT : class where ST : class {
