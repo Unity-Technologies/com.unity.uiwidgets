@@ -789,14 +789,14 @@ namespace Unity.UIWidgets.async {
             _onListenHandler = a => Zone.current
                 .registerUnaryCallback(
                     b => {
-                        onListenHandler((StreamSubscription<T>) b);
+                        onListenHandler?.Invoke((StreamSubscription<T>) b);
                         return default;
                     }
                 )(a);
             _onCancelHandler = d => Zone.current
                 .registerUnaryCallback(
                     c => {
-                        onCancelHandler((StreamSubscription<T>) c);
+                        onCancelHandler?.Invoke((StreamSubscription<T>) c);
                         return default;
                     })(d);
             _zone = Zone.current;

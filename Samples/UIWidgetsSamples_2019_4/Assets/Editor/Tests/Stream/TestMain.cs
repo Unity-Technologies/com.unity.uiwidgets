@@ -42,7 +42,7 @@ namespace Editor.Tests.Stream
                 });
             }
             /**
-             * Test OnDone/OnData/Stream.fromIterable
+             * Test ErrorHandler
              */
             private void test2()
             {
@@ -88,7 +88,7 @@ namespace Editor.Tests.Stream
             }
             
             /**
-             * Test ErrorHandler
+             * Test OnDone/OnData/Stream.fromIterable
              */
             private void test3()
             {
@@ -138,6 +138,9 @@ namespace Editor.Tests.Stream
                 });
             }
 
+            /**
+             * Test Stream.take
+             */
             private void test5()
             {
                 Stream<int> numbers = Stream<int>.periodic(new TimeSpan(0, 0, 0, 1), t => t).take(3);
@@ -149,10 +152,71 @@ namespace Editor.Tests.Stream
                     Debug.Log("periodic finished");
                 });
             }
+
+            /**
+             * Test Stream.asBroadcastStream
+             */
+            private void test6()
+            {
+                Stream<int> numbers = Stream<int>.periodic(new TimeSpan(0, 0, 0, 1), t => t).asBroadcastStream().take(10);
+
+                var subscription1 = numbers.listen((data) =>
+                {
+                    Debug.Log("Sub1: " + data);
+                });
+                
+                var subscription2 = numbers.listen((data) =>
+                {
+                    Debug.Log("Sub2: " + data);
+                    if (data == 3)
+                    {
+                        subscription1.cancel();
+                    }
+                });
+            }
+            
+            /**
+             * Test listen( ..., cancelOnError = true)
+             */
+            private void test7()
+            {
+                Stream<int> numbers = Stream<int>.periodic(new TimeSpan(0, 0, 0, 1), t =>
+                {
+                    if (t == 2)
+                    {
+                        throw new Exception("LaLaLa");
+                    }
+                    
+                    return t;
+                }).take(5);
+                void sumStream(Stream<int> stream, Action<int> onDone)
+                {
+                    var sum = 0;
+                    stream.listen(val =>
+                        {
+                            sum += val;
+                            Debug.Log("sum stream = " + sum);
+                        }, 
+                        onDone: () =>
+                        {
+                            onDone.Invoke(sum);
+                        },
+                        onError: (e, stack) =>
+                        {
+                            Debug.Log("error at " + stack);
+                        },
+                        cancelOnError: true);
+                }
+
+                sumStream(numbers, val =>
+                {
+                    Debug.Log("sum = " + (int)val);
+                });
+            }
             
             public override Widget build(BuildContext context)
             {
-                test5();
+                test7();
                 return new Container();
             }
         }
