@@ -246,11 +246,11 @@ namespace Unity.UIWidgets.async {
         public override void onError(Action<object, string> handleError) {
             handleError = handleError ?? ((input1, input2) => _stream._nullErrorHandler(null));
 
-            _onError = (_, __) => _zone
+            _onError = (arg1, arg2) => _zone
                 .registerBinaryCallback((in1, in2) => {
                     handleError(in1, (string) in2);
                     return null;
-                });
+                }).Invoke(arg1, arg2);
         }
 
         public override void onDone(Action handleDone) {
@@ -258,7 +258,7 @@ namespace Unity.UIWidgets.async {
             _onDone = () => _zone.registerCallback(() => {
                 handleDone();
                 return null;
-            });
+            }).Invoke();
         }
 
         public override void pause(Future resumeSignal) {
