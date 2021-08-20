@@ -123,7 +123,7 @@ namespace Unity.UIWidgets.async {
         public void _recordResume(StreamSubscription<T> subscription) {
         }
 
-        public Future _recordCancel(StreamSubscription<T> subscription) => null;
+        public virtual Future _recordCancel(StreamSubscription<T> subscription) => null;
 
         public abstract void _add(T data);
 
@@ -401,7 +401,7 @@ namespace Unity.UIWidgets.async {
             return subscription;
         }
 
-        Future _recordCancel(StreamSubscription<T> subscription) {
+        public override Future _recordCancel(StreamSubscription<T> subscription) {
             // When we cancel, we first cancel any stream being added,
             // Then we call `onCancel`, and finally the _doneFuture is completed.
             // If either of addStream's cancel or `onCancel` returns a future,

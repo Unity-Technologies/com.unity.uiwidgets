@@ -233,10 +233,13 @@ namespace Unity.UIWidgets.async {
             handleData = handleData ?? _stream._nullDataHandler;
             // TODO(floitsch): the return type should be 'void', and the type
             // should be inferred.
-            _onData = d => _zone.registerUnaryCallback(data => {
-                handleData((T) data);
-                return default;
-            });
+            _onData = d => {
+                _zone.registerUnaryCallback(data => 
+                {
+                    handleData((T) data);
+                    return default;
+                }).Invoke(d);
+            };
         }
 
         // Siyao: c# does not support convert action
