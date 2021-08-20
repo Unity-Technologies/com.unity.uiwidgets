@@ -313,10 +313,30 @@ namespace Editor.Tests.Stream
                     Debug.Log("value = " + val);
                 });
             }
+
+            /**
+             * Test Stream.fromFuture
+             */
+            private void test12()
+            {
+                Future<string> getData()
+                {
+                    return Future<string>.delayed(new TimeSpan(0, 0, 0, 1), () =>
+                    {
+                        return "My String from Future";
+                    }).to<string>();
+                }
+                
+                var stream = Stream<string>.fromFuture(getData());
+                stream.listen(val =>
+                {
+                    Debug.Log("val = " + val);
+                });
+            }
             
             public override Widget build(BuildContext context)
             {
-                test11();
+                test12();
                 return new Container();
             }
         }
