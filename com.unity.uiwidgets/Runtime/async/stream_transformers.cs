@@ -3,9 +3,9 @@ using Unity.UIWidgets.async;
 
 namespace Unity.UIWidgets.async {
     class _EventSinkWrapper<T> : EventSink<T> {
-        _EventSink<object> _sink;
+        _EventSink<T> _sink;
 
-        internal _EventSinkWrapper(_EventSink<object> _sink) {
+        internal _EventSinkWrapper(_EventSink<T> _sink) {
             this._sink = _sink;
         }
 
@@ -35,7 +35,7 @@ namespace Unity.UIWidgets.async {
                 Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError)
             // We set the adapter's target only when the user is allowed to send data.
             : base(onData, onError, onDone, cancelOnError) {
-            _EventSinkWrapper<T> eventSink = new _EventSinkWrapper<T>((_EventSink<object>) this);
+            _EventSinkWrapper<T> eventSink = new _EventSinkWrapper<T>(this);
             _transformerSink = mapper(eventSink);
             _subscription =
                 source.listen(_handleData, onError: _handleError, onDone: _handleDone);

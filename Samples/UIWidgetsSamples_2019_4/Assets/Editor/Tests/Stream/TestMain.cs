@@ -273,10 +273,24 @@ namespace Editor.Tests.Stream
                     Debug.Log("val = " + val);
                 });
             }
+
+            private void test10()
+            {
+                Stream<int> numbers = Stream<int>.fromIterable(new List<int> {0, 1, 2, 2, 3, 4, 5, 5});
+                var transformer = StreamTransformer<int, string>.fromHandlers(handleData: (val, sink) =>
+                {
+                    sink.add("My number is " + val);
+                });
+
+                numbers.transform(transformer).listen(val =>
+                {
+                    Debug.Log("val = " + val);
+                });
+            }
             
             public override Widget build(BuildContext context)
             {
-                test9();
+                test10();
                 return new Container();
             }
         }

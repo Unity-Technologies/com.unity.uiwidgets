@@ -291,7 +291,7 @@ namespace Unity.UIWidgets.async {
             return streamConsumer.addStream(this).then((_) => streamConsumer.close(), (_) => FutureOr.nil);
         }
 
-        Stream<S> transform<S>(StreamTransformer<T, S> streamTransformer) where S : class {
+        public Stream<S> transform<S>(StreamTransformer<T, S> streamTransformer) where S : class {
             return streamTransformer.bind(this);
         }
 
