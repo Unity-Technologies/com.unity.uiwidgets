@@ -213,10 +213,70 @@ namespace Editor.Tests.Stream
                     Debug.Log("sum = " + (int)val);
                 });
             }
+
+            /**
+             * Test subscription.pause/resume/cancel
+             */
+            private void test8()
+            {
+                Stream<int> numbers = Stream<int>.periodic(new TimeSpan(0, 0, 0, 1), t => t).take(3);
+                var subscription = numbers.listen(n =>
+                {
+                    Debug.Log("num = " + n);
+                }, onDone: () =>
+                {
+                    Debug.Log("periodic finished");
+                });
+
+                Future.delayed(new TimeSpan(0, 0, 0, 0, 1200), () =>
+                {
+                    Debug.Log("pause >>>>");
+                    subscription.pause();
+                    return FutureOr.nil;
+                }).then(v =>
+                {
+                    Future.delayed(new TimeSpan(0, 0, 0, 5), () =>
+                    {
+                        Debug.Log("resume >>>>");
+                        subscription.resume();
+                        return FutureOr.nil;
+                    }).then(v2 =>
+                    {
+                        Future.delayed(new TimeSpan(0, 0, 0, 1), () =>
+                        {
+                            Debug.Log("cancel >>>>");
+                            subscription.cancel();
+                            return FutureOr.nil;
+                        });
+                    });
+                });
+            }
+
+            /**
+             * Test Stream.map, distinct
+             */
+            private void test9()
+            {
+                string convert(int number)
+                {
+                    return "string " + number;
+                }
+
+                bool stringEqual(string s1, string s2)
+                {
+                    return s1 == s2;
+                }
+                
+                Stream<string> numbers = Stream<int>.fromIterable(new List<int> {0, 1, 2, 2, 3, 4, 5, 5}).map(convert).distinct(stringEqual);
+                numbers.listen(val =>
+                {
+                    Debug.Log("val = " + val);
+                });
+            }
             
             public override Widget build(BuildContext context)
             {
-                test7();
+                test9();
                 return new Container();
             }
         }

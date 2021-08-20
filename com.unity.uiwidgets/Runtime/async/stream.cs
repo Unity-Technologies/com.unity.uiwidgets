@@ -511,7 +511,7 @@ namespace Unity.UIWidgets.async {
             return new _SkipWhileStream<T>(this, d => test(d));
         }
 
-        Stream<T> distinct(Func<T, T, bool> equals) {
+        public Stream<T> distinct(Func<T, T, bool> equals) {
             return new _DistinctStream<T>(this, (d1, d2) => equals(d1, d2));
         }
 
