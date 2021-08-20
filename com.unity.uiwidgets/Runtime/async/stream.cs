@@ -509,7 +509,7 @@ namespace Unity.UIWidgets.async {
         Future<E> drain<E>(E futureValue) =>
             listen(null, cancelOnError: true).asFuture<E>(futureValue);
 
-        Stream<T> take(int count) {
+        public Stream<T> take(int count) {
             return new _TakeStream<T>(this, count);
         }
 

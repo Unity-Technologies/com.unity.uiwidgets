@@ -145,6 +145,7 @@ namespace Unity.UIWidgets.async {
             Action<T> onData, Action<object, string> onError, Action onDone, bool cancelOnError
         )
             : base(onData, onError, onDone, cancelOnError) {
+            this._stream = _stream;
             _subscription = _stream._source
                 .listen(_handleData, onError: _handleError, onDone: _handleDone);
         }
@@ -352,7 +353,7 @@ namespace Unity.UIWidgets.async {
                 this, onData, onError, onDone, cancelOnError, _count);
         }
 
-        void _handleData(T inputEvent, _EventSink<T> sink) {
+        internal override void _handleData(T inputEvent, _EventSink<T> sink) {
             _StateStreamSubscription<T> subscription = (_StateStreamSubscription<T>) sink;
             int count = subscription._count;
             if (count > 0) {
