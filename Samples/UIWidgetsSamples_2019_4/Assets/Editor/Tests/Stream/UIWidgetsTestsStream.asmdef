@@ -1,0 +1,17 @@
+{
+  "name": "UIWidgetsTestStream",
+  "references": [
+    "Unity.UIWidgets",
+    "Unity.UIWidgets.Editor"
+  ],
+  "optionalUnityReferences": [],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": []
+}
