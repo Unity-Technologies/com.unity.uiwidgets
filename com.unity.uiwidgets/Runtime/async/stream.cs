@@ -15,7 +15,7 @@ namespace Unity.UIWidgets.async {
         }
 
         // const Stream._internal();
-        
+
         public static Stream<T> empty() => new _EmptyStream<T>();
 
         // @Since("2.5")
@@ -201,7 +201,8 @@ namespace Unity.UIWidgets.async {
                         return;
                     }
 
-                    if (newValue.f is Future<E> newFuture) { // siyao: this if different from dart
+                    if (newValue.f is Future<E> newFuture) {
+                        // siyao: this if different from dart
                         subscription.pause();
                         newFuture
                             .then(d => add((E) d), onError: (e) => {
@@ -870,26 +871,28 @@ namespace Unity.UIWidgets.async {
     }
 
 // /** [Stream] wrapper that only exposes the [Stream] interface. */
-// class StreamView<T> extends Stream<T> {
-//   final Stream<T> _stream;
+    public class StreamView<T> : Stream<T> {
+        readonly Stream<T> _stream;
 
-//   const StreamView(Stream<T> stream)
-//       : _stream = stream,
-//         super._internal();
+        public StreamView(Stream<T> stream) : base() {
+            _stream = stream;
+        }
 
-//   bool get isBroadcast => _stream.isBroadcast;
+        public override bool isBroadcast {
+            get { return _stream.isBroadcast; }
+        }
 
-//   Stream<T> asBroadcastStream(
-//           {void onListen(StreamSubscription<T> subscription),
-//           void onCancel(StreamSubscription<T> subscription)}) =>
-//       _stream.asBroadcastStream(onListen: onListen, onCancel: onCancel);
+        public override Stream<T> asBroadcastStream(Action<StreamSubscription<T>> onListen = null,
+            Action<StreamSubscription<T>> onCancel = null)
+            =>
+                _stream.asBroadcastStream(onListen: onListen, onCancel: onCancel);
 
-//   StreamSubscription<T> listen(void onData(T value),
-//       {Function onError, void onDone(), bool cancelOnError}) {
-//     return _stream.listen(onData,
-//         onError: onError, onDone: onDone, cancelOnError: cancelOnError);
-//   }
-// }
+        public override StreamSubscription<T> listen(Action<T> onData, Action<object, string> onError = null,
+            Action onDone = null, bool cancelOnError = false) {
+            return _stream.listen(onData,
+                onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+        }
+    }
 
     public interface StreamConsumer<S> {
         Future addStream(Stream<S> stream);
