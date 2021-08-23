@@ -40,9 +40,9 @@ namespace Unity.UIWidgets.async {
     }
 
     public abstract class Future {
-        static readonly _Future _nullFuture = _Future.zoneValue(null, Zone.root);
+        internal static readonly _Future _nullFuture = _Future.zoneValue(null, Zone.root);
 
-        static readonly _Future _falseFuture = _Future.zoneValue(false, Zone.root);
+        internal static readonly _Future _falseFuture = _Future.zoneValue(false, Zone.root);
 
         public static Future create(Func<FutureOr> computation) {
             _Future result = new _Future();
