@@ -91,10 +91,6 @@ namespace Unity.UIWidgets.async {
                 () => (_PendingEvents<T>) new _IterablePendingEvents<T>(elements));
         }
 
-        public static Stream<T> multi(Action<MultiStreamController<T>> onListen, bool isBroadcast = false) {
-            return new _MultiStream<T>(onListen, isBroadcast);
-        }
-
         public static Stream<T> periodic(TimeSpan period,
             Func<int, T> computation = null) {
             Timer timer = default;
@@ -990,13 +986,5 @@ namespace Unity.UIWidgets.async {
             _sink.close();
             return Future._nullFuture;
         }
-    }
-
-    public interface MultiStreamController<T> : IStreamController<T> {
-        void addSync(T value);
-
-        void addErrorSync(object error, string trackStack);
-
-        void closeSync();
     }
 }
