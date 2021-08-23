@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.async {
             return result;
         }
 
-        Stream<R> cast<R>() where R : class => new CastStream<S, R>(_source);
+        Stream<R> cast<R>() => new CastStream<S, R>(_source);
     }
 
 
@@ -110,7 +110,7 @@ namespace Unity.UIWidgets.async {
     }
 
     class CastStreamTransformer<SS, ST, TS, TT>
-        : StreamTransformerBase<TS, TT> where TT : class where ST : class {
+        : StreamTransformerBase<TS, TT> {
         public readonly StreamTransformer<SS, ST> _source;
 
         public CastStreamTransformer(StreamTransformer<SS, ST> _source) {

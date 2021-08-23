@@ -21,7 +21,50 @@ namespace Unity.UIWidgets.async {
         }
     }
 
-    public abstract class StreamController<T> : StreamSink<T> {
+
+    public interface IStreamController<T> {
+        Stream<T> stream { get; }
+        
+        _stream.ControllerCallback onListen { get; set; }
+
+        // void  onListen(void onListenHandler());
+
+        _stream.ControllerCallback onPause { get; set; }
+
+        // void set onPause(void onPauseHandler());
+
+        _stream.ControllerCallback onResume { get; set; }
+
+        // void set onResume(void onResumeHandler());
+
+        _stream.ControllerCancelCallback onCancel { get; set; }
+
+        // void set onCancel(onCancelHandler());
+
+        StreamSink<T> sink { get; }
+
+       bool isClosed { get; }
+
+        bool isPaused { get; }
+
+        /** Whether there is a subscriber on the [Stream]. */
+        bool hasListener { get; }
+
+        // public abstract void add(T evt);
+        //
+        // public abstract void addError(object error, string stackTrace);
+
+        Future close();
+
+        Future addStream(Stream<T> source, bool? cancelOnError = false);
+        
+        void add(T evt);
+        void addError(object error, string stackTrace);
+
+        Future done { get; }
+    } 
+    
+    public abstract class StreamController<T> : StreamSink<T>, IStreamController<T> {
         /** The stream that this controller is controlling. */
         public virtual Stream<T> stream { get; }
 
@@ -137,30 +180,30 @@ namespace Unity.UIWidgets.async {
 
     abstract class _StreamController<T> : _StreamControllerBase<T> {
         /** The controller is in its initial state with no subscription. */
-        const int _STATE_INITIAL = 0;
+        internal const int _STATE_INITIAL = 0;
 
-        const int _STATE_SUBSCRIBED = 1;
+        internal const int _STATE_SUBSCRIBED = 1;
 
         /** The subscription is canceled. */
-        const int _STATE_CANCELED = 2;
+        internal const int _STATE_CANCELED = 2;
 
         /** Mask for the subscription state. */
-        const int _STATE_SUBSCRIPTION_MASK = 3;
+        internal const int _STATE_SUBSCRIPTION_MASK = 3;
 
         // The following state relate to the controller, not the subscription.
         // If closed, adding more events is not allowed.
         // If executing an [addStream], new events are not allowed either, but will
         // be added by the stream.
 
-        const int _STATE_CLOSED = 4;
-        const int _STATE_ADDSTREAM = 8;
+        internal const int _STATE_CLOSED = 4;
+        internal const int _STATE_ADDSTREAM = 8;
 
         // @pragma("vm:entry-point")
         object _varData;
 
         /** Current state of the controller. */
         // @pragma("vm:entry-point")
-        int _state = _STATE_INITIAL;
+        protected int _state = _STATE_INITIAL;
 
         // TODO(lrn): Could this be stored in the varData field too, if it's not
         // accessed until the call to "close"? Then we need to special case if it's
@@ -269,7 +312,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        Exception _badEventState() {
+        protected Exception _badEventState() {
             if (isClosed) {
                 return new Exception("Cannot add event after closing");
             }

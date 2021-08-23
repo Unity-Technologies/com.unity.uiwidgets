@@ -333,10 +333,46 @@ namespace Editor.Tests.Stream
                     Debug.Log("val = " + val);
                 });
             }
+
+            /**
+             * Test Stream.multi
+             */
+            private void test13()
+            {
+                var log = new List<string>();
+                var index = 1;
+
+                var multi = Stream<List<int>>.multi(c =>
+                {
+                    var id = index++;
+                    log.Add($"{id}");
+                    for (var i = 0; i < id + 1; i++)
+                    {
+                        c.add(new List<int>{id, i});
+                    }
+
+                    c.close();
+                });
+
+                void logList(List<int> l)
+                {
+                    log.Add($"{l.first()}-{l.last()}");
+                }
+
+                Future.wait<object>(new List<Future> {multi.forEach(logList), multi.forEach(logList)}).whenComplete(
+                    () =>
+                    {
+                        foreach (var str in log)
+                        {
+                            Debug.Log(str);
+                        }
+                    }
+                );
+            }
             
             public override Widget build(BuildContext context)
             {
-                test12();
+                test13();
                 return new Container();
             }
         }
