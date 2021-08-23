@@ -291,7 +291,7 @@ namespace Unity.UIWidgets.async {
             return streamConsumer.addStream(this).then((_) => streamConsumer.close(), (_) => FutureOr.nil);
         }
 
-        public Stream<S> transform<S>(StreamTransformer<T, S> streamTransformer) where S : class {
+        public Stream<S> transform<S>(StreamTransformer<T, S> streamTransformer) {
             return streamTransformer.bind(this);
         }
 
@@ -911,10 +911,10 @@ namespace Unity.UIWidgets.async {
         // }
     }
 
-    public abstract class StreamTransformer<S, T> where T : class {
+    public abstract class StreamTransformer<S, T> {
         // c# does not support change constructor
         public static StreamTransformer<S, T> create<S, T>(_async._SubscriptionTransformer<S, T> onListen)
-            where T : class {
+            {
             return new _StreamSubscriptionTransformer<S, T>(onListen);
         }
 
@@ -932,16 +932,16 @@ namespace Unity.UIWidgets.async {
         }
 
         public static StreamTransformer<TS, TT> castFrom<SS, ST, TS, TT>(
-            StreamTransformer<SS, ST> source) where TT : class where ST : class {
+            StreamTransformer<SS, ST> source) {
             return new CastStreamTransformer<SS, ST, TS, TT>(source);
         }
 
         public abstract Stream<T> bind(Stream<S> stream);
 
-        public abstract StreamTransformer<RS, RT> cast<RS, RT>() where RT : class;
+        public abstract StreamTransformer<RS, RT> cast<RS, RT>();
     }
 
-    public abstract class StreamTransformerBase<S, T> : StreamTransformer<S, T> where T : class {
+    public abstract class StreamTransformerBase<S, T> : StreamTransformer<S, T> {
         public StreamTransformerBase() {
         }
 

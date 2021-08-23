@@ -21,7 +21,50 @@ namespace Unity.UIWidgets.async {
         }
     }
 
-    public abstract class StreamController<T> : StreamSink<T> {
+
+    public interface IStreamController<T> {
+        Stream<T> stream { get; }
+        
+        _stream.ControllerCallback onListen { get; set; }
+
+        // void  onListen(void onListenHandler());
+
+        _stream.ControllerCallback onPause { get; set; }
+
+        // void set onPause(void onPauseHandler());
+
+        _stream.ControllerCallback onResume { get; set; }
+
+        // void set onResume(void onResumeHandler());
+
+        _stream.ControllerCancelCallback onCancel { get; set; }
+
+        // void set onCancel(onCancelHandler());
+
+        StreamSink<T> sink { get; }
+
+       bool isClosed { get; }
+
+        bool isPaused { get; }
+
+        /** Whether there is a subscriber on the [Stream]. */
+        bool hasListener { get; }
+
+        // public abstract void add(T evt);
+        //
+        // public abstract void addError(object error, string stackTrace);
+
+        Future close();
+
+        Future addStream(Stream<T> source, bool? cancelOnError = false);
+        
+        void add(T evt);
+        void addError(object error, string stackTrace);
+
+        Future done { get; }
+    } 
+    
+    public abstract class StreamController<T> : StreamSink<T>, IStreamController<T> {
         /** The stream that this controller is controlling. */
         public virtual Stream<T> stream { get; }
 

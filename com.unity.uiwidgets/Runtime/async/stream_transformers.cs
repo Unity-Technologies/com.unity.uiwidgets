@@ -1,5 +1,6 @@
 using System;
 using Unity.UIWidgets.async;
+using UnityEngine;
 
 namespace Unity.UIWidgets.async {
     class _EventSinkWrapper<T> : EventSink<T> {
@@ -126,7 +127,7 @@ namespace Unity.UIWidgets.async {
         }
     }
 
-    class _StreamSinkTransformer<S, T> : StreamTransformerBase<S, T> where T : class {
+    class _StreamSinkTransformer<S, T> : StreamTransformerBase<S, T> {
         readonly _async._SinkMapper<S, T> _sinkMapper;
 
         public _StreamSinkTransformer(_async._SinkMapper<S, T> _sinkMapper) {
@@ -170,7 +171,7 @@ namespace Unity.UIWidgets.async {
         public delegate void _TransformDoneHandler<T>(EventSink<T> sink);
     }
 
-    class _HandlerEventSink<S, T> : EventSink<S> where T : class {
+    class _HandlerEventSink<S, T> : EventSink<S> {
         readonly _stream._TransformDataHandler<S, T> _handleData;
         readonly _stream._TransformErrorHandler<T> _handleError;
         readonly _stream._TransformDoneHandler<T> _handleDone;
@@ -203,7 +204,8 @@ namespace Unity.UIWidgets.async {
                 _handleData(data, _sink);
             }
             else {
-                _sink.add(data as T);
+                Debug.Log("potential bad type casting !!!!");
+                _sink.add((T)((object)data));
             }
         }
 
@@ -236,7 +238,7 @@ namespace Unity.UIWidgets.async {
         }
     }
 
-    class _StreamHandlerTransformer<S, T> : _StreamSinkTransformer<S, T> where T : class {
+    class _StreamHandlerTransformer<S, T> : _StreamSinkTransformer<S, T> {
         internal _StreamHandlerTransformer(
             _stream._TransformDataHandler<S, T> handleData = null,
             _stream._TransformErrorHandler<T> handleError = null,
@@ -252,7 +254,7 @@ namespace Unity.UIWidgets.async {
         }
     }
 
-    class _StreamBindTransformer<S, T> : StreamTransformerBase<S, T> where T : class {
+    class _StreamBindTransformer<S, T> : StreamTransformerBase<S, T> {
         readonly Func<Stream<S>, Stream<T>> _bind;
 
         internal _StreamBindTransformer(Func<Stream<S>, Stream<T>> _bind) {
@@ -268,7 +270,7 @@ namespace Unity.UIWidgets.async {
         public delegate StreamSubscription<T> _SubscriptionTransformer<S, T>(Stream<S> stream, bool cancelOnError);
     }
 
-    class _StreamSubscriptionTransformer<S, T> : StreamTransformerBase<S, T> where T : class {
+    class _StreamSubscriptionTransformer<S, T> : StreamTransformerBase<S, T> {
         readonly _async._SubscriptionTransformer<S, T> _onListen;
 
         internal _StreamSubscriptionTransformer(_async._SubscriptionTransformer<S, T> _onListen) {
