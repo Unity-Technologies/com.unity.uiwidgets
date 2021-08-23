@@ -11,8 +11,8 @@ namespace Unity.UIWidgets.foundation {
     public delegate IEnumerable<DiagnosticsNode> DiagnosticPropertiesTransformer(IEnumerable<DiagnosticsNode> properties);
 
     public delegate IEnumerable<DiagnosticsNode> InformationCollector();
-    
-    internal abstract class _ErrorDiagnostic : DiagnosticsProperty<List<object>> {
+
+    public abstract class _ErrorDiagnostic : DiagnosticsProperty<List<object>> {
         internal _ErrorDiagnostic(
             string message,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.flat,
@@ -47,16 +47,16 @@ namespace Unity.UIWidgets.foundation {
             return string.Join("", value);
         }
     }
-    
-    internal class ErrorDescription : _ErrorDiagnostic {
+
+    public class ErrorDescription : _ErrorDiagnostic {
         public ErrorDescription(string message) : base(message, level: DiagnosticLevel.info) {
         }
 
         public ErrorDescription(List<object> messageParts) : base(messageParts, level: DiagnosticLevel.info) {
         }
     }
-    
-    internal class ErrorSummary : _ErrorDiagnostic {
+
+    public class ErrorSummary : _ErrorDiagnostic {
         public ErrorSummary(string message) : base(message, level: DiagnosticLevel.summary) {
         }
 

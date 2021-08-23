@@ -1958,19 +1958,19 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void addPlaceholder(float width, float height, PlaceholderAlignment alignment,
-            TextBaseline baseline,
+            TextBaseline? baseline,
             float scale = 1.0f,
             float? baselineOffset = null
         ) {
             // Require a baseline to be specified if using a baseline-based alignment.
-            D.assert(alignment == PlaceholderAlignment.aboveBaseline ||
+            D.assert((alignment == PlaceholderAlignment.aboveBaseline ||
                      alignment == PlaceholderAlignment.belowBaseline ||
-                     alignment == PlaceholderAlignment.baseline);
+                     alignment == PlaceholderAlignment.baseline) ? baseline != null : true);
             // Default the baselineOffset to height if null. This will place the placeholder
             // fully above the baseline, similar to [PlaceholderAlignment.aboveBaseline].
             var baselineOffsetFloat = baselineOffset ?? height;
             _addPlaceholder(width * scale, height * scale, (int) alignment, baselineOffsetFloat * scale,
-                (int) baseline);
+                (int) (baseline ?? TextBaseline.alphabetic));
             placeholderCount++;
             placeholderScales.Add(item: scale);
         }
