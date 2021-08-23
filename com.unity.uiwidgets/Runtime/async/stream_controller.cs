@@ -180,30 +180,30 @@ namespace Unity.UIWidgets.async {
 
     abstract class _StreamController<T> : _StreamControllerBase<T> {
         /** The controller is in its initial state with no subscription. */
-        const int _STATE_INITIAL = 0;
+        internal const int _STATE_INITIAL = 0;
 
-        const int _STATE_SUBSCRIBED = 1;
+        internal const int _STATE_SUBSCRIBED = 1;
 
         /** The subscription is canceled. */
-        const int _STATE_CANCELED = 2;
+        internal const int _STATE_CANCELED = 2;
 
         /** Mask for the subscription state. */
-        const int _STATE_SUBSCRIPTION_MASK = 3;
+        internal const int _STATE_SUBSCRIPTION_MASK = 3;
 
         // The following state relate to the controller, not the subscription.
         // If closed, adding more events is not allowed.
         // If executing an [addStream], new events are not allowed either, but will
         // be added by the stream.
 
-        const int _STATE_CLOSED = 4;
-        const int _STATE_ADDSTREAM = 8;
+        internal const int _STATE_CLOSED = 4;
+        internal const int _STATE_ADDSTREAM = 8;
 
         // @pragma("vm:entry-point")
         object _varData;
 
         /** Current state of the controller. */
         // @pragma("vm:entry-point")
-        int _state = _STATE_INITIAL;
+        protected int _state = _STATE_INITIAL;
 
         // TODO(lrn): Could this be stored in the varData field too, if it's not
         // accessed until the call to "close"? Then we need to special case if it's
@@ -312,7 +312,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        Exception _badEventState() {
+        protected Exception _badEventState() {
             if (isClosed) {
                 return new Exception("Cannot add event after closing");
             }
