@@ -245,7 +245,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
 // TODO(ianh): remove unreachable code above once https://github.com/dart-lang/linter/issues/1141 is fixed
-    class FutureBuilder<T> : StatefulWidget {
+    public class FutureBuilder<T> : StatefulWidget {
         public FutureBuilder(
             _async.AsyncWidgetBuilder<T> builder,
             Key key = null,
