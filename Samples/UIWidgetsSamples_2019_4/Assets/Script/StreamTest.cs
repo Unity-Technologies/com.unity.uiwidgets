@@ -1,19 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Timers;
-using Unity.UIWidgets.animation;
+using uiwidgets;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using FontStyle = Unity.UIWidgets.ui.FontStyle;
-using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 using Unity.UIWidgets.async;
-using UnityEngine;
+using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
+using UnityEngine.Networking;
 using Color = Unity.UIWidgets.ui.Color;
+using Image = Unity.UIWidgets.widgets.Image;
 using Timer = Unity.UIWidgets.async.Timer;
 
 namespace UIWidgetsSample
@@ -80,38 +78,76 @@ namespace UIWidgetsSample
 
         class ExampleState : State<ExampleApp>
         {
-            int counter;
-            
             readonly Stream<int> myStream = new NumberCreator().stream;
-            
-            
+
+            IEnumerator _loadCoroutine(string key, Completer completer, Isolate isolate) {
+                var url = new Uri(key);
+                using (var www = UnityWebRequest.Get(url)) {
+                    yield return www.SendWebRequest();
+                    using (Isolate.getScope(isolate)) {
+                        if (www.isNetworkError || www.isHttpError) {
+                            completer.completeError(new Exception($"Failed to load from url \"{url}\": {www.error}"));
+                            yield break;
+                        }
+
+                        var data = www.downloadHandler.data;
+                        completer.complete(data);
+                    }
+                }
+            }
             public override Widget build(BuildContext context)
             {
-                myStream.listen(d => { Debug.Log($"count: {d}"); });
-                
+                Future<byte[]> f = null;
+                var completer = Completer.create();
+                var isolate = Isolate.current;
+                var panel = UIWidgetsPanelWrapper.current.window;
+                if (panel.isActive()) {
+                    panel.startCoroutine(_loadCoroutine("https://buljan.rcsdk8.org/sites/main/files/main-images/camera_lense_0.jpeg", completer, isolate));
+                     f = completer.future.to<byte[]>().then_<byte[]>(data => {
+                        if (data != null && data.Length > 0) {
+                            return data;
+                        }
+
+                        throw new Exception("not loaded");
+                    });
+                }
+                var futureBuilder = new FutureBuilder<byte[]>(
+                    future: f,
+                    builder: (ctx, snapshot) =>
+                    {
+                        int width = 200;
+                        int height = 200;
+                        Color color = Colors.blue;
+                        if (snapshot.connectionState == ConnectionState.done)
+                        {
+                            return new Container(alignment: Alignment.center, width: width, height:height, color: color, child: Image.memory(snapshot.data) );
+                        } else if (snapshot.connectionState == ConnectionState.waiting)
+                        {
+                            return new Container(alignment: Alignment.center, width: width, height:height, color: color, child: new Text("waiting") );
+                        }
+                        else
+                        {
+                            return new Container(alignment: Alignment.center, width: width, height:height, color: color, child: new Text("else") );
+                        }
+                    }
+                );
+                var streamBuilder = new StreamBuilder<int>(
+                    stream: myStream,
+                    initialData: 1,
+                    builder: (ctx, snapshot) =>
+                    {
+                        var data = snapshot.data;
+                        return new Container(child: new Text($"stream data: {data}"));
+                    }
+                );
+
                 return new Container(
-                    color: Color.fromARGB(255, 255, 0, 0),
+                    color: Colors.blueGrey,
                     child: new Column(
                         children: new List<Widget>
                         {
-                            new Text("Counter: " + counter,
-                                style: new TextStyle(fontSize: 18, fontWeight: FontWeight.w100)),
-
-                            new GestureDetector(
-                                onTap: () =>
-                                {
-                                    setState(() =>
-                                    {
-                                        counter++;
-                                    });
-                                },
-                                child: new Container(
-                                    padding: EdgeInsets.symmetric(20, 20),
-                                    color: counter % 2 == 0 ? Color.fromARGB(255, 0, 255, 0) : Color.fromARGB(255, 0, 0, 255),
-                                    child: new Text("Click Me",
-                                        style: new TextStyle(fontFamily: "racher", fontWeight: FontWeight.w100))
-                                )
-                            )
+                            streamBuilder,
+                            futureBuilder
                         }
                     )
                 );
