@@ -395,7 +395,7 @@ namespace Unity.UIWidgets.async {
             return future.to<bool>();
         }
 
-        Future forEach(Action<T> action) {
+        public Future forEach(Action<T> action) {
             _Future future = new _Future();
             StreamSubscription<T> subscription = null;
             subscription = listen(
