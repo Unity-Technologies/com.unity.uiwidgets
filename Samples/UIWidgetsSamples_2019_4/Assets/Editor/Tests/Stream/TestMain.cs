@@ -342,7 +342,7 @@ namespace Editor.Tests.Stream
                 var log = new List<string>();
                 var index = 1;
 
-                var multi = Stream<List<int>>.multi(c =>
+                var multi = StreamMultiUtils<List<int>>.multi(c =>
                 {
                     var id = index++;
                     log.Add($"{id}");
