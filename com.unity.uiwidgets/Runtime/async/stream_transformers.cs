@@ -1,6 +1,4 @@
 using System;
-using Unity.UIWidgets.async;
-using UnityEngine;
 
 namespace Unity.UIWidgets.async {
     class _EventSinkWrapper<T> : EventSink<T> {
@@ -204,7 +202,6 @@ namespace Unity.UIWidgets.async {
                 _handleData(data, _sink);
             }
             else {
-                Debug.Log("potential bad type casting !!!!");
                 _sink.add((T)((object)data));
             }
         }

@@ -1,6 +1,13 @@
 using System;
 
 namespace Unity.UIWidgets.async {
+    
+    /**
+     *  Stream.multi is not supported by flutter 1.17.5 yet, but it might be useful for developers. To address this issue, we put all the necessary codes for this feature
+     *  in this single file.
+     *
+     * [TODO] remove this code when we eventually upgrade UIWidgets to above 2.0
+     */
     public class StreamMultiUtils<T>
     {
         public static Stream<T> multi(Action<MultiStreamController<T>> onListen, bool isBroadcast = false) {
