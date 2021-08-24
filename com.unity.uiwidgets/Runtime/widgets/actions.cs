@@ -159,7 +159,7 @@ namespace Unity.UIWidgets.widgets {
                 }
                 actionsElement = element;
                 Actions actions = element.widget as Actions;
-                action = actions.actions[intent.key]?.Invoke();
+                action = actions.actions.getOrDefault(intent.key)?.Invoke();
 
                 return action == null;
             }
