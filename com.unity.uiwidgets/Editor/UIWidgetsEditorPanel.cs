@@ -145,6 +145,9 @@ namespace Unity.UIWidgets.Editor {
                 var pos = _getPointerPosition(position: evt.mousePosition);
                 _wrapper.OnMouseScroll(delta: delta, pos: pos);
             }
+            else if (evt.isKey) {
+                _wrapper.OnKeyDown(e: evt);
+            }
         }
 
         protected virtual void main() {
