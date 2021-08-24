@@ -90,6 +90,21 @@ namespace Unity.UIWidgets.painting {
         public static HSVColor fromAHSV(float alpha, float hue, float saturation, float value) {
             return new HSVColor(alpha, hue, saturation, value);
         }
+        
+        public static HSVColor fromColor(Color color) {
+            float red = color.red / 0xFF;
+            float green = color.green / 0xFF;
+            float blue = color.blue / 0xFF;
+
+            float max = Mathf.Max(red, Mathf.Max(green, blue));
+            float min = Mathf.Min(red, Mathf.Min(green, blue));
+            float delta = max - min;
+            float alpha = color.alpha / 0xFF;
+            float hue = painting_._getHue(red, green, blue, max, delta);
+            float saturation = max == 0.0f ? 0.0f : delta / max;
+            
+            return new HSVColor(alpha, hue, saturation, max);
+        }
 
         public HSVColor withAlpha(float alpha) {
             return fromAHSV(alpha, hue, saturation, value);
@@ -166,13 +181,13 @@ namespace Unity.UIWidgets.painting {
             return HSLColor.fromAHSL(alpha, hue, saturation, lightness);
         }
 
-        readonly float alpha;
+        public readonly float alpha;
 
-        readonly float hue;
+        public readonly float hue;
 
-        readonly float saturation;
+        public readonly float saturation;
 
-        readonly float lightness;
+        public readonly float lightness;
 
         HSLColor withAlpha(float alpha) {
             return HSLColor.fromAHSL(alpha, hue, saturation, lightness);
@@ -182,15 +197,15 @@ namespace Unity.UIWidgets.painting {
             return HSLColor.fromAHSL(alpha, hue, saturation, lightness);
         }
 
-        HSLColor withSaturation(float saturation) {
+        public HSLColor withSaturation(float saturation) {
             return HSLColor.fromAHSL(alpha, hue, saturation, lightness);
         }
 
-        HSLColor withLightness(float lightness) {
+        public HSLColor withLightness(float lightness) {
             return HSLColor.fromAHSL(alpha, hue, saturation, lightness);
         }
 
-        Color toColor() {
+        public Color toColor() {
             float chroma = Mathf.Abs(1.0f - (2.0f * lightness - 1.0f) * saturation);
             float secondary = chroma * (1.0f - Mathf.Abs(((hue / 60.0f) % 2.0f) - 1.0f));
             float match = lightness - chroma / 2.0f;
