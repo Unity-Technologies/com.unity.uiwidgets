@@ -190,7 +190,7 @@ namespace Unity.UIWidgets.foundation {
         public AssertionError(string message) : base(message: message) {
         }
 
-        public AssertionError(string message, Exception innerException = null) : base(message: message) {
+        public AssertionError(string message, Exception innerException) : base(message: message) {
             this.innerException = innerException;
         }
 
