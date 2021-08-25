@@ -180,7 +180,7 @@ namespace Unity.UIWidgets.async {
                     future.then((object value) => {
                         remaining--;
                         if (values != null) {
-                            values.Insert(pos, (T)value);
+                            values[pos] = (T)value;
                             if (remaining == 0) {
                                 result._completeWithValue(values);
                             }
@@ -211,7 +211,7 @@ namespace Unity.UIWidgets.async {
                     return value(FutureOr.value(new List<T>()));
                 }
 
-                values = new List<T>(remaining);
+                values = new List<T>(new T[remaining]);
             }
             catch (Exception e) {
                 // The error must have been thrown while iterating over the futures
