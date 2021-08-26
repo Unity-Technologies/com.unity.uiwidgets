@@ -23,8 +23,11 @@ namespace Unity.UIWidgets.Editor {
             get { return Mathf.RoundToInt(f: position.size.y); }
         }
 
+        protected float? devicePixelRatioEditorOnlyOverride = null;
+
         float _currentDevicePixelRatio {
-            get { return EditorGUIUtility.pixelsPerPoint; }
+            get {
+                return devicePixelRatioEditorOnlyOverride ?? EditorGUIUtility.pixelsPerPoint; }
         }
 
         void Update() {
