@@ -19,17 +19,17 @@ namespace UIWidgetsSample
 
         protected override void main()
         {
-            ui_.runApp(new MyApp());
+            ui_.runApp(new MyCountApp());
         }
+    }
 
-        class MyApp : StatelessWidget
+    public class MyCountApp : StatelessWidget
+    {
+        public override Widget build(BuildContext context)
         {
-            public override Widget build(BuildContext context)
-            {
-                return new CupertinoApp(
-                    home: new CounterApp()
-                );
-            }
+            return new CupertinoApp(
+                home: new CounterApp()
+            );
         }
     }
 
@@ -41,9 +41,68 @@ namespace UIWidgetsSample
         }
     }
 
+    class TestButton : StatefulWidget
+    {
+        public readonly Color onPressed;
+        public readonly Color onReleased;
+        public readonly string text;
+
+        public TestButton(Color onPressed, Color onReleased, string text)
+        {
+            this.onPressed = onPressed;
+            this.onReleased = onReleased;
+            this.text = text;
+        }
+
+        public override State createState()
+        {
+            return new TestButtonState();
+        }
+    }
+
+    class TestButtonState : State<TestButton>
+    {
+        private Color myColor;
+
+        public override void initState()
+        {
+            base.initState();
+            myColor = widget.onReleased;
+        }
+
+        public override Widget build(BuildContext context)
+        {
+            return new GestureDetector(
+                child: new Container(
+                    color: myColor,
+                    width: 100,
+                    height: 40,
+                    child: new Text(widget.text)
+                ),
+                onTapDown: evt =>
+                {
+                    setState(() =>
+                    {
+                        myColor = widget.onPressed;
+                    });
+                },
+                onTapUp: evt =>
+                {
+                    setState(() =>
+                    {
+                        myColor = widget.onReleased;
+                    });
+                }
+            );
+        }
+    }
+
     internal class CountDemoState : State<CounterApp>
     {
+        private bool useComposite = true;
         private int count = 0;
+
+        private Color myColor = Colors.grey;
 
         public override Widget build(BuildContext context)
         {
@@ -55,20 +114,29 @@ namespace UIWidgetsSample
                         new Icon(CupertinoIcons.battery_charging, color: Colors.yellow),
                         new Text($"count: {count}", style: new TextStyle(fontFamily: "CupertixnoIcons", color: Color.fromARGB(255, 0 ,0 ,255))),
                         new Text($"count: {count}", style: new TextStyle(fontFamily: "CupertinoIcons", color: Color.fromARGB(255, 0 ,0 ,255))),
-                        new CupertinoButton(
-                            onPressed: () =>
-                            {
-                                setState(() =>
+                        useComposite ? (Widget)new TestButton(Colors.green, Colors.red, "TestButton") :
+                            new GestureDetector(
+                                child: new Container(
+                                    color: myColor,
+                                    width: 100,
+                                    height: 40,
+                                    child: new Text("TestButton2")
+                                ),
+                                onTapDown: evt =>
                                 {
-                                    count++;
-                                });
-                            },
-                            child: new Container(
-                                color: Color.fromARGB(255,0 , 255, 0),
-                                width: 100,
-                                height: 40
-                            )
-                        ),
+                                    setState(() =>
+                                    {
+                                        myColor = Colors.blue;
+                                    });
+                                },
+                                onTapUp: evt =>
+                                {
+                                    setState(() =>
+                                    {
+                                        myColor = Colors.grey;
+                                    });
+                                }
+                            ) 
                     }
                 )
             );

@@ -5,12 +5,18 @@
     <explicitIncludes>
       <Path>Library/PackageCache/com.unity.collab-proxy@1.2.16</Path>
       <Path>Library/PackageCache/com.unity.ext.nunit@1.0.0</Path>
+      <Path>Library/PackageCache/com.unity.ext.nunit@1.0.6</Path>
       <Path>Library/PackageCache/com.unity.ide.rider@1.1.4</Path>
+      <Path>Library/PackageCache/com.unity.ide.rider@1.2.1</Path>
       <Path>Library/PackageCache/com.unity.ide.vscode@1.2.1</Path>
+      <Path>Library/PackageCache/com.unity.ide.vscode@1.2.3</Path>
       <Path>Library/PackageCache/com.unity.test-framework@1.1.14</Path>
       <Path>Library/PackageCache/com.unity.test-framework@1.1.16</Path>
+      <Path>Library/PackageCache/com.unity.test-framework@1.1.24</Path>
       <Path>Library/PackageCache/com.unity.textmeshpro@2.0.1</Path>
+      <Path>Library/PackageCache/com.unity.textmeshpro@2.1.4</Path>
       <Path>Library/PackageCache/com.unity.timeline@1.2.15</Path>
+      <Path>Library/PackageCache/com.unity.timeline@1.2.18</Path>
       <Path>Packages</Path>
       <Path>ProjectSettings</Path>
       <Path>../../com.unity.uiwidgets</Path>
@@ -20,7 +26,6 @@
       <Path>.vs</Path>
       <Path>Library</Path>
       <Path>Logs</Path>
-      <Path>Temp</Path>
       <Path>obj</Path>
     </explicitExcludes>
   </component>
