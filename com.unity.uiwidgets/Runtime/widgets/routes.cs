@@ -859,23 +859,7 @@ namespace Unity.UIWidgets.widgets {
             _ModalScopeStatus widget = context.dependOnInheritedWidgetOfExactType<_ModalScopeStatus>();
             return widget?.route as ModalRoute<T>;
         }
-        public new GlobalKey<_ModalScopeState<T>> _scopeKey = new LabeledGlobalKey<_ModalScopeState<T>>();
 
-        public override Future<RoutePopDisposition> willPop() {
-            //async
-            _ModalScopeState<T> scope = _scopeKey.currentState as _ModalScopeState<T> ;
-            D.assert(scope != null);
-
-            bool result = false;
-            foreach (WillPopCallback callback in _willPopCallbacks) {
-                callback.Invoke().then(v => result = !(bool)v);
-                if (result) {
-                    return Future.value(RoutePopDisposition.doNotPop).to<RoutePopDisposition>();
-                }
-            }
-            return base.willPop();
-            
-        }
         public override Widget _buildModalScope(BuildContext context) {
             return _modalScopeCache = _modalScopeCache ?? new _ModalScope<T>(key: _scopeKey, route: this);
         }
