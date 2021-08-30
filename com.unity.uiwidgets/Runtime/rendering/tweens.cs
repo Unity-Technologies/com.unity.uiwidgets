@@ -21,7 +21,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override Alignment lerp(float t) {
-            return Alignment.lerp(begin, end, t);
+            return Alignment.lerpAlignment(begin, end, t);
         }
     }
     public class AlignmentGeometryTween : Tween<AlignmentGeometry> {
