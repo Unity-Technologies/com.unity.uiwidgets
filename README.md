@@ -67,7 +67,7 @@ The compatible Unity versions for each UIWidgets release are listed below. You c
 | -----------------------------------------------| ------------------------- | ------------------------- |
 | 1.5.4 and below     | 2019.4.10f1 and above  | N\A |
 | 2.0.1   | 2019.4.26f1c1  | N\A |
-| 2.0.2 and above   | 2019.4.26f1c1 and above | N\A |
+| 2.0.2 and above   | 2019.4.26f1c1 to 2019.4.29f1c1 | N\A |
 
 #### UIWidgets Package
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
