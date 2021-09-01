@@ -150,6 +150,7 @@ namespace Unity.UIWidgets.Editor {
             }
             else if (evt.isKey) {
                 _wrapper.OnKeyDown(e: evt);
+                Event.current.Use();
             }
         }
 
