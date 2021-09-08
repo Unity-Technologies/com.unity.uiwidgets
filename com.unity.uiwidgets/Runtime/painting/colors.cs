@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.painting {
     public partial class painting_ {
         internal static float _getHue(float red, float green, float blue, float max, float delta) {
             float hue = 0;
-            if (max == 0.0f) {
+            if (delta == 0.0f) {
                 hue = 0.0f;
             }
             else if (max == red) {
