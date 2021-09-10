@@ -457,7 +457,8 @@ namespace Unity.UIWidgets.painting {
             TimeSpan delay = _frameDuration.Value - (timestamp - _shownTimestamp.Value);
             delay = new TimeSpan((long) (delay.Ticks * scheduler_.timeDilation));
             // TODO: time dilation 
-            _timer = Timer.create(delay, () => _scheduleAppFrame());
+            // _timer = Timer.create(delay, () => _scheduleAppFrame());
+            _scheduleAppFrame();
         }
 
         bool _isFirstFrame() {
@@ -466,7 +467,8 @@ namespace Unity.UIWidgets.painting {
 
         bool _hasFrameDurationPassed(TimeSpan timestamp) {
             D.assert(_shownTimestamp != null);
-            return timestamp - _shownTimestamp >= _frameDuration;
+            return (_frameDuration - timestamp + _shownTimestamp) <= TimeSpan.FromMilliseconds(8);
+            // return timestamp - _shownTimestamp >= _frameDuration;
         }
 
         Future _decodeNextFrameAndSchedule() {
