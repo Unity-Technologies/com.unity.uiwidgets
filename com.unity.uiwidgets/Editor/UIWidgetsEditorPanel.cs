@@ -30,7 +30,12 @@ namespace Unity.UIWidgets.Editor {
                 return devicePixelRatioEditorOnlyOverride ?? EditorGUIUtility.pixelsPerPoint; }
         }
 
+        protected virtual void OnUpdate() {
+            
+        }
+
         void Update() {
+            OnUpdate();
             _wrapper.onEditorUpdate();
         }
 
