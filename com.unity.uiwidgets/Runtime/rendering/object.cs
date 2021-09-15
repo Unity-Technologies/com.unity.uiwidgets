@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Diagnostics;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -378,6 +379,7 @@ namespace Unity.UIWidgets.rendering {
         
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.rendering")]
     public abstract class Constraints {
         
         protected Constraints(){}

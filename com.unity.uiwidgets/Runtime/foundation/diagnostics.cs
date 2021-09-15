@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Linq;
 using System.Text;
 using Unity.UIWidgets.external;
@@ -2357,6 +2358,7 @@ namespace Unity.UIWidgets.foundation {
         void debugFillProperties(DiagnosticPropertiesBuilder properties);
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.foundation")]
     public abstract class Diagnosticable : IDiagnosticable {
 
         protected Diagnosticable() {

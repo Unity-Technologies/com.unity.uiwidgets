@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class BoxShadow : IEquatable<BoxShadow> {
         public BoxShadow(
             Color color = null,
@@ -18,9 +20,16 @@ namespace Unity.UIWidgets.painting {
             this.spreadRadius = spreadRadius;
         }
 
+        [DataMember]
         public readonly Color color;
+
+        [DataMember]
         public readonly Offset offset;
+
+        [DataMember]
         public readonly float blurRadius;
+
+        [DataMember]
         public readonly float spreadRadius;
 
         public static float convertRadiusToSigma(float radius) {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using AOT;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -9,12 +10,15 @@ using Unity.UIWidgets.services;
 using UnityEngine;
 
 namespace Unity.UIWidgets.ui {
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public enum FontStyle {
+        [EnumMember]
         normal,
-
+        [EnumMember]
         italic
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public class FontWeight {
         public static readonly FontWeight w100 = new FontWeight(0);
 
@@ -54,6 +58,7 @@ namespace Unity.UIWidgets.ui {
             {8, "FontWeight.w900"}
         };
 
+        [DataMember]
         public readonly int index;
 
         public FontWeight(int index) {
@@ -75,11 +80,14 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public class FontFeature : IEquatable<FontFeature> {
         internal static readonly int _kEncodedSize = 8;
 
+        [DataMember]
         public readonly string feature;
 
+        [DataMember]
         public readonly int value;
 
         public FontFeature(string feature, int value = 1) {
@@ -183,26 +191,31 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public enum TextAlign {
+        [EnumMember]
         left,
-
+        [EnumMember]
         right,
-
+        [EnumMember]
         center,
-
+        [EnumMember]
         justify,
-
+        [EnumMember]
         start,
-
+        [EnumMember]
         end
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public enum TextBaseline {
+        [EnumMember]
         alphabetic,
-
+        [EnumMember]
         ideographic
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public class TextDecoration : IEquatable<TextDecoration> {
         public static readonly TextDecoration none = new TextDecoration(0x0);
 
@@ -212,6 +225,7 @@ namespace Unity.UIWidgets.ui {
 
         public static readonly TextDecoration lineThrough = new TextDecoration(0x4);
 
+        [DataMember]
         internal readonly int _mask;
 
         public TextDecoration(int _mask) {
@@ -1108,8 +1122,11 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public enum TextDirection {
+        [EnumMember]
         rtl,
+        [EnumMember]
         ltr,
     }
 

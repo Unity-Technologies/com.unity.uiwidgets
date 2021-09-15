@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -213,14 +214,21 @@ namespace Unity.UIWidgets.rendering {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.rendering")]
     public enum StackFit {
+        [EnumMember]
         loose,
+        [EnumMember]
         expand,
+        [EnumMember]
         passthrough,
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.rendering")]
     public enum Overflow {
+        [EnumMember]
         visible,
+        [EnumMember]
         clip,
     }
 

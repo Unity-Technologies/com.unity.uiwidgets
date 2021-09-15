@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 using AOT;
 using Unity.UIWidgets.animation;
@@ -149,6 +150,7 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public class Color : IEquatable<Color> {
         public Color(uint value) {
             this.value = value & 0xFFFFFFFF;
@@ -176,6 +178,7 @@ namespace Unity.UIWidgets.ui {
                         (b & 0xff)));
         }
 
+        [DataMember]
         public uint value;
 
         public int alpha {
@@ -405,6 +408,7 @@ namespace Unity.UIWidgets.ui {
         internal const int _kDoNotResizeDimension = -1;
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public class Paint {
         internal readonly byte[] _data = new byte[_kDataByteCount];
 

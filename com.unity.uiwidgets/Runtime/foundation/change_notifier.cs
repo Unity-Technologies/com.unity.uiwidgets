@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Linq;
 using Unity.UIWidgets.ui;
 
@@ -20,6 +21,7 @@ namespace Unity.UIWidgets.foundation {
         T value { get; }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.foundation")]
     public class ChangeNotifier : Listenable {
         ObserverList<VoidCallback> _listeners = new ObserverList<VoidCallback>();
 

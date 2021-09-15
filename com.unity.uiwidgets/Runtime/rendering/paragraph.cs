@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -12,10 +13,15 @@ using Rect = Unity.UIWidgets.ui.Rect;
 using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 
 namespace Unity.UIWidgets.rendering {
+    [DataContract(Namespace = "Unity.UIWidgets.rendering")]
     public enum TextOverflow {
+        [EnumMember]
         clip,
+        [EnumMember]
         fade,
+        [EnumMember]
         ellipsis,
+        [EnumMember]
         visible
     }
 

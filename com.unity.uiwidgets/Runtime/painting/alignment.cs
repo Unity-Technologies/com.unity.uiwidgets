@@ -1,10 +1,12 @@
 using System;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public abstract class AlignmentGeometry : IEquatable<AlignmentGeometry> {
         public AlignmentGeometry() {
         }
@@ -115,14 +117,17 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class Alignment : AlignmentGeometry, IEquatable<Alignment> {
         public Alignment(float x, float y) {
             this.x = x;
             this.y = y;
         }
 
+        [DataMember]
         public readonly float x;
 
+        [DataMember]
         public readonly float y;
 
         public static readonly Alignment topLeft = new Alignment(-1.0f, -1.0f);
@@ -318,24 +323,28 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class AlignmentDirectional : AlignmentGeometry {
         public AlignmentDirectional(float start, float y) {
             this.start = start;
             this.y = y;
         }
 
+        [DataMember]
         readonly float _px;
 
         protected override float _x {
             get => 0;
         }
 
+        [DataMember]
         readonly float start;
 
         protected override float _start {
             get => start;
         }
 
+        [DataMember]
         readonly float y;
 
         protected override float _y {
@@ -440,7 +449,7 @@ namespace Unity.UIWidgets.painting {
         public override string ToString() => _stringify(start, y);
     }
 
-
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     class _MixedAlignment : AlignmentGeometry {
         internal _MixedAlignment(float _x, float _start, float _y) {
             _px = _x;
@@ -448,18 +457,21 @@ namespace Unity.UIWidgets.painting {
             _py = _y;
         }
 
+        [DataMember]
         readonly float _px;
 
         protected override float _x {
             get => _px;
         }
 
+        [DataMember]
         readonly float _pstart;
 
         protected override float _start {
             get => _pstart;
         }
 
+        [DataMember]
         readonly float _py;
 
         protected override float _y {
@@ -511,6 +523,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class TextAlignVertical {
         public TextAlignVertical(float y) {
             D.assert(y != null);
@@ -518,6 +531,7 @@ namespace Unity.UIWidgets.painting {
             this.y = y;
         }
 
+        [DataMember]
         public readonly float y;
 
         public static readonly TextAlignVertical top = new TextAlignVertical(y: -1.0f);

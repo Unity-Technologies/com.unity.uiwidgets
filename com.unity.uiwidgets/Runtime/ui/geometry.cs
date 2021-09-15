@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 using UnityEngine;
 
 namespace Unity.UIWidgets.ui{
@@ -140,14 +141,17 @@ namespace Unity.UIWidgets.ui{
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public abstract class OffsetBase : IEquatable<OffsetBase> {
         protected OffsetBase(float _dx, float _dy) {
             this._dx = _dx;
             this._dy = _dy;
         }
 
+        [DataMember]
         protected readonly float _dx;
 
+        [DataMember]
         protected readonly float _dy;
 
         public bool isInfinite {
@@ -221,6 +225,7 @@ namespace Unity.UIWidgets.ui{
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public class Offset : OffsetBase, IEquatable<Offset> {
         public Offset(float dx, float dy) : base(dx, dy) {
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -6,6 +7,7 @@ using UnityEngine;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public abstract class EdgeInsetsGeometry {
         internal float _bottom { get; }
         internal float _end { get; }
@@ -564,7 +566,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
-
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class EdgeInsets : EdgeInsetsGeometry {
         EdgeInsets(float left, float top, float right, float bottom) {
             this.left = left;
@@ -573,9 +575,16 @@ namespace Unity.UIWidgets.painting {
             this.bottom = bottom;
         }
 
+        [DataMember]
         public readonly float left;
+
+        [DataMember]
         public readonly float right;
+
+        [DataMember]
         public readonly float top;
+
+        [DataMember]
         public readonly float bottom;
 
         public static EdgeInsets infinity = fromLTRB(

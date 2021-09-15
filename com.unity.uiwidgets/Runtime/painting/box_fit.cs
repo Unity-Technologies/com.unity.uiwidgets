@@ -1,15 +1,24 @@
 using System;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public enum BoxFit {
+        [EnumMember]
         fill,
+        [EnumMember]
         contain,
+        [EnumMember]
         cover,
+        [EnumMember]
         fitWidth,
+        [EnumMember]
         fitHeight,
+        [EnumMember]
         none,
+        [EnumMember]
         scaleDown,
     }
 

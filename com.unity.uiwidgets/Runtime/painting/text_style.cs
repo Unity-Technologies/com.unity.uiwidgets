@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class TextStyle : Diagnosticable, IEquatable<TextStyle> {
         const string _kDefaultDebugLabel = "unknown";
 
@@ -16,25 +18,45 @@ namespace Unity.UIWidgets.painting {
 
         public static readonly float _defaultFontSize = 14.0f;
 
+        [DataMember]
         public readonly Paint background;
+        [DataMember]
         public readonly Color backgroundColor;
+        [DataMember]
         public readonly Color color;
+        [DataMember]
         public readonly string debugLabel;
+        [DataMember]
         public readonly TextDecoration decoration;
+        [DataMember]
         public readonly Color decorationColor;
+        [DataMember]
         public readonly TextDecorationStyle? decorationStyle;
+        [DataMember]
         public readonly float? decorationThickness;
+        [DataMember]
         public readonly string fontFamily;
+        [DataMember]
         public readonly List<FontFeature> fontFeatures;
+        [DataMember]
         public readonly float? fontSize;
+        [DataMember]
         public readonly FontStyle? fontStyle;
+        [DataMember]
         public readonly FontWeight fontWeight;
+        [DataMember]
         public readonly Paint foreground;
+        [DataMember]
         public readonly float? height;
+        [DataMember]
         public readonly bool inherit;
+        [DataMember]
         public readonly float? letterSpacing;
+        [DataMember]
         public readonly List<BoxShadow> shadows;
+        [DataMember]
         public readonly TextBaseline? textBaseline;
+        [DataMember]
         public readonly float? wordSpacing;
 
         public TextStyle(bool inherit = true,

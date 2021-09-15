@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -22,6 +23,7 @@ namespace Unity.UIWidgets.rendering {
         internal readonly bool _canBeUsedByParent;
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.rendering")]
     public class BoxConstraints : Constraints, IEquatable<BoxConstraints> {
         public BoxConstraints(
             float minWidth = 0.0f,
@@ -34,9 +36,16 @@ namespace Unity.UIWidgets.rendering {
             this.maxHeight = maxHeight;
         }
 
+        [DataMember]
         public readonly float minWidth;
+
+        [DataMember]
         public readonly float maxWidth;
+
+        [DataMember]
         public readonly float minHeight;
+
+        [DataMember]
         public readonly float maxHeight;
 
         public static BoxConstraints tight(Size size) {
