@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -7,13 +8,19 @@ using Canvas = Unity.UIWidgets.ui.Canvas;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public enum ImageRepeat {
+        [EnumMember]
         repeat,
+        [EnumMember]
         repeatX,
+        [EnumMember]
         repeatY,
+        [EnumMember]
         noRepeat,
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class DecorationImage : IEquatable<DecorationImage> {
         public DecorationImage(
             ImageProvider image = null,
@@ -36,13 +43,28 @@ namespace Unity.UIWidgets.painting {
             this.matchTextDirection = matchTextDirection;
         }
 
+        [DataMember]
         public readonly ImageProvider image;
+
+        // HDC_TODO: do we need to serialize a listener?
         public readonly ImageErrorListener onError;
+
+        [DataMember]
         public readonly ColorFilter colorFilter;
+
+        [DataMember]
         public readonly BoxFit? fit;
+
+        [DataMember]
         public readonly AlignmentGeometry alignment;
+
+        [DataMember]
         public readonly Rect centerSlice;
+
+        [DataMember]
         public readonly ImageRepeat repeat;
+
+        [DataMember]
         public readonly bool matchTextDirection;
 
         public DecorationImagePainter createPainter(VoidCallback onChanged) {

@@ -514,6 +514,7 @@ namespace Unity.UIWidgets.ui{
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public class Rect : IEquatable<Rect> {
         Rect(float left, float top, float right, float bottom) {
             this.left = left;
@@ -553,9 +554,16 @@ namespace Unity.UIWidgets.ui{
 
         internal float[] _value32 => new[] {left, top, right, bottom};
 
+        [DataMember]
         public readonly float left;
+
+        [DataMember]
         public readonly float top;
+
+        [DataMember]
         public readonly float right;
+
+        [DataMember]
         public readonly float bottom;
 
         public float width {

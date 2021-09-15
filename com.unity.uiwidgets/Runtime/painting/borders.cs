@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Linq;
 using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
@@ -10,11 +11,15 @@ using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public enum BorderStyle {
+        [EnumMember]
         none,
+        [EnumMember]
         solid,
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class BorderSide : IEquatable<BorderSide> {
         public BorderSide(
             Color color = null,
@@ -54,8 +59,13 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
+        [DataMember]
         public readonly Color color;
+
+        [DataMember]
         public readonly float width;
+
+        [DataMember]
         public readonly BorderStyle style;
 
         public static readonly BorderSide none = new BorderSide(width: 0.0f, style: BorderStyle.none);
@@ -212,6 +222,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public abstract class ShapeBorder {
         protected ShapeBorder() {
         }

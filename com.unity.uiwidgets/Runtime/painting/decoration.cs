@@ -1,8 +1,10 @@
 using System;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public abstract class Decoration : Diagnosticable {
         protected Decoration() {
         }

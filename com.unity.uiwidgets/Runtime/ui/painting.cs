@@ -337,39 +337,69 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public enum BlendMode {
+        [EnumMember]
         clear,
+        [EnumMember]
         src,
+        [EnumMember]
         dst,
+        [EnumMember]
         srcOver,
+        [EnumMember]
         dstOver,
+        [EnumMember]
         srcIn,
+        [EnumMember]
         dstIn,
+        [EnumMember]
         srcOut,
+        [EnumMember]
         dstOut,
+        [EnumMember]
         srcATop,
+        [EnumMember]
         dstATop,
+        [EnumMember]
         xor,
+        [EnumMember]
         plus,
 
         // REF: https://www.w3.org/TR/compositing-1/#blendingseparable
+        [EnumMember]
         modulate,
+        [EnumMember]
         screen,
+        [EnumMember]
         overlay,
+        [EnumMember]
         darken,
+        [EnumMember]
         lighten,
+        [EnumMember]
         colorDodge,
+        [EnumMember]
         colorBurn,
+        [EnumMember]
         hardLight,
+        [EnumMember]
         softLight,
+        [EnumMember]
         difference,
+        [EnumMember]
         exclusion,
+        [EnumMember]
         multiply,
 
         // REF: https://www.w3.org/TR/compositing-1/#blendingnonseparable
+        [EnumMember]
         hue,
+        [EnumMember]
         saturation,
+        [EnumMember]
         color,
+        [EnumMember]
         luminosity,
     }
 
@@ -1657,6 +1687,7 @@ namespace Unity.UIWidgets.ui {
         static extern bool PathMeasure_nativeNextContour();
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.ui")]
     public class ColorFilter : IEquatable<ColorFilter> {
         ColorFilter(Color color, BlendMode? blendMode, float[] matrix, int type) {
             _color = color;
@@ -1681,9 +1712,16 @@ namespace Unity.UIWidgets.ui {
             return new ColorFilter(null, null, null, _TypeSrgbToLinearGamma);
         }
 
+        [DataMember]
         internal readonly Color _color;
+
+        [DataMember]
         internal readonly BlendMode? _blendMode;
+
+        [DataMember]
         internal readonly float[] _matrix;
+
+        [DataMember]
         internal readonly int _type;
 
         internal const int _TypeMode = 1; // MakeModeFilter

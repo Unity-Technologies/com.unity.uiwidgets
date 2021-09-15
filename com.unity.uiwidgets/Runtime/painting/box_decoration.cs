@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -8,6 +9,7 @@ using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class BoxDecoration : Decoration, IEquatable<BoxDecoration> {
         public BoxDecoration(
             Color color = null,
@@ -62,13 +64,28 @@ namespace Unity.UIWidgets.painting {
             return base.debugAssertIsValid();
         }
 
+        [DataMember]
         public readonly Color color;
+
+        [DataMember]
         public readonly DecorationImage image;
+
+        [DataMember]
         public readonly Border border;
+
+        [DataMember]
         public readonly BorderRadius borderRadius;
+
+        [DataMember]
         public readonly List<BoxShadow> boxShadow;
+
+        [DataMember]
         public readonly Gradient gradient;
+
+        [DataMember]
         public readonly BlendMode? backgroundBlendMode;
+
+        [DataMember]
         public readonly BoxShape shape;
 
         public override EdgeInsetsGeometry padding {

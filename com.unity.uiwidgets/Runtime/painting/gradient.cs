@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.external;
@@ -64,6 +65,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public abstract class GradientTransform {
         public GradientTransform() {
         }
@@ -71,11 +73,13 @@ namespace Unity.UIWidgets.painting {
         public abstract Matrix4 transform(Rect bounds, TextDirection? textDirection = null);
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class GradientRotation : GradientTransform {
         public GradientRotation(float radians) {
             this.radians = radians;
         }
 
+        [DataMember]
         public readonly float radians;
 
         public override
@@ -95,6 +99,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public abstract class Gradient {
         public Gradient(
             List<Color> colors = null,
@@ -107,10 +112,13 @@ namespace Unity.UIWidgets.painting {
             this.transform = transform;
         }
 
+        [DataMember]
         public readonly List<Color> colors;
 
+        [DataMember]
         public readonly List<float> stops;
 
+        [DataMember]
         public readonly GradientTransform transform;
 
         protected List<float> _impliedStops() {

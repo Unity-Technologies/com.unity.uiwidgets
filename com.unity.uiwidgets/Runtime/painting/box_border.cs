@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -11,7 +12,7 @@ namespace Unity.UIWidgets.painting {
         circle,
     }
 
-
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public abstract class BoxBorder : ShapeBorder {
         public BoxBorder() {
             isUniform = false;
@@ -147,7 +148,7 @@ namespace Unity.UIWidgets.painting {
         }
     }
 
-
+    [DataContract(Namespace = "Unity.UIWidgets.painting")]
     public class Border : BoxBorder, IEquatable<Border> {
         public Border(
             BorderSide top = null,
@@ -200,9 +201,16 @@ namespace Unity.UIWidgets.painting {
             );
         }
 
+        [DataMember]
         public readonly BorderSide top;
+
+        [DataMember]
         public readonly BorderSide right;
+
+        [DataMember]
         public readonly BorderSide bottom;
+
+        [DataMember]
         public readonly BorderSide left;
 
         public override EdgeInsetsGeometry dimensions {
