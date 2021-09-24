@@ -366,6 +366,9 @@ namespace Unity.UIWidgets.engine {
                 dpr: _currentDevicePixelRatio)) {
                 _wrapper.OnDisplayMetricsChanged(width: _currentWidth, height: _currentHeight,
                     dpr: _currentDevicePixelRatio);
+
+                _handleViewMetricsChanged(null, null);
+                
                 texture = _wrapper.renderTexture;
             }
         }

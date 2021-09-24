@@ -130,7 +130,7 @@ namespace Unity.UIWidgets.ui {
                 window.physicalSize = new Size(width, height);
                 window.physicalDepth = depth;
 
-                window.viewPadding = new WindowPadding(
+                /*window.viewPadding = new WindowPadding(
                     top: viewPaddingTop,
                     right: viewPaddingRight,
                     bottom: viewPaddingBottom,
@@ -146,7 +146,7 @@ namespace Unity.UIWidgets.ui {
                     top: Mathf.Max(0.0f, viewPaddingTop - viewInsetTop),
                     right: Mathf.Max(0.0f, viewPaddingRight - viewInsetRight),
                     bottom: Mathf.Max(0.0f, viewPaddingBottom - viewInsetBottom),
-                    left: Mathf.Max(0.0f, viewPaddingLeft - viewInsetLeft));
+                    left: Mathf.Max(0.0f, viewPaddingLeft - viewInsetLeft));*/
 
                 window.systemGestureInsets = new WindowPadding(
                     top: Mathf.Max(0.0f, systemGestureInsetTop),
