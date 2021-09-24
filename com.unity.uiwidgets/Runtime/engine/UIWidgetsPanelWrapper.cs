@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
 using AOT;
-using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
-using Path = Unity.UIWidgets.ui.Path;
 
 namespace Unity.UIWidgets.engine {
     #region Platform: MacOs/iOS/Windows Specific Functionalities
@@ -344,7 +341,15 @@ public partial class UIWidgetsPanelWrapper {
 
         public void OnKeyDown(Event e) {
             UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown);
-            if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
+            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.V && 
+                     e.modifiers == EventModifiers.Command) {
+                foreach (var character in GUIUtility.systemCopyBuffer) {
+                    var splitEvent = new Event();
+                    splitEvent.type = EventType.KeyDown;
+                    splitEvent.character = character;
+                    PointerEventConverter.KeyEvent.Enqueue(splitEvent);
+                }
+            } else if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
                 PointerEventConverter.KeyEvent.Enqueue(new Event(other: e));
                 // TODO: add on char
                 // UIWidgetsPanel_onChar(_ptr, e.character);
