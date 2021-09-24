@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.ui;
 using UnityEditor;
 using UnityEngine;
@@ -131,6 +132,7 @@ namespace Unity.UIWidgets.Editor {
         }
 
         void Input_OnGUIEvent(Event evt) {
+            Debug.Log(evt);
             if (evt.type == EventType.MouseDown) {
                 var pos = _getPointerPosition(position: evt.mousePosition);
                 _wrapper.OnPointerDown(pos: pos, _buttonToPointerId(buttonId: evt.button));
@@ -156,6 +158,13 @@ namespace Unity.UIWidgets.Editor {
             else if (evt.isKey) {
                 _wrapper.OnKeyDown(e: evt);
                 Event.current.Use();
+            } else if (evt.type == EventType.ValidateCommand && evt.commandName == "Paste") {
+                foreach (var character in GUIUtility.systemCopyBuffer) {
+                    var splitEvent = new Event();
+                    splitEvent.type = EventType.KeyDown;
+                    splitEvent.character = character;
+                    PointerEventConverter.KeyEvent.Enqueue(splitEvent);
+                }
             }
         }
 

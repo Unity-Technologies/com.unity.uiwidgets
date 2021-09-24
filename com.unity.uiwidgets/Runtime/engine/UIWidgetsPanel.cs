@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -523,6 +524,13 @@ namespace Unity.UIWidgets.engine {
             var e = Event.current;
             if (e.isKey) {
                 _wrapper.OnKeyDown(e: e);
+            } else if (e.type == EventType.ValidateCommand && e.commandName == "Paste") {
+                foreach (var character in GUIUtility.systemCopyBuffer) {
+                    var splitEvent = new Event();
+                    splitEvent.type = EventType.KeyDown;
+                    splitEvent.character = character;
+                    PointerEventConverter.KeyEvent.Enqueue(splitEvent);
+                }
             }
         }
 
