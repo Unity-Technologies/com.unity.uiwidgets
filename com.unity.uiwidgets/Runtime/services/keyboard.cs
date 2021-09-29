@@ -66,6 +66,8 @@ namespace Unity.UIWidgets.service {
         int _client;
 
         TextEditingValue _value;
+        
+        TextInputConfiguration _inputConfiguration;
 
         public void show() {
         }
@@ -108,10 +110,13 @@ namespace Unity.UIWidgets.service {
 
         public void setClient(int client, TextInputConfiguration configuration) {
             _client = client;
+            _inputConfiguration = configuration;
+
         }
 
         public void clearClient() {
             _client = 0;
+            _inputConfiguration = null;
         }
 
         public bool imeRequired() {
@@ -161,7 +166,9 @@ namespace Unity.UIWidgets.service {
                         }
 
                         if (ch == '\n') {
-                            Timer.create(TimeSpan.Zero, () => { TextInput._performAction(_client, TextInputAction.newline); });
+                            Timer.create(TimeSpan.Zero, () => { TextInput._performAction(_client, 
+                                _inputConfiguration?.inputAction ?? TextInputAction.newline); });
+
                         }
 
                         if (_validateCharacter(ch)) {
