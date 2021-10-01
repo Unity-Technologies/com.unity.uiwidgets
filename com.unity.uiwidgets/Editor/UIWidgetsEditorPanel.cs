@@ -41,6 +41,11 @@ namespace Unity.UIWidgets.Editor {
 
         void OnEnable() {
             D.assert(_wrapper == null);
+
+            //enable listener to MouseMoveEvents by default
+            //user can disable it in onEnable() if needed
+            wantsMouseMove = true;
+            
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
             onEnable();
