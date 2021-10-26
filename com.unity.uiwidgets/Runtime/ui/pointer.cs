@@ -34,6 +34,7 @@ namespace Unity.UIWidgets.ui{
         shift = 1,
         alt = 2,
         command = 3,
+        control = 4,
     }
 
     public readonly struct PointerData {

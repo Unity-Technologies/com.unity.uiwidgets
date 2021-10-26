@@ -347,6 +347,7 @@ public partial class UIWidgetsPanelWrapper {
             modifier |= e.shift ? (1 << (int) FunctionKey.shift) : 0;
             modifier |= e.alt ? (1 << (int) FunctionKey.alt) : 0;
             modifier |= e.command ? (1 << (int) FunctionKey.command) : 0;
+            modifier |= e.control ? (1 << (int) FunctionKey.control) : 0;
             UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown, modifier);
             if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
                 PointerEventConverter.KeyEvent.Enqueue(new Event(other: e));

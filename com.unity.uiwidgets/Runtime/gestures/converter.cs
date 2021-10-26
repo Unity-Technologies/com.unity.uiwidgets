@@ -204,6 +204,7 @@ namespace Unity.UIWidgets.gestures {
                                 keyBoardEvent.shift = (datum.modifier & (1 << (int) FunctionKey.shift)) > 0;
                                 keyBoardEvent.alt = (datum.modifier & (1 << (int) FunctionKey.alt)) > 0;
                                 keyBoardEvent.command = (datum.modifier & (1 << (int) FunctionKey.command)) > 0;
+                                keyBoardEvent.control = (datum.modifier & (1 << (int) FunctionKey.control)) > 0;
 
                                 RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
                                 TextInput.OnGUI();
