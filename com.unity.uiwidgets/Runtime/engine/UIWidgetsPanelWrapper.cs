@@ -343,11 +343,11 @@ public partial class UIWidgetsPanelWrapper {
         }
 
         public void OnKeyDown(Event e) {
-            int modifer = 0;
-            modifer |= e.shift ? (1 << (int) FunctionKey.shift) : 0;
-            modifer |= e.alt ? (1 << (int) FunctionKey.alt) : 0;
-            modifer |= e.command ? (1 << (int) FunctionKey.command) : 0;
-            UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown, modifer);
+            int modifier = 0;
+            modifier |= e.shift ? (1 << (int) FunctionKey.shift) : 0;
+            modifier |= e.alt ? (1 << (int) FunctionKey.alt) : 0;
+            modifier |= e.command ? (1 << (int) FunctionKey.command) : 0;
+            UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown, modifier);
             if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
                 PointerEventConverter.KeyEvent.Enqueue(new Event(other: e));
                 // TODO: add on char
