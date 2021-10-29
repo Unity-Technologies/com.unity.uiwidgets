@@ -21,6 +21,7 @@ bitcode=""
 flutter_root_path=""
 visual_studio_path=""
 architecture=""
+gclientSyncCmd=""
 
 def get_opts():
     # get intput agrs
@@ -137,24 +138,18 @@ def set_params():
 def set_env_verb():
     global platform
     global flutter_root_path
-    flutter_root_path = os.getenv('FLUTTER_ROOT_PATH', 'null')
-    if flutter_root_path == 'null':
-        os.environ["FLUTTER_ROOT_PATH"] = os.path.join(engine_path, "engine","src")
-        flutter_root_path = os.getenv('FLUTTER_ROOT_PATH')
+    #if the user provides us an valid engine path, use it
+    if not engine_path == "":
+        flutter_root_path = os.path.join(engine_path, "engine","src")
+    #if the engine path is not set, we try to fetch it from the environment variables
     else:
-        print("This environment variable has been set, skip")
-    env_path = os.getenv('PATH')
-    path_strings = re.split("[;:]", env_path)
-    for path in path_strings:
-        if path.endswith("depot_tools"):
-            print("This environment variable has been set, skip")
-            return
-    if platform == "windows":
-        os.environ["PATH"] = engine_path + "/depot_tools;" + os.environ["PATH"]
-    else:
-        os.environ["PATH"] = engine_path + "/depot_tools:" + os.environ["PATH"]
+        flutter_root_path = os.getenv('FLUTTER_ROOT_PATH', 'null')
+        if flutter_root_path == 'null':
+            assert False, "flutter root path is invalid. Please use -r to specify a root path for the third party flutter repos"
 
 def get_depot_tools():
+    global gclientSyncCmd
+
     print("\nGetting Depot Tools...")
     if not os.path.exists(engine_path):
         assert False,"Flutter engine path is not exist, please set the path by using \"-r\" param to set a engine path."
@@ -163,7 +158,9 @@ def get_depot_tools():
     else:
         os.chdir(engine_path)
         os.system("git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git")
-        os.system("gclient sync")
+    
+    # we use the absolute path to execute gthe client command
+    gclientSyncCmd = engine_path + "depot_tools/gclient sync"
 
 def get_flutter_engine():
     global engine_path
@@ -188,10 +185,13 @@ solutions = [
     f.write(content)
     f.close()
     os.chdir(Path(engine_path + "/engine"))
-    os.system("gclient sync")
+    os.system(gclientSyncCmd)
+    if not os.path.exists(Path(flutter_root_path + "/flutter")):
+        os.makedirs(Path(flutter_root_path + "/flutter"))
+    
     os.chdir(Path(flutter_root_path + "/flutter"))
     os.system("git checkout flutter-1.17-candidate.5")
-    os.system("gclient sync -D")
+    os.system(gclientSyncCmd + " -D")
 
 def compile_engine():
     global flutter_root_path
@@ -253,6 +253,8 @@ def compile_engine():
         f = open(Path(flutter_root_path + "/out/" + output_path + "/args.gn"), 'a')
         f.write("icu_use_data_file = false")
         f.close()
+        #the contents in the include path below may conflict with those in MacSDK 12.0, so we'd better remove them as a work-around
+        os.system("rm -rf " + flutter_root_path + "/buildtools/mac-x64/clang/include")
         os.system("ninja " + ninja_params)
     elif platform == "ios":
         old_str = "bitcode_marker = true"
