@@ -14,6 +14,9 @@ fml::RefPtr<Skottie> Skottie::Create(char* path) {
   path = (char*)fileOut;
 #endif
   sk_sp<skottie::Animation> animation_ = skottie::Animation::MakeFromFile(path);
+  if(animation_ == nullptr){
+    return nullptr;
+  }
   return fml::MakeRefCounted<Skottie>(animation_);
 }
 
@@ -32,19 +35,34 @@ float Skottie::duration() { return animation_->duration(); }
 UIWIDGETS_API(Skottie*)
 Skottie_Construct(char* path) {
   fml::RefPtr<Skottie> skottie = Skottie::Create(path);
+  if(skottie.get() == nullptr){
+    return nullptr;
+  }
   skottie->AddRef();
   return skottie.get();
 }
 
 UIWIDGETS_API(void)
-Skottie_Dispose(Skottie* ptr) { ptr->Release(); }
+Skottie_Dispose(Skottie* ptr) {
+  if(ptr == nullptr){
+      return;
+  }
+  ptr->Release();
+}
 
 UIWIDGETS_API(void)
 Skottie_Paint(Skottie* ptr, Canvas* canvas, float x, float y, float width,
               float height, float frame) {
+  if(ptr == nullptr){
+      return;
+  }
   ptr->paint(canvas, x, y, width, height, frame);
 }
 
 UIWIDGETS_API(float)
-Skottie_Duration(Skottie* ptr) { return ptr->duration(); }
+Skottie_Duration(Skottie* ptr) {
+  if(ptr == nullptr){
+      return 0;
+  }
+  return ptr->duration(); }
 }  // namespace uiwidgets
