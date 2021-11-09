@@ -3101,7 +3101,7 @@ namespace Unity.UIWidgets.ui {
         public Skottie(string path) {
             var Id = Skottie_Construct(path);
             if(Id == IntPtr.Zero){
-                Debug.LogError($"cannot load lottie from {path}, please check file exist and valid");
+                Debug.Log($"cannot load lottie from {path}, please check file exist and valid");
             }else {
                 _setPtr(Id);
             }
