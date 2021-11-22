@@ -934,6 +934,7 @@ UIWidgetsEngineResult UIWidgetsEngineSendPointerEvent(
     // For backwards compatibility with embedders written before the device kind
     // and buttons were exposed, if the device kind is not set treat it as a
     // mouse, with a synthesized primary button state based on the phase.
+    pointer_data.modifier = current->modifier;
     if (device_kind == 0) {
       pointer_data.kind = PointerData::DeviceKind::kMouse;
       pointer_data.buttons =

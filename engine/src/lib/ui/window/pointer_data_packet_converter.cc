@@ -147,7 +147,6 @@ void PointerDataPacketConverter::ConvertPointerData(
           PointerData synthesized_hover_event = pointer_data;
           synthesized_hover_event.change = PointerData::Change::kHover;
           synthesized_hover_event.synthesized = 1;
-          synthesized_hover_event.buttons = state.previous_buttons;
 
           UpdateDeltaAndState(synthesized_hover_event, state);
           converted_pointers.push_back(synthesized_hover_event);

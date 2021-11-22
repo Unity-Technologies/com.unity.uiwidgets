@@ -3,7 +3,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 
-namespace Unity.UIWidgets.engine.raycast {
+namespace Unity.UIWidgets.engine {
     public class RaycastableRect {
         bool _isDirty = true;
 
@@ -76,6 +76,14 @@ namespace Unity.UIWidgets.engine.raycast {
                 $"Raycast Handler Map already contains Widget {widgetHashCode} at Window {windowHashCode}");
 
             instance.raycastHandlerMap[windowHashCode][widgetHashCode] = new RaycastableRect();
+        }
+
+        public static void OnScreenSizeChanged(int windowHashCode) {
+            if (!instance.raycastHandlerMap.ContainsKey(windowHashCode)) return;
+            Dictionary<int, RaycastableRect> raycastableWidgets = RaycastManager.instance.raycastHandlerMap[windowHashCode];
+            foreach (var item in raycastableWidgets) {
+                MarkDirty(item.Key, windowHashCode);
+            }
         }
 
         public static void MarkDirty(int widgetHashCode, int windowHashCode) {

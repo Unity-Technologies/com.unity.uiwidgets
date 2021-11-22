@@ -1,4 +1,3 @@
-using System;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -28,37 +27,37 @@ namespace Unity.UIWidgets.widgets {
         ) {
             if (it is IPageMetrics) {
                 return new PageMetrics(
-                    minScrollExtent: minScrollExtent ?? it.minScrollExtent,
-                    maxScrollExtent: maxScrollExtent ?? it.maxScrollExtent,
-                    pixels: pixels ?? it.pixels,
-                    viewportDimension: viewportDimension ?? it.viewportDimension,
-                    axisDirection: axisDirection ?? it.axisDirection,
-                    viewportFraction: viewportFraction ?? ((IPageMetrics) it).viewportFraction
+                    minScrollExtent ?? it.minScrollExtent,
+                    maxScrollExtent ?? it.maxScrollExtent,
+                    pixels ?? it.pixels,
+                    viewportDimension ?? it.viewportDimension,
+                    axisDirection ?? it.axisDirection,
+                    viewportFraction ?? ((IPageMetrics) it).viewportFraction
                 );
             }
 
             if (it is IFixedExtentMetrics) {
                 return new FixedExtentMetrics(
-                    minScrollExtent: minScrollExtent ?? it.minScrollExtent,
-                    maxScrollExtent: maxScrollExtent ?? it.maxScrollExtent,
-                    pixels: pixels ?? it.pixels,
-                    viewportDimension: viewportDimension ?? it.viewportDimension,
-                    axisDirection: axisDirection ?? it.axisDirection,
+                    minScrollExtent ?? it.minScrollExtent,
+                    maxScrollExtent ?? it.maxScrollExtent,
+                    pixels ?? it.pixels,
+                    viewportDimension ?? it.viewportDimension,
+                    axisDirection ?? it.axisDirection,
                     itemIndex: ((IFixedExtentMetrics) it).itemIndex
                 );
             }
 
             return new FixedScrollMetrics(
-                minScrollExtent: minScrollExtent ?? it.minScrollExtent,
-                maxScrollExtent: maxScrollExtent ?? it.maxScrollExtent,
-                pixels: pixels ?? it.pixels,
-                viewportDimension: viewportDimension ?? it.viewportDimension,
-                axisDirection: axisDirection ?? it.axisDirection
+                minScrollExtent ?? it.minScrollExtent,
+                maxScrollExtent ?? it.maxScrollExtent,
+                pixels ?? it.pixels,
+                viewportDimension ?? it.viewportDimension,
+                axisDirection ?? it.axisDirection
             );
         }
 
         public static Axis axis(this ScrollMetrics it) {
-            return AxisUtils.axisDirectionToAxis(it.axisDirection);
+            return AxisUtils.axisDirectionToAxis(axisDirection: it.axisDirection);
         }
 
         public static bool outOfRange(this ScrollMetrics it) {
@@ -75,9 +74,9 @@ namespace Unity.UIWidgets.widgets {
 
         public static float extentInside(this ScrollMetrics it) {
             D.assert(it.minScrollExtent <= it.maxScrollExtent);
-            return it.viewportDimension 
-                   - (it.minScrollExtent - it.pixels).clamp(0, it.viewportDimension) 
-                   - (it.pixels  - it.maxScrollExtent).clamp(0, it.viewportDimension);
+            return it.viewportDimension
+                   - (it.minScrollExtent - it.pixels).clamp(0, max: it.viewportDimension)
+                   - (it.pixels - it.maxScrollExtent).clamp(0, max: it.viewportDimension);
         }
 
         public static float extentAfter(this ScrollMetrics it) {
@@ -100,15 +99,15 @@ namespace Unity.UIWidgets.widgets {
             this.axisDirection = axisDirection;
         }
 
-        public float minScrollExtent { get; private set; }
+        public float minScrollExtent { get; }
 
-        public float maxScrollExtent { get; private set; }
+        public float maxScrollExtent { get; }
 
-        public float pixels { get; private set; }
+        public float pixels { get; }
 
-        public float viewportDimension { get; private set; }
+        public float viewportDimension { get; }
 
-        public AxisDirection axisDirection { get; private set; }
+        public AxisDirection axisDirection { get; }
 
         public override string ToString() {
             return $"{GetType()}({this.extentBefore():F1})..[{this.extentInside():F1}]..{this.extentAfter():F1})";

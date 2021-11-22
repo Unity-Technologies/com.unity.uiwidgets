@@ -363,7 +363,7 @@ PointerData::DeviceKind UIWidgetsPanel::DeviceKindFromTouchType()
   return PointerData::DeviceKind::kTouch;
 }
 
-  void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown)
+  void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown, int64_t modifier) 
   {
     if (process_events_)
     {
@@ -377,6 +377,7 @@ PointerData::DeviceKind UIWidgetsPanel::DeviceKindFromTouchType()
           std::chrono::duration_cast<std::chrono::microseconds>(
               std::chrono::high_resolution_clock::now().time_since_epoch())
               .count();
+      event.modifier = modifier;
 
       UIWidgetsEngineSendPointerEvent(engine_, &event, 1);
     }
@@ -467,9 +468,8 @@ PointerData::DeviceKind UIWidgetsPanel::DeviceKindFromTouchType()
   }
 
   UIWIDGETS_API(void)
-  UIWidgetsPanel_onKey(UIWidgetsPanel *panel, int keyCode, bool isKeyDown)
-  {
-    panel->OnKeyDown(keyCode, isKeyDown);
+  UIWidgetsPanel_onKey(UIWidgetsPanel* panel, int keyCode, bool isKeyDown, int64_t modifier) {
+    panel->OnKeyDown(keyCode, isKeyDown, modifier);
   }
 
   UIWIDGETS_API(void)

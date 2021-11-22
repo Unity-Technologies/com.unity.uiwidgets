@@ -108,7 +108,7 @@ const char* Picture::RasterizeToImage(sk_sp<SkPicture> picture, uint32_t width,
 
 UIWIDGETS_API(void) Picture_dispose(Picture* ptr) { ptr->Release(); }
 
-UIWIDGETS_API(bool) Picture_GetAllocationSize(Picture* ptr) {
+UIWIDGETS_API(size_t) Picture_GetAllocationSize(Picture* ptr) {
   return ptr->GetAllocationSize();
 }
 

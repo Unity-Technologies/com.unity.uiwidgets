@@ -97,6 +97,8 @@ void UIWidgetsSystem::UnBindUnityInterfaces() {
   unity_uiwidgets_->SetWakeUpCallback(nullptr);
   unity_uiwidgets_ = nullptr;
 
+  UnitySurfaceManager::ReleaseResource();
+
   unity_interfaces_ = nullptr;
 }
 

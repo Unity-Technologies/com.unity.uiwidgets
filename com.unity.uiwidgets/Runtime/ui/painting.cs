@@ -1368,6 +1368,7 @@ namespace Unity.UIWidgets.ui {
         static extern void Path_reset(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
         static extern bool Path_contains(IntPtr ptr, float x, float y);
 
         [DllImport(NativeBindings.dllName)]
@@ -1380,6 +1381,7 @@ namespace Unity.UIWidgets.ui {
         static extern unsafe void Path_getBounds(IntPtr ptr, float* rect);
 
         [DllImport(NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
         static extern bool Path_op(IntPtr ptr, IntPtr path1, IntPtr path2, int operation);
     }
 
@@ -1643,9 +1645,11 @@ namespace Unity.UIWidgets.ui {
 
         
         [DllImport(NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
         static extern bool PathMeasure_isClosed(int contourIndex);
         
         [DllImport(NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
         static extern bool PathMeasure_nativeNextContour();
     }
 
@@ -2297,6 +2301,7 @@ namespace Unity.UIWidgets.ui {
         public static extern void Vertices_dispose(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern unsafe bool Vertices_init(IntPtr ptr,
             int mode,
             float* positions,
@@ -2891,13 +2896,14 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        public int approximateBytesUsed => Picture_GetAllocationSize(_ptr);
+        public ulong approximateBytesUsed => Picture_GetAllocationSize(_ptr);
 
         [DllImport(NativeBindings.dllName)]
         static extern void Picture_dispose(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern int Picture_GetAllocationSize(IntPtr ptr);
+        [return: MarshalAs(UnmanagedType.SysUInt)]
+        static extern ulong Picture_GetAllocationSize(IntPtr ptr);
 
         delegate void Picture_toImageCallback(IntPtr callbackHandle, IntPtr result);
 
@@ -2927,6 +2933,7 @@ namespace Unity.UIWidgets.ui {
         static extern void PictureRecorder_dispose(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
         static extern bool PictureRecorder_isRecording(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
@@ -3092,7 +3099,12 @@ namespace Unity.UIWidgets.ui {
     
     public class Skottie : NativeWrapper {
         public Skottie(string path) {
-            _setPtr(Skottie_Construct(path));
+            var Id = Skottie_Construct(path);
+            if(Id == IntPtr.Zero){
+                Debug.Log($"cannot load lottie from {path}, please check file exist and valid");
+            }else {
+                _setPtr(Id);
+            }
         }
 
         public override void DisposePtr(IntPtr ptr) {

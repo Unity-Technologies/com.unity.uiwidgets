@@ -366,6 +366,7 @@ namespace Unity.UIWidgets.ui {
         }
     }
 
+    [StructLayout(LayoutKind.Sequential)]
     public struct Float32List {
         public IntPtr data;
         public int length;
@@ -573,10 +574,16 @@ namespace Unity.UIWidgets.ui {
 
         internal static unsafe void setFloat(this byte[] bytes, int byteOffset, float value) {
             D.assert(byteOffset >= 0 && byteOffset + 4 < bytes.Length);
-            var intVal = *(int*) &value;
-            fixed (byte* b = &bytes[byteOffset]) {
-                *(int*) b = intVal;
+#if UNITY_ANDROID
+            byte[] vOut = BitConverter.GetBytes(value);
+            for (int i = 0; i < vOut.Length; i++) {
+                bytes[byteOffset + i] = vOut[i];
             }
+#else
+            fixed (byte* b = &bytes[byteOffset]) {
+                *(float*) b = value;
+            }
+#endif        
         }
 
         internal static byte[] _encodeStrut(
@@ -1546,6 +1553,7 @@ namespace Unity.UIWidgets.ui {
         static extern float Paragraph_ideographicBaseline(IntPtr ptr);
 
         [DllImport(dllName: NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
         static extern bool Paragraph_didExceedMaxLines(IntPtr ptr);
 
         [DllImport(dllName: NativeBindings.dllName)]
@@ -1950,19 +1958,19 @@ namespace Unity.UIWidgets.ui {
         }
 
         public void addPlaceholder(float width, float height, PlaceholderAlignment alignment,
-            TextBaseline baseline,
+            TextBaseline? baseline,
             float scale = 1.0f,
             float? baselineOffset = null
         ) {
             // Require a baseline to be specified if using a baseline-based alignment.
-            D.assert(alignment == PlaceholderAlignment.aboveBaseline ||
+            D.assert((alignment == PlaceholderAlignment.aboveBaseline ||
                      alignment == PlaceholderAlignment.belowBaseline ||
-                     alignment == PlaceholderAlignment.baseline);
+                     alignment == PlaceholderAlignment.baseline) ? baseline != null : true);
             // Default the baselineOffset to height if null. This will place the placeholder
             // fully above the baseline, similar to [PlaceholderAlignment.aboveBaseline].
             var baselineOffsetFloat = baselineOffset ?? height;
             _addPlaceholder(width * scale, height * scale, (int) alignment, baselineOffsetFloat * scale,
-                (int) baseline);
+                (int) (baseline ?? TextBaseline.alphabetic));
             placeholderCount++;
             placeholderScales.Add(item: scale);
         }

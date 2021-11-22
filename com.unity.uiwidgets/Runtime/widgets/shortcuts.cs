@@ -12,8 +12,6 @@ namespace Unity.UIWidgets.widgets {
         public static readonly List<int> _tempHashStore4 = new List<int> {0, 0, 0, 0}; // used to sort exactly 4 keys
         public readonly HashSet<T> _keys;
 
-        public int _hashCode;
-
         public KeySet(
             T key1,
             T key2 = default,
@@ -75,7 +73,7 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
 
-            return Equals(objA: _keys, objB: other._keys) && _hashCode == other._hashCode;
+            return _keys.SetEquals(other._keys);
         }
 
         public override bool Equals(object obj) {
@@ -96,27 +94,23 @@ namespace Unity.UIWidgets.widgets {
 
         public override int GetHashCode() {
             unchecked {
-                if (_hashCode != 0) {
-                    return _hashCode;
-                }
-
                 var length = _keys.Count;
                 IEnumerator<T> iterator = _keys.GetEnumerator();
 
                 // There's always at least one key. Just extract it.
                 iterator.MoveNext();
-                var h1 = iterator.GetHashCode();
+                var h1 = iterator.Current.GetHashCode();
 
                 if (length == 1) {
                     // Don't do anything fancy if there's exactly one key.
-                    return _hashCode = h1;
+                    return h1;
                 }
 
                 iterator.MoveNext();
-                var h2 = iterator.GetHashCode();
+                var h2 = iterator.Current.GetHashCode();
                 if (length == 2) {
                     // No need to sort if there's two keys, just compare them.
-                    return _hashCode = h1 < h2
+                    return h1 < h2
                         ? ((h1 != null ? h1.GetHashCode() : 0) * 397) ^ h2.GetHashCode()
                         : ((h2 != null ? h2.GetHashCode() : 0) * 397) ^ h1.GetHashCode();
                 }
@@ -129,14 +123,18 @@ namespace Unity.UIWidgets.widgets {
                 sortedHashes[0] = h1;
                 sortedHashes[1] = h2;
                 iterator.MoveNext();
-                sortedHashes[2] = iterator.GetHashCode();
+                sortedHashes[2] = iterator.Current.GetHashCode();
                 if (length == 4) {
                     iterator.MoveNext();
-                    sortedHashes[3] = iterator.GetHashCode();
+                    sortedHashes[3] = iterator.Current.GetHashCode();
                 }
 
                 sortedHashes.Sort();
-                return _hashCode = (_hashCode * 397) ^ (sortedHashes != null ? sortedHashes.GetHashCode() : 0);
+                var _hashCode = sortedHashes[0].GetHashCode();
+                for (var i = 1; i < sortedHashes.Count; i++) {
+                    _hashCode = (_hashCode * 397) ^ (sortedHashes[i].GetHashCode());
+                }
+                return _hashCode;
             }
         }
 
@@ -249,9 +247,8 @@ namespace Unity.UIWidgets.widgets {
                 notifyListeners();
             }
         }
-
-
-        public bool handleKeypress(
+        
+        public virtual bool handleKeypress(
             BuildContext context,
             RawKeyEvent rawKeyEvent,
             LogicalKeySet keysPressed = null

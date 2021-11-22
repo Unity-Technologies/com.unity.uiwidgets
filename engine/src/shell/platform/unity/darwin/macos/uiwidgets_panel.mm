@@ -357,7 +357,7 @@ void UIWidgetsPanel::SendPointerEventWithData(
   }
 }
 
-void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown) {
+void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown, int64_t modifier) {
   if (process_events_) {
     UIWidgetsPointerEvent event = {};
     event.phase = isKeyDown ? UIWidgetsPointerPhase::kMouseDown : UIWidgetsPointerPhase::kMouseUp;
@@ -369,6 +369,8 @@ void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown) {
         std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::high_resolution_clock::now().time_since_epoch())
             .count();
+
+    event.modifier = modifier;
 
     UIWidgetsEngineSendPointerEvent(engine_, &event, 1);
   }
@@ -477,8 +479,8 @@ UIWidgetsPanel_unregisterTexture(UIWidgetsPanel* panel, int texture_id) {
 
 
 UIWIDGETS_API(void)
-UIWidgetsPanel_onKey(UIWidgetsPanel* panel, int keyCode, bool isKeyDown) {
-  panel->OnKeyDown(keyCode, isKeyDown);
+UIWidgetsPanel_onKey(UIWidgetsPanel* panel, int keyCode, bool isKeyDown, int64_t modifier) {
+  panel->OnKeyDown(keyCode, isKeyDown, modifier);
 }
 
 UIWIDGETS_API(void)

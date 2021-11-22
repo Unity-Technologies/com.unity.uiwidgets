@@ -1031,7 +1031,7 @@ namespace Unity.UIWidgets.widgets {
             get { return _debugStateLockLevel > 0; }
         }
 
-        internal bool debugBuilding {
+        public bool debugBuilding {
             get { return _debugBuilding; }
         }
         bool _debugBuilding = false;
@@ -1780,7 +1780,7 @@ namespace Unity.UIWidgets.widgets {
 
         HashSet<Element> _debugForgottenChildrenWithGlobalKey = new HashSet<Element>();
 
-        internal virtual void forgetChild(Element child) {
+        public virtual void forgetChild(Element child) {
             D.assert(() => {
                 if (child.widget.key is GlobalKey)
                     _debugForgottenChildrenWithGlobalKey.Add(child);
@@ -2629,7 +2629,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(child == _child);
             _child = null;
             base.forgetChild(child);
@@ -2897,7 +2897,7 @@ namespace Unity.UIWidgets.widgets {
             notifyClients(oldWidget);
         }
 
-        protected abstract void notifyClients(ProxyWidget oldWidget);
+        public abstract void notifyClients(ProxyWidget oldWidget);
     }
 
     public class ParentDataElement : ProxyElement {
@@ -2929,7 +2929,7 @@ namespace Unity.UIWidgets.widgets {
             _applyParentData(newWidget);
         }
 
-        protected override void notifyClients(ProxyWidget oldWidget) {
+        public override void notifyClients(ProxyWidget oldWidget) {
             _applyParentData((ParentDataWidget) widget);
         }
     }
@@ -2963,7 +2963,7 @@ namespace Unity.UIWidgets.widgets {
             _applyParentData(newWidget);
         }
 
-        protected override void notifyClients(ProxyWidget oldWidget) {
+        public override void notifyClients(ProxyWidget oldWidget) {
             _applyParentData((ParentDataWidget<T>) widget);
         }
 
@@ -3031,7 +3031,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        protected override void notifyClients(ProxyWidget oldWidgetRaw) {
+        public override void notifyClients(ProxyWidget oldWidgetRaw) {
             var oldWidget = (InheritedWidget) oldWidgetRaw;
 
             D.assert(_debugCheckOwnerBuildTargetExists("notifyClients"));
@@ -3054,7 +3054,7 @@ namespace Unity.UIWidgets.widgets {
         protected RenderObjectElement(RenderObjectWidget widget) : base(widget) {
         }
 
-        public new RenderObjectWidget widget {
+        public new virtual RenderObjectWidget widget {
             get { return (RenderObjectWidget) base.widget; }
         }
 
@@ -3430,7 +3430,7 @@ namespace Unity.UIWidgets.widgets {
         public LeafRenderObjectElement(LeafRenderObjectWidget widget) : base(widget) {
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(false);
             base.forgetChild(child);
         }
@@ -3468,7 +3468,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(child == _child);
             _child = null;
             base.forgetChild(child);
@@ -3554,7 +3554,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(_children.Contains(child));
             D.assert(!_forgottenChildren.Contains(child));
             _forgottenChildren.Add(child);

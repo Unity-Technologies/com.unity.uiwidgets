@@ -93,6 +93,10 @@ namespace Unity.UIWidgets.widgets {
 
         float? _viewportDimension;
 
+        public bool haveViewportDimension {
+            get { return _viewportDimension != null; }
+        }
+
         public bool haveDimensions {
             get { return _haveDimensions; }
         }

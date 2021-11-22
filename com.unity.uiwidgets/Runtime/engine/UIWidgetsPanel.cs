@@ -10,6 +10,7 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
+using UnityEngine.Rendering;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
 using Path = System.IO.Path;
@@ -111,6 +112,7 @@ namespace Unity.UIWidgets.engine {
         }
     }
 
+    [ExecuteInEditMode]
     public partial class UIWidgetsPanel : RawImage, IUIWidgetsWindow {
         static List<UIWidgetsPanel> panels = new List<UIWidgetsPanel>();
 
@@ -132,15 +134,17 @@ namespace Unity.UIWidgets.engine {
             panels.Remove(panel);
         }
 
-        float _devicePixelRatioOverride;
-
-        public bool hardwareAntiAliasing;
-
+        public float devicePixelRatioEditorOnlyOverride;
+        
         public TextFont[] fonts;
 
         Configurations _configurations;
 
         UIWidgetsPanelWrapper _wrapper;
+
+        protected UIWidgetsPanelWrapper wrapper {
+            get { return _wrapper; }
+        }
 
         int _currentWidth {
             get { return Mathf.RoundToInt(rectTransform.rect.width * canvas.scaleFactor); }
@@ -150,11 +154,15 @@ namespace Unity.UIWidgets.engine {
             get { return Mathf.RoundToInt(rectTransform.rect.height * canvas.scaleFactor); }
         }
 
-        float _currentDevicePixelRatio {
+        protected float _currentDevicePixelRatio {
             get {
 #if !UNITY_EDITOR
                 return _wrapper.displayMetrics.DevicePixelRatioByDefault;
 #endif
+                if (devicePixelRatioEditorOnlyOverride > 0) {
+                    return devicePixelRatioEditorOnlyOverride;
+                }
+                
                 var currentDpi = Screen.dpi;
                 if (currentDpi == 0) {
                     currentDpi = canvas.GetComponent<CanvasScaler>().fallbackScreenDPI;
@@ -168,6 +176,9 @@ namespace Unity.UIWidgets.engine {
 
         void _handleViewMetricsChanged(string method, List<JSONNode> args) {
             using (Isolate.getScope(anyIsolate)) {
+                if (_wrapper == null) {
+                    return;
+                }
                 _wrapper.displayMetrics.onViewMetricsChanged();
                 Window.instance.updateSafeArea();
                 Window.instance.onMetricsChanged?.Invoke();
@@ -242,30 +253,70 @@ namespace Unity.UIWidgets.engine {
 
         #endregion
 
+        IEnumerator ReEnableUIWidgetsNextFrame() {
+            yield return null;
+            enabled = true;
+        }
+
 #if !UNITY_EDITOR && UNITY_ANDROID
         bool AndroidInitialized = true;
 
-        IEnumerator DoInitAndroid() {
-            yield return new WaitForEndOfFrame();
-            AndroidPlatformUtil.Init();
-            yield return new WaitForEndOfFrame();
-            enabled = true;
-        }
         bool IsAndroidInitialized() {
             if (AndroidInitialized) {
                 enabled = false;
                 AndroidInitialized = false;
-                startCoroutine(DoInitAndroid());
+                AndroidPlatformUtil.Init();
+                startCoroutine(ReEnableUIWidgetsNextFrame());
                 return false;
             }
             return true;
         }
 #endif
+        static bool UIWidgetsDisabled;
 
-        protected void OnEnable() {
+        void DisableUIWidgets() {
+            Debug.Log("Please change graphic api for UIWidgets.\n" +
+                      "Metal for iOS and MacOS.\n" +
+                      "Direct3D11 for Windows\n" +
+                      "Vulkan for Android\n");
+            UIWidgetsDisabled = true;
+            enabled = false;
+        }
+
+
+        protected override void OnEnable() {
+            if (UIWidgetsDisabled) {
+                enabled = false;
+                return;
+            }
+
+            var type = SystemInfo.graphicsDeviceType;
 #if !UNITY_EDITOR && UNITY_ANDROID
+            if(type != GraphicsDeviceType.OpenGLES2 && type != GraphicsDeviceType.OpenGLES3){
+                DisableUIWidgets();
+                return;
+            }
             if (!IsAndroidInitialized()) {return ;}
 #endif
+#if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+            if (type != GraphicsDeviceType.Metal) {
+                DisableUIWidgets();
+                return;
+            }
+#endif
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            if (type != GraphicsDeviceType.Direct3D11) {
+                DisableUIWidgets();
+                return;
+            }
+#endif
+            // If user duplicates uiwidgets gameobject in scene, canvas could be null during OnEnable, which results in error. Skip to avoid error.
+            // More explanation: during duplication, editor wakes and enables behaviors in certain order. GameObject behaviors are enabled before canvas.
+            if (canvas == null) {
+                enabled = false;
+                startCoroutine(ReEnableUIWidgetsNextFrame());
+                return;
+            }
 #if !UNITY_EDITOR && UNITY_IOS
             //the hook API cannot be automatically called on IOS, so we need try hook it here
             Hooks.tryHook();
@@ -301,9 +352,11 @@ namespace Unity.UIWidgets.engine {
         }
 
         protected override void OnDisable() {
-            unregisterPanel(this);
-            D.assert(_wrapper != null);
-            _wrapper?.Destroy();
+            if (_wrapper != null) {
+                unregisterPanel(this);
+                _wrapper.Destroy();
+            }
+
             _wrapper = null;
             texture = null;
             Input_OnDisable();
@@ -357,7 +410,7 @@ namespace Unity.UIWidgets.engine {
             return new Offset(dx: screenPos.x, Screen.height - screenPos.y);
         }
 
-        public void mainEntry() {
+        public virtual void mainEntry() {
             main();
         }
 
@@ -409,7 +462,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         Vector2? _getPointerPosition(Vector2 position) {
-            var worldCamera = canvas.worldCamera;
+            var worldCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 rect: rectTransform, screenPoint: position, cam: worldCamera, out var localPoint)) {
                 var scaleFactor = canvas.scaleFactor;

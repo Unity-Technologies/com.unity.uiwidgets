@@ -58,7 +58,7 @@ UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https
 | -----------------------------------------------| ------------------------- | ------------------------- |
 | 1.5.4 及以下     | 2019.4.10f1 及以上  | N\A |
 | 2.0.1   | 2019.4.26f1c1  | N\A |
-| 2.0.2 及以上   | 2019.4.26f1c1 及以上 | N\A |
+| 2.0.2 及以上   | 2019.4.26f1c1 ~ 2019.4.29f1c1 | N\A |
 
 #### UIWidgets包
 
@@ -111,7 +111,7 @@ UIWidgets应用是用**C＃脚本**来编写的。 请按照以下步骤创建�
 
     namespace UIWidgetsSample
     {
-        public class CountDemo : UIWidgetsPanel
+        public class UIWidgetsExample : UIWidgetsPanel
         {
             protected void OnEnable()
             {
@@ -209,9 +209,9 @@ UIWidgets也支持Gif！
 
 ## 调试UIWidgets应用程序
 
-在编辑器菜单栏选择```UIWidgets->EnableDebug```
+在Editor模式下，编辑器菜单栏选择```UIWidgets->EnableDebug```。
 
-如果想在runtime开启debug模式，请在项目代码中设置```UIWidgetsGlobalConfiguration.EnableDebugAtRuntime = true```。在默认情况下debug模式为关闭状态。
+在Runtime模式下，Debug/Development build会自动开启Debug，Release build则会自动关闭Debug。
 
 ## 使用Window Scope保护外部调用
 如果您在调试时遇到 `AssertionError: Window.instance is null` 或者在调用 `Window.instance` 时得到空指针, 那么您需要
@@ -241,7 +241,7 @@ using(Isolate.getScope(the isolate of your App)) {
 #### Wiki
 
 目前开发团队仍在改进UIWidgets Wiki。 由于UIWidgets主要来源于Flutter，你也可以参考Flutter Wiki中与UIWidgets API对应部分的详细描述。
-同时，你可以加入我们的讨论组( https://learn.unity.com/g/uiwidgets )。
+同时，你也可以加入我们的[讨论组](https://unity.cn/plate/uiwidgets)来和大家交流使用心得。
 
 #### 常问问题解答
 

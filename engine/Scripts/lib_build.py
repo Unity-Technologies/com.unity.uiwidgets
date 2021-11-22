@@ -20,6 +20,7 @@ runtime_mode=""
 bitcode=""
 flutter_root_path=""
 visual_studio_path=""
+architecture=""
 
 def get_opts():
     # get intput agrs
@@ -29,11 +30,12 @@ def get_opts():
     global bitcode
     global visual_studio_path
     global platform
+    global architecture
 
     if len(sys.argv) < 2:
         show_help()
         sys.exit()
-    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:eh',["help"])
+    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:eh',["arm64","help"])
     for opt, arg in options:
         if opt == '-r':
             engine_path = arg # set engine_path, depot_tools and flutter engine folder will be put into this path
@@ -48,6 +50,10 @@ def get_opts():
             visual_studio_path = arg
         elif opt == '-e':
             bitcode="-bitcode_bundle -bitcode_verify"
+        elif opt == '--arm64':
+            architecture = "arm64"
+            if platform == "android":
+                gn_params += " --android-cpu=arm64"
         elif opt in ("-h","--help"):
             show_help()
             sys.exit()
@@ -106,10 +112,16 @@ def set_params():
         ninja_params3=" -C out/" +output_path + " third_party/angle:libEGL_static"
     elif runtime_mode == "release" and platform == "android":
         optimize=""
-        output_path="android_release"
+        if architecture == "arm64":
+                output_path="android_release_arm64"
+        else:
+            output_path="android_release"
     elif runtime_mode == "debug" and platform == "android":
         optimize="--unoptimized"
-        output_path="android_debug_unopt"
+        if architecture == "arm64":
+            output_path="android_debug_unopt_arm64"
+        else:
+            output_path="android_debug_unopt"
     elif runtime_mode == "release" and platform == "ios":
         optimize=""
         output_path="ios_release"
@@ -192,6 +204,10 @@ def compile_engine():
     global platform
 
     print("\nSCompiling engine...")
+
+    os.chdir(Path(flutter_root_path + "/third_party/skia/"))
+    copy_file(Path(work_path + "/patches/skia.patch"), Path(flutter_root_path + "/third_party/skia"))
+    os.system("patch -p1 < skia.patch -N")
 
     if platform == "ios" or platform == "mac":
         os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
@@ -284,7 +300,11 @@ def build_engine():
     elif platform == "android":
         dest_folder = "android"
         os.chdir(work_path + "/../")
-        os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm")
+        if architecture == "arm64":
+            os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64/bin/aarch64-linux-android-objcopy  --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm64")
+            dest_folder = os.path.join(dest_folder, "arm64")
+        else:
+            os.system("python " + flutter_root_path + "/flutter/sky/tools/objcopy.py --objcopy " + flutter_root_path + "/third_party/android_tools/ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-objcopy --input " + flutter_root_path + "/third_party/icu/flutter/icudtl.dat --output icudtl.o --arch arm")
     elif platform == "ios":
         dest_folder = "ios"
     if not os.path.exists(Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder)):
@@ -293,12 +313,20 @@ def build_engine():
     if runtime_mode == "release":
         if os.path.exists(Path(work_path + "/../build_release")):
             shutil.rmtree(Path(work_path + "/../build_release"))
+        if os.path.exists(Path(work_path + "/../build_release_arm64")):
+            shutil.rmtree(Path(work_path + "/../build_release_arm64"))
         if platform == "windows":
             os.system("bee.exe win_release")
             copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
         else:
-            os.system("mono bee.exe " + platform +"_release")
-            copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+            if platform == "android" and architecture == "arm64":
+                os.system("mono bee.exe " + platform +"_release_arm64")
+            else:
+                os.system("mono bee.exe " + platform +"_release")
+            if architecture == "arm64":
+                copy_file(Path(work_path + "/../build_release_arm64/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+            else:
+                copy_file(Path(work_path + "/../build_release/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
             if platform == "android":
                 tundra_file=Path(work_path + "/../artifacts/tundra.dag.json")
                 rsp = get_rsp(tundra_file, runtime_mode)
@@ -310,20 +338,30 @@ def build_engine():
                 os.chdir(Path(work_path + "/../"))
                 os.system("artifacts/Stevedore/android-ndk-mac/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ " + "@\"" + rsp + "\"")
                 os.system(flutter_root_path + "/buildtools/mac-x64/clang/bin/clang++ " + "@\"" + rsp + "\"")
-                copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
+                if architecture == "arm64":
+                    copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm64/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android/arm64"))
+                else:
+                    copy_file(Path(work_path + "/../artifacts/libUIWidgets/release_Android_arm32/libUIWidgets.so"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/Android"))
             elif platform == "ios":
                 print("\nStarting prlink library...")
                 os.chdir(Path(work_path + "/../"))
                 tundra_file=Path(work_path + "/../artifacts/tundra.dag.json")
                 prelinkfiles(tundra_file, runtime_mode, output_path, work_path, bitcode)
     elif runtime_mode == "debug":
+        if os.path.exists(Path(work_path + "/../build_debug_arm64")):
+            shutil.rmtree(Path(work_path + "/../build_debug_arm64"))
         if os.path.exists(Path(work_path + "/../build_debug")):
             shutil.rmtree(Path(work_path + "/../build_debug"))
         if platform == "windows":
             os.system("bee.exe win_debug")
+        elif platform == "android" and architecture == "arm64":
+            os.system("mono bee.exe " + platform +"_debug_arm64")
         else:
             os.system("mono bee.exe " + platform +"_debug")
-        copy_file(Path(work_path + "/../build_debug/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+        if architecture == "arm64":
+            copy_file(Path(work_path + "/../build_debug_arm64/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
+        else:
+            copy_file(Path(work_path + "/../build_debug/"), Path(work_path + "/../../com.unity.uiwidgets/Runtime/Plugins/" + dest_folder))
         if platform == "ios":
             print("\nStarting prlink library...")
             os.chdir(Path(work_path + "/../"))
@@ -333,6 +371,9 @@ def build_engine():
 def revert_patches():
     global flutter_root_path
     print("\nRevert patches...")
+
+    os.chdir(Path(flutter_root_path + "/third_party/skia/"))
+    os.system("patch -p1 -R < skia.patch")
 
     os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
     os.system("patch -R < BUILD.gn.patch")
@@ -431,7 +472,7 @@ def get_rsp(tundra_file, runtime_mode):
         json_list = temp['Nodes']
         target_files=''
         for item in json_list:
-            if item['Annotation'].startswith('Link_Android_arm32') and item['Annotation'].find(runtime_mode) != -1:
+            if item['Annotation'].startswith('Link_Android_arm64' if architecture == "arm64" else 'Link_Android_arm32') and item['Annotation'].find(runtime_mode) != -1:
                 action_list = item['Inputs']
                 for o in action_list:
                     if o.endswith('.rsp'):

@@ -432,7 +432,7 @@ namespace Unity.UIWidgets.material {
             }
         }
 
-        internal override void forgetChild(Element child) {
+        public override void forgetChild(Element child) {
             D.assert(slotToChild.Values.Contains(child));
             D.assert(childToSlot.Keys.Contains(child));
             _ListTileSlot slot = childToSlot[child];

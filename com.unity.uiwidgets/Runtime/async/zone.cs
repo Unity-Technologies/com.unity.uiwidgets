@@ -68,6 +68,14 @@ namespace Unity.UIWidgets.async {
 
         public AsyncError(Exception innerException) : base(null, innerException) {
         }
+
+        public static string defaultStackTrace(object error) {
+            if (error is Exception ex) {
+                return ex.StackTrace;
+            }
+
+            return "";
+        }
     }
 
     struct _ZoneFunction<T> where T : Delegate {

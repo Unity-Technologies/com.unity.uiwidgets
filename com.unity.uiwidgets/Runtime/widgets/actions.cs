@@ -45,8 +45,8 @@ namespace Unity.UIWidgets.widgets {
     
 
     
-    class CallbackAction : UiWidgetAction  {
-        public CallbackAction(LocalKey intentKey, OnInvokeCallback onInvoke) : base(intentKey: intentKey) {
+    public class CallbackAction : UiWidgetAction  {
+        public CallbackAction(LocalKey intentKey = null, OnInvokeCallback onInvoke = null) : base(intentKey: intentKey) {
             D.assert(onInvoke != null);
             this.onInvoke = onInvoke;
         }
@@ -59,7 +59,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     
-    class ActionDispatcher : Diagnosticable {
+    public class ActionDispatcher : Diagnosticable {
         public ActionDispatcher() {
         }
 
@@ -75,7 +75,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-    class Actions : InheritedWidget {
+    public class Actions : InheritedWidget {
         public Actions(
             Key key = null,
             ActionDispatcher dispatcher = null,
@@ -159,7 +159,7 @@ namespace Unity.UIWidgets.widgets {
                 }
                 actionsElement = element;
                 Actions actions = element.widget as Actions;
-                action = actions.actions[intent.key]?.Invoke();
+                action = actions.actions.getOrDefault(intent.key)?.Invoke();
 
                 return action == null;
             }
@@ -225,7 +225,7 @@ namespace Unity.UIWidgets.widgets {
        
     }
 
-    class FocusableActionDetector : StatefulWidget {
+    public class FocusableActionDetector : StatefulWidget {
 
         public FocusableActionDetector(
             Key key = null,

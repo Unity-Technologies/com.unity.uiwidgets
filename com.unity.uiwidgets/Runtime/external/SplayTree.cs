@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Unity.UIWidgets.external {    
-    class SplayTree<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey> {
+namespace Unity.UIWidgets.external {
+    public class SplayTree<TKey, TValue> : IDictionary<TKey, TValue> where TKey : IComparable<TKey> {
         SplayTreeNode root;
         int count;
         int version = 0;
@@ -120,7 +120,7 @@ namespace Unity.UIWidgets.external {
             if (key == null) throw new Exception("should input null");
             if (root == null) throw new Exception("root is null");
             int comp = Splay(key);
-            if (comp < 0) return root.Key;
+            if (comp > 0) return root.Key;
             SplayTreeNode node = root.LeftChild;
             if (node == null) throw new Exception("does not exist");
             while (node.RightChild != null) {
@@ -129,11 +129,23 @@ namespace Unity.UIWidgets.external {
             return node.Key;
         }
         
+        public TKey firstKey() {
+            if (root == null) return default; // TODO: this is suppose to be null
+            var first = First().Value;
+            return first.Key;
+        }
+        
+        public TKey lastKey() {
+            if (root == null) return default; // TODO: this is suppose to be null
+            var last = Last().Value;
+            return last.Key;
+        }
+        
         public TKey firstKeyAfter(TKey key) {
             if (key == null) throw new Exception("should input null");
             if (root == null) throw new Exception("root is null");
             int comp = Splay(key);
-            if (comp > 0) return root.Key;
+            if (comp < 0) return root.Key;
             SplayTreeNode node = root.LeftChild;
             if (node == null)  throw new Exception("does not exist");
             while (node.LeftChild != null) {

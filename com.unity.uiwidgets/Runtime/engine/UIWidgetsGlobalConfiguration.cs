@@ -5,8 +5,5 @@ namespace Unity.UIWidgets.engine {
 
         //disable incremental gc by default
         public static bool EnableIncrementalGC = false;
-        
-        //disable debug at runtime by default
-        public static bool EnableDebugAtRuntime = false;
     }
 }

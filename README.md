@@ -67,7 +67,7 @@ The compatible Unity versions for each UIWidgets release are listed below. You c
 | -----------------------------------------------| ------------------------- | ------------------------- |
 | 1.5.4 and below     | 2019.4.10f1 and above  | N\A |
 | 2.0.1   | 2019.4.26f1c1  | N\A |
-| 2.0.2 and above   | 2019.4.26f1c1 and above | N\A |
+| 2.0.2 and above   | 2019.4.26f1c1 ~ 2019.4.29f1c1 | N\A |
 
 #### UIWidgets Package
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
@@ -122,7 +122,7 @@ in Unity Editor.
 
     namespace UIWidgetsSample
     {
-        public class CountDemo : UIWidgetsPanel
+        public class UIWidgetsExample : UIWidgetsPanel
         {
             protected void OnEnable()
             {
@@ -220,9 +220,9 @@ Long time garbage collection may cause App to stuck frequently. You can enable i
 
 ## Debug UIWidgets Application
 
-In Unity editor, you can switch debug/release mode by “UIWidgets->EnableDebug”.
+In the Editor, you can switch debug/release mode by “UIWidgets->EnableDebug”.
 
-You can also enable debug mode in runtime by setting ```UIWidgetsGlobalConfiguration.EnableDebugAtRuntime = true``` in your project. Note that this value is set to false by default.
+In the Player, the debug/development build will enable debug mode. The release build will disable debug mode automatically.
 
 ## Using Window Scope
 If you see the error `AssertionError: Window.instance is null` or null pointer error of `Window.instance`,
@@ -263,7 +263,7 @@ many best practice cases.
 The develop team is still working on the UIWidgets Wiki. However, since UIWidgets is mainly derived from Flutter,
  you can refer to Flutter Wiki to access detailed descriptions of UIWidgets APIs
  from those of their Flutter counterparts.
-Meanwhile, you can join the discussion channel at (https://learn.unity.com/g/uiwidgets)
+Meanwhile, you can join our [discussion channel](https://unity.cn/plate/uiwidgets) to keep in touch with the community.
 
 #### FAQ
 
