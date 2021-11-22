@@ -438,9 +438,8 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Input_OnEnable() {
-#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
-            Input.RawTouchEvent += ProcessRawTouch;
-#endif
+            UnityEngine.UIWidgets.InitUIWidgets.init();
+            UnityEngine.UIWidgets.RawTouchEvent += ProcessRawTouch;
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
         }
 
@@ -452,7 +451,7 @@ namespace Unity.UIWidgets.engine {
             Canceled = 4
         }
 
-        void ProcessRawTouch(Input.RawTouchEventParam param) {
+        void ProcessRawTouch(UnityEngine.UIWidgets.RawTouchEventParam param) {
             var position = _getPointerPosition(new Vector2(param.x, param.y));
             var pointerId = -1 - param.pointerId;
             switch ((TouchPhase)param.phase) {
@@ -472,9 +471,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Input_OnDisable() {
-#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
-            Input.RawTouchEvent -= ProcessRawTouch;
-#endif
+            UnityEngine.UIWidgets.RawTouchEvent -= ProcessRawTouch;
         }
 
         void Input_Update() {
