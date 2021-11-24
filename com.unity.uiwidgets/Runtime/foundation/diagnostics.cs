@@ -627,8 +627,8 @@ namespace Unity.UIWidgets.foundation {
             return style == DiagnosticsTreeStyle.singleLine;
         }
 
-        public static bool FloatEqual(float left, float right) {
-            return Mathf.Abs(left - right) < precisionErrorTolerance;
+        public static bool FloatEqual(float left, float right, float precisionTolerance = precisionErrorTolerance) {
+            return Mathf.Abs(left - right) < precisionTolerance;
         }
     }
 
