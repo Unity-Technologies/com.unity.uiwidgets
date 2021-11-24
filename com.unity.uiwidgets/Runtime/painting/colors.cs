@@ -12,13 +12,13 @@ namespace Unity.UIWidgets.painting {
             if (max == 0.0f || delta == 0.0f) {
                 hue = 0.0f;
             }
-            else if (max == red) {
+            else if (foundation_.FloatEqual(max,red)) {
                 hue = 60.0f * (((green - blue) / delta) % 6);
             }
-            else if (max == green) {
+            else if (foundation_.FloatEqual(max,green)) {
                 hue = 60.0f * (((blue - red) / delta) + 2);
             }
-            else if (max == blue) {
+            else if (foundation_.FloatEqual(max,blue)) {
                 hue = 60.0f * (((red - green) / delta) + 4);
             }
 
@@ -92,14 +92,14 @@ namespace Unity.UIWidgets.painting {
         }
         
         public static HSVColor fromColor(Color color) {
-            float red = color.red / 0xFF;
-            float green = color.green / 0xFF;
-            float blue = color.blue / 0xFF;
+            float red = (float)color.red / 0xFF;
+            float green = (float)color.green / 0xFF;
+            float blue = (float)color.blue / 0xFF;
 
             float max = Mathf.Max(red, Mathf.Max(green, blue));
             float min = Mathf.Min(red, Mathf.Min(green, blue));
             float delta = max - min;
-            float alpha = color.alpha / 0xFF;
+            float alpha = (float)color.alpha / 0xFF;
             float hue = painting_._getHue(red, green, blue, max, delta);
             float saturation = max == 0.0f ? 0.0f : delta / max;
             
@@ -164,18 +164,18 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static HSLColor fromColor(Color color) {
-            float red = color.red / 0xFF;
-            float green = color.green / 0xFF;
-            float blue = color.blue / 0xFF;
+            float red = (float)color.red / 0xFF;
+            float green = (float)color.green / 0xFF;
+            float blue = (float)color.blue / 0xFF;
 
             float max = Mathf.Max(red, Mathf.Max(green, blue));
             float min = Mathf.Min(red, Mathf.Min(green, blue));
             float delta = max - min;
 
-            float alpha = color.alpha / 0xFF;
+            float alpha = (float)color.alpha / 0xFF;
             float hue = painting_._getHue(red, green, blue, max, delta);
             float lightness = (max + min) / 2.0f;
-            float saturation = lightness == 1.0f
+            float saturation = foundation_.FloatEqual(lightness, 1.0f)
                 ? 0.0f
                 : ((delta / (1.0f - Mathf.Abs(2.0f * lightness - 1.0f))).clamp(0.0f, 1.0f));
             return HSLColor.fromAHSL(alpha, hue, saturation, lightness);
