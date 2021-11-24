@@ -52,7 +52,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   std::chrono::nanoseconds ProcessMessages();
 
-  void ProcessVSync();
+  void ProcessVSync(double frame_duration);
 
   void VSyncCallback(intptr_t baton);
 

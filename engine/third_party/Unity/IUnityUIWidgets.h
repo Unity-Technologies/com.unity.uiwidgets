@@ -10,12 +10,13 @@
 namespace UnityUIWidgets {
 typedef void (*VoidCallback)();
 typedef void (*VoidCallbackLong)(long);
+typedef void (*VoidCallbackDouble)(double);
 
 UNITY_DECLARE_INTERFACE(IUnityUIWidgets) {
   virtual ~IUnityUIWidgets() {}
 
   virtual void SetUpdateCallback(VoidCallback callback) = 0;
-  virtual void SetVSyncCallback(VoidCallback callback) = 0;
+  virtual void SetVSyncCallback(VoidCallbackDouble callback) = 0;
   virtual void SetWaitCallback(VoidCallbackLong callback) = 0;
   virtual void SetWakeUpCallback(VoidCallback callback) = 0;
   virtual void IssuePluginEventAndData(UnityRenderingEventAndData callback,

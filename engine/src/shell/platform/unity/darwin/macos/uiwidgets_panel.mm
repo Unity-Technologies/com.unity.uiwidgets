@@ -190,7 +190,7 @@ void UIWidgetsPanel::OnDisable() {
   ProcessMessages();
 
   // drain pending vsync batons
-  ProcessVSync();
+  ProcessVSync(0);
 
   process_events_ = false;
 
@@ -240,7 +240,7 @@ std::chrono::nanoseconds UIWidgetsPanel::ProcessMessages() {
   return std::chrono::nanoseconds(task_runner_->ProcessTasks().count());
 }
 
-void UIWidgetsPanel::ProcessVSync() {
+void UIWidgetsPanel::ProcessVSync(double frame_duration) {
   std::vector<intptr_t> batons;
   vsync_batons_.swap(batons);
 
@@ -248,7 +248,7 @@ void UIWidgetsPanel::ProcessVSync() {
     reinterpret_cast<EmbedderEngine*>(engine_)->OnVsyncEvent(
         baton, fml::TimePoint::Now(),
         fml::TimePoint::Now() +
-            fml::TimeDelta::FromNanoseconds(1000000000 / 60));
+            fml::TimeDelta::FromNanoseconds(1000000000 * frame_duration));
   }
 }
 
@@ -514,7 +514,7 @@ UIWidgetsPanel_onEditorUpdate(UIWidgetsPanel* panel) {
   panel->ProcessMessages();
 
   //_ProcessVSync
-  panel->ProcessVSync();
+  panel->ProcessVSync(0);
 
   //_Wait
   panel->ProcessMessages();
