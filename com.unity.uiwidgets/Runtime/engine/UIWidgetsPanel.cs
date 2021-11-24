@@ -134,10 +134,8 @@ namespace Unity.UIWidgets.engine {
             panels.Remove(panel);
         }
 
-        float _devicePixelRatioOverride;
-
-        public bool hardwareAntiAliasing;
-
+        public float devicePixelRatioEditorOnlyOverride;
+        
         public TextFont[] fonts;
 
         Configurations _configurations;
@@ -161,6 +159,10 @@ namespace Unity.UIWidgets.engine {
 #if !UNITY_EDITOR
                 return _wrapper.displayMetrics.DevicePixelRatioByDefault;
 #endif
+                if (devicePixelRatioEditorOnlyOverride > 0) {
+                    return devicePixelRatioEditorOnlyOverride;
+                }
+                
                 var currentDpi = Screen.dpi;
                 if (currentDpi == 0) {
                     currentDpi = canvas.GetComponent<CanvasScaler>().fallbackScreenDPI;
@@ -282,7 +284,7 @@ namespace Unity.UIWidgets.engine {
         }
 
 
-        protected void OnEnable() {
+        protected override void OnEnable() {
             if (UIWidgetsDisabled) {
                 enabled = false;
                 return;
@@ -489,9 +491,8 @@ namespace Unity.UIWidgets.engine {
         }
 
         void Input_OnEnable() {
-#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
-            Input.RawTouchEvent += ProcessRawTouch;
-#endif
+            UnityEngine.UIWidgets.InitUIWidgets.init();
+            UnityEngine.UIWidgets.RawTouchEvent += ProcessRawTouch;
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
         }
 
@@ -504,7 +505,7 @@ namespace Unity.UIWidgets.engine {
             Canceled = 4
         }
 
-        void ProcessRawTouch(Input.RawTouchEventParam param) {
+        void ProcessRawTouch(UnityEngine.UIWidgets.RawTouchEventParam param) {
             var position = _getPointerPosition(new Vector2(param.x, param.y));
             var pointerId = -1 - param.pointerId;
             switch ((TouchPhase)param.phase) {
@@ -525,9 +526,7 @@ namespace Unity.UIWidgets.engine {
 #endif
 
         void Input_OnDisable() {
-#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
-            Input.RawTouchEvent -= ProcessRawTouch;
-#endif
+            UnityEngine.UIWidgets.RawTouchEvent -= ProcessRawTouch;
         }
 
         void Input_Update() {

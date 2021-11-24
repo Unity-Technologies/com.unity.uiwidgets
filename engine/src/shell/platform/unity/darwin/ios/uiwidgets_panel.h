@@ -61,7 +61,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void SetEventLocationFromCursorPosition(UIWidgetsPointerEvent* event_data);
 
-  void OnKeyDown(int keyCode, bool isKeyDown);
+  void OnKeyDown(int keyCode, bool isKeyDown, int64_t modifier);
 
   void OnMouseMove(float x, float y, int button);
 

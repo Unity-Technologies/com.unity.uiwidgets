@@ -23,16 +23,29 @@ namespace Unity.UIWidgets.Editor {
             get { return Mathf.RoundToInt(f: position.size.y); }
         }
 
+        protected float? devicePixelRatioEditorOnlyOverride = null;
+
         float _currentDevicePixelRatio {
-            get { return EditorGUIUtility.pixelsPerPoint; }
+            get {
+                return devicePixelRatioEditorOnlyOverride ?? EditorGUIUtility.pixelsPerPoint; }
+        }
+
+        protected virtual void OnUpdate() {
+            
         }
 
         void Update() {
+            OnUpdate();
             _wrapper.onEditorUpdate();
         }
 
         void OnEnable() {
             D.assert(_wrapper == null);
+
+            //enable listener to MouseMoveEvents by default
+            //user can disable it in onEnable() if needed
+            wantsMouseMove = true;
+            
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
             onEnable();
@@ -144,6 +157,10 @@ namespace Unity.UIWidgets.Editor {
                 delta.y /= 3f;
                 var pos = _getPointerPosition(position: evt.mousePosition);
                 _wrapper.OnMouseScroll(delta: delta, pos: pos);
+            }
+            else if (evt.isKey) {
+                _wrapper.OnKeyDown(e: evt);
+                Event.current.Use();
             }
         }
 

@@ -46,7 +46,7 @@ namespace Unity.UIWidgets.widgets {
 
     
     public class CallbackAction : UiWidgetAction  {
-        public CallbackAction(LocalKey intentKey, OnInvokeCallback onInvoke) : base(intentKey: intentKey) {
+        public CallbackAction(LocalKey intentKey = null, OnInvokeCallback onInvoke = null) : base(intentKey: intentKey) {
             D.assert(onInvoke != null);
             this.onInvoke = onInvoke;
         }
@@ -159,7 +159,7 @@ namespace Unity.UIWidgets.widgets {
                 }
                 actionsElement = element;
                 Actions actions = element.widget as Actions;
-                action = actions.actions[intent.key]?.Invoke();
+                action = actions.actions.getOrDefault(intent.key)?.Invoke();
 
                 return action == null;
             }

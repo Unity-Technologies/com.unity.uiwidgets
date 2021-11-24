@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.widgets {
                 int index = _keyToIndex.getOrDefault(_defaultNullKey);
                 while (index < children.Count) {
                     Widget child = children[index];
-                    if (child.key != _defaultNullKey) {
+                    if (child.key != null && child.key != _defaultNullKey) {
                         _keyToIndex[child.key] = index;
                     }
                     if (child.key == key) {

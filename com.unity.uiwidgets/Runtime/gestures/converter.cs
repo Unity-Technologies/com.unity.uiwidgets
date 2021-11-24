@@ -200,9 +200,13 @@ namespace Unity.UIWidgets.gestures {
                                 }else if (datum.change == PointerChange.kMouseUp) {
                                     keyBoardEvent.type = EventType.KeyUp;
                                 }
-
                                 keyBoardEvent.keyCode = (KeyCode)datum.buttons;
-
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+                                keyBoardEvent.shift = (datum.modifier & (1 << (int) FunctionKey.shift)) > 0;
+                                keyBoardEvent.alt = (datum.modifier & (1 << (int) FunctionKey.alt)) > 0;
+                                keyBoardEvent.command = (datum.modifier & (1 << (int) FunctionKey.command)) > 0;
+                                keyBoardEvent.control = (datum.modifier & (1 << (int) FunctionKey.control)) > 0;
+#endif
                                 RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
                                 TextInput.OnGUI();
                             }

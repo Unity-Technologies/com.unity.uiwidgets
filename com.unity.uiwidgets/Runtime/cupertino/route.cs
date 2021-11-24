@@ -357,7 +357,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
 
-        public string barrierLabel {
+        public override string barrierLabel {
             get { return null; }
         }
 

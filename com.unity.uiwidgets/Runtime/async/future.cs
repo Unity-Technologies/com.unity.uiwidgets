@@ -40,9 +40,9 @@ namespace Unity.UIWidgets.async {
     }
 
     public abstract class Future {
-        static readonly _Future _nullFuture = _Future.zoneValue(null, Zone.root);
+        internal static readonly _Future _nullFuture = _Future.zoneValue(null, Zone.root);
 
-        static readonly _Future _falseFuture = _Future.zoneValue(false, Zone.root);
+        internal static readonly _Future _falseFuture = _Future.zoneValue(false, Zone.root);
 
         public static Future create(Func<FutureOr> computation) {
             _Future result = new _Future();
@@ -180,7 +180,7 @@ namespace Unity.UIWidgets.async {
                     future.then((object value) => {
                         remaining--;
                         if (values != null) {
-                            values.Insert(pos, (T)value);
+                            values[pos] = (T)value;
                             if (remaining == 0) {
                                 result._completeWithValue(values);
                             }
@@ -211,7 +211,7 @@ namespace Unity.UIWidgets.async {
                     return value(FutureOr.value(new List<T>()));
                 }
 
-                values = new List<T>(remaining);
+                values = new List<T>(new T[remaining]);
             }
             catch (Exception e) {
                 // The error must have been thrown while iterating over the futures

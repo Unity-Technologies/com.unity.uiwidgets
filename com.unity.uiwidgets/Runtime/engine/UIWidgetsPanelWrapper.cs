@@ -343,7 +343,14 @@ public partial class UIWidgetsPanelWrapper {
         }
 
         public void OnKeyDown(Event e) {
-            UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown);
+            int modifier = 0;
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            modifier |= e.shift ? (1 << (int) FunctionKey.shift) : 0;
+            modifier |= e.alt ? (1 << (int) FunctionKey.alt) : 0;
+            modifier |= e.command ? (1 << (int) FunctionKey.command) : 0;
+            modifier |= e.control ? (1 << (int) FunctionKey.control) : 0;
+#endif
+            UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown, modifier);
             if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
                 PointerEventConverter.KeyEvent.Enqueue(new Event(other: e));
                 // TODO: add on char
@@ -355,7 +362,7 @@ public partial class UIWidgetsPanelWrapper {
         static extern void UIWidgetsPanel_onChar(IntPtr ptr, char c);
 
         [DllImport(dllName: NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onKey(IntPtr ptr, KeyCode keyCode, bool isKeyDown);
+        static extern void UIWidgetsPanel_onKey(IntPtr ptr, KeyCode keyCode, bool isKeyDown, int modifier);
 
         [DllImport(dllName: NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onMouseDown(IntPtr ptr, float x, float y, int button);

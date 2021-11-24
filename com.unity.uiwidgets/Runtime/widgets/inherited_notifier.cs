@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.widgets {
             markNeedsBuild();
         }
 
-        protected override void notifyClients(ProxyWidget oldWidget) {
+        public override void notifyClients(ProxyWidget oldWidget) {
             oldWidget = (InheritedNotifier<T>) oldWidget; 
             base.notifyClients(oldWidget);
             _dirty = false;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace Unity.UIWidgets.services {
     public abstract class KeyboardKey : Diagnosticable {
@@ -40,13 +41,11 @@ namespace Unity.UIWidgets.services {
         public override int GetHashCode() {
             unchecked {
                 int hashCode = (int) keyId;
-                hashCode = (hashCode * 397) ^ (debugName != null ? debugName.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (keyLabel != null ? keyLabel.GetHashCode() : 0);
                 return hashCode;
             }
         }
 
-        protected LogicalKeyboardKey(long keyId, string debugName = null, string keyLabel = null) : base() {
+        public LogicalKeyboardKey(long keyId, string debugName = null, string keyLabel = null) : base() {
             D.assert(keyId != null);
             this.keyId = keyId;
             this.debugName = debugName;
@@ -179,107 +178,107 @@ namespace Unity.UIWidgets.services {
             debugName: foundation_.kReleaseMode ? null : "Usb Error Undefined");
 
 
-        public static readonly LogicalKeyboardKey keyA = new LogicalKeyboardKey(0x00000000061, keyLabel: "a",
+        public static readonly LogicalKeyboardKey keyA = new LogicalKeyboardKey((long)KeyCode.A, keyLabel: "a",
             debugName: foundation_.kReleaseMode ? null : "Key A");
 
 
-        public static readonly LogicalKeyboardKey keyB = new LogicalKeyboardKey(0x00000000062, keyLabel: "b",
+        public static readonly LogicalKeyboardKey keyB = new LogicalKeyboardKey((long)KeyCode.B, keyLabel: "b",
             debugName: foundation_.kReleaseMode ? null : "Key B");
 
 
-        public static readonly LogicalKeyboardKey keyC = new LogicalKeyboardKey(0x00000000063, keyLabel: "c",
+        public static readonly LogicalKeyboardKey keyC = new LogicalKeyboardKey((long)KeyCode.C, keyLabel: "c",
             debugName: foundation_.kReleaseMode ? null : "Key C");
 
 
-        public static readonly LogicalKeyboardKey keyD = new LogicalKeyboardKey(0x00000000064, keyLabel: "d",
+        public static readonly LogicalKeyboardKey keyD = new LogicalKeyboardKey((long)KeyCode.D, keyLabel: "d",
             debugName: foundation_.kReleaseMode ? null : "Key D");
 
 
-        public static readonly LogicalKeyboardKey keyE = new LogicalKeyboardKey(0x00000000065, keyLabel: "e",
+        public static readonly LogicalKeyboardKey keyE = new LogicalKeyboardKey((long)KeyCode.E, keyLabel: "e",
             debugName: foundation_.kReleaseMode ? null : "Key E");
 
 
-        public static readonly LogicalKeyboardKey keyF = new LogicalKeyboardKey(0x00000000066, keyLabel: "f",
+        public static readonly LogicalKeyboardKey keyF = new LogicalKeyboardKey((long)KeyCode.F, keyLabel: "f",
             debugName: foundation_.kReleaseMode ? null : "Key F");
 
 
-        public static readonly LogicalKeyboardKey keyG = new LogicalKeyboardKey(0x00000000067, keyLabel: "g",
+        public static readonly LogicalKeyboardKey keyG = new LogicalKeyboardKey((long)KeyCode.G, keyLabel: "g",
             debugName: foundation_.kReleaseMode ? null : "Key G");
 
 
-        public static readonly LogicalKeyboardKey keyH = new LogicalKeyboardKey(0x00000000068, keyLabel: "h",
+        public static readonly LogicalKeyboardKey keyH = new LogicalKeyboardKey((long)KeyCode.H, keyLabel: "h",
             debugName: foundation_.kReleaseMode ? null : "Key H");
 
 
-        public static readonly LogicalKeyboardKey keyI = new LogicalKeyboardKey(0x00000000069, keyLabel: "i",
+        public static readonly LogicalKeyboardKey keyI = new LogicalKeyboardKey((long)KeyCode.I, keyLabel: "i",
             debugName: foundation_.kReleaseMode ? null : "Key I");
 
 
-        public static readonly LogicalKeyboardKey keyJ = new LogicalKeyboardKey(0x0000000006a, keyLabel: "j",
+        public static readonly LogicalKeyboardKey keyJ = new LogicalKeyboardKey((long)KeyCode.J, keyLabel: "j",
             debugName: foundation_.kReleaseMode ? null : "Key J");
 
 
-        public static readonly LogicalKeyboardKey keyK = new LogicalKeyboardKey(0x0000000006b, keyLabel: "k",
+        public static readonly LogicalKeyboardKey keyK = new LogicalKeyboardKey((long)KeyCode.K, keyLabel: "k",
             debugName: foundation_.kReleaseMode ? null : "Key K");
 
 
-        public static readonly LogicalKeyboardKey keyL = new LogicalKeyboardKey(0x0000000006c, keyLabel: "l",
+        public static readonly LogicalKeyboardKey keyL = new LogicalKeyboardKey((long)KeyCode.L, keyLabel: "l",
             debugName: foundation_.kReleaseMode ? null : "Key L");
 
 
-        public static readonly LogicalKeyboardKey keyM = new LogicalKeyboardKey(0x0000000006d, keyLabel: "m",
+        public static readonly LogicalKeyboardKey keyM = new LogicalKeyboardKey((long)KeyCode.M, keyLabel: "m",
             debugName: foundation_.kReleaseMode ? null : "Key M");
 
 
-        public static readonly LogicalKeyboardKey keyN = new LogicalKeyboardKey(0x0000000006e, keyLabel: "n",
+        public static readonly LogicalKeyboardKey keyN = new LogicalKeyboardKey((long)KeyCode.N, keyLabel: "n",
             debugName: foundation_.kReleaseMode ? null : "Key N");
 
 
-        public static readonly LogicalKeyboardKey keyO = new LogicalKeyboardKey(0x0000000006f, keyLabel: "o",
+        public static readonly LogicalKeyboardKey keyO = new LogicalKeyboardKey((long)KeyCode.O, keyLabel: "o",
             debugName: foundation_.kReleaseMode ? null : "Key O");
 
 
-        public static readonly LogicalKeyboardKey keyP = new LogicalKeyboardKey(0x00000000070, keyLabel: "p",
+        public static readonly LogicalKeyboardKey keyP = new LogicalKeyboardKey((long)KeyCode.P, keyLabel: "p",
             debugName: foundation_.kReleaseMode ? null : "Key P");
 
 
-        public static readonly LogicalKeyboardKey keyQ = new LogicalKeyboardKey(0x00000000071, keyLabel: "q",
+        public static readonly LogicalKeyboardKey keyQ = new LogicalKeyboardKey((long)KeyCode.Q, keyLabel: "q",
             debugName: foundation_.kReleaseMode ? null : "Key Q");
 
 
-        public static readonly LogicalKeyboardKey keyR = new LogicalKeyboardKey(0x00000000072, keyLabel: "",
+        public static readonly LogicalKeyboardKey keyR = new LogicalKeyboardKey((long)KeyCode.R, keyLabel: "",
             debugName: foundation_.kReleaseMode ? null : "Key ");
 
 
-        public static readonly LogicalKeyboardKey keyS = new LogicalKeyboardKey(0x00000000073, keyLabel: "s",
+        public static readonly LogicalKeyboardKey keyS = new LogicalKeyboardKey((long)KeyCode.S, keyLabel: "s",
             debugName: foundation_.kReleaseMode ? null : "Key S");
 
 
-        public static readonly LogicalKeyboardKey keyT = new LogicalKeyboardKey(0x00000000074, keyLabel: "t",
+        public static readonly LogicalKeyboardKey keyT = new LogicalKeyboardKey((long)KeyCode.T, keyLabel: "t",
             debugName: foundation_.kReleaseMode ? null : "Key T");
 
 
-        public static readonly LogicalKeyboardKey keyU = new LogicalKeyboardKey(0x00000000075, keyLabel: "u",
+        public static readonly LogicalKeyboardKey keyU = new LogicalKeyboardKey((long)KeyCode.U, keyLabel: "u",
             debugName: foundation_.kReleaseMode ? null : "Key U");
 
 
-        public static readonly LogicalKeyboardKey keyV = new LogicalKeyboardKey(0x00000000076, keyLabel: "v",
+        public static readonly LogicalKeyboardKey keyV = new LogicalKeyboardKey((long)KeyCode.V, keyLabel: "v",
             debugName: foundation_.kReleaseMode ? null : "Key V");
 
 
-        public static readonly LogicalKeyboardKey keyW = new LogicalKeyboardKey(0x00000000077, keyLabel: "w",
+        public static readonly LogicalKeyboardKey keyW = new LogicalKeyboardKey((long)KeyCode.W, keyLabel: "w",
             debugName: foundation_.kReleaseMode ? null : "Key W");
 
 
-        public static readonly LogicalKeyboardKey keyX = new LogicalKeyboardKey(0x00000000078, keyLabel: "x",
+        public static readonly LogicalKeyboardKey keyX = new LogicalKeyboardKey((long)KeyCode.X, keyLabel: "x",
             debugName: foundation_.kReleaseMode ? null : "Key X");
 
 
-        public static readonly LogicalKeyboardKey keyY = new LogicalKeyboardKey(0x00000000079, keyLabel: "y",
+        public static readonly LogicalKeyboardKey keyY = new LogicalKeyboardKey((long)KeyCode.Y, keyLabel: "y",
             debugName: foundation_.kReleaseMode ? null : "Key Y");
 
 
-        public static readonly LogicalKeyboardKey keyZ = new LogicalKeyboardKey(0x0000000007a, keyLabel: "z",
+        public static readonly LogicalKeyboardKey keyZ = new LogicalKeyboardKey((long)KeyCode.Z, keyLabel: "z",
             debugName: foundation_.kReleaseMode ? null : "Key Z");
 
 
@@ -324,22 +323,22 @@ namespace Unity.UIWidgets.services {
 
 
         public static readonly LogicalKeyboardKey enter =
-            new LogicalKeyboardKey(0x00100070028, debugName: foundation_.kReleaseMode ? null : "Ente");
+            new LogicalKeyboardKey((long)KeyCode.Return, debugName: foundation_.kReleaseMode ? null : "Ente");
 
 
         public static readonly LogicalKeyboardKey escape =
-            new LogicalKeyboardKey(0x00100070029, debugName: foundation_.kReleaseMode ? null : "Escape");
+            new LogicalKeyboardKey((long)KeyCode.Escape, debugName: foundation_.kReleaseMode ? null : "Escape");
 
 
         public static readonly LogicalKeyboardKey backspace =
-            new LogicalKeyboardKey(0x0010007002a, debugName: foundation_.kReleaseMode ? null : "Backspace");
+            new LogicalKeyboardKey((long)KeyCode.Backspace, debugName: foundation_.kReleaseMode ? null : "Backspace");
 
 
         public static readonly LogicalKeyboardKey tab =
-            new LogicalKeyboardKey(0x0010007002b, debugName: foundation_.kReleaseMode ? null : "Tab");
+            new LogicalKeyboardKey((long)KeyCode.Tab, debugName: foundation_.kReleaseMode ? null : "Tab");
 
 
-        public static readonly LogicalKeyboardKey space = new LogicalKeyboardKey(0x00000000020, keyLabel: " ",
+        public static readonly LogicalKeyboardKey space = new LogicalKeyboardKey((long)KeyCode.Space, keyLabel: " ",
             debugName: foundation_.kReleaseMode ? null : "Space");
 
 

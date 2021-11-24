@@ -3099,7 +3099,12 @@ namespace Unity.UIWidgets.ui {
     
     public class Skottie : NativeWrapper {
         public Skottie(string path) {
-            _setPtr(Skottie_Construct(path));
+            var Id = Skottie_Construct(path);
+            if(Id == IntPtr.Zero){
+                Debug.Log($"cannot load lottie from {path}, please check file exist and valid");
+            }else {
+                _setPtr(Id);
+            }
         }
 
         public override void DisposePtr(IntPtr ptr) {
