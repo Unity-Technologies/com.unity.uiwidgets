@@ -12,13 +12,13 @@ namespace Unity.UIWidgets.painting {
             if (max == 0.0f || delta == 0.0f) {
                 hue = 0.0f;
             }
-            else if (Math.Abs(max - red) < foundation_.precisionErrorTolerance) {
+            else if (foundation_.FloatEqual(max,red)) {
                 hue = 60.0f * (((green - blue) / delta) % 6);
             }
-            else if (Math.Abs(max - green) < foundation_.precisionErrorTolerance) {
+            else if (foundation_.FloatEqual(max,green)) {
                 hue = 60.0f * (((blue - red) / delta) + 2);
             }
-            else if (Math.Abs(max - blue) < foundation_.precisionErrorTolerance) {
+            else if (foundation_.FloatEqual(max,blue)) {
                 hue = 60.0f * (((red - green) / delta) + 4);
             }
 
@@ -175,7 +175,7 @@ namespace Unity.UIWidgets.painting {
             float alpha = (float)color.alpha / 0xFF;
             float hue = painting_._getHue(red, green, blue, max, delta);
             float lightness = (max + min) / 2.0f;
-            float saturation = Math.Abs(lightness - 1.0f) < foundation_.precisionErrorTolerance
+            float saturation = foundation_.FloatEqual(lightness, 1.0f)
                 ? 0.0f
                 : ((delta / (1.0f - Mathf.Abs(2.0f * lightness - 1.0f))).clamp(0.0f, 1.0f));
             return HSLColor.fromAHSL(alpha, hue, saturation, lightness);
