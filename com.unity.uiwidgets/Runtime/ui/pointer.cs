@@ -26,6 +26,8 @@ namespace Unity.UIWidgets.ui{
     public enum PointerSignalKind {
         none,
         scroll,
+        editorDragMove,
+        editorDragRelease,
         unknown,
     }
 

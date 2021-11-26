@@ -874,6 +874,10 @@ inline PointerData::SignalKind ToPointerDataSignalKind(
       return PointerData::SignalKind::kNone;
     case kUIWidgetsPointerSignalKindScroll:
       return PointerData::SignalKind::kScroll;
+    case kUIWidgetsPointerSignalKindEditorDragUpdate:
+      return PointerData::SignalKind::kEditorDragUpdate;
+    case kUIWidgetsPointerSignalKindEditorDragRelease:
+      return PointerData::SignalKind::kEditorDragRelease;
   }
   return PointerData::SignalKind::kNone;
 }

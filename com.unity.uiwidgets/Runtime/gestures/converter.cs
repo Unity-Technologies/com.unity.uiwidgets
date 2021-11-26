@@ -229,6 +229,28 @@ namespace Unity.UIWidgets.gestures {
                         case ui.PointerSignalKind.none:
                             D.assert(false); // This branch should already have 'none' filtered out.
                             break;
+                        case ui.PointerSignalKind.editorDragMove: {
+                            Debug.Log($"c++ side editor drag move {position}");
+                            yield return new PointerDragFromEditorHoverEvent(
+                                timeStamp: timeStamp,
+                                pointer: datum.pointerIdentifier,
+                                kind: kind,
+                                device: datum.device,
+                                position: position
+                            );
+                            break;
+                        }
+                        case ui.PointerSignalKind.editorDragRelease: {
+                            Debug.Log($"c++ side editor drag release {position}");
+                            yield return new PointerDragFromEditorReleaseEvent(
+                                timeStamp: timeStamp,
+                                pointer: datum.pointerIdentifier,
+                                kind: kind,
+                                device: datum.device,
+                                position: position
+                            );
+                            break;
+                        }
                         case ui.PointerSignalKind.unknown:
                             // Ignore unknown signals.
                             break;
