@@ -158,12 +158,10 @@ namespace Unity.UIWidgets.Editor {
                 var pos = _getPointerPosition(position: evt.mousePosition);
                 _wrapper.OnMouseScroll(delta: delta, pos: pos);
             }
-            //only available in EditorWindow
             else if (evt.type == EventType.DragUpdated) {
                 var pos = _getPointerPosition(position: evt.mousePosition);
                 _wrapper.OnDragUpdateInEditor(pos: pos);
             }
-            //only available in EditorWindow
             else if (evt.type == EventType.DragPerform || evt.type == EventType.DragExited) {
                 var pos = _getPointerPosition(position: evt.mousePosition);
                 _wrapper.OnDragReleaseInEditor(pos: pos);
