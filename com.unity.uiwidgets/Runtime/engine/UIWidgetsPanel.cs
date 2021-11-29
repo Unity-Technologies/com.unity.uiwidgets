@@ -492,7 +492,7 @@ namespace Unity.UIWidgets.engine {
 
         void Input_OnEnable() {
 #if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)       
-            UnityEngine.UIWidgets.InitUIWidgets.init();
+            UnityEngine.UIWidgets.InitUIWidgets.Init();
             UnityEngine.UIWidgets.RawTouchEvent += ProcessRawTouch;
 #endif
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
