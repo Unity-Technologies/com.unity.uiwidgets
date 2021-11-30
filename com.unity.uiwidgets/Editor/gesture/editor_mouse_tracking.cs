@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.gestures {
 
         public readonly EditorMouseTrackerAnnotation annotation;
 
-        public HashSet<int> activeDevices = new HashSet<int>();
+        public readonly HashSet<int> activeDevices = new HashSet<int>();
     }
 
     public class EditorMouseTracker : ChangeNotifier {
@@ -87,9 +87,7 @@ namespace Unity.UIWidgets.gestures {
             this.annotationFinder = annotationFinder;
         }
 
-        public void _handleEvent(PointerEvent evt) {
-
-            //Debug.Log("handle editor mouse tracker event = " + evt.position);
+        void _handleEvent(PointerEvent evt) {
             int deviceId = 0;
 
             if (_trackedAnnotations.isEmpty()) {
@@ -115,23 +113,6 @@ namespace Unity.UIWidgets.gestures {
 
         public void schedulePostFrameCheck() {
             
-        }
-
-        void _handleDragFromEditorEvent(PointerEvent evt, int deviceId) {
-            if (evt is PointerDragFromEditorReleaseEvent) {
-                _scheduleDragFromEditorReleaseCheck();
-                _lastMouseEvent.Remove(deviceId);
-            }
-            else if (evt is PointerDragFromEditorEnterEvent ||
-                     evt is PointerDragFromEditorHoverEvent ||
-                     evt is PointerDragFromEditorExitEvent) {
-                if (!_lastMouseEvent.ContainsKey(deviceId) ||
-                    _lastMouseEvent[deviceId].position != evt.position) {
-                    _scheduleDragFromEditorMousePositionCheck();
-                }
-
-                _lastMouseEvent[deviceId] = evt;
-            }
         }
 
         void _scheduleDragFromEditorReleaseCheck() {
