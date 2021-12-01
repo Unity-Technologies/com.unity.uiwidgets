@@ -9,7 +9,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Object = System.Object;
 using Rect = Unity.UIWidgets.ui.Rect;
@@ -311,24 +310,20 @@ namespace Unity.UIWidgets.widgets {
                 return new Container(); // hide the second handle when collapsed
             }
 
-            return new Positioned(
-                top: 0,
-                left: 0,
-                child: new Visibility(
-                    visible: handlesVisible,
-                    child: new _TextSelectionHandleOverlay(
-                        onSelectionHandleChanged: (TextSelection newSelection) => {
-                            _handleSelectionHandleChanged(newSelection, position);
-                        },
-                        onSelectionHandleTapped: onSelectionHandleTapped,
-                        startHandleLayerLink: startHandleLayerLink,
-                        endHandleLayerLink: endHandleLayerLink,
-                        renderObject: renderObject,
-                        selection: _selection,
-                        selectionControls: selectionControls,
-                        position: position,
-                        dragStartBehavior: dragStartBehavior
-                    )
+            return new Visibility(
+                visible: handlesVisible,
+                child: new _TextSelectionHandleOverlay(
+                    onSelectionHandleChanged: (TextSelection newSelection) => {
+                        _handleSelectionHandleChanged(newSelection, position);
+                    },
+                    onSelectionHandleTapped: onSelectionHandleTapped,
+                    startHandleLayerLink: startHandleLayerLink,
+                    endHandleLayerLink: endHandleLayerLink,
+                    renderObject: renderObject,
+                    selection: _selection,
+                    selectionControls: selectionControls,
+                    position: position,
+                    dragStartBehavior: dragStartBehavior
                 )
             );
         }
@@ -579,30 +574,34 @@ namespace Unity.UIWidgets.widgets {
                 Mathf.Max((interactiveRect.height - handleRect.height) / 2, 0)
             );
 
-            return new CompositedTransformFollower(
-                link: layerLink,
-                offset: interactiveRect.topLeft,
-                showWhenUnlinked: false,
-                child: new FadeTransition(
-                    opacity: _opacity,
-                    child: new GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        dragStartBehavior: widget.dragStartBehavior,
-                        onPanStart: _handleDragStart,
-                        onPanUpdate: _handleDragUpdate,
-                        onTap: _handleTap,
-                        child: new Padding(
-                            padding: EdgeInsets.only(
-                                left: padding.left,
-                                top: padding.top,
-                                right: padding.right,
-                                bottom: padding.bottom
-                                ), 
-                            child: widget.selectionControls.buildHandle(context, type,
-                                widget.renderObject.preferredLineHeight)
+            return new Stack(
+                children: new List<Widget>() {
+                    new CompositedTransformFollower(
+                        link: layerLink,
+                        offset: interactiveRect.topLeft,
+                        showWhenUnlinked: false,
+                        child: new FadeTransition(
+                            opacity: _opacity,
+                            child: new GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                dragStartBehavior: widget.dragStartBehavior,
+                                onPanStart: _handleDragStart,
+                                onPanUpdate: _handleDragUpdate,
+                                onTap: _handleTap,
+                                child: new Padding(
+                                    padding: EdgeInsets.only(
+                                        left: padding.left,
+                                        top: padding.top,
+                                        right: padding.right,
+                                        bottom: padding.bottom
+                                    ),
+                                    child: widget.selectionControls.buildHandle(context, type,
+                                        widget.renderObject.preferredLineHeight)
+                                )
+                            )
                         )
                     )
-                )
+                }
             );
         }
 
