@@ -311,20 +311,24 @@ namespace Unity.UIWidgets.widgets {
                 return new Container(); // hide the second handle when collapsed
             }
 
-            return new Visibility(
-                visible: handlesVisible,
-                child: new _TextSelectionHandleOverlay(
-                    onSelectionHandleChanged: (TextSelection newSelection) => {
-                        _handleSelectionHandleChanged(newSelection, position);
-                    },
-                    onSelectionHandleTapped: onSelectionHandleTapped,
-                    startHandleLayerLink: startHandleLayerLink,
-                    endHandleLayerLink: endHandleLayerLink,
-                    renderObject: renderObject,
-                    selection: _selection,
-                    selectionControls: selectionControls,
-                    position: position,
-                    dragStartBehavior: dragStartBehavior
+            return new Positioned(
+                top: 0,
+                left: 0,
+                child: new Visibility(
+                    visible: handlesVisible,
+                    child: new _TextSelectionHandleOverlay(
+                        onSelectionHandleChanged: (TextSelection newSelection) => {
+                            _handleSelectionHandleChanged(newSelection, position);
+                        },
+                        onSelectionHandleTapped: onSelectionHandleTapped,
+                        startHandleLayerLink: startHandleLayerLink,
+                        endHandleLayerLink: endHandleLayerLink,
+                        renderObject: renderObject,
+                        selection: _selection,
+                        selectionControls: selectionControls,
+                        position: position,
+                        dragStartBehavior: dragStartBehavior
+                    )
                 )
             );
         }
