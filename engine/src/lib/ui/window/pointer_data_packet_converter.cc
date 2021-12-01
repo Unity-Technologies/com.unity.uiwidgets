@@ -240,6 +240,14 @@ void PointerDataPacketConverter::ConvertPointerData(
         converted_pointers.push_back(pointer_data);
         break;
       }
+      case PointerData::SignalKind::kEditorDragUpdate: {
+        converted_pointers.push_back(pointer_data);
+        break;
+      }
+      case PointerData::SignalKind::kEditorDragRelease: {
+        converted_pointers.push_back(pointer_data);
+        break;
+      }
       default: {
         // Ignores unknown signal kind.
         break;

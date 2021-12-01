@@ -233,7 +233,7 @@ namespace Unity.UIWidgets.widgets {
             _renderViewElement = null;
         }
 
-        internal void scheduleAttachRootWidget(Widget rootWidget) {
+        public void scheduleAttachRootWidget(Widget rootWidget) {
             Timer.run(() => {
                 attachRootWidget(rootWidget);
                 return null;
