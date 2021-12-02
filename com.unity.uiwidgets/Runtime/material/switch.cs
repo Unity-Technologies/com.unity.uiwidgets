@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using uiwidgets;
 using Unity.UIWidgets.foundation;
@@ -666,13 +667,14 @@ namespace Unity.UIWidgets.material {
             state._didFinishDragging();
         }
 
-        public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
+        public override void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+            var evt = evts();
             D.assert(debugHandleEvent(evt, entry));
             if (evt is PointerDownEvent && onChanged != null) {
                 _drag.addPointer((PointerDownEvent) evt);
             }
 
-            base.handleEvent(evt, entry);
+            base.handleEvent(()=>evt, entry);
         }
 
         Color _cachedThumbColor;

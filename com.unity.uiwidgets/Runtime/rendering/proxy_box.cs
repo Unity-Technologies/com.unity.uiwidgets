@@ -2208,7 +2208,8 @@ namespace Unity.UIWidgets.rendering {
             size = constraints.biggest;
         }
 
-        public override void handleEvent(PointerEvent Event, HitTestEntry entry) {
+        public override void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+            var Event = evts();
             D.assert(debugHandleEvent(Event, entry));
             if (onPointerDown != null && Event is PointerDownEvent) {
                 onPointerDown((PointerDownEvent) Event);

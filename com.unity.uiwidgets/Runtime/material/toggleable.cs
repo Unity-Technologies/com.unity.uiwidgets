@@ -401,7 +401,9 @@ namespace Unity.UIWidgets.material {
             return true;
         }
 
-        public override void handleEvent(PointerEvent pEvent, HitTestEntry entry) {
+
+        public override void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+            var pEvent = evts();
             D.assert(debugHandleEvent(pEvent, entry));
             if (pEvent is PointerDownEvent && isInteractive) {
                 _tap.addPointer((PointerDownEvent) pEvent);

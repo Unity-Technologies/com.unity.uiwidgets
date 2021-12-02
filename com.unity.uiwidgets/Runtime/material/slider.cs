@@ -796,7 +796,8 @@ namespace Unity.UIWidgets.material {
             return true;
         }
 
-        public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
+        public override void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+            var evt = evts();
             D.assert(debugHandleEvent(evt, entry));
             if (evt is PointerDownEvent && isInteractive) {
                 _drag.addPointer((PointerDownEvent) evt);

@@ -502,7 +502,8 @@ namespace Unity.UIWidgets.cupertino {
       }
   }
 
-  public override void handleEvent(PointerEvent _event, HitTestEntry entry) {
+  public override void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+      var _event = evts();
       entry = (BoxHitTestEntry) entry;
      
     D.assert(debugHandleEvent(_event, entry));

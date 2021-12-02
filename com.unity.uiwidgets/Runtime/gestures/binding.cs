@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Unity.Profiling;
 using Unity.UIWidgets.async;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace Unity.UIWidgets.gestures {
     public class GestureBinding : BindingBase, HitTestable, HitTestDispatcher, HitTestTarget {
@@ -105,7 +109,7 @@ namespace Unity.UIWidgets.gestures {
                 dispatchEvent(evt, hitTestResult);
             }
         }
-
+        
         void _handlePointerScrollEvent(PointerEvent evt) {
             pointerRouter.clearScrollRoute(evt.pointer);
             if (!pointerRouter.acceptScroll()) {
@@ -152,15 +156,17 @@ namespace Unity.UIWidgets.gestures {
 
             foreach (HitTestEntry entry in hitTestResult.path) {
                 try {
-                    entry.target.handleEvent(evt.transformed(entry.transform), entry);
+                    entry.target.handleEvent(()=> evt.transformed(entry.transform), entry);
                 }
                 catch (Exception ex) {
                     D.logError("Error while dispatching a pointer event: ", ex);
                 }
             }
         }
+        static readonly ProfilerMarker s_sPreparePerfMarker = new ProfilerMarker("MySystem.XXXX");
 
-        public void handleEvent(PointerEvent evt, HitTestEntry entry) {
+        public void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+            var evt = evts();
             pointerRouter.route(evt);
             if (evt is PointerDownEvent) {
                 gestureArena.close(evt.pointer);

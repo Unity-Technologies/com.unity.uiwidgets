@@ -1352,7 +1352,8 @@ namespace Unity.UIWidgets.rendering {
         TapGestureRecognizer _tap;
         LongPressGestureRecognizer _longPress;
 
-        public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
+        public override void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+            var evt = evts();
             if (ignorePointer) {
                 return;
             }

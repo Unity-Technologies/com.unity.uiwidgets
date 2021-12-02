@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.UIWidgets.external;
@@ -16,7 +17,7 @@ namespace Unity.UIWidgets.gestures {
     }
 
     public interface HitTestTarget {
-        void handleEvent(PointerEvent evt, HitTestEntry entry);
+        void handleEvent(Func<PointerEvent> evt, HitTestEntry entry);
     }
 
     public class HitTestEntry {

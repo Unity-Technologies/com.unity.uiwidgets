@@ -413,7 +413,8 @@ namespace Unity.UIWidgets.cupertino {
             return (position.dx - _thumbCenter).abs() < CupertinoThumbPainter.radius + SliderUtils._kPadding;
         }
 
-        public override void handleEvent(PointerEvent e, HitTestEntry entry) {
+        public override void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+            var e = evts();
             D.assert(debugHandleEvent(e, entry));
             if (e is PointerDownEvent pointerDownEvent && isInteractive) {
                 _drag.addPointer(pointerDownEvent);

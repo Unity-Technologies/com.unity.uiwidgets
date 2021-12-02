@@ -1347,7 +1347,7 @@ namespace Unity.UIWidgets.rendering {
 
         public abstract Rect semanticBounds { get; }
 
-        public virtual void handleEvent(PointerEvent evt, HitTestEntry entry) {
+        public virtual void handleEvent(Func<PointerEvent> evt, HitTestEntry entry) {
         }
 
         public override string toStringShort() {

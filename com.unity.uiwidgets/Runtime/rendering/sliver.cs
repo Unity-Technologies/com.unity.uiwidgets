@@ -887,7 +887,7 @@ namespace Unity.UIWidgets.rendering {
             });
         }
 
-        public override void handleEvent(PointerEvent evt, HitTestEntry entry) { }
+        public override void handleEvent(Func<PointerEvent> evt, HitTestEntry entry) { }
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<SliverGeometry>("geometry", geometry));

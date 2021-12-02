@@ -374,7 +374,8 @@ namespace Unity.UIWidgets.cupertino {
             return true;
         }
 
-        public override void handleEvent(PointerEvent evt, HitTestEntry entry) {
+        public override void handleEvent(Func<PointerEvent> evts, HitTestEntry entry) {
+            var evt = evts();
             D.assert(debugHandleEvent(evt, entry));
             if (evt is PointerDownEvent && isInteractive) {
                 _state._drag.addPointer((PointerDownEvent) evt);
