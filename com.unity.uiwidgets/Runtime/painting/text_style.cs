@@ -510,12 +510,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public ui.TextStyle getTextStyle(float textScaleFactor = 1.0f) {
-            var backgroundPaint = new Paint();
-            if (background != null) {
-                backgroundPaint = new Paint();
-                backgroundPaint.color = backgroundColor;
-            }
-
             return new ui.TextStyle(
                 color: color,
                 decoration: decoration,
@@ -534,7 +528,7 @@ namespace Unity.UIWidgets.painting {
                 // locale: locale,
                 foreground: foreground,
                 background: background ?? (backgroundColor != null
-                    ? backgroundPaint
+                    ? new Paint {color = backgroundColor}
                     : null
                 ),
                 shadows: shadows?.Cast<Shadow>().ToList(),
