@@ -276,24 +276,24 @@ Meanwhile, you can join our [discussion channel](https://unity.cn/plate/uiwidget
 
 1. The editor crashes when openning a UIWidgets 2.0 project, e.g., the Sample projects.
 
-Please make sure that you are using campatible Unity versions to the specific UIWidgets version. For example, **UIWidgets 2.0.3** is only supported on Unity China version between 2019.4.26f1c1 and 2019.4.29f1c1. You can find the detailed information in 
+ Please make sure that you are using campatible Unity versions to the specific UIWidgets version. For example, **UIWidgets 2.0.3** is only supported on Unity China version between 2019.4.26f1c1 and 2019.4.29f1c1. You can find the detailed information in 
 this [section](#unity).
 
 
 2. After openning a UIWidgets 2.0 project I receive an error **DllNotFoundException: libUIWidgets**.
 
-Please make sure that the native libraries are correctly downloaded to your project. You can find them under *UIWidgetsPackageRoot*/Runtime/Plugins. For example, the libUIWidgets.dll under the sub folder */X86_64* is the native library for Windows and the libUIWidgets.dylib under *osx* is for Mac.
+ Please make sure that the native libraries are correctly downloaded to your project. You can find them under *UIWidgetsPackageRoot*/Runtime/Plugins. For example, the libUIWidgets.dll under the sub folder */X86_64* is the native library for Windows and the libUIWidgets.dylib under *osx* is for Mac.
 
-If the libraries are not there or their sizes are small (<1MB), please ensure that you have installed **Git Large File Storage** in your computer and then try the following command line inside the UIWidgets repository.
+ If the libraries are not there or their sizes are small (<1MB), please ensure that you have installed **Git Large File Storage** in your computer and then try the following command line inside the UIWidgets repository.
 ```
 git lfs pull
 ```
 
 3. What the difference between UIWidgets 2.0 and UIWidgets 1.0 ?
 
-In UIWidgets 1.0 we used Unity [Graphics API](https://docs.unity3d.com/ScriptReference/Graphics.html) for the rendering and all rendering codes are writen in C#. Therefore it is able to run freely on all platforms that Unity supports but relatively slow. The rendering result is also not exactly the same as in flutter due to the difference between the Unity rendering engine and flutter engine.
+ In UIWidgets 1.0 we used Unity [Graphics API](https://docs.unity3d.com/ScriptReference/Graphics.html) for the rendering and all rendering codes are writen in C#. Therefore it is able to run freely on all platforms that Unity supports but relatively slow. The rendering result is also not exactly the same as in flutter due to the difference between the Unity rendering engine and flutter engine.
 
-In UIWidgets 2.0, we wrapped the flutter engine inside a native library which is writen in C++ and used it to render on Unity Textures. Its rendering result is the same as in flutter and the performance is also better. However, in order to ensure that the flutter engine works properly along with Unity, we modified both the flutter and Unity Engine. As the result, 
+ In UIWidgets 2.0, we wrapped the flutter engine inside a native library which is writen in C++ and used it to render on Unity Textures. Its rendering result is the same as in flutter and the performance is also better. However, in order to ensure that the flutter engine works properly along with Unity, we modified both the flutter and Unity Engine. As the result, 
 currently UIWidgets 2.0 can only run on specific Unity versions, i.e., Unity China version and supports only part of the build targets of Unity.
 
 ## How to Contribute
