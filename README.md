@@ -276,7 +276,7 @@ Meanwhile, you can join our [discussion channel](https://unity.cn/plate/uiwidget
 
 1. The editor crashes when openning a UIWidgets 2.0 project, e.g., the Sample projects.
 
- Please make sure that you are using campatible Unity versions to the specific UIWidgets version. For example, **UIWidgets 2.0.3** is only supported on Unity China version between 2019.4.26f1c1 and 2019.4.29f1c1. You can find the detailed information in 
+      Please make sure that you are using campatible Unity versions to the specific UIWidgets version. For example, **UIWidgets 2.0.3** is only supported on Unity China version between 2019.4.26f1c1 and 2019.4.29f1c1. You can find the detailed information in 
 this [section](#unity).
 
 
