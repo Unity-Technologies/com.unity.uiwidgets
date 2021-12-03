@@ -277,7 +277,7 @@ Meanwhile, you can join our [discussion channel](https://unity.cn/plate/uiwidget
 * The editor crashes when openning a UIWidgets 2.0 project, e.g., the Sample projects.
 
 Please make sure that you are using campatible Unity versions to the specific UIWidgets version. For example, **UIWidgets 2.0.3** is only supported on Unity China version between 2019.4.26f1c1 and 2019.4.29f1c1. You can find the detailed information in 
-this [section](####-UIWidgets).
+this [section](#unity).
 
 
 * After openning a UIWidgets 2.0 project I receive an error **DllNotFoundException: libUIWidgets**.
@@ -292,10 +292,10 @@ git lfs pull
 
 * What the difference between UIWidgets 2.0 and UIWidgets 1.0 ?
 
-In UIWidgets 1.0 we used Unity [Graphics API](https://docs.unity3d.com/ScriptReference/Graphics.html) for the rendering and all rendering codes are writen in C#. Therefore it is able to run freely on all platforms that Unity supports but relatively slow. The rendering result is also not exactly the same as in flutter due to the difference between Uniy rendering engine and flutter engine.
+In UIWidgets 1.0 we used Unity [Graphics API](https://docs.unity3d.com/ScriptReference/Graphics.html) for the rendering and all rendering codes are writen in C#. Therefore it is able to run freely on all platforms that Unity supports but relatively slow. The rendering result is also not exactly the same as in flutter due to the difference between the Unity rendering engine and flutter engine.
 
-In UIWidgets 2.0, we wrapped the flutter engine inside native libraries which is writen in C++ and used it to render on Unity Textures. Its rendering result is the same as in flutter and the performance is also better. However, in order to ensure that the flutter engine works properly along with Unity, we modified both the flutter engine and Unity Engine codes. As the result, 
-UIWidgets 2.0 can only run on specific Unity versions, i.e., Unity China version and support only part of the build targets of Unity for now.
+In UIWidgets 2.0, we wrapped the flutter engine inside a native library which is writen in C++ and used it to render on Unity Textures. Its rendering result is the same as in flutter and the performance is also better. However, in order to ensure that the flutter engine works properly along with Unity, we modified both the flutter and Unity Engine. As the result, 
+currently UIWidgets 2.0 can only run on specific Unity versions, i.e., Unity China version and supports only part of the build targets of Unity.
 
 ## How to Contribute
 
