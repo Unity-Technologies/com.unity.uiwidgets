@@ -289,11 +289,13 @@ this [section](#unity).
       git lfs pull
       ```
 
-3. What the difference between UIWidgets 2.0 and UIWidgets 1.0 ?
+3. What is the difference between UIWidgets 2.0 and UIWidgets 1.0 ?
 
       In UIWidgets 1.0 we used Unity [Graphics API](https://docs.unity3d.com/ScriptReference/Graphics.html) for the rendering and all rendering codes are writen in C#. Therefore it is able to run freely on all platforms that Unity supports but relatively slow. The rendering result is also not exactly the same as in flutter due to the difference between the Unity rendering engine and flutter engine.
 
       In UIWidgets 2.0, we wrapped the flutter engine inside a native library which is writen in C++ and used it to render on Unity Textures. Its rendering result is the same as in flutter and the performance is also better. However, in order to ensure that the flutter engine works properly along with Unity, we modified both the flutter and Unity Engine. As the result, currently UIWidgets 2.0 can only run on specific Unity versions, i.e., Unity China version and supports only part of the build targets of Unity.
+
+      For better rendering result, performance and continuous upgrade and support, you are always suggested to use UIWidgets 2.0 for your project. Use UIWidgets 1.0 only if you need to support specific target platforms like webgl.  
 
 ## How to Contribute
 
