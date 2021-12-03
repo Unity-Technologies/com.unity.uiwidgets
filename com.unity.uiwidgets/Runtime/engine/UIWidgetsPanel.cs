@@ -493,7 +493,7 @@ namespace Unity.UIWidgets.engine {
         void Input_OnEnable() {
 #if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)       
             UnityEngine.UIWidgets.InitUIWidgets.Init();
-            UnityEngine.UIWidgets.RawTouchEvent += ProcessRawTouch;
+            UnityEngine.UIWidgets.RawTouchEvent += CacheRawTouch;
 #endif
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
         }
@@ -505,6 +505,10 @@ namespace Unity.UIWidgets.engine {
             Stationary = 2,
             Ended = 3,
             Canceled = 4
+        }
+
+        void CacheRawTouch(UnityEngine.UIWidgets.RawTouchEventParam param) {
+            rawTouchEventParams.Enqueue(param);
         }
 
         void ProcessRawTouch(UnityEngine.UIWidgets.RawTouchEventParam param) {
@@ -525,15 +529,23 @@ namespace Unity.UIWidgets.engine {
                     break;
             }
         }
+
+        Queue<UnityEngine.UIWidgets.RawTouchEventParam> rawTouchEventParams =
+            new Queue<UnityEngine.UIWidgets.RawTouchEventParam>(); 
 #endif
 
         void Input_OnDisable() {
-#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)       
-            UnityEngine.UIWidgets.RawTouchEvent -= ProcessRawTouch;
+#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
+            UnityEngine.UIWidgets.RawTouchEvent -= CacheRawTouch;
 #endif
         }
 
         void Input_Update() {
+#if !UNITY_EDITOR && (UNITY_IOS || UNITY_ANDROID)
+            while (rawTouchEventParams.isNotEmpty()) {
+                ProcessRawTouch(rawTouchEventParams.Dequeue());
+            }
+#endif
             //we only process hover events for desktop applications
             if (_inputMode == UIWidgetsInputMode.Mouse) {
                 if (_isEntered) {
