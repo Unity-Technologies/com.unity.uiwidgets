@@ -71,7 +71,7 @@ Specifically, the compatible Unity versions for each UIWidgets release are liste
 | -----------------------------------------------| ------------------------- | ------------------------- |
 | 1.5.4 and below     | 2019.4.10f1 and above  | N\A |
 | 2.0.1   | 2019.4.26f1c1  | N\A |
-| 2.0.2 and above   | 2019.4.26f1c1 ~ 2019.4.32f1c1 | N\A |
+| 2.0.2 and above   | 2019.4.26f1c1 ~ 2019.4.29f1c1 | N\A |
 
 #### UIWidgets Package
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
@@ -282,7 +282,7 @@ this [section](#unity).
 
 2. After openning a UIWidgets 2.0 project I receive an error **DllNotFoundException: libUIWidgets**.
 
-      Please make sure that the native libraries are correctly downloaded to your project. You can find them under *UIWidgetsPackageRoot*/Runtime/Plugins. For example, the libUIWidgets.dll under the sub folder */X86_64* is the native library for Windows and the libUIWidgets.dylib under *osx* is for Mac.
+      Please make sure that the native libraries are correctly downloaded to your project. You can find them under *UIWidgetsPackageRoot*/Runtime/Plugins. For example, the libUIWidgets.dll under the sub folder *X86_64* is the native library for Windows and the libUIWidgets.dylib under *osx* is for Mac.
 
       If the libraries are not there or their sizes are small (<1MB), please ensure that you have installed **Git Large File Storage** in your computer and then try the following command line inside the UIWidgets repository.
       ```
