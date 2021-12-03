@@ -11,7 +11,9 @@ UIWidgets is mainly derived from [Flutter](https://github.com/flutter/flutter). 
 the powerful Unity Engine, it offers developers many new features to improve their Apps
 as well as the develop workflow significantly.
 
-As the latest version, UIWidgets 2.0 aims to optimize the overall performance of the package. Specifically, a performance gain around 10% is observed on  mobile devices like iPhone 6 after upgrading to UIWidgets 2.0. However, if you still want to use the original UIWidgets 1.0, please download the archived packages from Releases or switch your working branch to uiwidgets_1.0.
+**UIWidgets 2.0** is developed for **Unity China version** and aims to **optimize the overall performance of the package**. Specifically, a performance gain around **10%** is observed on  mobile devices like iPhone 6 after upgrading to UIWidgets 2.0. 
+
+If you still want to use the original UIWidgets 1.0, please download the archived packages from Releases or switch your working branch to uiwidgets_1.0.
 
 #### Efficiency
 Using the latest Unity rendering SDKs, a UIWidgets App can run very fast and keep >60fps in most times.
@@ -50,18 +52,20 @@ CPU/GPU Profiling, FPS Profiling.
 ### Projects using UIWidgets
 
 #### Unity Connect App
-The Unity Connect App is created using UIWidgets and available for both Android (https://unity.cn/connectApp/download)
+The Unity Connect App is created using **UIWidgets 2.0** and available for both Android (https://unity.cn/connectApp/download)
 and iOS (Searching for "Unity Connect" in App Store). This project is open-sourced @https://github.com/UnityTech/ConnectAppCN.
 
 #### Unity Chinese Doc
-The official website of Unity Chinese Documentation (https://connect.unity.com/doc) is powered by UIWidgets and
+The official website of Unity Chinese Documentation (https://connect.unity.com/doc) is powered by UIWidgets 1.0 and
 open-sourced @https://github.com/UnityTech/DocCN.
 
 ## Requirements
 
 #### Unity
 
-The compatible Unity versions for each UIWidgets release are listed below. You can download the latest Unity on [https://unity.cn/releases](https://unity.cn/releases).
+:warning: **UIWidgets 2.0 are only compatible with Unity China version**
+
+Specifically, the compatible Unity versions for each UIWidgets release are listed below. You can download the latest Unity on [https://unity.cn/releases](https://unity.cn/releases).
 
 | UIWidgets version     |  Unity 2019 LTS  |  Unity 2020 LTS  | 
 | -----------------------------------------------| ------------------------- | ------------------------- |
@@ -82,11 +86,14 @@ Generally, you can make it using a console (or terminal) application by just a f
     git clone https://github.com/Unity-Technologies/com.unity.uiwidgets.git com.unity.uiwidgets
    ```
 
-In PackageManger of unity, select add local file. select ```package.json``` under ```/com.unity.uiwidgets```
+Note that there are many native libraries we built for UIWidget 2.0 to boost its performance, which are large files and hosted by
+**Git Large File Storage**. You need to install [this service](https://docs.github.com/en/repositories/working-with-files/managing-large-files/installing-git-large-file-storage) first and then use it to fetch these libraries.
+
+Finally, in PackageManger of unity, select add local file. select ```package.json``` under ```/com.unity.uiwidgets```
 
 #### Runtime Environment
 
-Currently UIWidgets only supports MacOS(Metal), iOS(Metal), Android(Armv7, OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
+:warning: Though UIWidgets 1.0 is compatible to all platforms like MacOS, iOS, Android, Windows and Webgl, currently **UIWidgets 2.0** only supports MacOS(Metal), iOS(Metal), Android(OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
 
 ## Getting Start
 
