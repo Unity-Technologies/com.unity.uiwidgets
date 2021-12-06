@@ -71,7 +71,8 @@ Specifically, the compatible Unity versions for each UIWidgets release are liste
 | -----------------------------------------------| ------------------------- | ------------------------- |
 | 1.5.4 and below     | 2019.4.10f1 and above  | N\A |
 | 2.0.1   | 2019.4.26f1c1  | N\A |
-| 2.0.2 and above   | 2019.4.26f1c1 ~ 2019.4.29f1c1 | N\A |
+| 2.0.3   | 2019.4.26f1c1 ~ 2019.4.29f1c1 | N\A |
+| 2.0.4 and above | 2019.4.26f1c1 ~ 2019.4.29f1c1 | 2020.3.24f1c2 and above |
 
 #### UIWidgets Package
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
@@ -93,7 +94,7 @@ Finally, in PackageManger of unity, select add local file. select ```package.jso
 
 #### Runtime Environment
 
-:warning: Though UIWidgets 1.0 is compatible to all platforms, currently **UIWidgets 2.0** only supports MacOS(Metal), iOS(Metal), Android(OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
+:warning: Though UIWidgets 1.0 is compatible to all platforms, currently **UIWidgets 2.0** only supports MacOS(Intel64, Metal), iOS(Metal), Android(OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
 
 ## Getting Start
 
@@ -295,7 +296,11 @@ this [section](#unity).
 
       In UIWidgets 2.0, we wrapped the flutter engine inside a native library which is writen in C++ and used it to render on Unity Textures. Its rendering result is the same as in flutter and the performance is also better. However, in order to ensure that the flutter engine works properly along with Unity, we modified both the flutter and Unity Engine. As the result, currently UIWidgets 2.0 can only run on specific Unity versions, i.e., Unity China version and supports only part of the build targets of Unity.
 
-      For better rendering result, performance and continuous upgrade and support, you are always suggested to use UIWidgets 2.0 for your project. Use UIWidgets 1.0 only if you need to support specific target platforms like webgl.  
+      For better rendering result, performance and continuous upgrade and support, you are always suggested to use UIWidgets 2.0 for your project. Use UIWidgets 1.0 only if you need to support specific target platforms like webgl.
+
+4. I encountered with a link error with OpenGLES for iOS build using UIWidgets 2.0 with Unity 2020.3LTS.
+
+      This is caused by Unity because it removed the dependency on OpenGLES library on Unity 2020.3. To fix this issue, please open the XCode project and manually add the OpenGLES library to the UnityFramework target.
 
 ## How to Contribute
 
