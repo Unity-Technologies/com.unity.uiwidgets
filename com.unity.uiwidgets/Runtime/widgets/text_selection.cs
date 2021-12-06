@@ -574,35 +574,37 @@ namespace Unity.UIWidgets.widgets {
                 Mathf.Max((interactiveRect.height - handleRect.height) / 2, 0)
             );
 
-            return new Stack(
-                children: new List<Widget>() {
-                    new CompositedTransformFollower(
-                        link: layerLink,
-                        offset: interactiveRect.topLeft,
-                        showWhenUnlinked: false,
-                        child: new FadeTransition(
-                            opacity: _opacity,
-                            child: new GestureDetector(
-                                behavior: HitTestBehavior.translucent,
-                                dragStartBehavior: widget.dragStartBehavior,
-                                onPanStart: _handleDragStart,
-                                onPanUpdate: _handleDragUpdate,
-                                onTap: _handleTap,
-                                child: new Padding(
-                                    padding: EdgeInsets.only(
-                                        left: padding.left,
-                                        top: padding.top,
-                                        right: padding.right,
-                                        bottom: padding.bottom
-                                    ),
-                                    child: widget.selectionControls.buildHandle(context, type,
-                                        widget.renderObject.preferredLineHeight)
-                                )
+            return new CompositedTransformFollower(
+                link: layerLink,
+                offset: interactiveRect.topLeft,
+                showWhenUnlinked: false,
+                child: new FadeTransition(
+                    opacity: _opacity,
+                    child: new Container(
+                        alignment: Alignment.topLeft,
+                        width: interactiveRect.width,
+                        height: interactiveRect.height,
+                        child: new GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            dragStartBehavior: widget.dragStartBehavior,
+                            onPanStart: _handleDragStart,
+                            onPanUpdate: _handleDragUpdate,
+                            onTap: _handleTap,
+                            child: new Padding(
+                                padding: EdgeInsets.only(
+                                    left: padding.left,
+                                    top: padding.top,
+                                    right: padding.right,
+                                    bottom: padding.bottom
+                                ),
+                                child: widget.selectionControls.buildHandle(context, type,
+                                    widget.renderObject.preferredLineHeight)
                             )
                         )
                     )
-                }
+                )
             );
+
         }
 
         TextSelectionHandleType _chooseType(

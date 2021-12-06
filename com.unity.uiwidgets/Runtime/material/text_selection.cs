@@ -651,14 +651,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Offset getHandleAnchor(TextSelectionHandleType type, float textLineHeight) {
-            switch (type) {
-                case TextSelectionHandleType.left:
-                    return new Offset(MaterialUtils._kHandleSize, 0);
-                case TextSelectionHandleType.right:
-                    return Offset.zero;
-                default:
-                    return new Offset(MaterialUtils._kHandleSize / 2, -4);
-            }
+           return Offset.zero;
         }
 
         new bool canSelectAll(TextSelectionDelegate selectionDelegate) {
