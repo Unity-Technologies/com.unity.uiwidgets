@@ -52,8 +52,7 @@ static Float32List EncodeTextBoxes(
   // Then there are boxes.size() groups of 5 which are LTRBD, where D is the
   // text direction index.
   int size = boxes.size() * 5;
-  Float32List result = {(float*)malloc(sizeof(float) * size),
-                        (int)boxes.size() * size};
+  Float32List result = {(float*)malloc(sizeof(float) * size), size};
   unsigned long position = 0;
   for (unsigned long i = 0; i < boxes.size(); i++) {
     const txt::Paragraph::TextBox& box = boxes[i];

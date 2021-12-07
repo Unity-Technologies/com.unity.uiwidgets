@@ -61,7 +61,8 @@ UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https
 | -----------------------------------------------| ------------------------- | ------------------------- |
 | 1.5.4 及以下     | 2019.4.10f1 及以上  | N\A |
 | 2.0.1   | 2019.4.26f1c1  | N\A |
-| 2.0.2 及以上   | 2019.4.26f1c1 ~ 2019.4.29f1c1 | N\A |
+| 2.0.3   | 2019.4.26f1c1 ~ 2019.4.29f1c1 | N\A |
+| 2.0.4及以上 | 2019.4.26f1c1 ~ 2019.4.29f1c1 | 2020.3.24f1c2 及以上 |
 
 #### UIWidgets包
 
@@ -83,7 +84,7 @@ UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https
 
 #### 运行环境
 
-**UIWidgets 2.0**目前暂时只支持MacOS（Metal），iOS（Metal），Android（Armv7，OpenGLes）以及 Windows（Direct3D11）。我们后续会针对更广泛的运行环境进行适配，敬请期待。与之相对的，UIWidgets 1.0目前支持所有Unity导出目标平台。
+**UIWidgets 2.0**目前暂时只支持MacOS（Intel64，Metal），iOS（Metal），Android（OpenGLes）以及 Windows（Direct3D11）。我们后续会针对更广泛的运行环境进行适配，敬请期待。与之相对的，UIWidgets 1.0目前支持所有Unity导出目标平台。
 
 ## 入门指南（演示[视频](https://www.bilibili.com/video/BV1zR4y1s7HN/)）
 
@@ -273,6 +274,10 @@ using(Isolate.getScope(the isolate of your App)) {
       在UIWidgets 2.0中我们将一个flutter引擎嵌入到了C++动态库中，然后Unity通过调用这个动态库来进行渲染。因此，它的渲染结果与flutter完全一致，且性能比C#实现的渲染代码有明显提升。不过为了使flutter引擎和Unity可以正确协作，我们对flutter和Unity引擎都进行了一些修改。因此，目前UIWidgets 2.0只能够运行在包含上述修改的中国版Unity中，并且暂时只支持部分Unity的目标平台。
 
       由于UIWidgets 2.0在效果和效率上的优势，因此推荐大家使用。仅当您需要在UIWidgets 2.0暂时不支持的平台（如webgl）上开发时才推荐使用UIWidgets 1.0。此外，由于人力原因，目前只有UIWidgets 2.0我们会持续更新。
+
+4. 使用Unity 2020.3LTS打包UIWidgets 2.0的项目到iOS平台后Build失败，提示无法链接到OpenGLES库函数。
+
+      这是因为在Unity 2020.3版本中Unity导出的iOS项目默认不再包含对OpenGLES库的依赖，但UIWidgets 2.0需要依赖该库。为了解决这个问题，您需要手动用Xcode打开项目并为UnityFramework添加上对OpenGLES库的依赖。
 
 ## 如何贡献
 请查看[CONTRIBUTING.md](CONTRIBUTING.md)

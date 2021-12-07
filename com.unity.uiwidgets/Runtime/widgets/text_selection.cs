@@ -9,7 +9,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Object = System.Object;
 using Rect = Unity.UIWidgets.ui.Rect;
@@ -581,25 +580,31 @@ namespace Unity.UIWidgets.widgets {
                 showWhenUnlinked: false,
                 child: new FadeTransition(
                     opacity: _opacity,
-                    child: new GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        dragStartBehavior: widget.dragStartBehavior,
-                        onPanStart: _handleDragStart,
-                        onPanUpdate: _handleDragUpdate,
-                        onTap: _handleTap,
-                        child: new Padding(
-                            padding: EdgeInsets.only(
-                                left: padding.left,
-                                top: padding.top,
-                                right: padding.right,
-                                bottom: padding.bottom
-                                ), 
-                            child: widget.selectionControls.buildHandle(context, type,
-                                widget.renderObject.preferredLineHeight)
+                    child: new Container(
+                        alignment: Alignment.topLeft,
+                        width: interactiveRect.width,
+                        height: interactiveRect.height,
+                        child: new GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            dragStartBehavior: widget.dragStartBehavior,
+                            onPanStart: _handleDragStart,
+                            onPanUpdate: _handleDragUpdate,
+                            onTap: _handleTap,
+                            child: new Padding(
+                                padding: EdgeInsets.only(
+                                    left: padding.left,
+                                    top: padding.top,
+                                    right: padding.right,
+                                    bottom: padding.bottom
+                                ),
+                                child: widget.selectionControls.buildHandle(context, type,
+                                    widget.renderObject.preferredLineHeight)
+                            )
                         )
                     )
                 )
             );
+
         }
 
         TextSelectionHandleType _chooseType(
