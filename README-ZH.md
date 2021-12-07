@@ -85,7 +85,7 @@ UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https
 
 **UIWidgets 2.0**目前暂时只支持MacOS（Metal），iOS（Metal），Android（Armv7，OpenGLes）以及 Windows（Direct3D11）。我们后续会针对更广泛的运行环境进行适配，敬请期待。与之相对的，UIWidgets 1.0目前支持所有Unity导出目标平台。
 
-## 入门指南
+## 入门指南（演示[视频](https://www.bilibili.com/video/BV1zR4y1s7HN/)）
 
 #### 一、 概观
 在本教程中，我们将创建一个非常简单的UIWidgets应用。 该应用只包含文本标签和按钮。 文本标签将计算按钮上的点击次数。
