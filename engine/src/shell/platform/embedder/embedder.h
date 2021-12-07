@@ -150,6 +150,8 @@ typedef enum {
 typedef enum {
   kUIWidgetsPointerSignalKindNone,
   kUIWidgetsPointerSignalKindScroll,
+  kUIWidgetsPointerSignalKindEditorDragUpdate,
+  kUIWidgetsPointerSignalKindEditorDragRelease
 } UIWidgetsPointerSignalKind;
 
 typedef struct {

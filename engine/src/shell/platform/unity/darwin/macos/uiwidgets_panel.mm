@@ -388,6 +388,32 @@ void UIWidgetsPanel::OnScroll(float x, float y, float px, float py) {
   }
 }
 
+void UIWidgetsPanel::OnDragUpdateInEditor(float x, float y)
+{
+  if (process_events_) {
+    UIWidgetsPointerEvent event = {};
+    event.x = x;
+    event.y = y;
+    SetEventPhaseFromCursorButtonState(&event);
+    event.signal_kind = UIWidgetsPointerSignalKind::kUIWidgetsPointerSignalKindEditorDragUpdate;
+
+    SendPointerEventWithData(event);
+  }
+}
+
+void UIWidgetsPanel::OnDragReleaseInEditor(float x, float y)
+{
+  if (process_events_) {
+    UIWidgetsPointerEvent event = {};
+    event.x = x;
+    event.y = y;
+    SetEventPhaseFromCursorButtonState(&event);
+    event.signal_kind = UIWidgetsPointerSignalKind::kUIWidgetsPointerSignalKindEditorDragRelease;
+
+    SendPointerEventWithData(event);
+  }
+}
+
 static uint64_t ConvertToUIWidgetsButton(int button) {
   switch (button) {
     case -1:
@@ -523,6 +549,22 @@ UIWidgetsPanel_onEditorUpdate(UIWidgetsPanel* panel) {
 UIWIDGETS_API(void)
 UIWidgetsPanel_onScroll(UIWidgetsPanel* panel, float x, float y, float px, float py) {
   panel->OnScroll(x, y, px, py);
+}
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onDragUpdateInEditor(UIWidgetsPanel* panel, float x, float y) {
+  if (!panel->NeedUpdateByEditorLoop()) {
+    return;
+  }
+  panel->OnDragUpdateInEditor(x, y);
+}
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onDragReleaseInEditor(UIWidgetsPanel* panel, float x, float y) {
+  if (!panel->NeedUpdateByEditorLoop()) {
+    return;
+  }
+  panel->OnDragReleaseInEditor(x, y);
 }
 
 }  // namespace uiwidgets

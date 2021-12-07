@@ -341,6 +341,22 @@ public partial class UIWidgetsPanelWrapper {
         public void OnPointerLeave() {
             UIWidgetsPanel_onMouseLeave(ptr: _ptr);
         }
+        
+        public void OnDragUpdateInEditor(Vector2? pos) {
+            if (pos == null) {
+                return;
+            }
+            
+            UIWidgetsPanel_onDragUpdateInEditor(ptr: _ptr, x: pos.Value.x, y: pos.Value.y);
+        }
+        
+        public void OnDragReleaseInEditor(Vector2? pos) {
+            if (pos == null) {
+                return;
+            }
+            
+            UIWidgetsPanel_onDragReleaseInEditor(ptr: _ptr, x: pos.Value.x, y: pos.Value.y);
+        }
 
         public void OnKeyDown(Event e) {
             int modifier = 0;
@@ -378,6 +394,17 @@ public partial class UIWidgetsPanelWrapper {
 
         [DllImport(dllName: NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onScroll(IntPtr ptr, float x, float y, float px, float py);
+#if UNITY_EDITOR
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onDragUpdateInEditor(IntPtr ptr, float x ,float y);
+        
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onDragReleaseInEditor(IntPtr ptr, float x ,float y);
+#else
+        static void UIWidgetsPanel_onDragUpdateInEditor(IntPtr ptr, float x, float y) { throw new NotImplementedException(); }
+        
+        static void UIWidgetsPanel_onDragReleaseInEditor(IntPtr ptr, float x ,float y) { throw new NotImplementedException(); }
+#endif
     }
 
     #endregion

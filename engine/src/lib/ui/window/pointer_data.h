@@ -53,6 +53,8 @@ struct alignas(4) PointerData {
   enum class SignalKind : int64_t {
     kNone,
     kScroll,
+    kEditorDragUpdate,
+    kEditorDragRelease
   };
 
   int64_t time_stamp;

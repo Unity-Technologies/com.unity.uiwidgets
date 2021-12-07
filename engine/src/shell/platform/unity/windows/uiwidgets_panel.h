@@ -69,6 +69,11 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void OnMouseLeave();
 
+  void OnDragUpdateInEditor(float x, float y);
+
+  void OnDragReleaseInEditor(float x, float y);
+
+
   bool NeedUpdateByPlayerLoop();
 
   bool NeedUpdateByEditorLoop();
