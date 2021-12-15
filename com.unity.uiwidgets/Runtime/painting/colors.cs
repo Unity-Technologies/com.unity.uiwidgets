@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.painting {
                 hue = 0.0f;
             }
             else if (foundation_.FloatEqual(max,red)) {
-                hue = 60.0f * (((green - blue) / delta) % 6);
+                hue = 60.0f * (((green - blue) / delta + 6) % 6);
             }
             else if (foundation_.FloatEqual(max,green)) {
                 hue = 60.0f * (((blue - red) / delta) + 2);
