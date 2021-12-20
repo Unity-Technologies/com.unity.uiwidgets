@@ -979,7 +979,7 @@ namespace Unity.UIWidgets.rendering {
             Path clipPath = null,
             Clip clipBehavior = Clip.antiAlias
         ) {
-            D.assert(clipPath != null);
+            D.assert(clipBehavior != null);
             D.assert(clipBehavior != Clip.none);
             _clipPath = clipPath;
             _clipBehavior = clipBehavior;
