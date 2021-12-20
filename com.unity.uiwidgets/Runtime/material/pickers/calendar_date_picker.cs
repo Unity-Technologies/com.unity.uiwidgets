@@ -46,9 +46,9 @@ namespace Unity.UIWidgets.material {
             D.assert(initialDate != null);
             D.assert(firstDate != null);
             D.assert(lastDate != null);
-            initialDate = utils.dateOnly(initialDate.Value);
-            firstDate = utils.dateOnly(firstDate.Value);
-            lastDate = utils.dateOnly(lastDate.Value);
+            this.initialDate = utils.dateOnly(initialDate.Value);
+            this.firstDate = utils.dateOnly(firstDate.Value);
+            this.lastDate = utils.dateOnly(lastDate.Value);
             D.assert(onDateChanged != null);
             D.assert(initialCalendarMode != null);
 
