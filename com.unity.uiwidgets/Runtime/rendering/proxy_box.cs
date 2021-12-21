@@ -6,7 +6,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
-using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Gradient = Unity.UIWidgets.ui.Gradient;
 using Rect = Unity.UIWidgets.ui.Rect;
