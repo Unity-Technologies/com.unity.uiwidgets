@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.rendering
             childParentData.applyPaintTransform(transform);
         }
 
-        public bool debugValidateChild(RenderObject child)
+        public virtual bool debugValidateChild(RenderObject child)
         {
             D.assert(() =>
             {

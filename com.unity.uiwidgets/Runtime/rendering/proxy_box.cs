@@ -90,7 +90,6 @@ namespace Unity.UIWidgets.rendering {
 
     public interface RenderAnimatedOpacityMixin<T> : RenderObjectWithChildMixin<T> where T : RenderObject {
         int _alpha { get; set; }
-        bool alwaysNeedsCompositing { get; }
         bool _currentlyNeedsCompositing { get; set; }
         Animation<float> _opacity { get; set; }
 
