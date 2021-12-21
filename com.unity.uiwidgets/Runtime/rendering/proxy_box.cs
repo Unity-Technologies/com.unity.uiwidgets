@@ -2392,28 +2392,19 @@ namespace Unity.UIWidgets.rendering {
         public override bool needsCompositing {
             get { return base.needsCompositing || _annotationIsActive; }
         }
-
-        ImageFilter _filter;
-
+        
         public override void paint(PaintingContext context, Offset offset) {
-            if (child != null) {
-                if (_annotationIsActive) {
-                    Debug.Log("paint 1 >>>>>");
-                    layer = layer ?? new AnnotatedRegionLayer<MouseTrackerAnnotation>(
-                        _hoverAnnotation,
-                        size: size,
-                        offset: offset,
-                        opaque: opaque // TODO
+            if (_annotationIsActive) {
+                var layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
+                    _hoverAnnotation,
+                    size: size,
+                    offset: offset,
+                    opaque: opaque
                     );
-                    context.pushLayer(layer, base.paint, offset);
-                }
-                else {
-                    Debug.Log("paint 2 >>>>>");
-                    base.paint(context, offset);
-                }
+                context.pushLayer(layer, base.paint, offset);
             }
             else {
-                layer = null;
+                base.paint(context, offset);
             }
         }
 

@@ -1392,7 +1392,7 @@ namespace Unity.UIWidgets.widgets {
             properties.add(new FloatProperty("aspectRatio", aspectRatio));
         }
     }
-/*
+
     public class MouseRegion : StatefulWidget {
         public MouseRegion(
             Key key = null,
@@ -1453,53 +1453,32 @@ namespace Unity.UIWidgets.widgets {
         public override Widget build(BuildContext context) {
             return new _RawMouseRegion(this);
         }
-    }*/
+    }
 
-    public class MouseRegion : SingleChildRenderObjectWidget {
-        public MouseRegion(
-            Key key = null,
-            PointerEnterEventListener onEnter = null,
-            PointerExitEventListener onExit = null,
-            PointerHoverEventListener onHover = null,
-            bool opaque = true,
-            Widget child = null
-            ) : base(key: key, child: child) {
-            this.onEnter = onEnter;
-            this.onExit = onExit;
-            this.onHover = onHover;
-            this.opaque = opaque;
+    public class _RawMouseRegion : SingleChildRenderObjectWidget {
+        public _RawMouseRegion(_MouseRegionState owner) : base(child: owner.widget.child) {
+            this.owner = owner;
         }
 
-        public readonly PointerEnterEventListener onEnter;
-        public readonly PointerHoverEventListener onHover;
-        public readonly PointerExitEventListener onExit;
-        public readonly bool opaque;
-        
-        void handleExit(PointerExitEvent _event) {
-            if (onExit != null) {
-                onExit(_event);
-            }
-        }
-
-        public PointerExitEventListener getHandleExit() {
-            return onExit == null ? (PointerExitEventListener) null : handleExit;
-        }
+        public readonly _MouseRegionState owner;
 
         public override RenderObject createRenderObject(BuildContext context) {
+            MouseRegion widget = owner.widget;
             return new RenderMouseRegion(
-                onEnter: onEnter,
-                onHover: onHover,
-                onExit: getHandleExit(),
-                opaque: opaque
+                onEnter: widget.onEnter,
+                onHover: widget.onHover,
+                onExit: owner.getHandleExit(),
+                opaque: widget.opaque
             );
         }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderMouseRegion _renderObject = (RenderMouseRegion) renderObject;
-            _renderObject.onEnter = onEnter;
-            _renderObject.onHover = onHover;
-            _renderObject.onExit = getHandleExit();
-            _renderObject.opaque = opaque;
+            MouseRegion widget = owner.widget; 
+            _renderObject.onEnter = widget.onEnter;
+            _renderObject.onHover = widget.onHover;
+            _renderObject.onExit = owner.getHandleExit();
+            _renderObject.opaque = widget.opaque;
         }
     }
 
