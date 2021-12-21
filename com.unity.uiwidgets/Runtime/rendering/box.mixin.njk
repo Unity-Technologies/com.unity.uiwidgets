@@ -60,7 +60,7 @@ namespace Unity.UIWidgets.rendering {
 
 
        public bool defaultHitTestChildren(BoxHitTestResult result, Offset position) {
-            ChildType child = this.lastChild;
+            ChildType child = lastChild;
             while (child != null) {
                 ParentDataType childParentData = child.parentData as ParentDataType;
                 bool isHit = result.addWithPaintOffset(
@@ -81,7 +81,7 @@ namespace Unity.UIWidgets.rendering {
 
         public List<ChildType> getChildrenAsList() {
             var result = new List<ChildType>();
-            var child = this.firstChild;
+            var child = firstChild;
             while (child != null) {
                 var childParentData = (ParentDataType) child.parentData;
                 result.Add(child);

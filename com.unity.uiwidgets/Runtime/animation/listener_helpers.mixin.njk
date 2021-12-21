@@ -9,19 +9,19 @@ namespace Unity.UIWidgets.animation {
         int _listenerCounter = 0;
 
         protected void didRegisterListener() {
-            D.assert(this._listenerCounter >= 0);
-            if (this._listenerCounter == 0) {
-                this.didStartListening();
+            D.assert(_listenerCounter >= 0);
+            if (_listenerCounter == 0) {
+                didStartListening();
             }
 
-            this._listenerCounter += 1;
+            _listenerCounter += 1;
         }
 
         protected void didUnregisterListener() {
-            D.assert(this._listenerCounter >= 1);
-            this._listenerCounter -= 1;
-            if (this._listenerCounter == 0) {
-                this.didStopListening();
+            D.assert(_listenerCounter >= 1);
+            _listenerCounter -= 1;
+            if (_listenerCounter == 0) {
+                didStopListening();
             }
         }
 
@@ -30,7 +30,7 @@ namespace Unity.UIWidgets.animation {
         protected abstract void didStopListening();
 
         public bool isListening {
-            get { return this._listenerCounter > 0; }
+            get { return _listenerCounter > 0; }
         }
     }
 {% endmacro %}
@@ -57,25 +57,25 @@ namespace Unity.UIWidgets.animation {
         readonly ObserverList<VoidCallback> _listeners = new ObserverList<VoidCallback>();
 
         public override void addListener(VoidCallback listener) {
-            this.didRegisterListener();
-            this._listeners.Add(listener);
+            didRegisterListener();
+            _listeners.Add(listener);
         }
 
         public override void removeListener(VoidCallback listener) {
-            bool removed = this._listeners.Remove(listener);
+            bool removed = _listeners.Remove(listener);
             if (removed) {
-                this.didUnregisterListener();
+                didUnregisterListener();
             }
         }
 
         public void notifyListeners() {
-            var localListeners = new List<VoidCallback>(this._listeners);
+            var localListeners = new List<VoidCallback>(_listeners);
             foreach (VoidCallback listener in localListeners) {
                 InformationCollector collector = null;
                 D.assert(() => {
                       IEnumerable<DiagnosticsNode> infoCollector() {
                           yield return new DiagnosticsProperty<AnimationLocalListenersMixin{{with | safe}}>(
-                              "The " + this.GetType() + " notifying listeners was",
+                              "The " + GetType() + " notifying listeners was",
                               this,
                               style: DiagnosticsTreeStyle.errorProperty
                           );
@@ -84,14 +84,14 @@ namespace Unity.UIWidgets.animation {
                       return true;
                 });
                 try {
-                    if (this._listeners.Contains(listener)) {
+                    if (_listeners.Contains(listener)) {
                         listener();
                     }
                 } catch (Exception exception) {
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "animation library",
-                        context: new ErrorDescription("while notifying listeners for " + this.GetType()),
+                        context: new ErrorDescription("while notifying listeners for " + GetType()),
                         informationCollector: collector
                     ));
                 }
@@ -109,22 +109,22 @@ namespace Unity.UIWidgets.animation {
         readonly ObserverList<AnimationStatusListener> _statusListeners = new ObserverList<AnimationStatusListener>();
 
         public override void addStatusListener(AnimationStatusListener listener) {
-            this.didRegisterListener();
-            this._statusListeners.Add(listener);
+            didRegisterListener();
+            _statusListeners.Add(listener);
         }
 
         public override void removeStatusListener(AnimationStatusListener listener) {
-            bool removed = this._statusListeners.Remove(listener);
+            bool removed = _statusListeners.Remove(listener);
             if (removed) {
-                this.didUnregisterListener();
+                didUnregisterListener();
             }
         }
 
         public void notifyStatusListeners(AnimationStatus status) {
-            var localListeners = new List<AnimationStatusListener>(this._statusListeners);
+            var localListeners = new List<AnimationStatusListener>(_statusListeners);
             foreach (AnimationStatusListener listener in localListeners) {
                 try {
-                    if (this._statusListeners.Contains(listener)) {
+                    if (_statusListeners.Contains(listener)) {
                         listener(status);
                     }
                 } catch (Exception exception) {
@@ -132,7 +132,7 @@ namespace Unity.UIWidgets.animation {
                     D.assert(() => {
                         IEnumerable<DiagnosticsNode> infoCollector() {
                             yield return new DiagnosticsProperty<AnimationLocalStatusListenersMixin{{with | safe}}>(
-                                "The " + this.GetType() + " notifying status listeners was",
+                                "The " + GetType() + " notifying status listeners was",
                                 this,
                                 style: DiagnosticsTreeStyle.errorProperty
                             );
@@ -145,7 +145,7 @@ namespace Unity.UIWidgets.animation {
                     UIWidgetsError.reportError(new UIWidgetsErrorDetails(
                         exception: exception,
                         library: "animation library",
-                        context: new ErrorDescription("while notifying status listeners for " + this.GetType()),
+                        context: new ErrorDescription("while notifying status listeners for " + GetType()),
                         informationCollector: collector
                     ));
                 }
