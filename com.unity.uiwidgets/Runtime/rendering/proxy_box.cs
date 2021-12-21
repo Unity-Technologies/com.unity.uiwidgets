@@ -6,7 +6,11 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Gradient = Unity.UIWidgets.ui.Gradient;
+using Rect = Unity.UIWidgets.ui.Rect;
+using Shader = Unity.UIWidgets.ui.Shader;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.rendering {
@@ -2385,22 +2389,31 @@ namespace Unity.UIWidgets.rendering {
 
         public bool _annotationIsActive;
 
-        public bool needsCompositing {
+        public override bool needsCompositing {
             get { return base.needsCompositing || _annotationIsActive; }
         }
 
+        ImageFilter _filter;
+
         public override void paint(PaintingContext context, Offset offset) {
-            if (_annotationIsActive) {
-                AnnotatedRegionLayer<MouseTrackerAnnotation> layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
-                    _hoverAnnotation,
-                    size: size,
-                    offset: offset,
-                    opaque: opaque // TODO
-                );
-                context.pushLayer(layer, base.paint, offset);
+            if (child != null) {
+                if (_annotationIsActive) {
+                    Debug.Log("paint 1 >>>>>");
+                    layer = layer ?? new AnnotatedRegionLayer<MouseTrackerAnnotation>(
+                        _hoverAnnotation,
+                        size: size,
+                        offset: offset,
+                        opaque: opaque // TODO
+                    );
+                    context.pushLayer(layer, base.paint, offset);
+                }
+                else {
+                    Debug.Log("paint 2 >>>>>");
+                    base.paint(context, offset);
+                }
             }
             else {
-                base.paint(context, offset);
+                layer = null;
             }
         }
 
