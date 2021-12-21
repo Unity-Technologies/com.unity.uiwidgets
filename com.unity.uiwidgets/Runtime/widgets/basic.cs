@@ -1402,7 +1402,6 @@ namespace Unity.UIWidgets.widgets {
             bool opaque = true,
             Widget child = null
         ) : base(key: key) {
-            D.assert(opaque != null);
             this.onEnter = onEnter;
             this.onExit = onExit;
             this.onHover = onHover;
@@ -1475,7 +1474,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderMouseRegion _renderObject = (RenderMouseRegion) renderObject;
-            MouseRegion widget = owner.widget;
+            MouseRegion widget = owner.widget; 
             _renderObject.onEnter = widget.onEnter;
             _renderObject.onHover = widget.onHover;
             _renderObject.onExit = owner.getHandleExit();

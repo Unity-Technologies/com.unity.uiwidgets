@@ -2385,17 +2385,17 @@ namespace Unity.UIWidgets.rendering {
 
         public bool _annotationIsActive;
 
-        public bool needsCompositing {
+        public override bool needsCompositing {
             get { return base.needsCompositing || _annotationIsActive; }
         }
-
+        
         public override void paint(PaintingContext context, Offset offset) {
             if (_annotationIsActive) {
-                AnnotatedRegionLayer<MouseTrackerAnnotation> layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
+                var layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
                     _hoverAnnotation,
                     size: size,
                     offset: offset,
-                    opaque: opaque // TODO
+                    opaque: opaque
                 );
                 context.pushLayer(layer, base.paint, offset);
             }

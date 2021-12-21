@@ -4,6 +4,22 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.4-preview.1] - 2021-12-21
+
+### Fixes
+- Android IL2CPP bbuild crash issue [\#194](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/194)
+- Fix glContext issue when showing multiple UIWidgets panels [\#209](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/209)
+- Fix the issue that hover doesn't work [\#215](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/215)
+- Fix crash caused by shadow [\#225](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/225)
+- Fix stackoverflow issue caused by static methods [\#246](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/246)
+- Fix crash caused by missing Lottie file [\#263](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/263)
+- Fix color calculation issue [\#267](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/267)
+
+### New Features
+- Add support for Raycastable panel [\#214](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/214)
+- Add support for Android arm64 build [\#221](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/221)
+- Add support for Editor drag&drop support [\#268](https://github.com/Unity-Technologies/com.unity.uiwidgets/pull/268)
+
 ## [2.0.3-preview.1] - 2021-07-02
 
 ### Fixes

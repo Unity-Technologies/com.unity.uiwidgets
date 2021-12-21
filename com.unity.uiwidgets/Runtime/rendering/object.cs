@@ -1086,7 +1086,7 @@ namespace Unity.UIWidgets.rendering {
 
         bool _needsCompositing;
 
-        public bool needsCompositing {
+        public virtual bool needsCompositing {
             get {
                 D.assert(!_needsCompositingBitsUpdate);
                 return _needsCompositing;
