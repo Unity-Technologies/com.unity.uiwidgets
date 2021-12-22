@@ -473,14 +473,14 @@ namespace Unity.UIWidgets.material {
                 if (fragmentContext.use24HourDials) {
                     int selectedHour = fragmentContext.selectedTime.hour;
                     return fragmentContext.selectedTime.replacing(
-                        hour: (selectedHour + hoursToAdd) % TimeOfDay.hoursPerDay
+                        hour: (selectedHour + hoursToAdd + TimeOfDay.hoursPerDay) % TimeOfDay.hoursPerDay
                     );
                 }
                 else {
                     int periodOffset = fragmentContext.selectedTime.periodOffset;
                     int hours = fragmentContext.selectedTime.hourOfPeriod;
                     return fragmentContext.selectedTime.replacing(
-                        hour: periodOffset + (hours + hoursToAdd) % TimeOfDay.hoursPerPeriod
+                        hour: (periodOffset + (hours + hoursToAdd) + TimeOfDay.hoursPerPeriod) % TimeOfDay.hoursPerPeriod
                     );
                 }
             }

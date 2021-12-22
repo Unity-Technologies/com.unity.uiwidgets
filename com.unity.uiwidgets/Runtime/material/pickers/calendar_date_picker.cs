@@ -703,7 +703,7 @@ namespace Unity.UIWidgets.material {
             for (int i = localizations.firstDayOfWeekIndex; true; i = (i + 1) % 7) {
                 string weekday = localizations.narrowWeekdays[i];
                 result.Add(new Center(child: new Text(weekday, style: headerStyle)));
-                if (i == (localizations.firstDayOfWeekIndex - 1) % 7)
+                if (i == (localizations.firstDayOfWeekIndex - 1 + 7) % 7)
                     break;
             }
 
