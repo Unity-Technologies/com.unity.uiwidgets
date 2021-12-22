@@ -226,7 +226,7 @@ namespace Unity.UIWidgets.material {
 
         public readonly WhitelistingTextInputFormatter _filterFormatter =
             // Only allow digits and separators (slash, dot, comma, hyphen, space).
-            new WhitelistingTextInputFormatter(new Regex(@"[\d\/\.,-\s]+"));
+            new WhitelistingTextInputFormatter(new Regex(@"[\d\/\.,\- ]+"));
 
         public override TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
             TextEditingValue filteredValue = _filterFormatter.formatEditUpdate(oldValue, newValue);
