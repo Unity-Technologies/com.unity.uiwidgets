@@ -473,6 +473,15 @@ namespace UIWidgetsGallery.gallery
                     buildRoute: (BuildContext context) => new PageSelectorDemo()
                 ),
                 new GalleryDemo(
+                    title: "Pickers",
+                    subtitle: "Date and time selection widgets",
+                    icon: GalleryIcons.events,
+                category: GalleryDemoCategory._kMaterialComponents,
+                routeName: DateAndTimePickerDemo.routeName,
+                documentationUrl: "https://docs.flutter.io/flutter/material/showDatePicker.html",
+                buildRoute: (BuildContext context) => new DateAndTimePickerDemo()
+                ),
+                new GalleryDemo(
                     title: "Progress indicators",
                     subtitle: "Linear, circular, indeterminate",
                     icon: GalleryIcons.progress_activity,

@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.material {
         }
 
         public static DateTime addMonthsToMonthDate(DateTime monthDate, int monthsToAdd) {
-            return new DateTime(monthDate.Year, monthDate.Month + monthsToAdd, 1);
+            return monthDate.AddMonths(monthsToAdd);
         }
 
         public static int firstDayOffset(int year, int month, MaterialLocalizations localizations) {

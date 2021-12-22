@@ -80,7 +80,7 @@ namespace UIWidgetsGallery.demo.material
             this.labelText = labelText;
             this.selectDate = selectDate;
             this.selectedTime = selectedTime;
-            this.selectDate = selectDate;
+            this.selectedDate = selectedDate;
             this.selectTime = selectTime;
         }
 
@@ -95,8 +95,8 @@ namespace UIWidgetsGallery.demo.material
             material_.showDatePicker(
                 context: context,
                 initialDate: this.selectedDate.Value,
-                firstDate: new DateTime(2015, 8, 0),
-                lastDate: new DateTime(2101, 0, 0)
+                firstDate: new DateTime(2015, 8, 1),
+                lastDate: new DateTime(2030, 1, 1)
             ).then((object value) =>
             {
                 var picked = (DateTime) value;
