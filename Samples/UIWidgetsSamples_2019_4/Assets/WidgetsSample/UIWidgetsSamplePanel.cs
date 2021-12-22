@@ -1,6 +1,5 @@
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.engine;
-using Unity.UIWidgets.engine;
 using Unity.UIWidgets.widgets;
 
 namespace UIWidgetsSample {

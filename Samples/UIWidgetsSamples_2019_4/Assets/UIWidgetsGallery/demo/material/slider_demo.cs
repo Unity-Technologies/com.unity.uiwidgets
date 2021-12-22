@@ -295,9 +295,13 @@ namespace UIWidgetsGallery.demo.material
                                         textAlign: TextAlign.center,
                                         onSubmitted: (string value) =>
                                         {
-                                            float.TryParse(value, out float newValue);
+                                            float? newValue = null;
+                                            if (float.TryParse(value, out float convertValue))
+                                            {
+                                                newValue = convertValue;
+                                            }
                                             if (newValue != null && newValue != _continuousValue)
-                                                setState(() => { _continuousValue = newValue.clamp(0.0f, 100.0f); });
+                                                setState(() => { _continuousValue = newValue.Value.clamp(0.0f, 100.0f); });
                                         },
                                         keyboardType: TextInputType.number,
                                         controller: new TextEditingController(

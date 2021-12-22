@@ -50,7 +50,6 @@ namespace Unity.UIWidgets.material {
             this.firstDate = utils.dateOnly(firstDate.Value);
             this.lastDate = utils.dateOnly(lastDate.Value);
             D.assert(onDateChanged != null);
-            D.assert(initialCalendarMode != null);
 
             this.onDateChanged = onDateChanged;
             this.onDisplayedMonthChanged = onDisplayedMonthChanged;
@@ -637,11 +636,8 @@ namespace Unity.UIWidgets.material {
                             child: new Text(localizations.formatDecimal(day), style: dayStyle.apply(color: dayColor))
                         )
                     );
-
-                    if (isDisabled) {
-                        dayWidget = dayWidget;
-                    }
-                    else {
+                    
+                    if (!isDisabled) {
                         dayWidget = new GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => onChanged(dayToBuild),
@@ -852,11 +848,8 @@ namespace Unity.UIWidgets.material {
                     )
                 )
             );
-
-            if (isDisabled) {
-                yearItem = yearItem;
-            }
-            else {
+            
+            if (!isDisabled) {
                 yearItem = new InkWell(
                     key: new ValueKey<int>(year),
                     onTap: () => {

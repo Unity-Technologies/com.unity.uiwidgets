@@ -665,7 +665,6 @@ namespace Unity.UIWidgets.widgets {
                             "There was no corresponding route in the app, and therefore the initial route specified will be " +
                             $"ignored and {defaultRouteName} will be used instead."
                         );
-                        return true;
                     });
                     result.Clear();
                 }
@@ -2017,7 +2016,6 @@ namespace Unity.UIWidgets.widgets {
                  if (lastEntry == null) {
                      return false;
                  }
-                 D.assert(disposition != null);
                  if (!mounted)
                      return true; // forget about this pop, we were disposed in the meantime
                  _RouteEntry newLastEntry = null;
@@ -2236,7 +2234,6 @@ namespace Unity.UIWidgets.widgets {
                     _history.Count - 1,
                     _RouteEntry.willBePresentPredicate
                 );
-                D.assert(routeIndex != null);
                 Route route = _history[routeIndex].route;
                 Route previousRoute = null;
                 if (!route.willHandlePopInternally && routeIndex > 0) {

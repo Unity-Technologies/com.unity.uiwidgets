@@ -158,8 +158,8 @@ namespace Unity.UIWidgets.async {
             return new _BoundSinkStream<T, T>(source, mapSink);
         }
 
-        static Stream<T> castFrom<S, T>(Stream<S> source) =>
-            new CastStream<S, T>(source);
+        static Stream<U> castFrom<S, U>(Stream<S> source) =>
+            new CastStream<S, U>(source);
 
         public virtual bool isBroadcast {
             get { return false; }
@@ -469,7 +469,7 @@ namespace Unity.UIWidgets.async {
             }
         }
 
-        public Stream<R> cast<R>() => Stream<T>.castFrom<T, R>(this);
+        public virtual Stream<R> cast<R>() => Stream<T>.castFrom<T, R>(this);
 
         public Future<List<T>> toList() {
             List<T> result = new List<T>();
@@ -916,9 +916,9 @@ namespace Unity.UIWidgets.async {
 
     public abstract class StreamTransformer<S, T> {
         // c# does not support change constructor
-        public static StreamTransformer<S, T> create<S, T>(_async._SubscriptionTransformer<S, T> onListen)
+        public static StreamTransformer<U, V> create<U, V>(_async._SubscriptionTransformer<U, V> onListen)
             {
-            return new _StreamSubscriptionTransformer<S, T>(onListen);
+            return new _StreamSubscriptionTransformer<U, V>(onListen);
         }
 
 

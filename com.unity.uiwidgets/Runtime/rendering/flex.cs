@@ -173,10 +173,10 @@ namespace Unity.UIWidgets.rendering {
                     // i.e. there's more than one child
                     switch (direction) {
                         case Axis.horizontal:
-                            D.assert(textDirection != null, () => "Horizontal $runtimeType with multiple children has a null textDirection, so the layout order is undefined.");
+                            D.assert(textDirection != null, () => $"Horizontal {GetType()} with multiple children has a null textDirection, so the layout order is undefined.");
                             break;
                         case Axis.vertical:
-                            D.assert(verticalDirection != null, () => "Vertical $runtimeType with multiple children has a null verticalDirection, so the layout order is undefined.");
+                            D.assert(verticalDirection != null, () => $"Vertical {GetType()} with multiple children has a null verticalDirection, so the layout order is undefined.");
                             break;
                     }
                 }
@@ -184,10 +184,10 @@ namespace Unity.UIWidgets.rendering {
                 mainAxisAlignment == MainAxisAlignment.end) {
                     switch (direction) {
                         case Axis.horizontal:
-                            D.assert(textDirection != null, () => "Horizontal $runtimeType with $mainAxisAlignment has a null textDirection, so the alignment cannot be resolved.");
+                            D.assert(textDirection != null, () => $"Horizontal {GetType()} with {mainAxisAlignment} has a null textDirection, so the alignment cannot be resolved.");
                             break;
                         case Axis.vertical:
-                            D.assert(verticalDirection != null, () => "Vertical $runtimeType with $mainAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.");
+                            D.assert(verticalDirection != null, () => $"Vertical {GetType()} with {mainAxisAlignment} has a null verticalDirection, so the alignment cannot be resolved.");
                             break;
                     }
                 }
@@ -195,10 +195,10 @@ namespace Unity.UIWidgets.rendering {
                 crossAxisAlignment == CrossAxisAlignment.end) {
                     switch (direction) {
                         case Axis.horizontal:
-                            D.assert(verticalDirection != null, () => "Horizontal $runtimeType with $crossAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.");
+                            D.assert(verticalDirection != null, () => $"Horizontal {GetType()} with {crossAxisAlignment} has a null verticalDirection, so the alignment cannot be resolved.");
                             break;
                         case Axis.vertical:
-                            D.assert(textDirection != null, () => "Vertical $runtimeType with $crossAxisAlignment has a null textDirection, so the alignment cannot be resolved.");
+                            D.assert(textDirection != null, () => $"Vertical {GetType()} with {crossAxisAlignment} has a null textDirection, so the alignment cannot be resolved.");
                             break;
                     }
                 }
@@ -667,7 +667,7 @@ namespace Unity.UIWidgets.rendering {
                 new ErrorDescription(
                     $"The edge of the {GetType()} that is overflowing has been marked " +
                     "in the rendering with a yellow and black striped pattern. This is " +
-                    "usually caused by the contents being too big for the $runtimeType."
+                    "usually caused by the contents being too big for the {GetType()}."
                 ),
                 new ErrorHint(
                     "Consider applying a flex factor (e.g. using an Expanded widget) to " +

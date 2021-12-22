@@ -53,7 +53,7 @@ namespace UIWidgetsGallery.demo.material
         internal bool isFavorite;
         internal string tag => assetName; // Assuming that all asset names are unique.
 
-        internal bool isValid => assetName != null && title != null && caption != null && isFavorite != null;
+        internal bool isValid => assetName != null && title != null && caption != null;
     }
 
     internal class GridPhotoViewer : StatefulWidget
@@ -285,8 +285,6 @@ namespace UIWidgetsGallery.demo.material
                         child: image
                     );
             }
-
-            D.assert(tileStyle != null);
             return null;
         }
     }

@@ -215,12 +215,9 @@ namespace Unity.UIWidgets.gestures {
                 _EditorTrackedAnnotation hitAnnotation = _findAnnotation(hit);
 
                 // While acrossing two areas, set the flag to true to prevent setting the Pointer Copy VisualMode to None
-                bool enterFlag = false;
-
                 // enter
                 if (!hitAnnotation.activeDevices.Contains(deviceId)) {
                     hitAnnotation.activeDevices.Add(deviceId);
-                    enterFlag = true;
                     // Both onRelease or onEnter event will enable Copy VisualMode
                     if (hitAnnotation.annotation?.onDragFromEditorRelease != null ||
                         hitAnnotation.annotation?.onDragFromEditorEnter != null) {

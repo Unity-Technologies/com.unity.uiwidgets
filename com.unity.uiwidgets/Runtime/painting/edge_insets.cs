@@ -1,18 +1,16 @@
 using System;
-using JetBrains.Annotations;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using UnityEngine;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
     public abstract class EdgeInsetsGeometry {
-        internal float _bottom { get; }
-        internal float _end { get; }
-        internal float _left { get; }
-        internal float _right { get; }
-        internal float _start { get; }
-        internal float _top { get; }
+        internal virtual float _bottom { get; }
+        internal virtual float _end { get; }
+        internal virtual float _left { get; }
+        internal virtual float _right { get; }
+        internal virtual float _start { get; }
+        internal virtual float _top { get; }
 
 
         public static EdgeInsetsGeometry infinity = _MixedEdgeInsets.fromLRSETB(
@@ -286,33 +284,33 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float start;
 
-        float _start {
+        internal override float _start {
             get { return start; }
         }
 
         public readonly float end;
 
-        float _end {
+        internal override float _end {
             get { return end; }
         }
 
         public readonly float top;
 
-        float _top {
+        internal override float _top {
             get { return top; }
         }
 
         public readonly float bottom;
 
-        float _bottom {
+        internal override float _bottom {
             get { return bottom; }
         }
 
-        float _left {
+        internal override float _left {
             get { return 0f; }
         }
 
-        float _right {
+        internal override float _right {
             get { return 0f; }
         }
 

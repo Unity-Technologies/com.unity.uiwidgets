@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.async {
             return result;
         }
 
-        Stream<R> cast<R>() => new CastStream<S, R>(_source);
+        public override Stream<R> cast<R>() => new CastStream<S, R>(_source);
     }
 
 

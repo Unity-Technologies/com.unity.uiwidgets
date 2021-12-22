@@ -1838,7 +1838,7 @@ namespace Unity.UIWidgets.foundation {
         }
 
 
-        DiagnosticLevel level {
+        public override DiagnosticLevel level {
             get {
                 if (!_hasNonNullEntry() && ifEmpty == null) {
                     return DiagnosticLevel.hidden;
@@ -2348,8 +2348,8 @@ namespace Unity.UIWidgets.foundation {
     public interface IDiagnosticable {
         string toStringShort();
 
-        string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug);
-
+        string toString(DiagnosticLevel minLevel = DiagnosticLevel.info);
+        
         DiagnosticsNode toDiagnosticsNode(
             string name = null,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
@@ -2393,8 +2393,7 @@ namespace Unity.UIWidgets.foundation {
     }
 
 
-    public interface DiagnosticableTreeMixin : IDiagnosticable{
-        string toString(DiagnosticLevel minLevel = DiagnosticLevel.info);
+    public interface DiagnosticableTreeMixin : IDiagnosticable {
         string toStringShallow(
             string joiner = ", ",
             DiagnosticLevel minLevel = DiagnosticLevel.debug
@@ -2404,13 +2403,8 @@ namespace Unity.UIWidgets.foundation {
             string prefixLineOne = "",
             string prefixOtherLines = null,
             DiagnosticLevel minLevel = DiagnosticLevel.debug);
-
-        string toStringShort();
-
-        DiagnosticsNode toDiagnosticsNode(string name = null, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
+        
         List<DiagnosticsNode> debugDescribeChildren();
-        void debugFillProperties(DiagnosticPropertiesBuilder properties);
-
     }
 
     public abstract class DiagnosticableTree : Diagnosticable,DiagnosticableTreeMixin {

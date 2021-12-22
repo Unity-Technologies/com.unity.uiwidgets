@@ -1,16 +1,10 @@
 using System.Collections.Generic;
 using uiwidgets;
-using Unity.UIWidgets.animation;
-using Unity.UIWidgets.engine;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.service;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Image = Unity.UIWidgets.widgets.Image;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample {

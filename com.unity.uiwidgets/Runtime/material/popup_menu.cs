@@ -415,7 +415,7 @@ namespace Unity.UIWidgets.material {
 
         public override Offset getPositionForChild(Size size, Size childSize) {
             float y = position.top;
-            if (selectedItemIndex != null && itemSizes != null) {
+            if (itemSizes != null) {
                 float selectedItemOffset = material_._kMenuVerticalPadding;
                 for (int index = 0; index < selectedItemIndex; index += 1)
                     selectedItemOffset += itemSizes[index].height;
