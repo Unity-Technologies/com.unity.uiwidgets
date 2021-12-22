@@ -77,12 +77,12 @@ namespace Unity.UIWidgets.widgets {
     }
     public class _RenderSliverFractionalPadding : RenderSliverEdgeInsetsPadding {
         public _RenderSliverFractionalPadding(
-            float viewportFraction = 0
+            float? viewportFraction = 0
         ) {
             D.assert(viewportFraction != null);
             D.assert(viewportFraction <= 0.5);
             D.assert(viewportFraction >= 0);
-            _viewportFraction = viewportFraction;
+            _viewportFraction = viewportFraction.Value;
         }
 
         SliverConstraints _lastResolvedConstraints;
@@ -90,7 +90,6 @@ namespace Unity.UIWidgets.widgets {
         public float viewportFraction {
             get {return _viewportFraction; }
             set {
-                D.assert(value != null);
                 if (_viewportFraction == value)
                     return;
                 _viewportFraction = value;
@@ -113,9 +112,8 @@ namespace Unity.UIWidgets.widgets {
         void _resolve() {
             if (_resolvedPadding != null && _lastResolvedConstraints == constraints)
               return;
-
-            D.assert(constraints.axis != null);
-             float paddingValue = constraints.viewportMainAxisExtent * viewportFraction;
+            
+            float paddingValue = constraints.viewportMainAxisExtent * viewportFraction;
             _lastResolvedConstraints = constraints;
             switch (constraints.axis) {
               case Axis.horizontal:
@@ -125,8 +123,6 @@ namespace Unity.UIWidgets.widgets {
                 _resolvedPadding = EdgeInsets.symmetric(vertical: paddingValue);
                 break;
             }
-
-            return;
         }
 
         protected override void performLayout() {

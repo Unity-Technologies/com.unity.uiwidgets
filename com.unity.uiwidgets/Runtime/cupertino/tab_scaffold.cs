@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -9,10 +8,10 @@ using Unity.UIWidgets.widgets;
 namespace Unity.UIWidgets.cupertino {
     public class CupertinoTabController : ChangeNotifier {
 
-        public CupertinoTabController(int initialIndex = 0) {
+        public CupertinoTabController(int? initialIndex = 0) {
             D.assert(initialIndex != null);
             D.assert(initialIndex >= 0);
-            _index = initialIndex;
+            _index = initialIndex.Value;
         }
 
         public bool _isDisposed = false;
@@ -20,7 +19,6 @@ namespace Unity.UIWidgets.cupertino {
         public int index {
             get { return _index; }
             set {
-                D.assert(value != null);
                 D.assert(value >= 0);
                 if (_index == value) {
                     return;
@@ -50,7 +48,7 @@ namespace Unity.UIWidgets.cupertino {
             D.assert(
                 controller == null || controller.index < tabBar.items.Count, () =>
                     $"The CupertinoTabController's current index {controller.index} is " +
-                    $"out of bounds for the tab bar with {tabBar.items.Count} tabs"
+                    $"out2 of bounds for the tab bar with {tabBar.items.Count} tabs"
             );
             this.tabBar = tabBar;
             this.controller = controller;

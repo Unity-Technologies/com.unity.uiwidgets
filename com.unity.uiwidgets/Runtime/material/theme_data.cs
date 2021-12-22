@@ -1330,7 +1330,7 @@ namespace Unity.UIWidgets.material {
 
         public static readonly float maximumDensity = 4.0f;
 
-        public static readonly VisualDensity standard = new VisualDensity(0.0f, 0.0f);
+        public static readonly VisualDensity standard = new VisualDensity();
 
         public static readonly VisualDensity comfortable = new VisualDensity(horizontal: -1.0f, vertical: -1.0f);
 

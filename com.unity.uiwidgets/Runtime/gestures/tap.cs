@@ -18,7 +18,7 @@ namespace Unity.UIWidgets.gestures {
 
         public readonly Offset localPosition;
 
-        public readonly PointerDeviceKind kind;
+        public readonly PointerDeviceKind? kind;
 
         public readonly int device;
     }

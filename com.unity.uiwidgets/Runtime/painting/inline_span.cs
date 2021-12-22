@@ -30,14 +30,14 @@ namespace Unity.UIWidgets.painting {
     public class InlineSpanSemanticsInformation : IEquatable<InlineSpanSemanticsInformation> {
         public InlineSpanSemanticsInformation(
             string text,
-            bool isPlaceholder = false,
+            bool? isPlaceholder = false,
             string semanticsLabel = null,
             GestureRecognizer recognizer = null
         ) {
             D.assert(text != null);
             D.assert(isPlaceholder != null);
             D.assert(isPlaceholder == false || (text == "\uFFFC" && semanticsLabel == null && recognizer == null));
-            requiresOwnNode = isPlaceholder || recognizer != null;
+            requiresOwnNode = isPlaceholder.Value || recognizer != null;
         }
 
         public static readonly InlineSpanSemanticsInformation placeholder =

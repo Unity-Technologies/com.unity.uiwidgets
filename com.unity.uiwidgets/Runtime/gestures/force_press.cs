@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.gestures {
@@ -30,8 +27,7 @@ namespace Unity.UIWidgets.gestures {
             Offset localPosition = null
         ) {
             D.assert(globalPosition != null);
-            D.assert(pressure != null);
-            localPosition = localPosition ?? globalPosition;
+            this.localPosition = localPosition ?? globalPosition;
             this.globalPosition = globalPosition;
             this.pressure = pressure;
         }

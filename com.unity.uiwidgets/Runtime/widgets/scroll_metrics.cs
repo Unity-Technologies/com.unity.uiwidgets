@@ -56,7 +56,7 @@ namespace Unity.UIWidgets.widgets {
             );
         }
 
-        public static Axis axis(this ScrollMetrics it) {
+        public static Axis? axis(this ScrollMetrics it) {
             return AxisUtils.axisDirectionToAxis(axisDirection: it.axisDirection);
         }
 

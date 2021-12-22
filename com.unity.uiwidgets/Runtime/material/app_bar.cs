@@ -125,9 +125,6 @@ namespace Unity.UIWidgets.material {
             if (centerTitle != null) {
                 return centerTitle;
             }
-
-            D.assert(theme.platform != null);
-
             switch (theme.platform) {
                 case RuntimePlatform.Android:
                 case RuntimePlatform.LinuxEditor:

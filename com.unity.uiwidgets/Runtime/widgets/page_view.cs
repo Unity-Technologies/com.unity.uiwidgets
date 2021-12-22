@@ -470,12 +470,12 @@ namespace Unity.UIWidgets.widgets {
             _lastReportedPage = widget.controller.initialPage;
         }
 
-        AxisDirection _getDirection(BuildContext context) {
+        AxisDirection? _getDirection(BuildContext context) {
             switch (widget.scrollDirection) {
                 case Axis.horizontal:
                     D.assert(WidgetsD.debugCheckHasDirectionality(context));
                     TextDirection textDirection = Directionality.of(context);
-                    AxisDirection axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
+                    AxisDirection? axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
                     return widget.reverse ? AxisUtils.flipAxisDirection(axisDirection) : axisDirection;
                 case Axis.vertical:
                     return widget.reverse ? AxisDirection.up : AxisDirection.down;
@@ -485,7 +485,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            AxisDirection axisDirection = _getDirection(context);
+            AxisDirection? axisDirection = _getDirection(context);
             ScrollPhysics physics = new _ForceImplicitScrollPhysics(
                 allowImplicitScrolling: widget.allowImplicitScrolling
             ).applyTo(widget.pageSnapping

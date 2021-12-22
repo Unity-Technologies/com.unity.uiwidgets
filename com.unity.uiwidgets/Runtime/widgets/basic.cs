@@ -2066,7 +2066,7 @@ namespace Unity.UIWidgets.widgets {
 
 
     public static class LayoutUtils {
-        public static AxisDirection getAxisDirectionFromAxisReverseAndDirectionality(
+        public static AxisDirection? getAxisDirectionFromAxisReverseAndDirectionality(
             BuildContext context,
             Axis axis,
             bool reverse
@@ -2075,7 +2075,7 @@ namespace Unity.UIWidgets.widgets {
                 case Axis.horizontal:
                     D.assert(WidgetsD.debugCheckHasDirectionality(context));
                     TextDirection textDirection = Directionality.of(context);
-                    AxisDirection axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
+                    AxisDirection? axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
                     return reverse ? AxisUtils.flipAxisDirection(axisDirection) : axisDirection;
                 case Axis.vertical:
                     return reverse ? AxisDirection.up : AxisDirection.down;

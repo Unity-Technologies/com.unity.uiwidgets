@@ -18,8 +18,10 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public static class GrowthDirectionUtils {
-        public static AxisDirection applyGrowthDirectionToAxisDirection(
-            AxisDirection axisDirection, GrowthDirection growthDirection) {
+        public static AxisDirection? applyGrowthDirectionToAxisDirection(
+            AxisDirection? axisDirection, GrowthDirection? growthDirection) {
+            D.assert(axisDirection != null);
+            D.assert(growthDirection != null);
             switch (growthDirection) {
                 case GrowthDirection.forward:
                     return axisDirection;
@@ -45,28 +47,31 @@ namespace Unity.UIWidgets.rendering {
 
     public class SliverConstraints : Constraints, IEquatable<SliverConstraints> {
         public SliverConstraints(
-            AxisDirection axisDirection,
-            GrowthDirection growthDirection,
+            AxisDirection? axisDirection,
+            GrowthDirection? growthDirection,
             ScrollDirection userScrollDirection,
             float scrollOffset,
             float precedingScrollExtent,
             float overlap,
             float remainingPaintExtent,
             float crossAxisExtent,
-            AxisDirection crossAxisDirection,
+            AxisDirection? crossAxisDirection,
             float viewportMainAxisExtent,
             float remainingCacheExtent,
             float cacheOrigin
         ) {
-            this.axisDirection = axisDirection;
-            this.growthDirection = growthDirection;
+            D.assert(axisDirection != null);
+            D.assert(growthDirection != null);
+            D.assert(crossAxisDirection != null);
+            this.axisDirection = axisDirection.Value;
+            this.growthDirection = growthDirection.Value;
             this.userScrollDirection = userScrollDirection;
             this.scrollOffset = scrollOffset;
             this.precedingScrollExtent = precedingScrollExtent;
             this.overlap = overlap;
             this.remainingPaintExtent = remainingPaintExtent;
             this.crossAxisExtent = crossAxisExtent;
-            this.crossAxisDirection = crossAxisDirection;
+            this.crossAxisDirection = crossAxisDirection.Value;
             this.viewportMainAxisExtent = viewportMainAxisExtent;
             this.remainingCacheExtent = remainingCacheExtent;
             this.cacheOrigin = cacheOrigin;
@@ -102,9 +107,9 @@ namespace Unity.UIWidgets.rendering {
             );
         }
 
-        public readonly AxisDirection axisDirection;
+        public readonly AxisDirection? axisDirection;
 
-        public readonly GrowthDirection growthDirection;
+        public readonly GrowthDirection? growthDirection;
 
         public readonly ScrollDirection userScrollDirection;
 
@@ -118,7 +123,7 @@ namespace Unity.UIWidgets.rendering {
 
         public readonly float crossAxisExtent;
 
-        public readonly AxisDirection crossAxisDirection;
+        public readonly AxisDirection? crossAxisDirection;
 
         public readonly float viewportMainAxisExtent;
 
@@ -126,16 +131,18 @@ namespace Unity.UIWidgets.rendering {
 
         public readonly float remainingCacheExtent;
 
-        public Axis axis {
+        public Axis? axis {
             get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
         public GrowthDirection normalizedGrowthDirection {
             get {
+                D.assert(axisDirection != null);
+                D.assert(growthDirection != null);
                 switch (axisDirection) {
                     case AxisDirection.down:
                     case AxisDirection.right:
-                        return growthDirection;
+                        return growthDirection.Value;
                     case AxisDirection.up:
                     case AxisDirection.left:
                         switch (growthDirection) {

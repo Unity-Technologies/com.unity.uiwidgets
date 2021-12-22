@@ -10,7 +10,7 @@ namespace Unity.UIWidgets.widgets {
     public class Viewport : MultiChildRenderObjectWidget {
         public Viewport(
             Key key = null,
-            AxisDirection axisDirection = AxisDirection.down,
+            AxisDirection? axisDirection = AxisDirection.down,
             AxisDirection? crossAxisDirection = null,
             float anchor = 0.0f,
             ViewportOffset offset = null,
@@ -32,7 +32,7 @@ namespace Unity.UIWidgets.widgets {
             this.cacheExtentStyle = cacheExtentStyle;
         }
 
-        public readonly AxisDirection axisDirection;
+        public readonly AxisDirection? axisDirection;
 
         public readonly AxisDirection? crossAxisDirection;
 
@@ -46,7 +46,8 @@ namespace Unity.UIWidgets.widgets {
         
         public readonly CacheExtentStyle cacheExtentStyle;
 
-        public static AxisDirection getDefaultCrossAxisDirection(BuildContext context, AxisDirection axisDirection) {
+        public static AxisDirection? getDefaultCrossAxisDirection(BuildContext context, AxisDirection? axisDirection) {
+            D.assert(axisDirection != null);
             switch (axisDirection) {
                 case AxisDirection.up:
                     return AxisUtils.textDirectionToAxisDirection(Directionality.of(context));
@@ -57,9 +58,7 @@ namespace Unity.UIWidgets.widgets {
                 case AxisDirection.left:
                     return AxisDirection.down;
             }
-
-
-            throw new Exception("unknown axisDirection");
+            return null;
         }
 
 
@@ -75,8 +74,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderViewport) renderObjectRaw;
-            renderObject.axisDirection = axisDirection;
-            renderObject.crossAxisDirection = crossAxisDirection ?? getDefaultCrossAxisDirection(context, axisDirection);
+            renderObject.axisDirection = axisDirection.Value;
+            renderObject.crossAxisDirection = (crossAxisDirection ?? getDefaultCrossAxisDirection(context, axisDirection)).Value;
             renderObject.anchor = anchor;
             renderObject.offset = offset;
             renderObject.cacheExtent = cacheExtent ?? RenderViewportUtils.defaultCacheExtent;
@@ -89,7 +88,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<AxisDirection>("axisDirection", axisDirection));
+            properties.add(new EnumProperty<AxisDirection?>("axisDirection", axisDirection));
             properties.add(new EnumProperty<AxisDirection?>("crossAxisDirection", crossAxisDirection,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new FloatProperty("anchor", anchor));
@@ -153,7 +152,7 @@ namespace Unity.UIWidgets.widgets {
     public class ShrinkWrappingViewport : MultiChildRenderObjectWidget {
         public ShrinkWrappingViewport(
             Key key = null,
-            AxisDirection axisDirection = AxisDirection.down,
+            AxisDirection? axisDirection = AxisDirection.down,
             AxisDirection? crossAxisDirection = null,
             ViewportOffset offset = null,
             List<Widget> slivers = null
@@ -164,7 +163,7 @@ namespace Unity.UIWidgets.widgets {
             this.offset = offset;
         }
 
-        public readonly AxisDirection axisDirection;
+        public readonly AxisDirection? axisDirection;
 
         public readonly AxisDirection? crossAxisDirection;
 
@@ -181,15 +180,14 @@ namespace Unity.UIWidgets.widgets {
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObjectRaw) {
             var renderObject = (RenderShrinkWrappingViewport) renderObjectRaw;
-            renderObject.axisDirection = axisDirection;
-            renderObject.crossAxisDirection = crossAxisDirection
-                                              ?? Viewport.getDefaultCrossAxisDirection(context, axisDirection);
+            renderObject.axisDirection = axisDirection.Value;
+            renderObject.crossAxisDirection = (crossAxisDirection ?? Viewport.getDefaultCrossAxisDirection(context, axisDirection)).Value;
             renderObject.offset = offset;
         }
 
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
-            properties.add(new EnumProperty<AxisDirection>("axisDirection", axisDirection));
+            properties.add(new EnumProperty<AxisDirection?>("axisDirection", axisDirection));
             properties.add(new EnumProperty<AxisDirection?>("crossAxisDirection", crossAxisDirection,
                 defaultValue: foundation_.kNullDefaultValue));
             properties.add(new DiagnosticsProperty<ViewportOffset>("offset", offset));

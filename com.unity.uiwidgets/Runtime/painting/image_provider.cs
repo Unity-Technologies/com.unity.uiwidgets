@@ -1088,7 +1088,6 @@ namespace Unity.UIWidgets.painting {
     public class NetworkImageLoadException : Exception {
         NetworkImageLoadException(int statusCode, Uri uri) {
             D.assert(uri != null);
-            D.assert(statusCode != null);
             this.statusCode = statusCode;
             this.uri = uri;
             _message = $"HTTP request failed, statusCode: {statusCode}, {uri}";

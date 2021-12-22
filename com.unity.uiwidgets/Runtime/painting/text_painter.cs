@@ -585,18 +585,18 @@ namespace Unity.UIWidgets.painting {
             return value == 0x200F || value == 0x200E;
         }
         
-         public int getOffsetAfter(int offset) {
+         public int? getOffsetAfter(int offset) {
             int? nextCodeUnit = _text.codeUnitAt(offset);
             if (nextCodeUnit == null)
-                return 0;
+                return null;
             // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
             return _isUtf16Surrogate(nextCodeUnit.Value) ? offset + 2 : offset + 1;
         }
          
-         public int getOffsetBefore(int offset) {
+         public int? getOffsetBefore(int offset) {
              int? prevCodeUnit = _text.codeUnitAt(offset - 1);
              if (prevCodeUnit == null)
-                 return 0;
+                 return null;
              // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
              return _isUtf16Surrogate(prevCodeUnit.Value) ? offset - 2 : offset - 1;
          }

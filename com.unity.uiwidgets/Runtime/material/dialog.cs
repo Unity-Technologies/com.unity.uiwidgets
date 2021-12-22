@@ -284,7 +284,7 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             return new InkWell(
-                onTap: () => onPressed(),
+                onTap: () => onPressed?.Invoke(),
                 child: new Padding(
                     padding: padding ?? EdgeInsets.symmetric(vertical: 8.0f, horizontal: 24.0f),
                     child: child

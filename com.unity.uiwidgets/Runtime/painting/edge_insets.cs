@@ -173,7 +173,7 @@ namespace Unity.UIWidgets.painting {
             if (a is EdgeInsets && b is EdgeInsets)
                 return EdgeInsets.lerp((EdgeInsets) a, (EdgeInsets) b, t);
             if (a is EdgeInsetsDirectional && b is EdgeInsetsDirectional)
-                return EdgeInsetsDirectional.lerp(a, b, t);
+                return EdgeInsetsDirectional.lerp((EdgeInsetsDirectional)a, (EdgeInsetsDirectional)b, t);
 
             return _MixedEdgeInsets.fromLRSETB(
                 MathUtils.lerpNullableFloat(a._left, b._left, t),
@@ -596,14 +596,14 @@ namespace Unity.UIWidgets.painting {
             get { return top + bottom; }
         }
 
-        public float along(Axis axis) {
+        public float along(Axis? axis) {
+            D.assert(axis != null);
             switch (axis) {
                 case Axis.horizontal:
                     return horizontal;
                 case Axis.vertical:
                     return vertical;
             }
-
             throw new Exception("unknown axis");
         }
 

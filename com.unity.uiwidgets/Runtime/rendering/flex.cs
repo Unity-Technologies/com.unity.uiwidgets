@@ -125,7 +125,7 @@ namespace Unity.UIWidgets.rendering {
 
         public CrossAxisAlignment _crossAxisAlignment;
 
-        public TextDirection textDirection {
+        public TextDirection? textDirection {
             get { return _textDirection; }
             set {
                 if (_textDirection == value) {
@@ -137,9 +137,9 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public TextDirection _textDirection;
+        public TextDirection? _textDirection;
 
-        public VerticalDirection verticalDirection {
+        public VerticalDirection? verticalDirection {
             get { return _verticalDirection; }
             set {
                 if (_verticalDirection == value) {
@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public VerticalDirection _verticalDirection;
+        public VerticalDirection? _verticalDirection;
 
         public TextBaseline textBaseline {
             get { return _textBaseline; }
@@ -621,8 +621,8 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        static bool _startIsTopLeft(Axis direction, TextDirection textDirection,
-            VerticalDirection verticalDirection) {
+        static bool _startIsTopLeft(Axis direction, TextDirection? textDirection,
+            VerticalDirection? verticalDirection) {
             switch (direction) {
                 case Axis.horizontal:
                     switch (textDirection) {
@@ -720,8 +720,8 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new EnumProperty<MainAxisAlignment>("mainAxisAlignment", mainAxisAlignment));
             properties.add(new EnumProperty<MainAxisSize>("mainAxisSize", mainAxisSize));
             properties.add(new EnumProperty<CrossAxisAlignment>("crossAxisAlignment", crossAxisAlignment));
-            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
-            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", verticalDirection, defaultValue: null));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+            properties.add(new EnumProperty<VerticalDirection?>("verticalDirection", verticalDirection, defaultValue: null));
             properties.add(new EnumProperty<TextBaseline>("textBaseline", textBaseline, defaultValue: null));
         }
     }

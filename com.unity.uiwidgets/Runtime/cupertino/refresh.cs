@@ -150,8 +150,8 @@ namespace Unity.UIWidgets.cupertino {
    public class CupertinoSliverRefreshControl : StatefulWidget { 
        public CupertinoSliverRefreshControl(
            Key key = null,
-           float refreshTriggerPullDistance = _defaultRefreshTriggerPullDistance, 
-           float refreshIndicatorExtent = _defaultRefreshIndicatorExtent, 
+           float? refreshTriggerPullDistance = _defaultRefreshTriggerPullDistance, 
+           float? refreshIndicatorExtent = _defaultRefreshIndicatorExtent, 
            RefreshControlIndicatorBuilder  builder = null,
            RefreshCallback  onRefresh = null
            ) : base(key: key) {
@@ -164,8 +164,8 @@ namespace Unity.UIWidgets.cupertino {
                       "The refresh indicator cannot take more space in its final state " +
                       "than the amount initially created by overscrolling."
               );
-              this.refreshIndicatorExtent = refreshIndicatorExtent;
-              this.refreshTriggerPullDistance = refreshTriggerPullDistance;
+              this.refreshIndicatorExtent = refreshIndicatorExtent.Value;
+              this.refreshTriggerPullDistance = refreshTriggerPullDistance.Value;
               this.builder = builder ?? buildSimpleRefreshIndicator;
               this.onRefresh = onRefresh;
               
@@ -275,8 +275,7 @@ namespace Unity.UIWidgets.cupertino {
                   }
                   return RefreshIndicatorMode.armed;
                 }
-               
-                break;
+              
               case RefreshIndicatorMode.armed:
                 if (refreshState == RefreshIndicatorMode.armed && refreshTask == null) {
                   goToDone();

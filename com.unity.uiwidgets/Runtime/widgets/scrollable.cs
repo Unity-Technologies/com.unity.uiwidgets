@@ -17,16 +17,17 @@ namespace Unity.UIWidgets.widgets {
     public class Scrollable : StatefulWidget {
         public Scrollable(
             Key key = null,
-            AxisDirection axisDirection = AxisDirection.down,
+            AxisDirection? axisDirection = AxisDirection.down,
             ScrollController controller = null,
             ScrollPhysics physics = null,
             ViewportBuilder viewportBuilder = null,
             ScrollIncrementCalculator incrementCalculator = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
+            D.assert(axisDirection != null);
             D.assert(viewportBuilder != null);
 
-            this.axisDirection = axisDirection;
+            this.axisDirection = axisDirection.Value;
             this.controller = controller;
             this.physics = physics;
             this.viewportBuilder = viewportBuilder;
@@ -46,7 +47,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly DragStartBehavior dragStartBehavior;
 
-        public Axis axis {
+        public Axis? axis {
             get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
@@ -248,7 +249,7 @@ namespace Unity.UIWidgets.widgets {
         bool _shouldIgnorePointer = false;
 
         bool _lastCanDrag;
-        Axis _lastAxisDirection;
+        Axis? _lastAxisDirection;
 
         public void setCanDrag(bool canDrag) {
             if (canDrag == _lastCanDrag && (!canDrag || widget.axis == _lastAxisDirection)) {

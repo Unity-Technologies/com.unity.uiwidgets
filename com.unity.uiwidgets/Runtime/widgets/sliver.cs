@@ -444,7 +444,7 @@ namespace Unity.UIWidgets.widgets {
             Key key = null,
             float opacity = 0f,
             Widget sliver = null) : base(key: key, child: sliver) { 
-            D.assert(opacity != null && opacity >= 0.0 && opacity <= 1.0);
+            D.assert(opacity >= 0.0 && opacity <= 1.0);
             this.opacity = opacity;
         }
 

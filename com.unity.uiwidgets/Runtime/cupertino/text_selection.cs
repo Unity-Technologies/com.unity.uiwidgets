@@ -389,9 +389,8 @@ namespace Unity.UIWidgets.cupertino {
                 );
             case TextSelectionHandleType.collapsed:
                 return new SizedBox();
-         }
-            D.assert(type != null);
-            return null;
+          }
+          return null;
         }
         public override Offset getHandleAnchor(TextSelectionHandleType type, float textLineHeight) {
             Size handleSize = getHandleSize(textLineHeight);

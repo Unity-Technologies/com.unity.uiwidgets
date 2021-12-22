@@ -301,13 +301,13 @@ namespace Unity.UIWidgets.rendering {
     public class TextureLayer : Layer {
         public TextureLayer(
             Rect rect,
-            int textureId,
+            int? textureId,
             bool freeze = false
         ) {
             D.assert(rect != null);
             D.assert(textureId != null);
             this.rect = rect;
-            this.textureId = textureId;
+            this.textureId = textureId.Value;
             this.freeze = freeze;
         }
 
@@ -732,7 +732,6 @@ namespace Unity.UIWidgets.rendering {
             layerOffset = layerOffset ?? Offset.zero;
             D.assert(shader != null);
             D.assert(maskRect != null);
-            D.assert(blendMode != null);
             D.assert(layerOffset != null);
             Rect shiftedMaskRect = layerOffset == Offset.zero ? maskRect : maskRect.shift(layerOffset);
             engineLayer = builder.pushShaderMask(

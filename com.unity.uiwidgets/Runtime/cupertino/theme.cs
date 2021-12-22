@@ -328,7 +328,6 @@ namespace Unity.UIWidgets.cupertino {
         public _CupertinoTextThemeDefaults textThemeDefaults;
 
         public _CupertinoThemeDefaults resolveFrom(BuildContext context, bool resolveTextTheme,  bool nullOk = false) {
-            D.assert(nullOk != null);
             Color convertColor(Color color) => CupertinoDynamicColor.resolve(color, context, nullOk: nullOk);
 
             return new _CupertinoThemeDefaults(

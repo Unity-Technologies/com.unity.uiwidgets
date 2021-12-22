@@ -214,7 +214,6 @@ namespace Unity.UIWidgets.rendering {
                 return _textPainter.textWidthBasis;
             }
             set {
-                D.assert(value != null);
                 if (_textPainter.textWidthBasis == value)
                     return;
                 _textPainter.textWidthBasis = value;
@@ -227,7 +226,6 @@ namespace Unity.UIWidgets.rendering {
                 return _selectionHeightStyle;
             }
             set {
-                D.assert(value != null);
                 if (_selectionHeightStyle == value)
                     return;
                 _selectionHeightStyle = value;
@@ -242,7 +240,6 @@ namespace Unity.UIWidgets.rendering {
                 return _selectionWidthStyle;
             }
             set {
-                D.assert(value != null);
                 if (_selectionWidthStyle == value)
                     return;
                 _selectionWidthStyle = value;
@@ -285,7 +282,6 @@ namespace Unity.UIWidgets.rendering {
                 return _forceLine;
             }
             set {
-                D.assert(value != null);
                 if (_forceLine == value)
                     return;
                 _forceLine = value;
@@ -300,7 +296,6 @@ namespace Unity.UIWidgets.rendering {
                 return _readOnly;
             }
             set {
-                D.assert(value != null);
                 if (_readOnly == value)
                     return;
                 _readOnly = value;
@@ -717,22 +712,22 @@ namespace Unity.UIWidgets.rendering {
         }
 
         void _handleMoveCursorForwardByCharacter(bool extentSelection) {
-            int extentOffset = _textPainter.getOffsetAfter(_selection.extentOffset);
+            int? extentOffset = _textPainter.getOffsetAfter(_selection.extentOffset);
             if (extentOffset == null)
                 return;
-            int baseOffset = !extentSelection ? extentOffset : _selection.baseOffset;
+            int baseOffset = !extentSelection ? extentOffset.Value : _selection.baseOffset;
             _handleSelectionChange(
-            new TextSelection(baseOffset: baseOffset, extentOffset: extentOffset), SelectionChangedCause.keyboard
+            new TextSelection(baseOffset: baseOffset, extentOffset: extentOffset.Value), SelectionChangedCause.keyboard
             );
         }
 
         void _handleMoveCursorBackwardByCharacter(bool extentSelection) {
-            int extentOffset = _textPainter.getOffsetBefore(_selection.extentOffset);
+            int? extentOffset = _textPainter.getOffsetBefore(_selection.extentOffset);
             if (extentOffset == null)
                 return;
-            int baseOffset = !extentSelection ? extentOffset : _selection.baseOffset;
+            int baseOffset = !extentSelection ? extentOffset.Value : _selection.baseOffset;
             _handleSelectionChange(
-                new TextSelection(baseOffset: baseOffset, extentOffset: extentOffset), SelectionChangedCause.keyboard
+                new TextSelection(baseOffset: baseOffset, extentOffset: extentOffset.Value), SelectionChangedCause.keyboard
             );
         }
 

@@ -229,9 +229,9 @@ namespace Unity.UIWidgets.widgets {
 
         public FocusableActionDetector(
             Key key = null,
-            bool enabled = true,
+            bool? enabled = true,
             FocusNode focusNode = null,
-            bool autofocus = false,
+            bool? autofocus = false,
             Dictionary<LogicalKeySet, Intent> shortcuts = null,
             Dictionary<LocalKey, ActionFactory> actions = null,
             ValueChanged<bool> onShowFocusHighlight = null,
@@ -242,9 +242,9 @@ namespace Unity.UIWidgets.widgets {
             D.assert(enabled != null);
             D.assert(autofocus != null);
             D.assert(child != null);
-            this.enabled = enabled;
+            this.enabled = enabled.Value;
             this.focusNode = focusNode;
-            this.autofocus = autofocus;
+            this.autofocus = autofocus.Value;
             this.shortcuts = shortcuts;
             this.actions = actions;
             this.onShowFocusHighlight = onShowFocusHighlight;
