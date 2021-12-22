@@ -45,14 +45,12 @@ namespace Unity.UIWidgets.painting {
 
 
         float? along(Axis axis) {
-            D.assert(axis != null);
             switch (axis) {
                 case Axis.horizontal:
                     return horizontal;
                 case Axis.vertical:
                     return vertical;
             }
-
             return null;
         }
 
@@ -166,7 +164,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static EdgeInsetsGeometry lerp(EdgeInsetsGeometry a, EdgeInsetsGeometry b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)
@@ -403,7 +400,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static EdgeInsetsDirectional lerp(EdgeInsetsDirectional a, EdgeInsetsDirectional b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)

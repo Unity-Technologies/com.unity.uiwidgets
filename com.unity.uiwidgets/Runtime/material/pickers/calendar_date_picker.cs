@@ -186,7 +186,6 @@ namespace Unity.UIWidgets.material {
         }
 
         Widget _buildPicker() {
-            D.assert(_mode != null);
             switch (_mode) {
                 case DatePickerMode.day:
                     return new _MonthPicker(

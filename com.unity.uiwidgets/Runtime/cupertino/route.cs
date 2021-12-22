@@ -283,7 +283,6 @@ namespace Unity.UIWidgets.cupertino {
                 return;
             }
             TextDirection textDirection = configuration.textDirection;
-            D.assert(textDirection != null);
             float deltaX = 0.0f;
             switch (textDirection) {
                 case TextDirection.rtl:

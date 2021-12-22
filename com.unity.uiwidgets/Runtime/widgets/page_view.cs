@@ -209,7 +209,7 @@ namespace Unity.UIWidgets.widgets {
         public float page {
             get {
                 D.assert(
-                    pixels == null || (minScrollExtent != null && maxScrollExtent != null),
+                    !havePixels || (hasMinScrollExtent && hasMaxScrollExtent),
                     () => "Page value is only available after content dimensions are established."
                 );
                 return getPageFromPixels(pixels.clamp(minScrollExtent, maxScrollExtent),
@@ -283,7 +283,6 @@ namespace Unity.UIWidgets.widgets {
             bool allowImplicitScrolling = false,
             ScrollPhysics parent = null
         ) : base(parent: parent) {
-            D.assert(allowImplicitScrolling != null);
             this.allowImplicitScrolling = allowImplicitScrolling;
         }
         
@@ -294,7 +293,7 @@ namespace Unity.UIWidgets.widgets {
             );
         }
         
-        public readonly bool allowImplicitScrolling;
+        public override bool allowImplicitScrolling { get; }
     }
 
     public class PageScrollPhysics : ScrollPhysics {

@@ -1151,9 +1151,11 @@ namespace Unity.UIWidgets.widgets {
             }
         }
         public bool showToolbar() {
+#pragma warning disable CS0162
             if (foundation_.kIsWeb) {
                 return false;
             }
+#pragma warning restore CS0162
 
             if (_selectionOverlay == null || _selectionOverlay.toolbarIsVisible) {
                 return false;

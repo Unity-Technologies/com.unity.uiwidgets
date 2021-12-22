@@ -58,9 +58,12 @@ namespace Unity.UIWidgets.material {
         public override Color resolve(HashSet<MaterialState> states) => _resolve(states);
     }
 
-    abstract class MaterialStateProperty<T> {
-        public abstract T resolve(HashSet<MaterialState> states);
+    interface IMaterialStateProperty<T> {
+        T resolve(HashSet<MaterialState> states);
+    }
 
+    abstract class MaterialStateProperty<T> : IMaterialStateProperty<T> {
+        public abstract T resolve(HashSet<MaterialState> states);
 
         public static T resolveAs<T>(T value, HashSet<MaterialState> states) {
             if (value is MaterialStateProperty<T> materialStateProperty) {

@@ -88,13 +88,17 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public delegate int Comparator<T>(T a, T b);
-        //public Comparator<T> defaultCompare<T>() => (value1, value2) => value1 ;
+
+        static int defaultCompare<T>(T value1, T value2) {
+            return (value1 as IComparable).CompareTo(value2);
+        }
+        
         public static void mergeSort<T>(
             List<T> list,
         int? start = null , int? end = null, Comparator<T> compare = null) {
-            int _start = start ?? 0;
-            int _end = end ?? list.Count;
-            compare = compare ;//?? <T>();
+            var _start = start ?? 0;
+            var _end = end ?? list.Count;
+            compare = compare ?? defaultCompare;
 
             int length = _end - _start;
             if (length < 2) return;
@@ -417,8 +421,7 @@ namespace Unity.UIWidgets.widgets {
                 ); 
             return sortedDescendants; 
         }
-        protected bool _moveFocus(FocusNode currentNode,  bool forward = false) { 
-            D.assert(forward != null); 
+        protected bool _moveFocus(FocusNode currentNode,  bool forward = false) {
             if (currentNode == null) { 
                 return false; 
             } 
@@ -742,7 +745,6 @@ namespace Unity.UIWidgets.widgets {
     }
     public class NumericFocusOrder : FocusOrder {
         public NumericFocusOrder(float order) {
-            D.assert(order != null);
             this.order = order;
         }
 

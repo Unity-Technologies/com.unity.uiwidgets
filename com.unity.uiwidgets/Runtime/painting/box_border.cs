@@ -27,7 +27,6 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder add(ShapeBorder other, bool reversed = false) => null;
 
         public static BoxBorder lerp(BoxBorder a, BoxBorder b, float t) {
-            D.assert(t != null);
             if ((a is Border || a == null) && (b is Border || b == null))
                 return Border.lerp((Border) a, (Border) b, t);
             if ((a is BorderDirectional || a == null) && (b is BorderDirectional || b == null))
@@ -589,7 +588,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static BorderDirectional lerp(BorderDirectional a, BorderDirectional b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)

@@ -8,7 +8,7 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.painting {
     abstract class PlaceholderSpan : InlineSpan {
         public PlaceholderSpan(
-            TextBaseline baseline = TextBaseline.alphabetic,
+            TextBaseline? baseline = null,
             TextStyle style = null,
             PlaceholderAlignment alignment = PlaceholderAlignment.bottom
             
@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.painting {
 
         public PlaceholderAlignment alignment;
 
-        public TextBaseline baseline;
+        public TextBaseline? baseline;
 
         public override void computeToPlainText(
             StringBuilder buffer,

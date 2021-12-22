@@ -1589,7 +1589,7 @@ namespace Unity.UIWidgets.material {
         const float _ninetyDegrees = Mathf.PI / 2.0f;
         const float _thirtyDegrees = Mathf.PI / 6.0f;
         const float _preferredHeight = _distanceBetweenTopBottomCenters + _topLobeRadius + _bottomLobeRadius;
-        const bool _debuggingLabelLocation = false;
+        static readonly bool _debuggingLabelLocation = false;
 
         public Size getPreferredSize(
             bool isEnabled,

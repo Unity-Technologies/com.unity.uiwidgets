@@ -41,7 +41,7 @@ namespace Unity.UIWidgets.cupertino {
     }
     public delegate void _DismissCallback(
         BuildContext context,
-        float scale,
+        float? scale,
         float opacity
     );
 
@@ -368,7 +368,7 @@ namespace Unity.UIWidgets.cupertino {
     public class _ContextMenuRoute : PopupRoute { 
         public _ContextMenuRoute(
             List<Widget> actions = null, 
-            _ContextMenuLocation contextMenuLocation = default, 
+            _ContextMenuLocation? contextMenuLocation = null, 
             string barrierLabel = null, 
             _ContextMenuPreviewBuilderChildless builder = null, 
             ImageFilter filter = null, 
@@ -381,9 +381,10 @@ namespace Unity.UIWidgets.cupertino {
             this.barrierLabel = barrierLabel;
             _actions = actions;
             _builder = builder;
-            _contextMenuLocation = contextMenuLocation;
+            _contextMenuLocation = contextMenuLocation.Value;
             _previousChildRect = previousChildRect;
         } 
+        
         public readonly static Color _kModalBarrierColor = new Color(0x6604040F);
         public readonly TimeSpan _kModalPopupTransitionDuration =new TimeSpan(0, 0, 0, 0, 335);
         public readonly List<Widget> _actions;
@@ -394,25 +395,25 @@ namespace Unity.UIWidgets.cupertino {
         public bool _internalOffstage = false;
         public Orientation _lastOrientation;
         public readonly Rect _previousChildRect;
-        public float _scale = 1.0f;
+        public float? _scale = 1.0f;
         public readonly GlobalKey _sheetGlobalKey = new LabeledGlobalKey<State<StatefulWidget>>();
-        public readonly static CurveTween _curve = new CurveTween(
+        public static readonly CurveTween _curve = new CurveTween(
             curve: Curves.easeOutBack
         ); 
-        public readonly static  CurveTween _curveReverse = new CurveTween(
+        public static readonly  CurveTween _curveReverse = new CurveTween(
             curve: Curves.easeInBack
         );
-        public readonly static RectTween _rectTween = new RectTween();
-        public readonly static Animatable<Rect> _rectAnimatable = _rectTween.chain(_curve);
-        public readonly static RectTween _rectTweenReverse = new RectTween();
-        public readonly static Animatable<Rect> _rectAnimatableReverse = _rectTweenReverse.chain(_curveReverse);
+        public static readonly RectTween _rectTween = new RectTween();
+        public static readonly Animatable<Rect> _rectAnimatable = _rectTween.chain(_curve);
+        public static readonly RectTween _rectTweenReverse = new RectTween();
+        public static readonly Animatable<Rect> _rectAnimatableReverse = _rectTweenReverse.chain(_curveReverse);
 
-        public readonly static RectTween _sheetRectTween = new RectTween();
+        public static readonly RectTween _sheetRectTween = new RectTween();
         public readonly Animatable<Rect> _sheetRectAnimatable = _sheetRectTween.chain(_curve);
         public readonly Animatable<Rect> _sheetRectAnimatableReverse = _sheetRectTween.chain(_curveReverse);
-        public readonly static  Tween< float> _sheetScaleTween = new FloatTween(0.0f,0.0f);
-        public readonly static  Animatable< float> _sheetScaleAnimatable = _sheetScaleTween.chain(_curve);
-        public readonly static  Animatable< float> _sheetScaleAnimatableReverse = _sheetScaleTween.chain(_curveReverse);
+        public static readonly  Tween<float?> _sheetScaleTween = new NullableFloatTween(0.0f,0.0f);
+        public static readonly  Animatable<float?> _sheetScaleAnimatable = _sheetScaleTween.chain(_curve);
+        public static readonly  Animatable<float?> _sheetScaleAnimatableReverse = _sheetScaleTween.chain(_curveReverse);
         public readonly Tween< float> _opacityTween = new FloatTween(begin: 0.0f, end: 1.0f);
         public Animation< float> _sheetOpacity;
       
@@ -474,7 +475,7 @@ namespace Unity.UIWidgets.cupertino {
                     return target3 & sheetRect.size;
             }
         } 
-        public void _onDismiss(BuildContext context, float scale, float opacity) { 
+        public void _onDismiss(BuildContext context, float? scale, float opacity) { 
             _scale = scale;
             _opacityTween.end = opacity;
             _sheetOpacity = _opacityTween.animate(
@@ -487,7 +488,7 @@ namespace Unity.UIWidgets.cupertino {
         public void _updateTweenRects() { 
             Rect childRect = _scale == null 
                 ? CupertinoContextMenuUtils._getRect(_childGlobalKey) 
-                : _getScaledRect(_childGlobalKey, _scale); 
+                : _getScaledRect(_childGlobalKey, _scale.Value);
             _rectTween.begin = _previousChildRect; 
             _rectTween.end = childRect; 
             Rect childRectOriginal = CupertinoContextMenuUtils.fromCenter(
@@ -559,7 +560,7 @@ namespace Unity.UIWidgets.cupertino {
                         Rect sheetRect = reverse
                             ? _sheetRectAnimatableReverse.evaluate(animation)
                             : _sheetRectAnimatable.evaluate(animation);
-                        float sheetScale = reverse
+                        float? sheetScale = reverse
                             ? _sheetScaleAnimatableReverse.evaluate(animation)
                             : _sheetScaleAnimatable.evaluate(animation); 
                         List<Widget> widgets = new List<Widget>(); 
@@ -570,7 +571,7 @@ namespace Unity.UIWidgets.cupertino {
                                     opacity: _sheetOpacity.value, 
                                     child: Transform.scale( 
                                         alignment: getSheetAlignment(_contextMenuLocation),
-                                        scale: sheetScale, 
+                                        scale: sheetScale ?? 1.0f, 
                                         child: new _ContextMenuSheet(
                                             key: _sheetGlobalKey, 
                                             actions: _actions, 
@@ -919,14 +920,14 @@ namespace Unity.UIWidgets.cupertino {
     public _ContextMenuSheet(
       Key key = null,
       List<Widget> actions = null,
-      _ContextMenuLocation contextMenuLocation = default,
-      Orientation orientation = default
+      _ContextMenuLocation? contextMenuLocation = null,
+      Orientation? orientation = null
     ) : base(key: key) {
       D.assert(actions != null && actions.isNotEmpty());
       D.assert(contextMenuLocation != null);
       D.assert(orientation != null);
-      _contextMenuLocation = contextMenuLocation;
-      _orientation = orientation;
+      _contextMenuLocation = contextMenuLocation.Value;
+      _orientation = orientation.Value;
       this.actions = actions;
     }
     public readonly List<Widget> actions;

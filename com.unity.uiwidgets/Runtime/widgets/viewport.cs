@@ -22,7 +22,6 @@ namespace Unity.UIWidgets.widgets {
             D.assert(offset != null);
             D.assert(slivers != null);
             D.assert(center == null || LinqUtils<Widget>.WhereList(slivers,((Widget child) => child.key == center)).Count() == 1);
-            D.assert(cacheExtentStyle != null);
             D.assert(cacheExtentStyle != CacheExtentStyle.viewport || cacheExtent != null);
             this.axisDirection = axisDirection;
             this.crossAxisDirection = crossAxisDirection;

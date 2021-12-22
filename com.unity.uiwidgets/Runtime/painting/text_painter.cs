@@ -11,11 +11,10 @@ namespace Unity.UIWidgets.painting {
         public PlaceholderDimensions(
             Size size,
             PlaceholderAlignment alignment,
-            TextBaseline baseline,
+            TextBaseline? baseline,
             float baselineOffset
         ) {
             D.assert(size != null);
-            D.assert(alignment != null);
             this.size = size;
             this.alignment = alignment;
             this.baseline = baseline;
@@ -28,7 +27,7 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float baselineOffset;
 
-        public readonly TextBaseline baseline;
+        public readonly TextBaseline? baseline;
 
         public override string ToString() {
             return $"PlaceholderDimensions({size}, {baseline})";
@@ -219,7 +218,6 @@ namespace Unity.UIWidgets.painting {
         public TextWidthBasis textWidthBasis {
             get { return _textWidthBasis; }
             set {
-                D.assert(value != null);
                 if (_textWidthBasis == value)
                     return;
                 _textWidthBasis = value;
@@ -432,7 +430,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         ParagraphStyle _createParagraphStyle(TextDirection defaultTextDirection = TextDirection.ltr) {
-            D.assert(textAlign != null);
             D.assert(textDirection != null,
                 () => "TextPainter.textDirection must be set to a non-null value before using the TextPainter.");
             return _text.style?.getParagraphStyle(

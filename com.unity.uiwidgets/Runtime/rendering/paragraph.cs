@@ -24,7 +24,7 @@ namespace Unity.UIWidgets.rendering {
         public override string ToString() {
             List<string> values = new List<string>();
             if (offset != null) values.Add($"offset={offset}");
-            if (scale != null) values.Add($"scale={scale}");
+            values.Add($"scale={scale}");
             values.Add(base.ToString());
             return string.Join("; ", values);
         }

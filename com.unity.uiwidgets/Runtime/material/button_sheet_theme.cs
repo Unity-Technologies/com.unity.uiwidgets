@@ -54,7 +54,6 @@ namespace Unity.UIWidgets.material {
         }
 
         public static BottomSheetThemeData lerp(BottomSheetThemeData a, BottomSheetThemeData b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             return new BottomSheetThemeData(

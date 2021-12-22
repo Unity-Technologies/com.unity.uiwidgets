@@ -517,8 +517,8 @@ namespace Unity.UIWidgets.material {
             get { return _values; }
             set {
                 D.assert(value != null);
-                D.assert(value.start != null && value.start >= 0.0 && value.start <= 1.0f);
-                D.assert(value.end != null && value.end >= 0.0 && value.end <= 1.0f);
+                D.assert(value.start >= 0.0 && value.start <= 1.0f);
+                D.assert(value.end >= 0.0 && value.end <= 1.0f);
                 D.assert(value.start <= value.end);
 
                 RangeValues convertedValues = isDiscrete ? _discretizeRangeValues(value) : value;

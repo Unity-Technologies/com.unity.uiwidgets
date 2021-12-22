@@ -1523,7 +1523,6 @@ namespace Unity.UIWidgets.rendering {
         Rect _caretPrototype;
 
         void _layoutText( float minWidth = 0.0f, float maxWidth = float.PositiveInfinity ) {
-            D.assert(maxWidth != null && minWidth != null);
             if (_textLayoutLastMaxWidth == maxWidth && _textLayoutLastMinWidth == minWidth)
                 return;
             float availableMaxWidth = Mathf.Max(0.0f, maxWidth - _caretMargin);
@@ -1548,7 +1547,6 @@ namespace Unity.UIWidgets.rendering {
                         return Rect.fromLTWH(0.0f, EditableUtils._kCaretHeightOffset, cursorWidth,
                             preferredLineHeight - 2.0f * EditableUtils._kCaretHeightOffset);
                 }
-                return null;
             }
         }
 

@@ -544,10 +544,8 @@ namespace Unity.UIWidgets.widgets {
                     switch (state.axisDirection) {
                         case AxisDirection.up:
                             return -increment;
-                            break;
                         case AxisDirection.down:
                             return increment;
-                            break;
                         case AxisDirection.right:
                         case AxisDirection.left:
                             return 0.0f;
@@ -557,10 +555,8 @@ namespace Unity.UIWidgets.widgets {
                     switch (state.axisDirection) {
                         case AxisDirection.up:
                             return increment;
-                            break;
                         case AxisDirection.down:
                             return -increment;
-                            break;
                         case AxisDirection.right:
                         case AxisDirection.left:
                             return 0.0f;
@@ -570,10 +566,8 @@ namespace Unity.UIWidgets.widgets {
                     switch (state.axisDirection) {
                         case AxisDirection.right:
                             return -increment;
-                            break;
                         case AxisDirection.left:
                             return increment;
-                            break;
                         case AxisDirection.up:
                         case AxisDirection.down:
                             return 0.0f;
@@ -583,10 +577,8 @@ namespace Unity.UIWidgets.widgets {
                     switch (state.axisDirection) {
                         case AxisDirection.right:
                             return increment;
-                            break;
                         case AxisDirection.left:
                             return -increment;
-                            break;
                         case AxisDirection.up:
                         case AxisDirection.down:
                             return 0.0f;
@@ -599,7 +591,7 @@ namespace Unity.UIWidgets.widgets {
         public override void invoke(FocusNode node, Intent intent) {
             ScrollableState state = Scrollable.of(node.context);
             D.assert(state != null, () => "ScrollAction was invoked on a context that has no scrollable parent");
-            D.assert(state.position.pixels != null, () => "Scrollable must be laid out before it can be scrolled via a ScrollAction");
+            D.assert(state.position.havePixels, () => "Scrollable must be laid out before it can be scrolled via a ScrollAction");
             if (state.widget.physics != null && !state.widget.physics.shouldAcceptUserOffset(state.position)) {
                 return;
             }

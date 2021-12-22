@@ -47,11 +47,11 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public abstract class OverlayRoute<T> : OverlayRoute {
-        public readonly List<OverlayEntry> _overlayEntries = new List<OverlayEntry>();
         public OverlayRoute(
             RouteSettings settings = null
         ) : base(settings : settings) {
         }
+        
         protected internal new bool didPop(T result) {
             var returnValue = base.didPop(result);
             D.assert(returnValue);
@@ -973,7 +973,6 @@ namespace Unity.UIWidgets.widgets {
             RouteTransitionsBuilder transitionBuilder = null,
             RouteSettings settings = null
             ) : base(settings: settings) {
-            D.assert(barrierDismissible != null);
             _pageBuilder = pageBuilder;
             _barrierLabel = barrierLabel;
             _barrierDismissible = barrierDismissible;

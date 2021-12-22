@@ -71,11 +71,13 @@ namespace Unity.UIWidgets.gestures {
 
         protected abstract void handleTapCancel(PointerDownEvent down, PointerCancelEvent cancel, string reason);
 
-        public override void addAllowedPointer(PointerDownEvent evt) {
+        public override void addAllowedPointer(PointerEvent evt) {
+            var _evt = (PointerDownEvent) evt;
+            D.assert(_evt != null);
             if (state == GestureRecognizerState.ready) {
-                _down = evt;
+                _down = _evt;
             }
-            base.addAllowedPointer(evt);
+            base.addAllowedPointer(_evt);
         }
 
         protected override void handlePrimaryPointer(PointerEvent evt) {

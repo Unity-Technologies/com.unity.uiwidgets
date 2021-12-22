@@ -73,7 +73,7 @@ namespace Unity.UIWidgets.cupertino {
         Animation<float> _fadeoutOpacityAnimation;
         AnimationController _thicknessAnimationController;
         
-        float _dragScrollbarPositionY;
+        float? _dragScrollbarPositionY;
         Timer _fadeoutTimer;
         Drag _drag;
 
@@ -230,7 +230,8 @@ namespace Unity.UIWidgets.cupertino {
             if (!_checkVertical()) {
                 return;
             }
-            _dragScrollbar(details.localPosition.dy - _dragScrollbarPositionY);
+            D.assert(_dragScrollbarPositionY != null);
+            _dragScrollbar(details.localPosition.dy - _dragScrollbarPositionY.Value);
             _dragScrollbarPositionY = details.localPosition.dy;
         }
 
@@ -249,7 +250,7 @@ namespace Unity.UIWidgets.cupertino {
         void _handleDragScrollEnd(float trackVelocityY) {
             _startFadeoutTimer();
             _thicknessAnimationController.reverse();
-            _dragScrollbarPositionY = 0.0f;
+            _dragScrollbarPositionY = null;
             float scrollVelocityY = _painter.getTrackToScroll(trackVelocityY);
             _drag?.end(new DragEndDetails(
               primaryVelocity: -scrollVelocityY,

@@ -198,7 +198,7 @@ namespace Unity.UIWidgets.widgets {
             Widget result = _image(
                 image: image,
                 errorBuilder: imageErrorBuilder,
-                frameBuilder: (BuildContext context1, Widget child, int frame, bool wasSynchronouslyLoaded)=> {
+                frameBuilder: (BuildContext context1, Widget child, int? frame, bool wasSynchronouslyLoaded)=> {
                 if (wasSynchronouslyLoaded)
                     return child;
                 return new _AnimatedFadeOutFadeIn(
@@ -310,7 +310,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             bool _isValid(Tween<float> tween) {
-                return tween.begin != null && tween.end != null;
+                return tween?.begin != null && tween?.end != null;
             }
 
 

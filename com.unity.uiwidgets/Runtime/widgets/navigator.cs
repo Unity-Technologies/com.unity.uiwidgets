@@ -123,7 +123,7 @@ namespace Unity.UIWidgets.widgets {
         public virtual object currentResult {
             get { return null; }
         }
-        public Future popped {
+        public virtual Future popped {
             get { return _popCompleter.future; }
         }
         protected internal virtual bool didPop(object result) {
@@ -213,12 +213,13 @@ namespace Unity.UIWidgets.widgets {
         public Route(RouteSettings settings = null) {
             _settings = settings ?? new RouteSettings();
         }
-        public T currentResult {
+        public override object currentResult {
             get { return default(T); }
         }
-        public Future<T> popped {
+        public override Future popped {
             get { return _popCompleter.future.to<T>(); }
         }
+        
         protected internal virtual bool didPop(T result) {
             didComplete(result);
             return true;

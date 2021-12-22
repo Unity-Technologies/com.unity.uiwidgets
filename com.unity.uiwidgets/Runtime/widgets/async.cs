@@ -97,7 +97,6 @@ namespace Unity.UIWidgets.widgets {
 //@immutable
     public class AsyncSnapshot<T> : IEquatable<AsyncSnapshot<T>> {
         AsyncSnapshot(ConnectionState connectionState, object data, object error) {
-            D.assert(connectionState != null);
             D.assert(!(data != null && error != null));
             this.connectionState = connectionState;
             this.data = (T) data;

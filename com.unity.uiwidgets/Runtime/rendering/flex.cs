@@ -709,7 +709,7 @@ namespace Unity.UIWidgets.rendering {
         
         public override string toStringShort() {
             string header = base.toStringShort();
-            if (_overflow is float && _hasOverflow)
+            if (_hasOverflow)
                 header += " OVERFLOWING";
             return header;
         }

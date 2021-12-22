@@ -214,7 +214,7 @@ namespace Unity.UIWidgets.cupertino {
         }
 
 
-        public new CupertinoTextThemeData copyWith(
+        public CupertinoTextThemeData copyWith(
             Color primaryColor = null,
             TextStyle textStyle = null,
             TextStyle actionTextStyle = null,

@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.gestures {
                 var timeStamp = datum.timeStamp;
                 var kind = datum.kind;
                 // TODO: datum.signalKind is not nullable, "else" could not be reached
-                if (datum.signalKind == null || datum.signalKind == ui.PointerSignalKind.none) {
+                if (datum.signalKind == ui.PointerSignalKind.none) {
                     switch (datum.change) {
                         case PointerChange.add: {
                             yield return new PointerAddedEvent(

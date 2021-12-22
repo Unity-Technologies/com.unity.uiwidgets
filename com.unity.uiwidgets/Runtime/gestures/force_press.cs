@@ -50,9 +50,6 @@ namespace Unity.UIWidgets.gestures {
             GestureForceInterpolation interpolation = null )
             : base(debugOwner: debugOwner, kind: kind) {
             interpolation = interpolation ?? _inverseLerp;
-            D.assert(startPressure != null);
-            D.assert(peakPressure != null);
-            D.assert(interpolation != null);
             D.assert(peakPressure > startPressure);
             this.startPressure = startPressure;
             this.peakPressure = peakPressure;
@@ -71,7 +68,7 @@ namespace Unity.UIWidgets.gestures {
         float _lastPressure;
         _ForceState _state = _ForceState.ready;
 
-        public override void addAllowedPointer(PointerDownEvent Event) {
+        public override void addAllowedPointer(PointerEvent Event) {
             if (!(Event is PointerUpEvent) && Event.pressureMax <= 1.0f) {
                 resolve(GestureDisposition.rejected);
             }

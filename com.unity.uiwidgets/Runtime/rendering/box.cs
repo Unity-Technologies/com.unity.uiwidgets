@@ -1004,7 +1004,7 @@ namespace Unity.UIWidgets.rendering {
             return true;
         }
 
-        public float? getDistanceToBaseline(TextBaseline baseline, bool onlyReal = false) {
+        public float? getDistanceToBaseline(TextBaseline? baseline, bool onlyReal = false) {
             D.assert(!_debugDoingBaseline,
                 () =>
                     "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
@@ -1035,13 +1035,18 @@ namespace Unity.UIWidgets.rendering {
             return result;
         }
 
-        public virtual float? getDistanceToActualBaseline(TextBaseline baseline) {
+        public float? getDistanceToActualBaseline(TextBaseline? baseline) {
+            //If there is no baseline, return null by default
+            if (baseline == null) {
+                return null;
+            }
+            
             D.assert(_debugDoingBaseline,
                 () =>
                     "Please see the documentation for computeDistanceToActualBaseline for the required calling conventions of this method.");
-
+            
             _cachedBaselines = _cachedBaselines ?? new Dictionary<TextBaseline, float?>();
-            return _cachedBaselines.putIfAbsent(baseline, () => computeDistanceToActualBaseline(baseline));
+            return _cachedBaselines.putIfAbsent(baseline.Value, () => computeDistanceToActualBaseline(baseline.Value));
         }
 
         public virtual float? computeDistanceToActualBaseline(TextBaseline baseline) {

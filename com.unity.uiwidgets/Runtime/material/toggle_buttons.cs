@@ -290,12 +290,6 @@ namespace Unity.UIWidgets.material {
 
         public override Widget build(BuildContext context) {
             D.assert(
-                !isSelected.Any((bool val) => val == null),
-                () => "All elements of isSelected must be non-null.\n" +
-                      "The current list of isSelected values is as follows:\n" +
-                      $"{isSelected}"
-            );
-            D.assert(
                 focusNodes == null || !focusNodes.Any((FocusNode val) => val == null),
                 () => "All elements of focusNodes must be non-null.\n" +
                       "The current list of focus node values is as follows:\n" +
@@ -769,7 +763,7 @@ namespace Unity.UIWidgets.material {
             return box == null ? 0.0f : box.getMaxIntrinsicWidth(height);
         }
 
-        float computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             return child.computeDistanceToActualBaseline(baseline).Value +
                    horizontalBorderSide.width;
         }

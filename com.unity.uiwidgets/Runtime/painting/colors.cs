@@ -218,7 +218,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         static HSLColor lerp(HSLColor a, HSLColor b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)
@@ -364,9 +363,6 @@ namespace Unity.UIWidgets.painting {
             style: style,
             level: level
         ) {
-            D.assert(showName != null);
-            D.assert(style != null);
-            D.assert(level != null);
         }
 
         public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {

@@ -376,7 +376,6 @@ namespace Unity.UIWidgets.widgets {
             bool ignoring = true,
             Widget sliver = null
         ) : base(key: key, child: sliver) {
-            D.assert(ignoring != null);
             this.ignoring = ignoring;
 
         }
@@ -402,7 +401,6 @@ namespace Unity.UIWidgets.widgets {
         Key key = null,
         bool offstage = true,
         Widget sliver = null) : base(key: key, child: sliver) {
-            D.assert(offstage != null);
             this.offstage = offstage;
         }
 

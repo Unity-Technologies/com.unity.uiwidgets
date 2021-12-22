@@ -866,17 +866,13 @@ namespace Unity.UIWidgets.ui {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (width != null ? width.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^(height != null ? height.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (_ptr != null ? _ptr.GetHashCode() : 0);
+                var hashCode = (width.GetHashCode());
+                hashCode = (hashCode * 397) ^(height.GetHashCode());
+                hashCode = (hashCode * 397) ^ (_ptr.GetHashCode());
                 return hashCode;
             }
         }
     }
-
-    /*
-     * TODO: FrameInfo, Codec
-     */
 
     public delegate void ImageDecoderCallback(Image result);
 
@@ -2577,7 +2573,6 @@ namespace Unity.UIWidgets.ui {
         public virtual void drawPoints(PointMode pointMode, List<Offset> points, Paint paint) {
             unsafe
             {
-                D.assert(pointMode != null);
                 D.assert(points != null);
                 D.assert(paint != null);
                 float[] list = PaintingUtils._encodePointList(points);
@@ -2992,7 +2987,6 @@ namespace Unity.UIWidgets.ui {
         }
 
         public static Shadow lerp(Shadow a, Shadow b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)
@@ -3007,7 +3001,6 @@ namespace Unity.UIWidgets.ui {
         }
 
         public static List<Shadow> lerpList(List<Shadow> a, List<Shadow> b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             a = a ?? new List<Shadow>();

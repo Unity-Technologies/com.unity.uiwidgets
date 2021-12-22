@@ -71,7 +71,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(shaderCallback != null);
-            D.assert(blendMode != null);
             this.shaderCallback = shaderCallback;
             this.blendMode = blendMode;
         }
@@ -172,7 +171,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.hardEdge,
             Widget child = null
         ) : base(key: key, child: child) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -255,7 +253,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null) : base(key: key, child: child
         ) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -294,7 +291,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null
         ) : base(key: key, child: child) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -306,7 +302,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) {
             D.assert(shape != null);
-            D.assert(clipBehavior != null);
             D.assert(clipBehavior != Clip.none);
             return new Builder(
                 key: key,
@@ -366,7 +361,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null) : base(key: key, child: child) {
             D.assert(color != null);
             D.assert(elevation >= 0.0f);
-            D.assert(clipBehavior != null);
             this.shape = shape;
             this.clipBehavior = clipBehavior;
             this.borderRadius = borderRadius;

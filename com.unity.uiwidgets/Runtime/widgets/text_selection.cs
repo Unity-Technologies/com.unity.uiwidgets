@@ -202,7 +202,6 @@ namespace Unity.UIWidgets.widgets {
                 return _handlesVisible;
             }
             set {
-                D.assert(value != null);
                 if (_handlesVisible == value)
                     return;
                 _handlesVisible = value;
@@ -522,10 +521,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            List<TextSelectionPoint> endpoints =
-                widget.renderObject.getEndpointsForSelection(widget.selection);
-            Offset point = null;
-            
             LayerLink layerLink = null;
             TextSelectionHandleType type = TextSelectionHandleType.left;
 

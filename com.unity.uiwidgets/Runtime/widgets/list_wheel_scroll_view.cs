@@ -512,7 +512,6 @@ namespace Unity.UIWidgets.widgets {
             D.assert(perspective <= 0.01, () => RenderListWheelViewport.perspectiveTooHighMessage);
             D.assert(magnification > 0);
             D.assert(overAndUnderCenterOpacity >= 0 && overAndUnderCenterOpacity <= 1);
-            D.assert(itemExtent != null);
             D.assert(itemExtent > 0);
             D.assert(squeeze > 0);
             D.assert(

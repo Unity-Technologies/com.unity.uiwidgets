@@ -1381,7 +1381,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal Widget _widget;
         
-        public Widget widget {
+        public virtual Widget widget {
             get { return _widget; }
         }
         
@@ -3054,7 +3054,7 @@ namespace Unity.UIWidgets.widgets {
         protected RenderObjectElement(RenderObjectWidget widget) : base(widget) {
         }
 
-        public new virtual RenderObjectWidget widget {
+        public new RenderObjectWidget widget {
             get { return (RenderObjectWidget) base.widget; }
         }
 

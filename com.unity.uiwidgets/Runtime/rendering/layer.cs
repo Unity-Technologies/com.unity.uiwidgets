@@ -848,7 +848,6 @@ namespace Unity.UIWidgets.rendering {
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
-                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -924,7 +923,6 @@ namespace Unity.UIWidgets.rendering {
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
-                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -979,7 +977,6 @@ namespace Unity.UIWidgets.rendering {
             Path clipPath = null,
             Clip clipBehavior = Clip.antiAlias
         ) {
-            D.assert(clipBehavior != null);
             D.assert(clipBehavior != Clip.none);
             _clipPath = clipPath;
             _clipBehavior = clipBehavior;
@@ -1002,7 +999,6 @@ namespace Unity.UIWidgets.rendering {
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
-                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -1226,7 +1222,6 @@ namespace Unity.UIWidgets.rendering {
         public int alpha {
             get { return _alpha; }
             set {
-                D.assert(value != null);
                 if (value != _alpha) {
                     _alpha = value;
                     markNeedsAddToScene();
@@ -1253,7 +1248,6 @@ namespace Unity.UIWidgets.rendering {
 
         public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
-            D.assert(alpha != null);
             bool enabled = firstChild != null;
             D.assert(() => {
                 enabled = enabled && !D.debugDisableOpacityLayers;
@@ -1662,8 +1656,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
-            D.assert(optionsMask != null);
-
             layerOffset = layerOffset ?? Offset.zero;
             
             var shiftedOverlayRect = layerOffset == Offset.zero ? overlayRect : overlayRect.shift(layerOffset);

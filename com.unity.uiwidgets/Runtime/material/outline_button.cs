@@ -382,7 +382,7 @@ namespace Unity.UIWidgets.material {
         Color _outlineColor {
             get {
                 // TODO: what is the meaning of this line?
-                if (widget.borderSide?.color is MaterialStateProperty<Color>)
+                if (widget.borderSide?.color is IMaterialStateProperty<Color>)
                     return widget.borderSide.color;
                 if (!widget.enabled)
                     return widget.disabledBorderColor;

@@ -536,7 +536,6 @@ namespace Unity.UIWidgets.widgets {
 
         // Note that this is overridden in FocusScopeNode.
         public virtual void _doRequestFocus(bool findFirstFocus = false) {
-            D.assert(findFirstFocus != null);
             if (!canRequestFocus) {
                 D.assert(FocusManagerUtils._focusDebug(
                     $"Node NOT requesting focus because canRequestFocus is false: {this}"));

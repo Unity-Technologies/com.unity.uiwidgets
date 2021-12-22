@@ -74,7 +74,7 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        public override void addAllowedPointer(PointerDownEvent evt) {
+        public override void addAllowedPointer(PointerEvent evt) {
             startTrackingPointer(evt.pointer, evt.transform);
             _velocityTrackers[evt.pointer] = new VelocityTracker();
             if (_state == _DragState.ready) {
