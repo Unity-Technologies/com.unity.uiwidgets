@@ -334,7 +334,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
         _FlingGestureKind _describeFlingGesture(Velocity velocity) {
-            D.assert(widget.direction != null);
             if (_dragExtent == 0.0f) {
                 return _FlingGestureKind.none;
             }

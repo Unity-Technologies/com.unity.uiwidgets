@@ -208,9 +208,9 @@ namespace Unity.UIWidgets.rendering {
                     hasErrors = true;
                     errorMessage.AppendLine($"  {message}");
                 });
-                void verifyFloat(float property, string name, bool mustBePositive = false, bool mustBeNegative = false) {
+                void verifyFloat(float? property, string name, bool mustBePositive = false, bool mustBeNegative = false) {
                     verify(property != null, $"The \"{name}\" is null.");
-                    if (property.isNaN()) {
+                    if (property.Value.isNaN()) {
                         string additional = ".";
                         if (mustBePositive) {
                             additional = ", expected greater than or equal to zero.";
@@ -219,9 +219,9 @@ namespace Unity.UIWidgets.rendering {
                         }
                         verify(false, $"The \"{name}\" is NaN" + $"{additional}");
                     } else if (mustBePositive) {
-                        verify(property >= 0.0, $"The \"{name}\" is negative.");
+                        verify(property >= 0.0f, $"The \"{name}\" is negative.");
                     } else if (mustBeNegative) {
-                        verify(property <= 0.0, $"The \"{name}\" is positive.");
+                        verify(property <= 0.0f, $"The \"{name}\" is positive.");
                     }
                 }
                 verify(axis != null, "The \"axis\" is null.");

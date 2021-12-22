@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -8,21 +7,20 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace Unity.UIWidgets.cupertino {
    class _CupertinoSliverRefresh : SingleChildRenderObjectWidget { 
        public _CupertinoSliverRefresh(
         Key key = null,
-        float refreshIndicatorLayoutExtent = 0.0f,
-        bool hasLayoutExtent = false,
+        float? refreshIndicatorLayoutExtent = 0.0f,
+        bool? hasLayoutExtent = false,
         Widget child = null
         ) : base(key: key, child: child) {
         D.assert(refreshIndicatorLayoutExtent != null);
         D.assert(refreshIndicatorLayoutExtent >= 0.0);
         D.assert(hasLayoutExtent != null);
-        this.refreshIndicatorLayoutExtent = refreshIndicatorLayoutExtent;
-        this.hasLayoutExtent = hasLayoutExtent;
+        this.refreshIndicatorLayoutExtent = refreshIndicatorLayoutExtent.Value;
+        this.hasLayoutExtent = hasLayoutExtent.Value;
        }
        public readonly float refreshIndicatorLayoutExtent; 
        public readonly bool hasLayoutExtent;
@@ -55,7 +53,6 @@ namespace Unity.UIWidgets.cupertino {
        public float refreshIndicatorLayoutExtent {
            get { return _refreshIndicatorExtent; }
            set {
-               D.assert(value != null);
                D.assert(value >= 0.0);
                if (value == _refreshIndicatorExtent)
                    return;
@@ -69,7 +66,6 @@ namespace Unity.UIWidgets.cupertino {
        public bool hasLayoutExtent {
            get { return _hasLayoutExtent; }
            set {
-               D.assert(value != null);
                if (value == _hasLayoutExtent)
                    return;
                _hasLayoutExtent = value;

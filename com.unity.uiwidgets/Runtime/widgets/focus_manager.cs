@@ -122,8 +122,6 @@ namespace Unity.UIWidgets.widgets {
             bool skipTraversal = false,
             bool canRequestFocus = true
         ) {
-            D.assert(skipTraversal != null);
-            D.assert(canRequestFocus != null);
             _skipTraversal = skipTraversal;
             _canRequestFocus = canRequestFocus;
             _onKey = onKey;

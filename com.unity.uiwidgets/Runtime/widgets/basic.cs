@@ -2478,7 +2478,7 @@ namespace Unity.UIWidgets.widgets {
             PointerUpEventListener onPointerUp = null,
             PointerCancelEventListener onPointerCancel = null,
             PointerSignalEventListener onPointerSignal = null,
-            HitTestBehavior behavior = HitTestBehavior.deferToChild,
+            HitTestBehavior? behavior = HitTestBehavior.deferToChild,
             Widget child = null
         ) :
             base(key: key, child: child) {
@@ -2488,7 +2488,7 @@ namespace Unity.UIWidgets.widgets {
             this.onPointerUp = onPointerUp;
             this.onPointerCancel = onPointerCancel;
             this.onPointerSignal = onPointerSignal;
-            this.behavior = behavior;
+            this.behavior = behavior.Value;
         }
 
         public readonly PointerDownEventListener onPointerDown;
