@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -133,7 +132,8 @@ namespace Unity.UIWidgets.widgets {
                 D.assert(child != null && child.hasSize);
                 return constraints.axis == Axis.vertical ? child.size.height : child.size.width;
             }
-            set { }
+            set {
+            }
         }
     }
 

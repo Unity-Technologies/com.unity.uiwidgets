@@ -1471,7 +1471,7 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public interface RenderObjectWithChildMixin<ChildType> : RenderObjectWithChildMixin where ChildType : RenderObject {
-        ChildType child { get; set; }
+        new ChildType child { get; set; }
     }
 
     public interface ContainerParentDataMixin<ChildType> : IParentData where ChildType : RenderObject {

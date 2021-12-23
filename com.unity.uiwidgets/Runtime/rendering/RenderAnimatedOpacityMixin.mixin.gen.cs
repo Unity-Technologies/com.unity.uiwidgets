@@ -136,7 +136,7 @@ namespace Unity.UIWidgets.rendering {
             return true;
         }
         
-        public ChildType child { get; set; }
+        public new ChildType child { get; set; }
         
         RenderObject RenderObjectWithChildMixin.child {
             get { return child; }

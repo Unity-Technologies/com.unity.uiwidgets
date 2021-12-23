@@ -468,12 +468,10 @@ namespace Unity.UIWidgets.widgets {
     public class _SliverOffstageElement : SingleChildRenderObjectElement {
         public _SliverOffstageElement(SliverOffstage widget) : base(widget) {
         }
-
-#pragma warning disable CS0108
+        
         public new SliverOffstage widget {
             get { return base.widget as SliverOffstage; }
         }
-#pragma warning restore CS0108
 
         public override void debugVisitOnstageChildren(ElementVisitor visitor) {
             if (!widget.offstage)

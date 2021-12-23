@@ -7,12 +7,10 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.rendering {
     public class RendererBinding : SchedulerBinding {
         
-#pragma warning disable CS0108
         public new static RendererBinding instance {
             get { return (RendererBinding) SchedulerBinding.instance; }
             set { Window.instance._binding = value; }
         }
-#pragma warning restore CS0108
 
         protected override void initInstances() {
             base.initInstances();

@@ -84,9 +84,9 @@ namespace Unity.UIWidgets.widgets {
         }
 
         
-        internal RenderSliver _child;
+        internal new RenderSliver _child;
 
-        public RenderSliver child {
+        public new RenderSliver child {
             get { return _child; }
             set {
                 if (_child != null) {

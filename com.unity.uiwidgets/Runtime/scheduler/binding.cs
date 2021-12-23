@@ -152,13 +152,11 @@ namespace Unity.UIWidgets.scheduler {
 
 
         public SchedulingStrategy schedulingStrategy = scheduler_.defaultSchedulingStrategy;
-
-#pragma warning disable CS0108
+        
         public new static SchedulerBinding instance {
             get { return (SchedulerBinding) Window.instance._binding; }
             private set { Window.instance._binding = value; }
         }
-#pragma warning restore CS0108
 
         public AppLifecycleState? lifecycleState { get; private set; }
 

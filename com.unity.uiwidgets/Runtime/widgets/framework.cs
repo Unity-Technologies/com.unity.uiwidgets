@@ -3045,12 +3045,10 @@ namespace Unity.UIWidgets.widgets {
     public abstract class RenderObjectElement : Element {
         protected RenderObjectElement(RenderObjectWidget widget) : base(widget) {
         }
-
-#pragma warning disable CS0108
+        
         public new RenderObjectWidget widget {
             get { return (RenderObjectWidget) base.widget; }
         }
-#pragma warning restore CS0108
 
         RenderObject _renderObject;
         
