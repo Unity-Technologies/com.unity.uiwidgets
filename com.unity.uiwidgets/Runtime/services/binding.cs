@@ -15,11 +15,13 @@ namespace Unity.UIWidgets.services {
             window.onPlatformMessage = defaultBinaryMessenger.handlePlatformMessage;
             //SystemChannels.system.setMessageHandler(handleSystemMessage);
         }
-
-        public static ServicesBinding instance {
+        
+#pragma warning disable CS0108
+        public new static ServicesBinding instance {
             get { return (ServicesBinding) Window.instance._binding; }
             private set { Window.instance._binding = value; }
         }
+#pragma warning restore CS0108
 
         public BinaryMessenger defaultBinaryMessenger => _defaultBinaryMessenger;
         BinaryMessenger _defaultBinaryMessenger;

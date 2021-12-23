@@ -52,7 +52,7 @@ namespace Unity.UIWidgets.widgets {
         ) : base(settings : settings) {
         }
         
-        protected internal new bool didPop(T result) {
+        protected internal override bool didPop(object result) {
             var returnValue = base.didPop(result);
             D.assert(returnValue);
             if (finishedWhenPopped) {
@@ -855,9 +855,9 @@ namespace Unity.UIWidgets.widgets {
             _filter = filter;
         }
         
-        public static ModalRoute<T> of<T>(BuildContext context) {
+        public static ModalRoute<S> of<S>(BuildContext context) {
             _ModalScopeStatus widget = context.dependOnInheritedWidgetOfExactType<_ModalScopeStatus>();
-            return widget?.route as ModalRoute<T>;
+            return widget?.route as ModalRoute<S>;
         }
 
         public override Widget _buildModalScope(BuildContext context) {

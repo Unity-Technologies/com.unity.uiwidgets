@@ -65,7 +65,7 @@ namespace Unity.UIWidgets.material {
     abstract class MaterialStateProperty<T> : IMaterialStateProperty<T> {
         public abstract T resolve(HashSet<MaterialState> states);
 
-        public static S resolveAs<S>(S value, HashSet<MaterialState> states) {
+        public static S resolveAsMaterialStateProperty<S>(S value, HashSet<MaterialState> states) {
             if (value is MaterialStateProperty<S> materialStateProperty) {
                 MaterialStateProperty<S> property = materialStateProperty;
                 return property.resolve(states);
@@ -74,7 +74,7 @@ namespace Unity.UIWidgets.material {
             return value;
         }
 
-        public static MaterialStateProperty<S> resolveWith<S>(material_.MaterialPropertyResolver<S> callback) =>
+        public static MaterialStateProperty<S> resolveWithMaterialStateProperty<S>(material_.MaterialPropertyResolver<S> callback) =>
             new _MaterialStateProperty<S>(callback);
     }
 
@@ -88,16 +88,15 @@ namespace Unity.UIWidgets.material {
 
         public override T resolve(HashSet<MaterialState> states) => _resolve(states);
 
-        public static S resolveAs<S>(S value, HashSet<MaterialState> states) {
+        public static S resolveAs_MaterialStateProperty<S>(S value, HashSet<MaterialState> states) {
             if (value is MaterialStateProperty<S> materialStateProperty) {
                 MaterialStateProperty<S> property = materialStateProperty;
                 return property.resolve(states);
             }
-
             return value;
         }
 
-        public static MaterialStateProperty<S> resolveWith<S>(material_.MaterialPropertyResolver<S> callback) =>
+        public static MaterialStateProperty<S> resolveWith_MaterialStateProperty<S>(material_.MaterialPropertyResolver<S> callback) =>
             new _MaterialStateProperty<S>(callback);
     }
 }

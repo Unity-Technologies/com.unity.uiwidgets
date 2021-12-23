@@ -352,7 +352,7 @@ namespace Unity.UIWidgets.widgets {
             return candidate;
         }
         
-        public abstract FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection direction);
+        public abstract FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection? direction);
 
         public virtual void invalidateScopeData(FocusScopeNode node) {
         }
@@ -631,7 +631,6 @@ namespace Unity.UIWidgets.widgets {
     public interface DirectionalFocusTraversalPolicyMixin {
         void invalidateScopeData(FocusScopeNode node);
         void changedScope(FocusNode node = null, FocusScopeNode oldScope = null);
-        FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection direction);
         FocusNode _sortAndFindInitial(FocusNode currentNode, bool vertical = false, bool first = false);
 
         IEnumerable<FocusNode> _sortAndFilterHorizontally(

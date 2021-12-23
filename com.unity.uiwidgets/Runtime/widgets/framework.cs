@@ -1381,7 +1381,7 @@ namespace Unity.UIWidgets.widgets {
 
         internal Widget _widget;
         
-        public virtual Widget widget {
+        public Widget widget {
             get { return _widget; }
         }
         
@@ -2954,14 +2954,6 @@ namespace Unity.UIWidgets.widgets {
             };
             visitChildren(applyParentDataToChild);
         }
-        
-
-        public new void applyWidgetOutOfTurn(ParentDataWidget<T> newWidget) {
-            D.assert(newWidget != null);
-            D.assert(newWidget.debugCanApplyOutOfTurn());
-            D.assert(newWidget.child == widget.child);
-            _applyParentData(newWidget);
-        }
 
         public override void notifyClients(ProxyWidget oldWidget) {
             _applyParentData((ParentDataWidget<T>) widget);
@@ -3054,9 +3046,11 @@ namespace Unity.UIWidgets.widgets {
         protected RenderObjectElement(RenderObjectWidget widget) : base(widget) {
         }
 
-        public new RenderObjectWidget widget {
+#pragma warning disable CS0108
+        public RenderObjectWidget widget {
             get { return (RenderObjectWidget) base.widget; }
         }
+#pragma warning restore CS0108
 
         RenderObject _renderObject;
         

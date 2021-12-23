@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.widgets {
             _snapConfiguration = snapConfiguration;
         }
 
-         public _SliverPersistentHeaderElement _element {
+         public virtual _SliverPersistentHeaderElement _element {
              get {
                  return sliver_persistent_header_utils._element;
              }
@@ -58,7 +58,7 @@ namespace Unity.UIWidgets.widgets {
             triggerRebuild();
         }
         
-        void triggerRebuild() {
+        protected virtual void triggerRebuild() {
             markNeedsLayout();
         }
         
@@ -82,7 +82,7 @@ namespace Unity.UIWidgets.widgets {
             stretchConfiguration: stretchConfiguration) {
         }
 
-         public _SliverPersistentHeaderElement _element {
+         public virtual _SliverPersistentHeaderElement _element {
              get {
                  return sliver_persistent_header_utils._element;
              }
@@ -117,7 +117,7 @@ namespace Unity.UIWidgets.widgets {
             triggerRebuild();
         }
         
-        void triggerRebuild() {
+        protected virtual void triggerRebuild() {
             markNeedsLayout();
         }
         
@@ -137,7 +137,7 @@ namespace Unity.UIWidgets.widgets {
             stretchConfiguration: stretchConfiguration) {
         }
 
-         public _SliverPersistentHeaderElement _element {
+         public virtual _SliverPersistentHeaderElement _element {
              get {
                  return sliver_persistent_header_utils._element;
              }
@@ -172,7 +172,7 @@ namespace Unity.UIWidgets.widgets {
             triggerRebuild();
         }
         
-        void triggerRebuild() {
+        protected virtual void triggerRebuild() {
             markNeedsLayout();
         }
         
@@ -192,7 +192,7 @@ namespace Unity.UIWidgets.widgets {
             stretchConfiguration: stretchConfiguration) {
         }
 
-         public _SliverPersistentHeaderElement _element {
+         public virtual _SliverPersistentHeaderElement _element {
              get {
                  return sliver_persistent_header_utils._element;
              }
@@ -227,7 +227,7 @@ namespace Unity.UIWidgets.widgets {
             triggerRebuild();
         }
         
-        void triggerRebuild() {
+        protected virtual void triggerRebuild() {
             markNeedsLayout();
         }
         

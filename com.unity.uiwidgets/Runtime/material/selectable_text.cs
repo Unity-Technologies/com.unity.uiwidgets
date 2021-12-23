@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.UIWidgets.animation;
-using Unity.UIWidgets.async;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -16,7 +13,6 @@ using StrutStyle = Unity.UIWidgets.painting.StrutStyle;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.material {
-
     public static class SelectableTextUtils {
         internal const int iOSHorizontalOffset = -2;
     }
@@ -26,21 +22,19 @@ namespace Unity.UIWidgets.material {
             D.assert(textSpan != null);
             _textSpan = textSpan;
         }
-        
+
         public readonly TextSpan _textSpan;
 
-        public override TextSpan buildTextSpan(TextStyle style = null ,bool withComposing = false) {
+        public override TextSpan buildTextSpan(TextStyle style = null, bool withComposing = false) {
             return new TextSpan(
                 style: style,
                 children: new List<InlineSpan> {_textSpan}
             );
         }
-        
+
         public new string text {
             get { return value.text; }
-            set {
-                
-            }
+            set { }
         }
     }
 
@@ -50,7 +44,7 @@ namespace Unity.UIWidgets.material {
         ) : base(_delegate: state) {
             _state = state;
         }
-        
+
         public readonly _SelectableTextState _state;
 
         protected override void onForcePressStart(ForcePressDetails details) {
@@ -67,7 +61,7 @@ namespace Unity.UIWidgets.material {
         protected override void onSingleLongTapMoveUpdate(LongPressMoveUpdateDetails details) {
             if (_delegate.selectionEnabled) {
                 switch (Theme.of(_state.context).platform) {
-                    case RuntimePlatform.IPhonePlayer: 
+                    case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.OSXEditor:
                     case RuntimePlatform.OSXPlayer:
                         renderEditable.selectPositionAt(
@@ -90,7 +84,7 @@ namespace Unity.UIWidgets.material {
             editableText.hideToolbar();
             if (_delegate.selectionEnabled) {
                 switch (Theme.of(_state.context).platform) {
-                    case RuntimePlatform.IPhonePlayer: 
+                    case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.OSXEditor:
                     case RuntimePlatform.OSXPlayer:
                         renderEditable.selectWordEdge(cause: SelectionChangedCause.tap);
@@ -100,6 +94,7 @@ namespace Unity.UIWidgets.material {
                         break;
                 }
             }
+
             if (_state.widget.onTap != null)
                 _state.widget.onTap();
         }
@@ -107,7 +102,7 @@ namespace Unity.UIWidgets.material {
         protected override void onSingleLongTapStart(LongPressStartDetails details) {
             if (_delegate.selectionEnabled) {
                 switch (Theme.of(_state.context).platform) {
-                    case RuntimePlatform.IPhonePlayer: 
+                    case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.OSXEditor:
                     case RuntimePlatform.OSXPlayer:
                         renderEditable.selectPositionAt(
@@ -125,7 +120,6 @@ namespace Unity.UIWidgets.material {
     }
 
     public class SelectableText : StatefulWidget {
-
         public SelectableText(
             string data,
             Key key = null,
@@ -148,7 +142,7 @@ namespace Unity.UIWidgets.material {
             GestureTapCallback onTap = null,
             ScrollPhysics scrollPhysics = null,
             TextWidthBasis? textWidthBasis = null
-            ) : this(
+        ) : this(
             data: data,
             textSpan: null,
             key: key,
@@ -171,13 +165,13 @@ namespace Unity.UIWidgets.material {
             onTap: onTap,
             scrollPhysics: scrollPhysics,
             textWidthBasis: textWidthBasis
-            ) {
+        ) {
             D.assert(
                 data != null,
                 () => "A non-null String must be provided to a SelectableText widget."
             );
         }
-        
+
         SelectableText(
             string data,
             TextSpan textSpan,
@@ -201,7 +195,7 @@ namespace Unity.UIWidgets.material {
             GestureTapCallback onTap = null,
             ScrollPhysics scrollPhysics = null,
             TextWidthBasis? textWidthBasis = null
-            ) : base(key: key) {
+        ) : base(key: key) {
             D.assert(maxLines == null || maxLines > 0);
             D.assert(minLines == null || minLines > 0);
             D.assert(
@@ -213,7 +207,7 @@ namespace Unity.UIWidgets.material {
                                  selectAll: true,
                                  copy: true
                              );
-            
+
             this.data = data;
             this.textSpan = textSpan;
             this.focusNode = focusNode;
@@ -264,7 +258,7 @@ namespace Unity.UIWidgets.material {
                 textSpan != null,
                 () => "A non-null TextSpan must be provided to a SelectableText.rich widget."
             );
-            
+
             return new SelectableText(
                 data: null,
                 textSpan: textSpan,
@@ -288,93 +282,93 @@ namespace Unity.UIWidgets.material {
                 onTap: onTap,
                 scrollPhysics: scrollPhysics,
                 textWidthBasis: textWidthBasis
-                );
+            );
         }
-  
-  public readonly string data; 
 
-  public readonly TextSpan textSpan;
+        public readonly string data;
 
-  public readonly FocusNode focusNode;
+        public readonly TextSpan textSpan;
 
-  public readonly TextStyle style;
+        public readonly FocusNode focusNode;
 
-  public readonly StrutStyle strutStyle;
+        public readonly TextStyle style;
 
-  public readonly TextAlign? textAlign;
+        public readonly StrutStyle strutStyle;
 
-  public readonly TextDirection? textDirection;
+        public readonly TextAlign? textAlign;
 
-  public readonly float? textScaleFactor;
+        public readonly TextDirection? textDirection;
 
-  
-  public readonly bool autofocus;
-
-  
-  public readonly int? minLines;
-
-  
-  public readonly int? maxLines;
-
-  
-  public readonly bool showCursor;
-
-  
-  public readonly float cursorWidth;
-
-  
-  public readonly Radius cursorRadius;
-
-  public readonly Color cursorColor;
-
-  
-  public readonly bool enableInteractiveSelection;
-
-  
-  public readonly DragStartBehavior dragStartBehavior;
-
-  public readonly ToolbarOptions toolbarOptions;
+        public readonly float? textScaleFactor;
 
 
-  internal bool  selectionEnabled {
-      get { return enableInteractiveSelection; }
-  }
+        public readonly bool autofocus;
 
-  public readonly GestureTapCallback onTap;
 
-  
-  public readonly ScrollPhysics scrollPhysics;
+        public readonly int? minLines;
 
-  
-  public readonly TextWidthBasis? textWidthBasis;
 
-  public override State createState() => new _SelectableTextState();
+        public readonly int? maxLines;
 
-  public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-      base.debugFillProperties(properties);
-      properties.add( new DiagnosticsProperty<string>("data", data, defaultValue: null));
-      properties.add( new DiagnosticsProperty<FocusNode>("focusNode", focusNode, defaultValue: null));
-      properties.add( new DiagnosticsProperty<TextStyle>("style", style, defaultValue: null));
-      properties.add( new DiagnosticsProperty<bool>("autofocus", autofocus, defaultValue: false));
-      properties.add( new DiagnosticsProperty<bool>("showCursor", showCursor, defaultValue: false));
-      properties.add( new IntProperty("minLines", minLines, defaultValue: null));
-      properties.add( new IntProperty("maxLines", maxLines, defaultValue: null));
-      properties.add( new EnumProperty<TextAlign?>("textAlign", textAlign, defaultValue: null));
-      properties.add( new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
-      properties.add( new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: null));
-      properties.add( new FloatProperty("cursorWidth", cursorWidth, defaultValue: 2.0f));
-      properties.add( new DiagnosticsProperty<Radius>("cursorRadius", cursorRadius, defaultValue: null));
-      properties.add( new DiagnosticsProperty<Color>("cursorColor", cursorColor, defaultValue: null));
-      properties.add( new FlagProperty("selectionEnabled", value: selectionEnabled, defaultValue: true, ifFalse: "selection disabled"));
-      properties.add( new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", scrollPhysics, defaultValue: null));
-  }
+
+        public readonly bool showCursor;
+
+
+        public readonly float cursorWidth;
+
+
+        public readonly Radius cursorRadius;
+
+        public readonly Color cursorColor;
+
+
+        public readonly bool enableInteractiveSelection;
+
+
+        public readonly DragStartBehavior dragStartBehavior;
+
+        public readonly ToolbarOptions toolbarOptions;
+
+
+        internal bool selectionEnabled {
+            get { return enableInteractiveSelection; }
+        }
+
+        public readonly GestureTapCallback onTap;
+
+
+        public readonly ScrollPhysics scrollPhysics;
+
+
+        public readonly TextWidthBasis? textWidthBasis;
+
+        public override State createState() => new _SelectableTextState();
+
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+            base.debugFillProperties(properties);
+            properties.add(new DiagnosticsProperty<string>("data", data, defaultValue: null));
+            properties.add(new DiagnosticsProperty<FocusNode>("focusNode", focusNode, defaultValue: null));
+            properties.add(new DiagnosticsProperty<TextStyle>("style", style, defaultValue: null));
+            properties.add(new DiagnosticsProperty<bool>("autofocus", autofocus, defaultValue: false));
+            properties.add(new DiagnosticsProperty<bool>("showCursor", showCursor, defaultValue: false));
+            properties.add(new IntProperty("minLines", minLines, defaultValue: null));
+            properties.add(new IntProperty("maxLines", maxLines, defaultValue: null));
+            properties.add(new EnumProperty<TextAlign?>("textAlign", textAlign, defaultValue: null));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+            properties.add(new FloatProperty("textScaleFactor", textScaleFactor, defaultValue: null));
+            properties.add(new FloatProperty("cursorWidth", cursorWidth, defaultValue: 2.0f));
+            properties.add(new DiagnosticsProperty<Radius>("cursorRadius", cursorRadius, defaultValue: null));
+            properties.add(new DiagnosticsProperty<Color>("cursorColor", cursorColor, defaultValue: null));
+            properties.add(new FlagProperty("selectionEnabled", value: selectionEnabled, defaultValue: true,
+                ifFalse: "selection disabled"));
+            properties.add(new DiagnosticsProperty<ScrollPhysics>("scrollPhysics", scrollPhysics, defaultValue: null));
+        }
     }
 
     class _SelectableTextState : AutomaticKeepAliveClientMixin<SelectableText>,
         TextSelectionGestureDetectorBuilderDelegate {
-        
         EditableTextState _editableText => editableTextKey.currentState;
-        
+
         _TextSpanEditingController _controller;
 
         FocusNode _focusNode;
@@ -388,7 +382,7 @@ namespace Unity.UIWidgets.material {
             get { return _forcePressEnabled; }
             set { _forcePressEnabled = value; }
         }
-        
+
         bool _forcePressEnabled;
 
         public GlobalKey<EditableTextState> editableTextKey {
@@ -415,6 +409,7 @@ namespace Unity.UIWidgets.material {
                     textSpan: widget.textSpan ?? new TextSpan(text: widget.data)
                 );
             }
+
             if (_effectiveFocusNode.hasFocus && _controller.selection.isCollapsed) {
                 _showSelectionHandles = false;
             }
@@ -424,13 +419,11 @@ namespace Unity.UIWidgets.material {
             _focusNode?.dispose();
             base.dispose();
         }
-        
+
         void _handleSelectionChanged(TextSelection selection, SelectionChangedCause cause) {
             bool willShowSelectionHandles = _shouldShowSelectionHandles(cause);
             if (willShowSelectionHandles != _showSelectionHandles) {
-                setState(() => {
-                    _showSelectionHandles = willShowSelectionHandles;
-                });
+                setState(() => { _showSelectionHandles = willShowSelectionHandles; });
             }
 
             switch (Theme.of(context).platform) {
@@ -440,19 +433,20 @@ namespace Unity.UIWidgets.material {
                     if (cause == SelectionChangedCause.longPress) {
                         _editableText?.bringIntoView(selection.basePos);
                     }
+
                     return;
                 default:
-                // Do nothing.
-                break;
+                    // Do nothing.
+                    break;
             }
         }
-        
+
         void _handleSelectionHandleTapped() {
             if (_controller.selection.isCollapsed) {
                 _editableText.toggleToolbar();
             }
         }
-        
+
         bool _shouldShowSelectionHandles(SelectionChangedCause cause) {
             if (!_selectionGestureDetectorBuilder.shouldShowSelectionToolbar)
                 return false;
@@ -473,100 +467,101 @@ namespace Unity.UIWidgets.material {
         }
 
         protected override bool wantKeepAlive => true;
-        
-        Widget build(BuildContext context) {
-    base.build(context);
-    D.assert(() => {
-      return _controller._textSpan.visitChildren((InlineSpan span) => span is TextSpan);
-    }, () => "SelectableText only supports TextSpan; Other type of InlineSpan is not allowed");
-    D.assert(WidgetsD.debugCheckHasMediaQuery(context));
-    D.assert(WidgetsD.debugCheckHasDirectionality(context));
-    D.assert(
-      !(widget.style != null && widget.style.inherit == false &&
-          (widget.style.fontSize == null || widget.style.textBaseline == null)),
-      () => "inherit false style must supply fontSize and textBaseline"
-    );
 
-     ThemeData themeData = Theme.of(context);
-     FocusNode focusNode = _effectiveFocusNode;
+        public override Widget build(BuildContext context) {
+            base.build(context);
+            D.assert(() => { return _controller._textSpan.visitChildren((InlineSpan span) => span is TextSpan); },
+                () => "SelectableText only supports TextSpan; Other type of InlineSpan is not allowed");
+            D.assert(WidgetsD.debugCheckHasMediaQuery(context));
+            D.assert(WidgetsD.debugCheckHasDirectionality(context));
+            D.assert(
+                !(widget.style != null && widget.style.inherit == false &&
+                  (widget.style.fontSize == null || widget.style.textBaseline == null)),
+                () => "inherit false style must supply fontSize and textBaseline"
+            );
 
-    TextSelectionControls textSelectionControls;
-    bool paintCursorAboveText;
-    bool cursorOpacityAnimates;
-    Offset cursorOffset = Offset.zero;
-    Color cursorColor = widget.cursorColor;
-    Radius cursorRadius = widget.cursorRadius;
+            ThemeData themeData = Theme.of(context);
+            FocusNode focusNode = _effectiveFocusNode;
 
-    switch (themeData.platform) {
-        case RuntimePlatform.IPhonePlayer:
-        case RuntimePlatform.OSXEditor:
-        case RuntimePlatform.OSXPlayer:
-            forcePressEnabled = true;
-            textSelectionControls = CupertinoTextFieldUtils.cupertinoTextSelectionControls;
-            paintCursorAboveText = true;
-            cursorOpacityAnimates = true;
-            cursorColor = cursorColor ?? CupertinoTheme.of(context).primaryColor;
-            cursorRadius = cursorRadius?? Radius.circular(2.0f);
-            cursorOffset = new Offset(SelectableTextUtils.iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio, 0);
-            break;
+            TextSelectionControls textSelectionControls;
+            bool paintCursorAboveText;
+            bool cursorOpacityAnimates;
+            Offset cursorOffset = Offset.zero;
+            Color cursorColor = widget.cursorColor;
+            Radius cursorRadius = widget.cursorRadius;
 
-        default:
-            forcePressEnabled = false;
-            textSelectionControls = _MaterialTextSelectionControls.materialTextSelectionControls;
-            paintCursorAboveText = false;
-            cursorOpacityAnimates = false;
-            cursorColor = cursorColor ?? themeData.cursorColor;
-            break;
-    }
+            switch (themeData.platform) {
+                case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.OSXPlayer:
+                    forcePressEnabled = true;
+                    textSelectionControls = CupertinoTextFieldUtils.cupertinoTextSelectionControls;
+                    paintCursorAboveText = true;
+                    cursorOpacityAnimates = true;
+                    cursorColor = cursorColor ?? CupertinoTheme.of(context).primaryColor;
+                    cursorRadius = cursorRadius ?? Radius.circular(2.0f);
+                    cursorOffset =
+                        new Offset(SelectableTextUtils.iOSHorizontalOffset / MediaQuery.of(context).devicePixelRatio,
+                            0);
+                    break;
 
-    DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
-    TextStyle effectiveTextStyle = widget.style;
-    if (widget.style == null || widget.style.inherit)
-      effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
-    if (MediaQuery.boldTextOverride(context))
-      effectiveTextStyle = effectiveTextStyle.merge(new TextStyle(fontWeight: FontWeight.bold));
-    
-    Widget child = new RepaintBoundary(
-      child: new EditableText(
-        key: editableTextKey,
-        style: effectiveTextStyle,
-        readOnly: true,
-        textWidthBasis: widget.textWidthBasis ?? defaultTextStyle.textWidthBasis,
-        showSelectionHandles: _showSelectionHandles,
-        showCursor: widget.showCursor,
-        controller: _controller,
-        focusNode: focusNode,
-        strutStyle: widget.strutStyle ?? new StrutStyle(),
-        textAlign: widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
-        textDirection: widget.textDirection,
-        textScaleFactor: widget.textScaleFactor,
-        autofocus: widget.autofocus,
-        forceLine: false,
-        toolbarOptions: widget.toolbarOptions,
-        minLines: widget.minLines,
-        maxLines: widget.maxLines ?? defaultTextStyle.maxLines,
-        selectionColor: themeData.textSelectionColor,
-        selectionControls: widget.selectionEnabled ? textSelectionControls : null,
-        onSelectionChanged: _handleSelectionChanged,
-        onSelectionHandleTapped: _handleSelectionHandleTapped,
-        rendererIgnoresPointer: true,
-        cursorWidth: widget.cursorWidth,
-        cursorRadius: cursorRadius,
-        cursorColor: cursorColor,
-        cursorOpacityAnimates: cursorOpacityAnimates,
-        cursorOffset: cursorOffset,
-        paintCursorAboveText: paintCursorAboveText,
-        backgroundCursorColor: CupertinoColors.inactiveGray,
-        enableInteractiveSelection: widget.enableInteractiveSelection,
-        dragStartBehavior: widget.dragStartBehavior,
-        scrollPhysics: widget.scrollPhysics
-      )
-    );
+                default:
+                    forcePressEnabled = false;
+                    textSelectionControls = _MaterialTextSelectionControls.materialTextSelectionControls;
+                    paintCursorAboveText = false;
+                    cursorOpacityAnimates = false;
+                    cursorColor = cursorColor ?? themeData.cursorColor;
+                    break;
+            }
 
-    return _selectionGestureDetectorBuilder.buildGestureDetector(
-        behavior: HitTestBehavior.translucent,
-        child: child
-    );
+            DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
+            TextStyle effectiveTextStyle = widget.style;
+            if (widget.style == null || widget.style.inherit)
+                effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
+            if (MediaQuery.boldTextOverride(context))
+                effectiveTextStyle = effectiveTextStyle.merge(new TextStyle(fontWeight: FontWeight.bold));
+
+            Widget child = new RepaintBoundary(
+                child: new EditableText(
+                    key: editableTextKey,
+                    style: effectiveTextStyle,
+                    readOnly: true,
+                    textWidthBasis: widget.textWidthBasis ?? defaultTextStyle.textWidthBasis,
+                    showSelectionHandles: _showSelectionHandles,
+                    showCursor: widget.showCursor,
+                    controller: _controller,
+                    focusNode: focusNode,
+                    strutStyle: widget.strutStyle ?? new StrutStyle(),
+                    textAlign: widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
+                    textDirection: widget.textDirection,
+                    textScaleFactor: widget.textScaleFactor,
+                    autofocus: widget.autofocus,
+                    forceLine: false,
+                    toolbarOptions: widget.toolbarOptions,
+                    minLines: widget.minLines,
+                    maxLines: widget.maxLines ?? defaultTextStyle.maxLines,
+                    selectionColor: themeData.textSelectionColor,
+                    selectionControls: widget.selectionEnabled ? textSelectionControls : null,
+                    onSelectionChanged: _handleSelectionChanged,
+                    onSelectionHandleTapped: _handleSelectionHandleTapped,
+                    rendererIgnoresPointer: true,
+                    cursorWidth: widget.cursorWidth,
+                    cursorRadius: cursorRadius,
+                    cursorColor: cursorColor,
+                    cursorOpacityAnimates: cursorOpacityAnimates,
+                    cursorOffset: cursorOffset,
+                    paintCursorAboveText: paintCursorAboveText,
+                    backgroundCursorColor: CupertinoColors.inactiveGray,
+                    enableInteractiveSelection: widget.enableInteractiveSelection,
+                    dragStartBehavior: widget.dragStartBehavior,
+                    scrollPhysics: widget.scrollPhysics
+                )
+            );
+
+            return _selectionGestureDetectorBuilder.buildGestureDetector(
+                behavior: HitTestBehavior.translucent,
+                child: child
+            );
         }
     }
 }

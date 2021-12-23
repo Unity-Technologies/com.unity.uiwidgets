@@ -153,10 +153,12 @@ namespace Unity.UIWidgets.scheduler {
 
         public SchedulingStrategy schedulingStrategy = scheduler_.defaultSchedulingStrategy;
 
-        public static SchedulerBinding instance {
+#pragma warning disable CS0108
+        public new static SchedulerBinding instance {
             get { return (SchedulerBinding) Window.instance._binding; }
             private set { Window.instance._binding = value; }
         }
+#pragma warning restore CS0108
 
         public AppLifecycleState? lifecycleState { get; private set; }
 
@@ -437,7 +439,10 @@ namespace Unity.UIWidgets.scheduler {
         }
         
         static readonly TimeSpan _coolDownDelay = new TimeSpan(0, 0, 0, 0, 200);
+        
+#pragma warning disable CS0414
         static Timer frameCoolDownTimer = null;
+#pragma warning restore CS0414
         
         public void scheduleFrame() {
             if (hasScheduledFrame || !framesEnabled) {

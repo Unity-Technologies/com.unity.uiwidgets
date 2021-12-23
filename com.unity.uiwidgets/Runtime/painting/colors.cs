@@ -369,10 +369,10 @@ namespace Unity.UIWidgets.painting {
             Dictionary<string, object> json = base.toJsonMap(Delegate);
             if (value != null) {
                 json["valueProperties"] = new Dictionary<string, object> {
-                    {"red", value.red},
-                    {"green", value.green},
-                    {"blue", value.blue},
-                    {"alpha", value.alpha}
+                    {"red", valueT.red},
+                    {"green", valueT.green},
+                    {"blue", valueT.blue},
+                    {"alpha", valueT.alpha}
                 };
             }
 

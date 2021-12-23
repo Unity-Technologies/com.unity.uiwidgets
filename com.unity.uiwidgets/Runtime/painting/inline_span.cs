@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.painting {
         public virtual bool debugAssertIsValid() => true;
         public abstract RenderComparison compareTo(InlineSpan other);
 
-        public virtual void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+        public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace;
             if (style != null) {

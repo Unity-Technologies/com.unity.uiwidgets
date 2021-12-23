@@ -16,10 +16,12 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
+#pragma warning disable CS0108
         public new static PaintingBinding instance {
             get { return (PaintingBinding) ServicesBinding.instance; }
             set { Window.instance._binding = value; }
         }
+#pragma warning restore CS0108
 
         public static ShaderWarmUp shaderWarmUp = new DefaultShaderWarmUp();
 

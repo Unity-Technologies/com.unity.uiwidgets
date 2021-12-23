@@ -24,8 +24,7 @@ namespace Unity.UIWidgets.widgets {
             return new _LayoutBuilderElement<ConstraintType>(this);
         }
 
-        public readonly ConstraintBuilder builder;
-
+        public virtual ConstraintBuilder builder { get; }
     }
 
 

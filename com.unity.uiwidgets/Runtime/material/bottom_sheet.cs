@@ -442,7 +442,7 @@ namespace Unity.UIWidgets.material {
         }
 
 
-        public readonly string barrierLabel;
+        public override string barrierLabel { get; }
 
         public override Color barrierColor {
             get { return modalBarrierColor ?? Colors.black54; }

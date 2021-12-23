@@ -560,7 +560,7 @@ namespace Unity.UIWidgets.material {
         public ShapeBorder resolve(HashSet<MaterialState> states) {
             return new _OutlineBorder(
                 shape: shape,
-                side: side.copyWith(color: MaterialStateProperty<Color>.resolveAs(side.color, states)
+                side: side.copyWith(color: MaterialStateProperty<Color>.resolveAsMaterialStateProperty(side.color, states)
                 )
             );
         }

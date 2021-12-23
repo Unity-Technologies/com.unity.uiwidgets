@@ -503,7 +503,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly ScrollIncrementType type;
 
-        protected bool isEnabled(BuildContext context) {
+        public override bool isEnabled(BuildContext context) {
             return Scrollable.of(context) != null;
         }
     }
@@ -516,7 +516,7 @@ namespace Unity.UIWidgets.widgets {
 
         float _calculateScrollIncrement(ScrollableState state, ScrollIncrementType type = ScrollIncrementType.line) {
             D.assert(state.position != null);
-            D.assert(state.position.pixels != null);
+            D.assert(state.position.havePixels);
             D.assert(state.widget.physics == null || state.widget.physics.shouldAcceptUserOffset(state.position));
 
             if (state.widget.incrementCalculator != null) {

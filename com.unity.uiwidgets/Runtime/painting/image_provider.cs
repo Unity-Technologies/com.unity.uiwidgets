@@ -190,6 +190,10 @@ namespace Unity.UIWidgets.painting {
             return false;
         }
 
+        public override int GetHashCode() {
+            return base.GetHashCode();
+        }
+
         public static bool operator ==(ImageProvider left, ImageProvider right) {
             return Equals(left, right);
         }

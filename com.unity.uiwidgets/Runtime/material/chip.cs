@@ -1690,7 +1690,7 @@ namespace Unity.UIWidgets.material {
             bool showCheckmark = widget.showCheckmark ?? chipTheme.showCheckmark ?? true;
 
             TextStyle effectiveLabelStyle = widget.labelStyle ?? chipTheme.labelStyle;
-            Color resolvedLabelColor = MaterialStateProperty<Color>.resolveAs(effectiveLabelStyle?.color, _states);
+            Color resolvedLabelColor = MaterialStateProperty<Color>.resolveAsMaterialStateProperty(effectiveLabelStyle?.color, _states);
             TextStyle resolvedLabelStyle = effectiveLabelStyle?.copyWith(color: resolvedLabelColor);
 
             Widget result = new Material(

@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.foundation {
         }
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
-            return string.Join("", value);
+            return string.Join("", valueT);
         }
     }
 

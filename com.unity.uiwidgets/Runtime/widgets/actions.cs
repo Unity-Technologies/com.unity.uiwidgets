@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.widgets {
         public static readonly Intent doNothing = new Intent(DoNothingAction.key);
         public readonly LocalKey key;
 
-        public bool isEnabled(BuildContext context) => true;
+        public virtual bool isEnabled(BuildContext context) => true;
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<LocalKey>("key", key));

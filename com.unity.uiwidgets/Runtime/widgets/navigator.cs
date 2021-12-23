@@ -344,9 +344,9 @@ namespace Unity.UIWidgets.widgets {
 
     public abstract class RouteTransitionRecord {
 
-        public Route route;
+        public abstract Route route { get; }
 
-        public bool isEntering;
+        public abstract bool isEntering { get; }
 
         public bool _debugWaitingForExitDecision = false;
         public abstract void markForPush();
@@ -710,8 +710,7 @@ namespace Unity.UIWidgets.widgets {
             this.route = route;
             currentState = initialState;
         }
-
-        public Route route;
+        
         public _RouteLifecycle currentState;
         public Route lastAnnouncedPreviousRoute; // last argument to Route.didChangePrevious
         public Route lastAnnouncedPoppedNextRoute; // last argument to Route.didPopNext
@@ -938,8 +937,9 @@ namespace Unity.UIWidgets.widgets {
             return (_RouteEntry entry) => entry.route == route;
         }
 
+        public override Route route { get; }
 
-        public bool isEntering {
+        public override bool isEntering {
             get { return currentState == _RouteLifecycle.staging; }
         }
 

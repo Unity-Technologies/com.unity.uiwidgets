@@ -216,8 +216,8 @@ namespace Unity.UIWidgets.widgets {
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
             var res = new List<string>();
-            foreach (var key in value.Keys) {
-                var temp = "{" + key.debugDescribeKeys() + "}:" + value[key: key];
+            foreach (var key in valueT.Keys) {
+                var temp = "{" + key.debugDescribeKeys() + "}:" + valueT[key: key];
                 res.Add(item: temp);
             }
 

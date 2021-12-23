@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.painting {
         internal virtual float _top { get; }
 
 
-        public static EdgeInsetsGeometry infinity = _MixedEdgeInsets.fromLRSETB(
+        public static EdgeInsetsGeometry infinityEdgeInsetsGeometry = _MixedEdgeInsets.fromLRSETB(
             float.PositiveInfinity,
             float.PositiveInfinity,
             float.PositiveInfinity,
@@ -35,11 +35,11 @@ namespace Unity.UIWidgets.painting {
         }
 
 
-        public float horizontal {
+        public virtual float horizontal {
             get { return _left + _right + _start + _end; }
         }
 
-        public float vertical {
+        public virtual float vertical {
             get { return _top + _bottom; }
         }
 
@@ -442,17 +442,17 @@ namespace Unity.UIWidgets.painting {
             return new _MixedEdgeInsets(_left, _right, _start, _end, _top, _bottom);
         }
 
-        public readonly float _left;
+        internal override float _left { get; }
 
-        public readonly float _right;
+        internal override float _right { get; }
 
-        public readonly float _start;
+        internal override float _start { get; }
 
-        public readonly float _end;
+        internal override float _end { get; }
 
-        public readonly float _top;
+        internal override float _top { get; }
 
-        public readonly float _bottom;
+        internal override float _bottom { get; }
 
 
         public override bool isNonNegative {
@@ -572,14 +572,14 @@ namespace Unity.UIWidgets.painting {
         public readonly float top;
         public readonly float bottom;
 
-        public static EdgeInsets infinity = fromLTRB(
+        public static EdgeInsets infinityEdgeInsets = fromLTRB(
             float.PositiveInfinity,
             float.PositiveInfinity,
             float.PositiveInfinity,
             float.PositiveInfinity
         );
 
-        public bool isNonNegative {
+        public override bool isNonNegative {
             get {
                 return left >= 0.0
                        && right >= 0.0
@@ -588,11 +588,11 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        public float horizontal {
+        public override float horizontal {
             get { return left + right; }
         }
 
-        public float vertical {
+        public override float vertical {
             get { return top + bottom; }
         }
 

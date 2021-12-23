@@ -445,15 +445,15 @@ public {{abstract}} class RenderConstrainedLayoutBuilderMixin{{with}}<Constraint
         where ConstraintType : {{constraint}} 
         where ChildType : {{with}} {
         
-        public  LayoutCallback<ConstraintType> _callback { get; set; }
-        public void updateCallback(LayoutCallback<ConstraintType> value) {
+        public virtual LayoutCallback<ConstraintType> _callback { get; set; }
+        public virtual void updateCallback(LayoutCallback<ConstraintType> value) {
             if (value == _callback)
                 return;
             _callback = value;
             markNeedsLayout();
         }
 
-        public void layoutAndBuildChild() {
+        public virtual void layoutAndBuildChild() {
             D.assert(_callback != null);
             invokeLayoutCallback(_callback);
         }
