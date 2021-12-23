@@ -34,11 +34,13 @@ namespace Unity.UIWidgets.widgets {
             widget.notifier?.addListener(_handleUpdate);
         }
 
+#pragma warning disable CS0108
         public new InheritedNotifier<T> widget {
             get {
                 return base.widget as InheritedNotifier<T>;
             }
         }
+#pragma warning restore CS0108
         
         //In flutter this variable is named as _dirty and hides the property of its parent with the name variable name
         //We give it a new name, i.e., _notifier_dirty in UIWidgets so that the code looks more clear

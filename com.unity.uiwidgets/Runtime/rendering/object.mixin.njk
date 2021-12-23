@@ -134,7 +134,7 @@ namespace Unity.UIWidgets.rendering {
 {{ ContainerParentDataMixin('SliverLogicalParentData') }}
 
 
-{% macro ContainerRenderObjectMixin(with) %}
+{% macro ContainerRenderObjectMixin(override, with) %}
     public abstract class ContainerRenderObjectMixin{{with}}<ChildType, ParentDataType> : {{with}}, ContainerRenderObjectMixin
         where ChildType : RenderObject
         where ParentDataType : ParentData, ContainerParentDataMixin<ChildType> {
@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.rendering {
             get { return _childCount; }
         }
 
-        public bool debugValidateChild(RenderObject child) {
+        public {{override}}bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
@@ -433,11 +433,11 @@ namespace Unity.UIWidgets.rendering {
     }
 {% endmacro %}
 
-{{ ContainerRenderObjectMixin('RenderBox') }}
+{{ ContainerRenderObjectMixin('', 'RenderBox') }}
 
-{{ ContainerRenderObjectMixin('RenderSliver') }}
+{{ ContainerRenderObjectMixin('', 'RenderSliver') }}
 
-{{ ContainerRenderObjectMixin('RenderProxyBoxMixinRenderObjectWithChildMixinRenderBoxRenderStack') }}
+{{ ContainerRenderObjectMixin('override ', 'RenderProxyBoxMixinRenderObjectWithChildMixinRenderBoxRenderStack') }}
 
 {% macro RenderConstrainedLayoutBuilderMixin(abstract, with, constraint) %}
 public {{abstract}} class RenderConstrainedLayoutBuilderMixin{{with}}<ConstraintType, ChildType> : RenderObjectWithChildMixin{{with}}<ChildType>,

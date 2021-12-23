@@ -3047,7 +3047,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
 #pragma warning disable CS0108
-        public RenderObjectWidget widget {
+        public new RenderObjectWidget widget {
             get { return (RenderObjectWidget) base.widget; }
         }
 #pragma warning restore CS0108
