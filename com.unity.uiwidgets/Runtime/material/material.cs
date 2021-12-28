@@ -519,7 +519,8 @@ namespace Unity.UIWidgets.material {
                     shape: shape,
                     borderOnForeground: widget.borderOnForeground),
                 clipper: new ShapeBorderClipper(
-                    shape: shape),
+                    shape: shape,
+                    textDirection: Directionality.of(context)),
                 clipBehavior: widget.clipBehavior,
                 elevation: _elevation.evaluate(animation),
                 color: ElevationOverlay.applyOverlay(context, widget.color, elevation),
