@@ -68,7 +68,6 @@ namespace Unity.UIWidgets.material {
             ValueChanged<Size> onLayout = null,
             Widget child = null
         ) : base(key: key, child: child) {
-            Debug.Log(onLayout != null);
             this.onLayout = onLayout;
         }
 
