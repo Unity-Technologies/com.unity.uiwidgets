@@ -6,10 +6,10 @@ using Unity.UIWidgets.ui;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.widgets {
-    class WidgetSpan : PlaceholderSpan,IEquatable<WidgetSpan> {
+    class WidgetSpan : PlaceholderSpan, IEquatable<WidgetSpan> {
         public WidgetSpan(
             Widget child ,
-            TextBaseline baseline = TextBaseline.alphabetic,
+            TextBaseline? baseline = null,
             TextStyle style = null,
             PlaceholderAlignment alignment = PlaceholderAlignment.bottom
         ) : base(

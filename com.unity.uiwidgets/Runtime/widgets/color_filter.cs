@@ -47,7 +47,7 @@ namespace Unity.UIWidgets.widgets {
 
             ColorFilter _colorFilter;
             
-            public  bool alwaysNeedsCompositing {
+            protected override bool alwaysNeedsCompositing {
                 get { return child != null; }
             }
             

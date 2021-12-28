@@ -107,10 +107,10 @@ namespace Unity.UIWidgets.rendering {
                 });
             }
         }
-        public void setDebugChildIntegrityEnabled(bool enabled) {
+        public void setDebugChildIntegrityEnabled(bool? enabled) {
             D.assert(enabled != null);
             D.assert(() => {
-                _debugChildIntegrityEnabled = enabled;
+                _debugChildIntegrityEnabled = enabled.Value;
                 return _debugVerifyChildOrder() &&
                        (!_debugChildIntegrityEnabled || _debugDanglingKeepAlives.isEmpty());
             });

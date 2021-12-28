@@ -106,8 +106,6 @@ namespace Unity.UIWidgets.rendering {
                     ((optionsMask | (1 << (int) PerformanceOverlayOption.visualizeEngineStatistics)) > 0))
                     result += kDefaultGraphHeight;
                 return result;
-
-                return result;
             }
         }
 

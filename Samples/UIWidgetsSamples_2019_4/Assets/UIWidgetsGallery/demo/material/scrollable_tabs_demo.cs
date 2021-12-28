@@ -178,7 +178,6 @@ namespace UIWidgetsGallery.demo.material
                         indicator: getIndicator(),
                         tabs: _Page._allPages.Select<_Page, Widget>((_Page page) =>
                         {
-                            D.assert(_demoStyle != null);
                             switch (_demoStyle)
                             {
                                 case TabsDemoStyle.iconsAndText:
@@ -188,7 +187,6 @@ namespace UIWidgetsGallery.demo.material
                                 case TabsDemoStyle.textOnly:
                                     return new Tab(text: page.text);
                             }
-
                             return null;
                         }).ToList()
                     )

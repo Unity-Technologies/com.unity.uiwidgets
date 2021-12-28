@@ -285,18 +285,6 @@ namespace Unity.UIWidgets.cupertino {
             oldPainter = (_TextSelectionHandlePainter)oldPainter;
             return color != ((_TextSelectionHandlePainter)oldPainter).color;
         }
-
-        public bool? hitTest(Offset position) {
-            return null;
-        }
-
-        public void addListener(VoidCallback listener) {
-           base.addListener(listener);
-        }
-
-        public void removeListener(VoidCallback listener) {
-            base.removeListener(listener);
-        }
     }
 
     public delegate bool Predicate(TextSelectionDelegate _delegate);
@@ -401,9 +389,8 @@ namespace Unity.UIWidgets.cupertino {
                 );
             case TextSelectionHandleType.collapsed:
                 return new SizedBox();
-         }
-            D.assert(type != null);
-            return null;
+          }
+          return null;
         }
         public override Offset getHandleAnchor(TextSelectionHandleType type, float textLineHeight) {
             Size handleSize = getHandleSize(textLineHeight);

@@ -42,7 +42,7 @@ namespace Unity.UIWidgets.rendering {
 
         AxisDirection _axisDirection;
 
-        public Axis mainAxis {
+        public Axis? mainAxis {
             get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 

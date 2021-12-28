@@ -58,17 +58,19 @@ namespace Unity.UIWidgets.rendering {
         RenderAbstractViewport
         where ParentDataClass : ParentData, ContainerParentDataMixin<RenderSliver> {
         protected RenderViewportBase(
-            AxisDirection axisDirection = AxisDirection.down,
-            AxisDirection crossAxisDirection = AxisDirection.right,
+            AxisDirection? axisDirection = AxisDirection.down,
+            AxisDirection? crossAxisDirection = AxisDirection.right,
             ViewportOffset offset = null,
             float? cacheExtent = null,
             CacheExtentStyle cacheExtentStyle = CacheExtentStyle.pixel
         ) {
+            D.assert(axisDirection != null);
+            D.assert(crossAxisDirection != null);
             D.assert(offset != null);
-            D.assert(AxisUtils.axisDirectionToAxis(axisDirection) != AxisUtils.axisDirectionToAxis(crossAxisDirection));
+            D.assert(AxisUtils.axisDirectionToAxis(axisDirection.Value) != AxisUtils.axisDirectionToAxis(crossAxisDirection.Value));
             D.assert(cacheExtent != null || cacheExtentStyle == CacheExtentStyle.pixel);
-            _axisDirection = axisDirection;
-            _crossAxisDirection = crossAxisDirection;
+            _axisDirection = axisDirection.Value;
+            _crossAxisDirection = crossAxisDirection.Value;
             _offset = offset;
             _cacheExtent = cacheExtent ?? RenderViewportUtils.defaultCacheExtent;
             _cacheExtentStyle = cacheExtentStyle;
@@ -106,7 +108,7 @@ namespace Unity.UIWidgets.rendering {
 
         AxisDirection _crossAxisDirection;
 
-        public Axis axis {
+        public Axis? axis {
             get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
@@ -470,7 +472,7 @@ namespace Unity.UIWidgets.rendering {
 
                 float offset = 0.0f;
 
-                GrowthDirection growthDirection = pivotParent.constraints.growthDirection;
+                GrowthDirection? growthDirection = pivotParent.constraints.growthDirection;
                 switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(axisDirection, growthDirection)) {
                     case AxisDirection.up:
                         switch (growthDirection) {
@@ -736,19 +738,19 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderViewport : RenderViewportBase<SliverPhysicalContainerParentData> {
         public RenderViewport(
-            AxisDirection axisDirection = AxisDirection.down,
-            AxisDirection crossAxisDirection = AxisDirection.right,
+            AxisDirection? axisDirection = AxisDirection.down,
+            AxisDirection? crossAxisDirection = AxisDirection.right,
             ViewportOffset offset = null,
-            float anchor = 0.0f,
+            float? anchor = 0.0f,
             List<RenderSliver> children = null,
             RenderSliver center = null,
-            float cacheExtent = RenderViewportUtils.defaultCacheExtent,
+            float? cacheExtent = RenderViewportUtils.defaultCacheExtent,
             CacheExtentStyle cacheExtentStyle = CacheExtentStyle.pixel
-        ) : base(axisDirection, crossAxisDirection, offset, cacheExtent,cacheExtentStyle) {
+        ) : base(axisDirection, crossAxisDirection, offset, cacheExtent, cacheExtentStyle) {
             D.assert(anchor >= 0.0 && anchor <= 1.0);
             D.assert(anchor != null);
             D.assert(cacheExtentStyle != CacheExtentStyle.viewport || cacheExtent != null);
-            _anchor = anchor;
+            _anchor = anchor.Value;
             _center = center;
             addAll(children);
             if (center == null && firstChild != null) {
@@ -1063,7 +1065,7 @@ namespace Unity.UIWidgets.rendering {
         protected override float scrollOffsetOf(RenderSliver child, float scrollOffsetWithinChild) {
             D.assert(child.parent == this);
 
-            GrowthDirection growthDirection = child.constraints.growthDirection;
+            GrowthDirection? growthDirection = child.constraints.growthDirection;
             switch (growthDirection) {
                 case GrowthDirection.forward: {
                     float scrollOffsetToChild = 0.0f;
@@ -1094,7 +1096,7 @@ namespace Unity.UIWidgets.rendering {
         protected override float maxScrollObstructionExtentBefore(RenderSliver child) {
             D.assert(child.parent == this);
 
-            GrowthDirection growthDirection = child.constraints.growthDirection;
+            GrowthDirection? growthDirection = child.constraints.growthDirection;
             switch (growthDirection) {
                 case GrowthDirection.forward: {
                     float pinnedExtent = 0.0f;
@@ -1225,8 +1227,8 @@ namespace Unity.UIWidgets.rendering {
 
     public class RenderShrinkWrappingViewport : RenderViewportBase<SliverLogicalContainerParentData> {
         public RenderShrinkWrappingViewport(
-            AxisDirection axisDirection = AxisDirection.down,
-            AxisDirection crossAxisDirection = AxisDirection.right,
+            AxisDirection? axisDirection = AxisDirection.down,
+            AxisDirection? crossAxisDirection = AxisDirection.right,
             ViewportOffset offset = null,
             List<RenderSliver> children = null
         ) : base(

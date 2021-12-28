@@ -61,9 +61,7 @@ namespace Unity.UIWidgets.material {
                 selectableDayPredicate == null || selectableDayPredicate(initialDate),
                 () => $"Provided initialDate {initialDate} must satisfy provided selectableDayPredicate."
             );
-
-            D.assert(initialEntryMode != null);
-            D.assert(initialDatePickerMode != null);
+            
             D.assert(material_.debugCheckHasMaterialLocalizations(context));
 
             Widget dialog = new _DatePickerDialog(

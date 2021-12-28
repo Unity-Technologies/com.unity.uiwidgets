@@ -73,13 +73,13 @@ namespace Unity.UIWidgets.animation {
 
         public TweenSequenceItem(
             Animatable<T> tween = null,
-            float weight = 0.0f
+            float? weight = 0.0f
         ) {
-            this.tween = tween;
-            this.weight = weight;
             D.assert(tween != null);
             D.assert(weight != null);
             D.assert(weight > 0.0);
+            this.tween = tween;
+            this.weight = weight.Value;
         }
 
         public readonly Animatable<T> tween;

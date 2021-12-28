@@ -220,7 +220,7 @@ namespace Unity.UIWidgets.cupertino {
               return;
             AnimationController controller = _highlightControllers[at];
             D.assert(!forward || controller != null);
-            controller?.animateTo(forward ? 1 : 0, duration:    CupertinoSlidingSegmentedControlsUtils._kHighlightAnimationDuration, curve: Curves.ease);
+            controller?.animateTo(forward ? 1 : 0, duration: CupertinoSlidingSegmentedControlsUtils._kHighlightAnimationDuration, curve: Curves.ease);
     }
         T _highlighted; 
         public T highlighted{
@@ -253,8 +253,8 @@ namespace Unity.UIWidgets.cupertino {
             widget.onValueChanged(_highlighted);
         }
 
-        public T indexToKey(int index) {
-            return index == null ? default : keys[index];
+        public T indexToKey(int? index) {
+            return index == null ? default : keys[index.Value];
         }
 
         public override Widget build(BuildContext context) {
@@ -351,12 +351,12 @@ namespace Unity.UIWidgets.cupertino {
     public class _ChildAnimationManifest { 
         public _ChildAnimationManifest(
             float opacity = 1f,
-            float separatorOpacity = 0f) {
-                D.assert(separatorOpacity != null);
-                D.assert(opacity != null);
+            float separatorOpacity = 0f
+            ){
                 separatorTween = new FloatTween(begin: separatorOpacity, end: separatorOpacity);
                 opacityTween = new FloatTween(begin: opacity, end: opacity);
             }
+        
         float opacity; 
         Tween<float> opacityTween;
         public float separatorOpacity;
@@ -577,8 +577,7 @@ namespace Unity.UIWidgets.cupertino {
   }
 
   void _playThumbScaleAnimation(bool isExpanding = false) {
-    D.assert(isExpanding != null);
-    _thumbScaleTween = new FloatTween(begin: currentThumbScale, end: isExpanding ? 1 : CupertinoSlidingSegmentedControlsUtils._kMinThumbScale);
+      _thumbScaleTween = new FloatTween(begin: currentThumbScale, end: isExpanding ? 1 : CupertinoSlidingSegmentedControlsUtils._kMinThumbScale);
     state.thumbScaleController.animateWith(CupertinoSlidingSegmentedControlsUtils._kThumbSpringAnimationSimulation);
   }
 

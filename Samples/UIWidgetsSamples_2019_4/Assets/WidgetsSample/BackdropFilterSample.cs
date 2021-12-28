@@ -29,7 +29,7 @@ namespace UIWidgetsSample {
             }
         }
 
-        class BackdropFilterApp : StatefulWidget {
+        public class BackdropFilterApp : StatefulWidget {
             public BackdropFilterApp(Key key = null) : base(key) {
             }
 
@@ -38,7 +38,7 @@ namespace UIWidgetsSample {
             }
         }
 
-        class BackdropFilterAppState : State<BackdropFilterApp> {
+        public class BackdropFilterAppState : State<BackdropFilterApp> {
             public override Widget build(BuildContext context)
             {
                 var item = new Container(

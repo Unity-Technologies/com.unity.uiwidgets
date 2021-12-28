@@ -1,40 +1,20 @@
-﻿using System.Collections.Generic;
-using Unity.UIWidgets.animation;
-using Unity.UIWidgets.engine;
+﻿using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
-//using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using FontStyle = Unity.UIWidgets.ui.FontStyle;
-using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 using Unity.UIWidgets.cupertino;
-using Unity.UIWidgets.rendering;
-//using UIWidgetsGallery.gallery;
-using Unity.UIWidgets.service;
-using Brightness = Unity.UIWidgets.ui.Brightness;
-using UnityEngine;
-using System;
 using uiwidgets;
 using UIWidgetsGallery.gallery;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
-using UnityEngine.Networking;
 using Color = Unity.UIWidgets.ui.Color;
-using Random = UnityEngine.Random;
-using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace UIWidgetsSample
 {
     public class TextTest : UIWidgetsPanel
     {
-        protected void OnEnable()
-        {
-            base.OnEnable();
-        }
-
         protected override void main()
         {
             ui_.runApp(new MyApp());

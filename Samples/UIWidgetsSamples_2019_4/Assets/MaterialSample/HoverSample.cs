@@ -11,18 +11,8 @@ using Color = Unity.UIWidgets.ui.Color;
 
 namespace UIWidgetsSample
 {
-  /**
-   *
-   * STILL NOT WORKING, THERE SHOULD BE A BUG. FIX IT !!!!
-   * 
-   */
   public class HoverSample : UIWidgetsPanel
   {
-    protected void OnEnable()
-    {
-      base.OnEnable();
-    }
-
     protected override void main()
     {
       ui_.runApp(new MyApp());

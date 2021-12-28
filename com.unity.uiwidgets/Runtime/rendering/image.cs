@@ -243,7 +243,6 @@ namespace Unity.UIWidgets.rendering {
         public bool matchTextDirection {
             get { return _matchTextDirection; }
             set {
-                D.assert(value != null);
                 if (value == _matchTextDirection)
                     return;
                 _matchTextDirection = value;
@@ -323,7 +322,6 @@ namespace Unity.UIWidgets.rendering {
             }
             _resolve();
             D.assert(_resolvedAlignment != null);
-            D.assert(_flipHorizontally != null);
             painting_.paintImage(
                 canvas: context.canvas,
                 rect: offset & size,

@@ -147,15 +147,17 @@ namespace Unity.UIWidgets.gestures {
 
         Dictionary<int, T> _pointers = new Dictionary<int, T>();
 
-        public override void addAllowedPointer(PointerDownEvent pEvent) {
+        public override void addAllowedPointer(PointerEvent pEvent) {
+            var _pEvent = (PointerDownEvent) pEvent;
+            D.assert(_pEvent != null);
             D.assert(_pointers != null);
-            D.assert(pEvent.position != null);
-            D.assert(!_pointers.ContainsKey(pEvent.pointer));
+            D.assert(_pEvent.position != null);
+            D.assert(!_pointers.ContainsKey(_pEvent.pointer));
 
-            T state = createNewPointerState(pEvent);
-            _pointers[pEvent.pointer] = state;
-            GestureBinding.instance.pointerRouter.addRoute(pEvent.pointer, _handleEvent);
-            state._setArenaEntry(GestureBinding.instance.gestureArena.add(pEvent.pointer, this));
+            T state = createNewPointerState(_pEvent);
+            _pointers[_pEvent.pointer] = state;
+            GestureBinding.instance.pointerRouter.addRoute(_pEvent.pointer, _handleEvent);
+            state._setArenaEntry(GestureBinding.instance.gestureArena.add(_pEvent.pointer, this));
         }
 
         public abstract T createNewPointerState(PointerDownEvent pEvent);

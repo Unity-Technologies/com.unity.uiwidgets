@@ -84,8 +84,7 @@ namespace Unity.UIWidgets.widgets {
                 () => "Cannot provide both a color and a decoration\n" +
                 "The color argument is just a shorthand for \"decoration: new BoxDecoration(color: color)\"."
             );
-            D.assert(clipBehavior != null);
-            
+
             this.alignment = alignment;
             this.padding = padding;
             this.foregroundDecoration = foregroundDecoration;

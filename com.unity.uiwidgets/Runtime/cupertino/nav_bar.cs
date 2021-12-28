@@ -681,7 +681,7 @@ namespace Unity.UIWidgets.cupertino {
 
     class _PersistentNavigationBar : StatelessWidget {
         public readonly _NavigationBarStaticComponents components;
-        public readonly bool middleVisible;
+        public readonly bool? middleVisible;
         public readonly EdgeInsetsDirectional padding;
 
         public _PersistentNavigationBar(
@@ -692,7 +692,7 @@ namespace Unity.UIWidgets.cupertino {
         ) : base(key: key) {
             this.components = components;
             this.padding = padding;
-            this.middleVisible = middleVisible ?? true;
+            this.middleVisible = middleVisible;
         }
 
         public override Widget build(BuildContext context) {
@@ -706,7 +706,7 @@ namespace Unity.UIWidgets.cupertino {
                 middle = middleVisible == null
                     ? middle
                     : new AnimatedOpacity(
-                        opacity: middleVisible ? 1.0f : 0.0f,
+                        opacity: middleVisible.Value ? 1.0f : 0.0f,
                         duration: NavBarUtils._kNavBarTitleFadeDuration,
                         child: middle
                     );

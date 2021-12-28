@@ -535,7 +535,6 @@ namespace Unity.UIWidgets.material {
 
                     if (table is RenderTable renderTable) {
                         TableCellParentData cellParentData = cell.parentData as TableCellParentData;
-                        D.assert(cellParentData.y != null);
                         Rect rect = renderTable.getRowBox(cellParentData.y);
                         // The rect is in the table's coordinate space. We need to change it to the
                         // TableRowInkWell's coordinate space.

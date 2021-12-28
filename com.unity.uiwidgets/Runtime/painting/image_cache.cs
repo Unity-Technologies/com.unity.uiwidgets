@@ -156,8 +156,7 @@ namespace Unity.UIWidgets.painting {
                     throw;
                 }
             }
-
-            bool listenedOnce = false;
+            
             _PendingImage untrackedPendingImage = null;
 
             void listener(ImageInfo info, bool syncCall) {
@@ -182,8 +181,6 @@ namespace Unity.UIWidgets.painting {
                 if (untrackedPendingImage == null) {
                     _touch(key, cachedImage);
                 }
-
-                listenedOnce = true;
             }
 
             ImageStreamListener streamListener = new ImageStreamListener(listener);

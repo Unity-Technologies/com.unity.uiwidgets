@@ -1,24 +1,16 @@
 ﻿using System.Collections.Generic;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using FontStyle = Unity.UIWidgets.ui.FontStyle;
 using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 
 namespace UIWidgetsSample
 {
     public class ImageTest : UIWidgetsPanel
     {
-        protected void OnEnable()
-        {
-            base.OnEnable();
-        }
-
         protected override void main()
         {
             ui_.runApp(new MyApp());

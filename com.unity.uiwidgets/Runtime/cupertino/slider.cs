@@ -190,7 +190,7 @@ namespace Unity.UIWidgets.cupertino {
             TextDirection? textDirection = null
         ) : base(additionalConstraints: BoxConstraints.tightFor(width: SliderUtils._kSliderWidth,
             height: SliderUtils._kSliderHeight)) {
-            D.assert(value >= 0.0f && value <= 1.0f && value != null) ;
+            D.assert(value >= 0.0f && value <= 1.0f);
             _value = value;
             _divisions = divisions;
             _activeColor = activeColor;

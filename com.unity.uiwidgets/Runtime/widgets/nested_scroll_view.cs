@@ -177,7 +177,7 @@ namespace Unity.UIWidgets.widgets {
         protected override Widget buildViewport(
             BuildContext context,
             ViewportOffset offset,
-            AxisDirection axisDirection,
+            AxisDirection? axisDirection,
             List<Widget> slivers
         ) {
             D.assert(!shrinkWrap);
@@ -1378,7 +1378,7 @@ namespace Unity.UIWidgets.widgets {
     public class NestedScrollViewViewport : Viewport {
         public NestedScrollViewViewport(
             Key key = null,
-            AxisDirection axisDirection = AxisDirection.down,
+            AxisDirection? axisDirection = AxisDirection.down,
             AxisDirection crossAxisDirection = AxisDirection.right,
             float anchor = 0.0f,
             ViewportOffset offset = null,
@@ -1414,9 +1414,8 @@ namespace Unity.UIWidgets.widgets {
 
         public override void updateRenderObject(BuildContext context, RenderObject _renderObject) {
             RenderNestedScrollViewViewport renderObject = _renderObject as RenderNestedScrollViewViewport;
-            renderObject.axisDirection = axisDirection;
-            renderObject.crossAxisDirection = crossAxisDirection ??
-                                              getDefaultCrossAxisDirection(context, axisDirection);
+            renderObject.axisDirection = axisDirection.Value;
+            renderObject.crossAxisDirection = (crossAxisDirection ?? getDefaultCrossAxisDirection(context, axisDirection)).Value;
             if (crossAxisDirection == null) {
                 renderObject.anchor = anchor;
             }
@@ -1433,8 +1432,8 @@ namespace Unity.UIWidgets.widgets {
 
     public class RenderNestedScrollViewViewport : RenderViewport {
         public RenderNestedScrollViewViewport(
-            AxisDirection axisDirection = AxisDirection.down,
-            AxisDirection crossAxisDirection = AxisDirection.right,
+            AxisDirection? axisDirection = AxisDirection.down,
+            AxisDirection? crossAxisDirection = AxisDirection.right,
             ViewportOffset offset = null,
             float anchor = 0.0f,
             List<RenderSliver> children = null,

@@ -343,7 +343,8 @@ namespace Unity.UIWidgets.widgets {
                     ((RenderObject)targetParent).markNeedsLayout();
             }
          }
-         Type debugTypicalAncestorWidgetClass {
+
+         public override Type debugTypicalAncestorWidgetClass {
              get { return typeof(Table);}
          }
 

@@ -1003,7 +1003,7 @@ namespace Unity.UIWidgets.rendering {
             get { return _childCount; }
         }
 
-        public bool debugValidateChild(RenderObject child) {
+        public override bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(
@@ -1274,15 +1274,15 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderObject<Constraint
         where ConstraintType : Constraints 
         where ChildType : RenderObject {
         
-        public  LayoutCallback<ConstraintType> _callback { get; set; }
-        public void updateCallback(LayoutCallback<ConstraintType> value) {
+        public virtual LayoutCallback<ConstraintType> _callback { get; set; }
+        public virtual void updateCallback(LayoutCallback<ConstraintType> value) {
             if (value == _callback)
                 return;
             _callback = value;
             markNeedsLayout();
         }
 
-        public void layoutAndBuildChild() {
+        public virtual void layoutAndBuildChild() {
             D.assert(_callback != null);
             invokeLayoutCallback(_callback);
         }
@@ -1293,15 +1293,15 @@ public  class RenderConstrainedLayoutBuilderMixinRenderBox<ConstraintType, Child
         where ConstraintType : BoxConstraints 
         where ChildType : RenderBox {
         
-        public  LayoutCallback<ConstraintType> _callback { get; set; }
-        public void updateCallback(LayoutCallback<ConstraintType> value) {
+        public virtual LayoutCallback<ConstraintType> _callback { get; set; }
+        public virtual void updateCallback(LayoutCallback<ConstraintType> value) {
             if (value == _callback)
                 return;
             _callback = value;
             markNeedsLayout();
         }
 
-        public void layoutAndBuildChild() {
+        public virtual void layoutAndBuildChild() {
             D.assert(_callback != null);
             invokeLayoutCallback(_callback);
         }
@@ -1312,15 +1312,15 @@ public abstract class RenderConstrainedLayoutBuilderMixinRenderSliver<Constraint
         where ConstraintType : SliverConstraints 
         where ChildType : RenderSliver {
         
-        public  LayoutCallback<ConstraintType> _callback { get; set; }
-        public void updateCallback(LayoutCallback<ConstraintType> value) {
+        public virtual LayoutCallback<ConstraintType> _callback { get; set; }
+        public virtual void updateCallback(LayoutCallback<ConstraintType> value) {
             if (value == _callback)
                 return;
             _callback = value;
             markNeedsLayout();
         }
 
-        public void layoutAndBuildChild() {
+        public virtual void layoutAndBuildChild() {
             D.assert(_callback != null);
             invokeLayoutCallback(_callback);
         }

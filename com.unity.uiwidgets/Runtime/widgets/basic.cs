@@ -71,7 +71,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(shaderCallback != null);
-            D.assert(blendMode != null);
             this.shaderCallback = shaderCallback;
             this.blendMode = blendMode;
         }
@@ -172,7 +171,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.hardEdge,
             Widget child = null
         ) : base(key: key, child: child) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -255,7 +253,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null) : base(key: key, child: child
         ) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -294,7 +291,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null
         ) : base(key: key, child: child) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -306,7 +302,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) {
             D.assert(shape != null);
-            D.assert(clipBehavior != null);
             D.assert(clipBehavior != Clip.none);
             return new Builder(
                 key: key,
@@ -366,7 +361,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null) : base(key: key, child: child) {
             D.assert(color != null);
             D.assert(elevation >= 0.0f);
-            D.assert(clipBehavior != null);
             this.shape = shape;
             this.clipBehavior = clipBehavior;
             this.borderRadius = borderRadius;
@@ -2072,7 +2066,7 @@ namespace Unity.UIWidgets.widgets {
 
 
     public static class LayoutUtils {
-        public static AxisDirection getAxisDirectionFromAxisReverseAndDirectionality(
+        public static AxisDirection? getAxisDirectionFromAxisReverseAndDirectionality(
             BuildContext context,
             Axis axis,
             bool reverse
@@ -2081,7 +2075,7 @@ namespace Unity.UIWidgets.widgets {
                 case Axis.horizontal:
                     D.assert(WidgetsD.debugCheckHasDirectionality(context));
                     TextDirection textDirection = Directionality.of(context);
-                    AxisDirection axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
+                    AxisDirection? axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
                     return reverse ? AxisUtils.flipAxisDirection(axisDirection) : axisDirection;
                 case Axis.vertical:
                     return reverse ? AxisDirection.up : AxisDirection.down;
@@ -2484,7 +2478,7 @@ namespace Unity.UIWidgets.widgets {
             PointerUpEventListener onPointerUp = null,
             PointerCancelEventListener onPointerCancel = null,
             PointerSignalEventListener onPointerSignal = null,
-            HitTestBehavior behavior = HitTestBehavior.deferToChild,
+            HitTestBehavior? behavior = HitTestBehavior.deferToChild,
             Widget child = null
         ) :
             base(key: key, child: child) {
@@ -2494,7 +2488,7 @@ namespace Unity.UIWidgets.widgets {
             this.onPointerUp = onPointerUp;
             this.onPointerCancel = onPointerCancel;
             this.onPointerSignal = onPointerSignal;
-            this.behavior = behavior;
+            this.behavior = behavior.Value;
         }
 
         public readonly PointerDownEventListener onPointerDown;

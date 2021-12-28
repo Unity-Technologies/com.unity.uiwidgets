@@ -58,21 +58,24 @@ namespace Unity.UIWidgets.material {
         public override Color resolve(HashSet<MaterialState> states) => _resolve(states);
     }
 
-    abstract class MaterialStateProperty<T> {
+    interface IMaterialStateProperty<T> {
+        T resolve(HashSet<MaterialState> states);
+    }
+
+    abstract class MaterialStateProperty<T> : IMaterialStateProperty<T> {
         public abstract T resolve(HashSet<MaterialState> states);
 
-
-        public static T resolveAs<T>(T value, HashSet<MaterialState> states) {
-            if (value is MaterialStateProperty<T> materialStateProperty) {
-                MaterialStateProperty<T> property = materialStateProperty;
+        public static S resolveAsMaterialStateProperty<S>(S value, HashSet<MaterialState> states) {
+            if (value is MaterialStateProperty<S> materialStateProperty) {
+                MaterialStateProperty<S> property = materialStateProperty;
                 return property.resolve(states);
             }
 
             return value;
         }
 
-        public static MaterialStateProperty<T> resolveWith<T>(material_.MaterialPropertyResolver<T> callback) =>
-            new _MaterialStateProperty<T>(callback);
+        public static MaterialStateProperty<S> resolveWithMaterialStateProperty<S>(material_.MaterialPropertyResolver<S> callback) =>
+            new _MaterialStateProperty<S>(callback);
     }
 
 
@@ -85,16 +88,15 @@ namespace Unity.UIWidgets.material {
 
         public override T resolve(HashSet<MaterialState> states) => _resolve(states);
 
-        public static T resolveAs<T>(T value, HashSet<MaterialState> states) {
-            if (value is MaterialStateProperty<T> materialStateProperty) {
-                MaterialStateProperty<T> property = materialStateProperty;
+        public static S resolveAs_MaterialStateProperty<S>(S value, HashSet<MaterialState> states) {
+            if (value is MaterialStateProperty<S> materialStateProperty) {
+                MaterialStateProperty<S> property = materialStateProperty;
                 return property.resolve(states);
             }
-
             return value;
         }
 
-        public static MaterialStateProperty<T> resolveWith<T>(material_.MaterialPropertyResolver<T> callback) =>
-            new _MaterialStateProperty<T>(callback);
+        public static MaterialStateProperty<S> resolveWith_MaterialStateProperty<S>(material_.MaterialPropertyResolver<S> callback) =>
+            new _MaterialStateProperty<S>(callback);
     }
 }

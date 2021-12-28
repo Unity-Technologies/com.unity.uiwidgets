@@ -222,7 +222,7 @@ namespace Unity.UIWidgets.widgets {
             
         }
 
-        public _SliverPersistentHeaderElement _element {
+        public override _SliverPersistentHeaderElement _element {
             get { return _ele; }
             set { _ele = value; }
         }
@@ -237,12 +237,12 @@ namespace Unity.UIWidgets.widgets {
             get { return _element.widget.layoutDelegate.maxExtent; }
         }
 
-        public void updateChild(float shrinkOffset, bool overlapsContent) {
+        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
             D.assert(_element != null);
             _element._build(shrinkOffset, overlapsContent);
         }
 
-        public void triggerRebuild() {
+        protected override void triggerRebuild() {
             markNeedsLayout();
         }
     }
@@ -275,7 +275,7 @@ namespace Unity.UIWidgets.widgets {
         ) {
         }
 
-        public _SliverPersistentHeaderElement _element {
+        public override _SliverPersistentHeaderElement _element {
             get { return sliver_persistent_header_utils._element; }
             set { sliver_persistent_header_utils._element = value; }
         }
@@ -290,12 +290,12 @@ namespace Unity.UIWidgets.widgets {
             get { return _element.widget.layoutDelegate.maxExtent; }
         }
 
-        public void updateChild(float shrinkOffset, bool overlapsContent) {
+        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
             D.assert(_element != null);
             _element._build(shrinkOffset, overlapsContent);
         }
 
-        public void triggerRebuild() {
+        protected override void triggerRebuild() {
             markNeedsLayout();
         }
     }
@@ -340,7 +340,7 @@ namespace Unity.UIWidgets.widgets {
         ) {
         }
 
-        public _SliverPersistentHeaderElement _element {
+        public override _SliverPersistentHeaderElement _element {
             get { return _ele; }
             set { _ele = value; }
         }
@@ -355,12 +355,12 @@ namespace Unity.UIWidgets.widgets {
             get { return _element.widget.layoutDelegate.maxExtent; }
         }
 
-        public void updateChild(float shrinkOffset, bool overlapsContent) {
+        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
             D.assert(_element != null);
             _element._build(shrinkOffset, overlapsContent);
         }
 
-        public void triggerRebuild() {
+        protected override void triggerRebuild() {
             markNeedsLayout();
         }
     }
@@ -406,7 +406,7 @@ namespace Unity.UIWidgets.widgets {
         ) {
         }
 
-        public _SliverPersistentHeaderElement _element {
+        public override _SliverPersistentHeaderElement _element {
             get { return _ele; }
             set { _ele = value; }
         }
@@ -421,12 +421,12 @@ namespace Unity.UIWidgets.widgets {
             get { return _element.widget.layoutDelegate.maxExtent; }
         }
 
-        public void updateChild(float shrinkOffset, bool overlapsContent) {
+        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
             D.assert(_element != null);
             _element._build(shrinkOffset, overlapsContent);
         }
 
-        public void triggerRebuild() {
+        protected override void triggerRebuild() {
             markNeedsLayout();
         }
     }

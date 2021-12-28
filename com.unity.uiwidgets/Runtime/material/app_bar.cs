@@ -125,9 +125,6 @@ namespace Unity.UIWidgets.material {
             if (centerTitle != null) {
                 return centerTitle;
             }
-
-            D.assert(theme.platform != null);
-
             switch (theme.platform) {
                 case RuntimePlatform.Android:
                 case RuntimePlatform.LinuxEditor:
@@ -228,21 +225,16 @@ namespace Unity.UIWidgets.material {
 
             Widget title = widget.title;
             if (title != null) {
-                bool namesRoute;
-
                 switch (theme.platform) {
                     case RuntimePlatform.Android:
                     case RuntimePlatform.LinuxEditor:
                     case RuntimePlatform.LinuxPlayer:
                     case RuntimePlatform.WindowsEditor:
                     case RuntimePlatform.WindowsPlayer:
-                        namesRoute = true;
                         break;
                     case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.OSXEditor:
                     case RuntimePlatform.OSXPlayer:
-                        break;
-                    default:
                         break;
                 }
 

@@ -15,7 +15,6 @@ namespace Unity.UIWidgets.rendering {
         float?  beforePadding {
             get {
                 D.assert(constraints != null);
-                D.assert(constraints.axisDirection != null);
                 D.assert(resolvedPadding != null);
                 switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
                     case AxisDirection.up:
@@ -34,7 +33,6 @@ namespace Unity.UIWidgets.rendering {
         float?  afterPadding { 
             get { 
                 D.assert(constraints != null);
-                D.assert(constraints.axisDirection != null);
                 D.assert(resolvedPadding != null);
                 switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
                     case AxisDirection.up:
@@ -194,7 +192,6 @@ namespace Unity.UIWidgets.rendering {
             D.assert(child != null);
             D.assert(child == this.child);
             D.assert(constraints != null);
-            D.assert(constraints.axisDirection != null);
             D.assert(resolvedPadding != null);
             switch (GrowthDirectionUtils.applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
               case AxisDirection.up:

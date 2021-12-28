@@ -85,17 +85,7 @@ namespace marijnz.EditorCoroutines
 			}
 		}
 
-		struct YieldWWW : ICoroutineYield
-		{
-			public WWW Www;
-
-			public bool IsDone(float deltaTime)
-			{
-				return Www.isDone;
-			}
-		}
-
-		struct YieldAsync : ICoroutineYield
+        struct YieldAsync : ICoroutineYield
 		{
 			public AsyncOperation asyncOperation;
 
@@ -371,11 +361,7 @@ namespace marijnz.EditorCoroutines
 					customYield = current as CustomYieldInstruction
 				};
 			}
-			else if (current is WWW)
-			{
-				coroutine.currentYield = new YieldWWW {Www = (WWW) current};
-			}
-			else if (current is WaitForFixedUpdate || current is WaitForEndOfFrame)
+            else if (current is WaitForFixedUpdate || current is WaitForEndOfFrame)
 			{
 				coroutine.currentYield = new YieldDefault();
 			}

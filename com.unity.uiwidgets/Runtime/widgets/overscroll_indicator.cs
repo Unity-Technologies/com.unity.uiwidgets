@@ -39,7 +39,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly AxisDirection axisDirection;
 
-        public Axis axis {
+        public Axis? axis {
             get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
@@ -94,10 +94,11 @@ namespace Unity.UIWidgets.widgets {
             base.didUpdateWidget(_oldWidget);
             GlowingOverscrollIndicator oldWidget = _oldWidget as GlowingOverscrollIndicator;
             if (oldWidget.color != widget.color || oldWidget.axis != widget.axis) {
+                D.assert(widget.axis != null);
                 _leadingController.color = widget.color;
-                _leadingController.axis = widget.axis;
+                _leadingController.axis = widget.axis.Value;
                 _trailingController.color = widget.color;
-                _trailingController.axis = widget.axis;
+                _trailingController.axis = widget.axis.Value;
             }
         }
 
@@ -209,12 +210,13 @@ namespace Unity.UIWidgets.widgets {
         public _GlowController(
             TickerProvider vsync,
             Color color,
-            Axis axis
+            Axis? axis
         ) {
             D.assert(vsync != null);
             D.assert(color != null);
+            D.assert(axis != null);
             _color = color;
-            _axis = axis;
+            _axis = axis.Value;
             _glowController = new AnimationController(vsync: vsync);
             _glowController.addStatusListener(_changePhase);
             Animation<float> decelerator = new CurvedAnimation(

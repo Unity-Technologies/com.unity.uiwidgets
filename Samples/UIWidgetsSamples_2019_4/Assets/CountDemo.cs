@@ -12,11 +12,6 @@ namespace UIWidgetsSample
 {
     public class CountDemo : UIWidgetsPanel
     {
-        protected void OnEnable()
-        {
-            base.OnEnable();
-        }
-
         protected override void main()
         {
             ui_.runApp(new MyApp());

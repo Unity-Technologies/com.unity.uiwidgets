@@ -154,7 +154,7 @@ namespace Unity.UIWidgets.widgets {
 
         AxisDirection _axisDirection;
 
-        public Axis axis {
+        public Axis? axis {
             get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 

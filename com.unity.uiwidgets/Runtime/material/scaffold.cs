@@ -1516,7 +1516,6 @@ namespace Unity.UIWidgets.material {
         Color _bodyScrimColor = Colors.black;
 
         internal void showBodyScrim(bool value, float opacity) {
-            D.assert(value != null);
             if (_showBodyScrim == value && _bodyScrimColor.opacity == opacity) {
                 return;
             }

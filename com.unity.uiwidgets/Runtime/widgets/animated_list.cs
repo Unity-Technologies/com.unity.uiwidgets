@@ -82,7 +82,7 @@ namespace Unity.UIWidgets.widgets {
             bool shrinkWrap = false,
             EdgeInsetsGeometry padding = null) : base(key: key) { 
             D.assert(itemBuilder != null);
-            D.assert(initialItemCount != null && initialItemCount >= 0);
+            D.assert(initialItemCount >= 0);
             this.itemBuilder = itemBuilder;
             this.initialItemCount = initialItemCount;
             this.scrollDirection = scrollDirection;
@@ -106,7 +106,6 @@ namespace Unity.UIWidgets.widgets {
 
         public static AnimatedListState of(BuildContext context,  bool nullOk = false ) { 
             D.assert(context != null);
-            D.assert(nullOk != null);
             AnimatedListState result = context.findAncestorStateOfType<AnimatedListState>();
             if (nullOk || result != null)
                 return result; 
@@ -187,8 +186,7 @@ namespace Unity.UIWidgets.widgets {
 
 
         public static SliverAnimatedListState of(BuildContext context, bool nullOk = false) { 
-            D.assert(context != null); 
-            D.assert(nullOk != null);
+            D.assert(context != null);
             SliverAnimatedListState result = context.findAncestorStateOfType<SliverAnimatedListState>();
             if (nullOk || result != null)
                 return result;
@@ -266,8 +264,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public void insertItem(int index, TimeSpan? duration = null) { 
             duration = duration ?? _kDuration; 
-            D.assert(index != null && index >= 0);
-            D.assert(duration != null);
+            D.assert(index >= 0);
             int itemIndex = _indexToItemIndex(index);
             D.assert(itemIndex >= 0 && itemIndex <= _itemsCount);
 
@@ -298,7 +295,7 @@ namespace Unity.UIWidgets.widgets {
         }
         public void removeItem(int index, AnimatedListRemovedItemBuilder builder, TimeSpan? duration = null) { 
             duration = duration ?? _kDuration; 
-            D.assert(index != null && index >= 0);
+            D.assert(index >= 0);
             D.assert(builder != null);
             D.assert(duration != null);
             int itemIndex = _indexToItemIndex(index);

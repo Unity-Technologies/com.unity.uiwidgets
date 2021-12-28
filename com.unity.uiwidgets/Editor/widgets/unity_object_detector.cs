@@ -70,9 +70,7 @@ namespace Unity.UIWidgets.gestures
         HitTestBehavior _defaultBehavior {
             get { return widget.child == null ? HitTestBehavior.translucent : HitTestBehavior.deferToChild; }
         }
-
-        private bool isActivated = false;
-
+        
         private Object[] objectReferences;
 
         private string[] paths;

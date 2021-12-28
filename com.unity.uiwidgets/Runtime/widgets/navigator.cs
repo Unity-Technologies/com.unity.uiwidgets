@@ -123,7 +123,7 @@ namespace Unity.UIWidgets.widgets {
         public virtual object currentResult {
             get { return null; }
         }
-        public Future popped {
+        public virtual Future popped {
             get { return _popCompleter.future; }
         }
         protected internal virtual bool didPop(object result) {
@@ -213,12 +213,13 @@ namespace Unity.UIWidgets.widgets {
         public Route(RouteSettings settings = null) {
             _settings = settings ?? new RouteSettings();
         }
-        public T currentResult {
+        public override object currentResult {
             get { return default(T); }
         }
-        public Future<T> popped {
+        public override Future popped {
             get { return _popCompleter.future.to<T>(); }
         }
+        
         protected internal virtual bool didPop(T result) {
             didComplete(result);
             return true;
@@ -343,9 +344,9 @@ namespace Unity.UIWidgets.widgets {
 
     public abstract class RouteTransitionRecord {
 
-        public Route route;
+        public abstract Route route { get; }
 
-        public bool isEntering;
+        public abstract bool isEntering { get; }
 
         public bool _debugWaitingForExitDecision = false;
         public abstract void markForPush();
@@ -665,7 +666,6 @@ namespace Unity.UIWidgets.widgets {
                             "There was no corresponding route in the app, and therefore the initial route specified will be " +
                             $"ignored and {defaultRouteName} will be used instead."
                         );
-                        return true;
                     });
                     result.Clear();
                 }
@@ -710,8 +710,7 @@ namespace Unity.UIWidgets.widgets {
             this.route = route;
             currentState = initialState;
         }
-
-        public Route route;
+        
         public _RouteLifecycle currentState;
         public Route lastAnnouncedPreviousRoute; // last argument to Route.didChangePrevious
         public Route lastAnnouncedPoppedNextRoute; // last argument to Route.didPopNext
@@ -938,8 +937,9 @@ namespace Unity.UIWidgets.widgets {
             return (_RouteEntry entry) => entry.route == route;
         }
 
+        public override Route route { get; }
 
-        public bool isEntering {
+        public override bool isEntering {
             get { return currentState == _RouteLifecycle.staging; }
         }
 
@@ -2017,7 +2017,6 @@ namespace Unity.UIWidgets.widgets {
                  if (lastEntry == null) {
                      return false;
                  }
-                 D.assert(disposition != null);
                  if (!mounted)
                      return true; // forget about this pop, we were disposed in the meantime
                  _RouteEntry newLastEntry = null;
@@ -2236,7 +2235,6 @@ namespace Unity.UIWidgets.widgets {
                     _history.Count - 1,
                     _RouteEntry.willBePresentPredicate
                 );
-                D.assert(routeIndex != null);
                 Route route = _history[routeIndex].route;
                 Route previousRoute = null;
                 if (!route.willHandlePopInternally && routeIndex > 0) {

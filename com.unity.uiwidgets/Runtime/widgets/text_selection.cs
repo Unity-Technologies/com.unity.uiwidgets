@@ -138,14 +138,14 @@ namespace Unity.UIWidgets.widgets {
             LayerLink endHandleLayerLink = null,
             RenderEditable renderObject = null,
             TextSelectionControls selectionControls = null,
-            bool handlesVisible = false,
+            bool? handlesVisible = false,
             TextSelectionDelegate selectionDelegate = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start, 
             VoidCallback onSelectionHandleTapped = null) {
             D.assert(value != null);
             D.assert(context != null);
             D.assert(handlesVisible != null);
-            _handlesVisible = handlesVisible;
+            _handlesVisible = handlesVisible.Value;
             this.context = context;
             this.debugRequiredFor = debugRequiredFor;
             this.toolbarLayerLink = toolbarLayerLink;
@@ -202,7 +202,6 @@ namespace Unity.UIWidgets.widgets {
                 return _handlesVisible;
             }
             set {
-                D.assert(value != null);
                 if (_handlesVisible == value)
                     return;
                 _handlesVisible = value;
@@ -522,10 +521,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            List<TextSelectionPoint> endpoints =
-                widget.renderObject.getEndpointsForSelection(widget.selection);
-            Offset point = null;
-            
             LayerLink layerLink = null;
             TextSelectionHandleType type = TextSelectionHandleType.left;
 
@@ -649,7 +644,7 @@ namespace Unity.UIWidgets.widgets {
         }
         protected void onTapDown(TapDownDetails details) {
             renderEditable.handleTapDown(details);
-            PointerDeviceKind kind = details.kind;
+            PointerDeviceKind? kind = details.kind;
             _shouldShowSelectionToolbar = kind == null
                               || kind == PointerDeviceKind.touch
                               || kind == PointerDeviceKind.stylus;

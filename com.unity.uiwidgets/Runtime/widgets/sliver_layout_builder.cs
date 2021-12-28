@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 
@@ -13,26 +12,6 @@ namespace Unity.UIWidgets.widgets {
             ConstraintBuilder builder = null
         ) : base(key: key, builder: builder) {
             
-        }
-
-        public static SliverLayoutBuilder Creat(
-            Key key = null,
-            SliverLayoutWidgetBuilder builder = null
-            ) {
-            ConstraintBuilder _builder = (context, constraints) => {
-                return builder(context, (SliverConstraints)constraints);
-            };
-            return new SliverLayoutBuilder(key,_builder);
-        }
-
-        public new SliverLayoutWidgetBuilder builder {
-            get {
-                //return base.builder;
-                SliverLayoutWidgetBuilder _builder = (context, constraints) => {
-                    return base.builder(context, (SliverConstraints) constraints);
-                };
-                return _builder;
-            }
         }
 
         public override RenderObject createRenderObject(BuildContext context) {
@@ -66,7 +45,7 @@ namespace Unity.UIWidgets.widgets {
                    && child.hitTest(result, mainAxisPosition: mainAxisPosition, crossAxisPosition: crossAxisPosition);
         }
 
-        public bool debugValidateChild(RenderObject child) {
+        public override bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is RenderSliver)) {
                     throw new UIWidgetsError(
@@ -105,9 +84,9 @@ namespace Unity.UIWidgets.widgets {
         }
 
         
-        internal RenderSliver _child;
+        internal new RenderSliver _child;
 
-        public RenderSliver child {
+        public new RenderSliver child {
             get { return _child; }
             set {
                 if (_child != null) {
@@ -121,15 +100,16 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public LayoutCallback<SliverConstraints> _callback { get; set; }
-        public void updateCallback(LayoutCallback<SliverConstraints> value) {
+        public override LayoutCallback<SliverConstraints> _callback { get; set; }
+        
+        public override void updateCallback(LayoutCallback<SliverConstraints> value) {
             if (value == _callback)
                 return;
             _callback = value;
             markNeedsLayout();
         }
 
-        public void layoutAndBuildChild() {
+        public override void layoutAndBuildChild() {
             D.assert(_callback != null);
             invokeLayoutCallback(_callback);
         }

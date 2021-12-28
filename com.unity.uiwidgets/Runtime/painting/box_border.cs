@@ -17,9 +17,9 @@ namespace Unity.UIWidgets.painting {
             isUniform = false;
         }
 
-        public virtual BorderSide top { get; }
+        public BorderSide top { get; set; }
 
-        public virtual BorderSide bottom { get; }
+        public BorderSide bottom { get; set; }
 
         public virtual bool isUniform { get; }
 
@@ -27,7 +27,6 @@ namespace Unity.UIWidgets.painting {
         public override ShapeBorder add(ShapeBorder other, bool reversed = false) => null;
 
         public static BoxBorder lerp(BoxBorder a, BoxBorder b, float t) {
-            D.assert(t != null);
             if ((a is Border || a == null) && (b is Border || b == null))
                 return Border.lerp((Border) a, (Border) b, t);
             if ((a is BorderDirectional || a == null) && (b is BorderDirectional || b == null))
@@ -113,7 +112,7 @@ namespace Unity.UIWidgets.painting {
             paint(canvas, rect, textDirection);
         }
 
-        internal static void _paintUniformBorderWithRadius(Canvas canvas, Rect rect, BorderSide side,
+        internal virtual void _paintUniformBorderWithRadius(Canvas canvas, Rect rect, BorderSide side,
             BorderRadius borderRadius) {
             D.assert(side.style != BorderStyle.none);
             Paint paint = new Paint();
@@ -131,7 +130,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        internal static void _paintUniformBorderWithCircle(Canvas canvas, Rect rect, BorderSide side) {
+        internal virtual void _paintUniformBorderWithCircle(Canvas canvas, Rect rect, BorderSide side) {
             D.assert(side.style != BorderStyle.none);
             float width = side.width;
             Paint paint = side.toPaint();
@@ -139,7 +138,7 @@ namespace Unity.UIWidgets.painting {
             canvas.drawCircle(rect.center, radius, paint);
         }
 
-        internal static void _paintUniformBorderWithRectangle(Canvas canvas, Rect rect, BorderSide side) {
+        internal virtual void _paintUniformBorderWithRectangle(Canvas canvas, Rect rect, BorderSide side) {
             D.assert(side.style != BorderStyle.none);
             float width = side.width;
             Paint paint = side.toPaint();
@@ -199,10 +198,8 @@ namespace Unity.UIWidgets.painting {
                 left: BorderSide.merge(a.left, b.left)
             );
         }
-
-        public readonly BorderSide top;
+        
         public readonly BorderSide right;
-        public readonly BorderSide bottom;
         public readonly BorderSide left;
 
         public override EdgeInsetsGeometry dimensions {
@@ -215,7 +212,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        public bool isUniform {
+        public override bool isUniform {
             get { return isSameColor && isSameWidth && isSameStyle; }
         }
 
@@ -311,7 +308,7 @@ namespace Unity.UIWidgets.painting {
             paint(canvas, rect, textDirection);
         }
 
-        public void paint(Canvas canvas, Rect rect,
+        public override void paint(Canvas canvas, Rect rect,
             TextDirection? textDirection = null,
             BoxShape shape = BoxShape.rectangle,
             BorderRadius borderRadius = null) {
@@ -348,7 +345,7 @@ namespace Unity.UIWidgets.painting {
                 top: top, right: right, bottom: bottom, left: left);
         }
 
-        static void _paintUniformBorderWithRadius(Canvas canvas, Rect rect, BorderSide side,
+        internal override void _paintUniformBorderWithRadius(Canvas canvas, Rect rect, BorderSide side,
             BorderRadius borderRadius) {
             D.assert(side.style != BorderStyle.none);
             Paint paint = new Paint {
@@ -368,7 +365,7 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        static void _paintUniformBorderWithCircle(Canvas canvas, Rect rect, BorderSide side) {
+        internal override void _paintUniformBorderWithCircle(Canvas canvas, Rect rect, BorderSide side) {
             D.assert(side.style != BorderStyle.none);
             float width = side.width;
             Paint paint = side.toPaint();
@@ -376,7 +373,7 @@ namespace Unity.UIWidgets.painting {
             canvas.drawCircle(rect.center, radius, paint);
         }
 
-        static void _paintUniformBorderWithRectangle(Canvas canvas, Rect rect, BorderSide side) {
+        internal override void _paintUniformBorderWithRectangle(Canvas canvas, Rect rect, BorderSide side) {
             D.assert(side.style != BorderStyle.none);
             float width = side.width;
             Paint paint = side.toPaint();
@@ -494,16 +491,9 @@ namespace Unity.UIWidgets.painting {
                 bottom: BorderSide.merge(a.bottom, b.bottom)
             );
         }
-
-
-        public override BorderSide top { get; }
-
+        
         public readonly BorderSide start;
-
         public readonly BorderSide end;
-
-        public override BorderSide bottom { get; }
-
 
         public override EdgeInsetsGeometry dimensions {
             get => EdgeInsetsDirectional.fromSTEB(start.width, top.width, end.width, bottom.width);
@@ -598,7 +588,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static BorderDirectional lerp(BorderDirectional a, BorderDirectional b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)
@@ -633,15 +622,15 @@ namespace Unity.UIWidgets.painting {
                             case BoxShape.circle:
                                 D.assert(borderRadius == null,
                                     () => "A borderRadius can only be given for rectangular boxes.");
-                                BoxBorder._paintUniformBorderWithCircle(canvas, rect, top);
+                                _paintUniformBorderWithCircle(canvas, rect, top);
                                 break;
                             case BoxShape.rectangle:
                                 if (borderRadius != null) {
-                                    BoxBorder._paintUniformBorderWithRadius(canvas, rect, top, borderRadius);
+                                    _paintUniformBorderWithRadius(canvas, rect, top, borderRadius);
                                     return;
                                 }
 
-                                BoxBorder._paintUniformBorderWithRectangle(canvas, rect, top);
+                                _paintUniformBorderWithRectangle(canvas, rect, top);
                                 break;
                         }
 

@@ -125,7 +125,7 @@ namespace Unity.UIWidgets.rendering {
 
         public CrossAxisAlignment _crossAxisAlignment;
 
-        public TextDirection textDirection {
+        public TextDirection? textDirection {
             get { return _textDirection; }
             set {
                 if (_textDirection == value) {
@@ -137,9 +137,9 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public TextDirection _textDirection;
+        public TextDirection? _textDirection;
 
-        public VerticalDirection verticalDirection {
+        public VerticalDirection? verticalDirection {
             get { return _verticalDirection; }
             set {
                 if (_verticalDirection == value) {
@@ -151,7 +151,7 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        public VerticalDirection _verticalDirection;
+        public VerticalDirection? _verticalDirection;
 
         public TextBaseline textBaseline {
             get { return _textBaseline; }
@@ -173,10 +173,10 @@ namespace Unity.UIWidgets.rendering {
                     // i.e. there's more than one child
                     switch (direction) {
                         case Axis.horizontal:
-                            D.assert(textDirection != null, () => "Horizontal $runtimeType with multiple children has a null textDirection, so the layout order is undefined.");
+                            D.assert(textDirection != null, () => $"Horizontal {GetType()} with multiple children has a null textDirection, so the layout order is undefined.");
                             break;
                         case Axis.vertical:
-                            D.assert(verticalDirection != null, () => "Vertical $runtimeType with multiple children has a null verticalDirection, so the layout order is undefined.");
+                            D.assert(verticalDirection != null, () => $"Vertical {GetType()} with multiple children has a null verticalDirection, so the layout order is undefined.");
                             break;
                     }
                 }
@@ -184,10 +184,10 @@ namespace Unity.UIWidgets.rendering {
                 mainAxisAlignment == MainAxisAlignment.end) {
                     switch (direction) {
                         case Axis.horizontal:
-                            D.assert(textDirection != null, () => "Horizontal $runtimeType with $mainAxisAlignment has a null textDirection, so the alignment cannot be resolved.");
+                            D.assert(textDirection != null, () => $"Horizontal {GetType()} with {mainAxisAlignment} has a null textDirection, so the alignment cannot be resolved.");
                             break;
                         case Axis.vertical:
-                            D.assert(verticalDirection != null, () => "Vertical $runtimeType with $mainAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.");
+                            D.assert(verticalDirection != null, () => $"Vertical {GetType()} with {mainAxisAlignment} has a null verticalDirection, so the alignment cannot be resolved.");
                             break;
                     }
                 }
@@ -195,10 +195,10 @@ namespace Unity.UIWidgets.rendering {
                 crossAxisAlignment == CrossAxisAlignment.end) {
                     switch (direction) {
                         case Axis.horizontal:
-                            D.assert(verticalDirection != null, () => "Horizontal $runtimeType with $crossAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.");
+                            D.assert(verticalDirection != null, () => $"Horizontal {GetType()} with {crossAxisAlignment} has a null verticalDirection, so the alignment cannot be resolved.");
                             break;
                         case Axis.vertical:
-                            D.assert(textDirection != null, () => "Vertical $runtimeType with $crossAxisAlignment has a null textDirection, so the alignment cannot be resolved.");
+                            D.assert(textDirection != null, () => $"Vertical {GetType()} with {crossAxisAlignment} has a null textDirection, so the alignment cannot be resolved.");
                             break;
                     }
                 }
@@ -621,8 +621,8 @@ namespace Unity.UIWidgets.rendering {
             }
         }
 
-        static bool _startIsTopLeft(Axis direction, TextDirection textDirection,
-            VerticalDirection verticalDirection) {
+        static bool _startIsTopLeft(Axis direction, TextDirection? textDirection,
+            VerticalDirection? verticalDirection) {
             switch (direction) {
                 case Axis.horizontal:
                     switch (textDirection) {
@@ -667,7 +667,7 @@ namespace Unity.UIWidgets.rendering {
                 new ErrorDescription(
                     $"The edge of the {GetType()} that is overflowing has been marked " +
                     "in the rendering with a yellow and black striped pattern. This is " +
-                    "usually caused by the contents being too big for the $runtimeType."
+                    "usually caused by the contents being too big for the {GetType()}."
                 ),
                 new ErrorHint(
                     "Consider applying a flex factor (e.g. using an Expanded widget) to " +
@@ -709,7 +709,7 @@ namespace Unity.UIWidgets.rendering {
         
         public override string toStringShort() {
             string header = base.toStringShort();
-            if (_overflow is float && _hasOverflow)
+            if (_hasOverflow)
                 header += " OVERFLOWING";
             return header;
         }
@@ -720,8 +720,8 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new EnumProperty<MainAxisAlignment>("mainAxisAlignment", mainAxisAlignment));
             properties.add(new EnumProperty<MainAxisSize>("mainAxisSize", mainAxisSize));
             properties.add(new EnumProperty<CrossAxisAlignment>("crossAxisAlignment", crossAxisAlignment));
-            properties.add(new EnumProperty<TextDirection>("textDirection", textDirection, defaultValue: null));
-            properties.add(new EnumProperty<VerticalDirection>("verticalDirection", verticalDirection, defaultValue: null));
+            properties.add(new EnumProperty<TextDirection?>("textDirection", textDirection, defaultValue: null));
+            properties.add(new EnumProperty<VerticalDirection?>("verticalDirection", verticalDirection, defaultValue: null));
             properties.add(new EnumProperty<TextBaseline>("textBaseline", textBaseline, defaultValue: null));
         }
     }

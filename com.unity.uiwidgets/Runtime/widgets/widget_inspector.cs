@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.external;
 using Unity.UIWidgets.foundation;
@@ -15,32 +14,36 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
-using Debug = System.Diagnostics.Debug;
 using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.widgets {
+    
+#pragma warning disable CS0414
     public delegate Widget InspectorSelectButtonBuilder(BuildContext context, VoidCallback onPressed);
     public delegate Dictionary<string, object> AddAdditionalPropertiesCallback(DiagnosticsNode diagnosticsNode, InspectorSerializationDelegate inspectorSerializationDelegate);
     public delegate void _RegisterServiceExtensionCallback(string name = null , ServiceExtensionCallback callback = null);
-    public class WidgetInspectorUtils{
-        public static float _kScreenEdgeMargin = 10.0f;
-        public static float _kTooltipPadding = 5.0f;
-        public static float  _kInspectButtonMargin = 10.0f;
-        public static float _kOffScreenMargin = 1.0f;
+    public static class WidgetInspectorUtils
+    {
+        public const float _kScreenEdgeMargin = 10.0f;
+        public const float _kTooltipPadding = 5.0f;
+        public const float  _kInspectButtonMargin = 10.0f;
+        public const float _kOffScreenMargin = 1.0f;
 
-        public static TextStyle _messageStyle = new TextStyle(
+        public static readonly TextStyle _messageStyle = new TextStyle(
             color: new Color(0xFFFFFFFF),
             fontSize: 10.0f,
             height: 1.2f
         );
-        public static int _kMaxTooltipLines = 5;
-        public static Color _kTooltipBackgroundColor = Color.fromARGB(230, 60, 60, 60);
-        public static Color _kHighlightedRenderObjectFillColor = Color.fromARGB(128, 128, 128, 255);
-        public static Color _kHighlightedRenderObjectBorderColor = Color.fromARGB(128, 64, 64, 128);
+        
+        public const int _kMaxTooltipLines = 5;
+        public static readonly Color _kTooltipBackgroundColor = Color.fromARGB(230, 60, 60, 60);
+        public static readonly Color _kHighlightedRenderObjectFillColor = Color.fromARGB(128, 128, 128, 255);
+        public static readonly Color _kHighlightedRenderObjectBorderColor = Color.fromARGB(128, 64, 64, 128);
 
-        bool _isDebugCreator(DiagnosticsNode node) => node is DiagnosticsDebugCreator; 
-        IEnumerable transformDebugCreator(IEnumerable<DiagnosticsNode> properties) { 
+        static bool _isDebugCreator(DiagnosticsNode node) => node is DiagnosticsDebugCreator; 
+        
+        public static IEnumerable transformDebugCreator(IEnumerable<DiagnosticsNode> properties) { 
             List<DiagnosticsNode> result = new List<DiagnosticsNode>();
             List<DiagnosticsNode> pending = new List<DiagnosticsNode>();
             bool foundStackTrace = false;
@@ -63,9 +66,9 @@ namespace Unity.UIWidgets.widgets {
         public static readonly Dictionary<_Location, int> _locationToId = new Dictionary<_Location, int>();
         public static readonly List<_Location> _locations = new List<_Location>();
 
-        public static int _toLocationId(_Location location) {
-            int id = _locationToId[location];
-            if (id != null) {
+        public static int? _toLocationId(_Location location) {
+            int id = _locationToId.getOrDefault(location, -1);
+            if (id != -1) {
                 return id;
             }
             id = _locations.Count;
@@ -73,14 +76,14 @@ namespace Unity.UIWidgets.widgets {
             _locationToId[location] = id;
             return id;
         }
-        public IEnumerable _parseDiagnosticsNode(DiagnosticsNode node) { 
+        static IEnumerable _parseDiagnosticsNode(DiagnosticsNode node) { 
             if (!_isDebugCreator(node))
                 return null;
             DebugCreator debugCreator = node.value as DebugCreator;
             Element element = debugCreator.element;
             return _describeRelevantUserCode(element);
         }
-        public IEnumerable<DiagnosticsNode> _describeRelevantUserCode(Element element) {
+        static IEnumerable<DiagnosticsNode> _describeRelevantUserCode(Element element) {
             if (!WidgetInspectorService.instance.isWidgetCreationTracked()) {
                 return new List<DiagnosticsNode>() {
                     new ErrorDescription(
@@ -115,16 +118,18 @@ namespace Unity.UIWidgets.widgets {
             return nodes;
         }
 
-        public bool _isLocalCreationLocation(object _object){ 
+        static bool _isLocalCreationLocation(object _object){ 
             _Location location = _getCreationLocation(_object);
             if (location == null)
                 return false;
             return WidgetInspectorService.instance._isLocalCreationLocation(location);
         }
-        public string _describeCreationLocation(object _object) {
+        
+        static string _describeCreationLocation(object _object) {
             _Location location = _getCreationLocation(_object);
             return location?.ToString();
         }
+        
         public static _Location _getCreationLocation(object _object) { 
             object candidate =  _object is Element ? ((Element)_object).widget : _object;
             return candidate is _HasCreationLocation ? ((_HasCreationLocation)candidate)._location : null;
@@ -192,8 +197,8 @@ namespace Unity.UIWidgets.widgets {
 
 
     }
-    public abstract class _HasCreationLocation {
-        public _Location _location { get; }
+    public interface _HasCreationLocation {
+        _Location _location { get; }
     }
 
     public class _ProxyLayer : Layer {
@@ -1480,7 +1485,7 @@ namespace Unity.UIWidgets.widgets {
         Canvas _screenshotCanvas;
         _MulticastCanvas _multicastCanvas;
 
-        public Canvas canvas {
+        public override Canvas canvas {
             get {
                 if (_data.includeInScreenshot) {
                     if (_screenshotCanvas == null) {
@@ -1668,9 +1673,11 @@ namespace Unity.UIWidgets.widgets {
         public readonly string groupName;
         public readonly bool summaryTree;
         public readonly int maxDescendentsTruncatableNode;
-        public readonly bool expandPropertyValues;
-        public readonly int subtreeDepth;
-        public readonly bool includeProperties;
+
+        public override int subtreeDepth { get; }
+        public override bool includeProperties { get; }
+        public override bool expandPropertyValues { get; }
+
         public readonly WidgetInspectorService service; 
         public readonly AddAdditionalPropertiesCallback addAdditionalPropertiesCallback ;
         public readonly List<DiagnosticsNode> _nodesCreatedByLocalProject = new List<DiagnosticsNode>();
@@ -2451,4 +2458,5 @@ namespace Unity.UIWidgets.widgets {
             return false;
         }
     }
+#pragma warning restore CS0414
 }

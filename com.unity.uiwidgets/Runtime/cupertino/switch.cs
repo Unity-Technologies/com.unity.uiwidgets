@@ -296,11 +296,9 @@ namespace Unity.UIWidgets.cupertino {
         public bool value {
             get { return _value; }
             set {
-                D.assert(value != null);
                 if (value == _value)
                     return;
                 _value = value;
-                //markNeedsSemanticsUpdate();
             }
         }
 

@@ -309,7 +309,7 @@ namespace Unity.UIWidgets.painting {
                 return value == null ? "null" : value.ToString();
             }
 
-            return string.Join("\n", MatrixUtils.debugDescribeTransform(value));
+            return string.Join("\n", MatrixUtils.debugDescribeTransform(valueT));
         }
     }
 }

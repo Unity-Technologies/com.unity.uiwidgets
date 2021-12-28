@@ -496,19 +496,14 @@ namespace Unity.UIWidgets.cupertino {
             if (resolvable == null)
                 return null;
             D.assert(context != null);
-
-           
-            //var resolveColor =  (resolvable is CupertinoDynamicColor) ? ((CupertinoDynamicColor)resolvable).resolveFrom(context, nullOk: nullOk) : resolvable;
+            
             Color resolveColor = null;
             if (resolvable is CupertinoDynamicColor) {
-                int i = 0;
                 resolveColor = ((CupertinoDynamicColor) resolvable).resolveFrom(context, nullOk: nullOk)._effectiveColor;
             }
             else {
-                int j = 0;
                 resolveColor =  resolvable;
             }
-
             return resolveColor;
         }
 
@@ -640,7 +635,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public override int GetHashCode() {
             unchecked {
-                var hashCode = (value != null ? value.GetHashCode() : 0);
+                var hashCode = (value.GetHashCode());
                 hashCode = (hashCode * 397) ^(color != null ? color.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (darkColor != null ? darkColor.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (highContrastColor != null ? highContrastColor.GetHashCode() : 0);

@@ -59,16 +59,12 @@ namespace Unity.UIWidgets.painting {
         string _findNearest(SplayTree<float, string> candidates, float value) {
             if (candidates.ContainsKey(value))
                 return candidates[value];
-            float lower = candidates.lastKeyBefore(value);
-            float upper = candidates.firstKeyAfter(value);
-            if (lower == null)
-                return candidates[upper];
-            if (upper == null)
-                return candidates[lower];
+            var lower = candidates.lastKeyBefore(value);
+            var upper = candidates.firstKeyAfter(value);
             if (value > (lower + upper) / 2)
                 return candidates[upper];
-            else
-                return candidates[lower];
+            
+            return candidates[lower];
         }
 
         internal static readonly Regex _extractRatioRegExp = new Regex(@"/?(\d+(\.\d*)?)x$");
