@@ -1581,14 +1581,14 @@ namespace Unity.UIWidgets.ui {
 
         public float length(int contourIndex) {
             D.assert(contourIndex <= currentContourIndex, () => $"Iterator must be advanced before index {contourIndex} can be used.");
-            return PathMeasure_length(contourIndex);
+            return PathMeasure_length(_ptr, contourIndex);
         }
 
         public unsafe Tangent getTangentForOffset(int contourIndex, float distance) {
             D.assert(contourIndex <= currentContourIndex, () => $"Iterator must be advanced before index {contourIndex} can be used.");
             float[] posTan = new float[5];
             fixed (float* posTanPtr = posTan) {
-                PathMeasure_getPosTan(contourIndex, distance, posTanPtr);
+                PathMeasure_getPosTan(_ptr, contourIndex, distance, posTanPtr);
             }
 
             if (posTan[0] == 0.0f) {
@@ -1605,17 +1605,17 @@ namespace Unity.UIWidgets.ui {
         public Path extractPath(int contourIndex, float start, float end, bool startWithMoveTo = true) {
             D.assert(contourIndex <= currentContourIndex,
                 () => $"Iterator must be advanced before index {contourIndex} can be used.");
-            IntPtr pathPtr = PathMeasure_getSegment(contourIndex, start, end, startWithMoveTo);
+            IntPtr pathPtr = PathMeasure_getSegment(_ptr, contourIndex, start, end, startWithMoveTo);
             return new Path(pathPtr);
         }
 
         public bool isClosed(int contourIndex) {
             D.assert(contourIndex <= currentContourIndex, () => $"Iterator must be advanced before index {contourIndex} can be used.");
-            return PathMeasure_isClosed(contourIndex);
+            return PathMeasure_isClosed(_ptr, contourIndex);
         }
 
         public bool _nextContour() {
-            bool next = PathMeasure_nativeNextContour();
+            bool next = PathMeasure_nativeNextContour(_ptr);
             if (next) {
                 currentContourIndex++;
             }
@@ -1630,23 +1630,23 @@ namespace Unity.UIWidgets.ui {
         static extern void PathMeasure_dispose(IntPtr ptr);
 
         [DllImport(NativeBindings.dllName)]
-        static extern float PathMeasure_length(int contourIndex);
+        static extern float PathMeasure_length(IntPtr ptr, int contourIndex);
 
         [DllImport(NativeBindings.dllName)]
-        static extern unsafe void PathMeasure_getPosTan(int contourIndex, float distance, float* posTan);
+        static extern unsafe void PathMeasure_getPosTan(IntPtr ptr, int contourIndex, float distance, float* posTan);
 
         [DllImport(NativeBindings.dllName)]
-        static extern IntPtr PathMeasure_getSegment(int contourIndex, float start, float end,
+        static extern IntPtr PathMeasure_getSegment(IntPtr ptr, int contourIndex, float start, float end,
             bool startWithMoveTo);
 
         
         [DllImport(NativeBindings.dllName)]
         [return: MarshalAs(UnmanagedType.U1)]
-        static extern bool PathMeasure_isClosed(int contourIndex);
+        static extern bool PathMeasure_isClosed(IntPtr ptr, int contourIndex);
         
         [DllImport(NativeBindings.dllName)]
         [return: MarshalAs(UnmanagedType.U1)]
-        static extern bool PathMeasure_nativeNextContour();
+        static extern bool PathMeasure_nativeNextContour(IntPtr ptr);
     }
 
     public class ColorFilter : IEquatable<ColorFilter> {
