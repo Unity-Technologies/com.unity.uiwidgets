@@ -261,7 +261,7 @@ namespace Unity.UIWidgets.gestures {
         void _checkUp(int buttons) {
             D.assert(buttons == gesture_.kPrimaryButton);
             if (onDoubleTap != null) {
-                invokeCallback("onDoubleTap",() => onDoubleTap);
+                invokeCallback("onDoubleTap",() => onDoubleTap());
             }
         }
 

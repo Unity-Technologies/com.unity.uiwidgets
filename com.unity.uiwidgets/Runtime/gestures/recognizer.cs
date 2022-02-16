@@ -109,7 +109,7 @@ namespace Unity.UIWidgets.gestures {
                     return true;
                 });
 
-                
+                callback();
             }
             catch (Exception ex) {
                 IEnumerable<DiagnosticsNode> infoCollector() {
