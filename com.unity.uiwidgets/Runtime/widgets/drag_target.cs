@@ -325,6 +325,7 @@ namespace Unity.UIWidgets.widgets {
         readonly List<_DragAvatar<T>> _candidateAvatars = new List<_DragAvatar<T>>();
         readonly List<_DragAvatar<T>> _rejectedAvatars = new List<_DragAvatar<T>>();
 
+        //Triggered if avatar entered the drag target
         public bool didEnter(_DragAvatar<T> avatar) {
             D.assert(!_candidateAvatars.Contains(avatar));
             D.assert(!_rejectedAvatars.Contains(avatar));
@@ -341,6 +342,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
+        //Triggered if avatar leaved the drag target
         public void didLeave(_DragAvatar<T> avatar) {
             D.assert(_candidateAvatars.Contains(avatar) || _rejectedAvatars.Contains(avatar));
             if (!mounted) {
@@ -355,7 +357,8 @@ namespace Unity.UIWidgets.widgets {
                 widget.onLeave(avatar.data);
             }
         }
-
+        
+        //Triggered if avatar is dropped at drag target
         public void didDrop(_DragAvatar<T> avatar) {
             D.assert(_candidateAvatars.Contains(avatar));
             if (!mounted) {
@@ -363,6 +366,7 @@ namespace Unity.UIWidgets.widgets {
             }
 
             setState(() => { _candidateAvatars.Remove(avatar); });
+            //If set the onAccept callback, return the avatar data
             if (widget.onAccept != null) {
                 widget.onAccept(avatar.data);
             }
@@ -486,6 +490,7 @@ namespace Unity.UIWidgets.widgets {
             _leaveAllEntered();
 
             _DragTargetState<T> newTarget = null;
+            //Loop through every target and check if current avatar enter the target
             foreach (var target in targets) {
                 _enteredTargets.Add(target);
                 if (target.didEnter(this)) {
@@ -520,8 +525,10 @@ namespace Unity.UIWidgets.widgets {
             _enteredTargets.Clear();
         }
 
+        //Finish dragging the draggable
         void finishDrag(_DragEndKind endKind, Velocity velocity = null) {
             bool wasAccepted = false;
+            //If finish drag by dropping the avatar, and avatar has entered any drag target, trigger didDrop
             if (endKind == _DragEndKind.dropped && _activeTarget != null) {
                 _activeTarget.didDrop(this);
                 wasAccepted = true;
