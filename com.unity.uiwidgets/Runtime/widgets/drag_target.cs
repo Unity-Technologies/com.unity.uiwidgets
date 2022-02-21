@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 
 namespace Unity.UIWidgets.widgets {
     public delegate bool DragTargetWillAccept<T>(T data);
@@ -23,7 +23,7 @@ namespace Unity.UIWidgets.widgets {
         child,
         pointer
     }
-    
+
     static class _DragUtils {
         public static List<T> _mapAvatarsToData<T>(List<_DragAvatar<T>> avatars) {
             List<T> ret = new List<T>(avatars.Count);
@@ -35,7 +35,36 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    /**
+     * @description: Define a draggable item(short press to drag).
+     */
     public class Draggable<T> : StatefulWidget {
+        readonly Axis? affinity;
+
+        public readonly Axis? axis;
+
+        public readonly Widget child;
+
+        public readonly Widget childWhenDragging;
+
+        public readonly T data;
+
+        public readonly DragAnchor dragAnchor;
+
+        public readonly Widget feedback;
+
+        public readonly Offset feedbackOffset;
+
+        public readonly int? maxSimultaneousDrags;
+
+        public readonly VoidCallback onDragCompleted;
+
+        public readonly DragEndCallback onDragEnd;
+
+        public readonly DraggableCanceledCallback onDraggableCanceled;
+
+        public readonly VoidCallback onDragStarted;
+
         public Draggable(
             Key key = null,
             Widget child = null,
@@ -51,7 +80,7 @@ namespace Unity.UIWidgets.widgets {
             DraggableCanceledCallback onDraggableCanceled = null,
             DragEndCallback onDragEnd = null,
             VoidCallback onDragCompleted = null
-            ) : base(key) {
+        ) : base(key) {
             D.assert(child != null);
             D.assert(feedback != null);
             D.assert(maxSimultaneousDrags == null || maxSimultaneousDrags >= 0);
@@ -70,32 +99,6 @@ namespace Unity.UIWidgets.widgets {
             this.onDragEnd = onDragEnd;
             this.onDragCompleted = onDragCompleted;
         }
-
-        public readonly T data;
-
-        public readonly Axis? axis;
-
-        public readonly Widget child;
-
-        public readonly Widget childWhenDragging;
-
-        public readonly Widget feedback;
-
-        public readonly Offset feedbackOffset;
-
-        public readonly DragAnchor dragAnchor;
-
-        readonly Axis? affinity;
-
-        public readonly int? maxSimultaneousDrags;
-
-        public readonly VoidCallback onDragStarted;
-
-        public readonly DraggableCanceledCallback onDraggableCanceled;
-
-        public readonly VoidCallback onDragCompleted;
-
-        public readonly DragEndCallback onDragEnd;
 
 
         public virtual GestureRecognizer createRecognizer(GestureMultiDragStartCallback onStart) {
@@ -116,7 +119,9 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-
+    /**
+     * @description: Define a draggable item(long press to drag).
+     */
     public class LongPressDraggable<T> : Draggable<T> {
         public LongPressDraggable(
             Key key = null,
@@ -159,7 +164,14 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    /**
+     * @description: Define the state of a draggable item
+     */
     public class _DraggableState<T> : State<Draggable<T>> {
+        int _activeCount;
+
+        GestureRecognizer _recognizer;
+
         public override void initState() {
             base.initState();
             _recognizer = widget.createRecognizer(_startDrag);
@@ -170,13 +182,11 @@ namespace Unity.UIWidgets.widgets {
             base.dispose();
         }
 
-        GestureRecognizer _recognizer;
-        int _activeCount;
-
         void _disposeRecognizerIfInactive() {
             if (_activeCount > 0) {
                 return;
             }
+
             _recognizer.dispose();
             _recognizer = null;
         }
@@ -271,8 +281,16 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
-
+    /**
+     * @description: Define details of a draggable item.
+     */
     public class DraggableDetails {
+        public readonly Offset offset;
+
+        public readonly Velocity velocity;
+
+        public readonly bool wasAccepted;
+
         public DraggableDetails(
             bool wasAccepted = false,
             Velocity velocity = null,
@@ -284,16 +302,24 @@ namespace Unity.UIWidgets.widgets {
             this.velocity = velocity;
             this.offset = offset;
         }
-
-        public readonly bool wasAccepted;
-
-        public readonly Velocity velocity;
-
-        public readonly Offset offset;
     }
 
-
+    /**
+     * @description: Define drag target. Could interact with a draggable item in the event of "enter", "leave" or "drop".
+     *               When start dragging, _startDrag in _DraggableState is called and return a dragAvatar of that dragging item. 
+     *               updateDrag in _DragAvatar is called whenever the item is dragged and not called when the item stay unmoved.
+     *               In updateDrag, didEnter is called when new draggable item enter a drag target(detect by hittest)
+     *               didLeave is called in updateDrag if draggable is dragged through the drag target, and is called in finishDrag(didDrop is called if finish dragging by dropping the item). 
+     */
     public class DragTarget<T> : StatefulWidget {
+        public readonly DragTargetBuilder<T> builder;
+
+        public readonly DragTargetAccept<T> onAccept;
+
+        public readonly DragTargetLeave<T> onLeave;
+
+        public readonly DragTargetWillAccept<T> onWillAccept;
+
         public DragTarget(
             Key key = null,
             DragTargetBuilder<T> builder = null,
@@ -308,19 +334,14 @@ namespace Unity.UIWidgets.widgets {
             this.onLeave = onLeave;
         }
 
-        public readonly DragTargetBuilder<T> builder;
-
-        public readonly DragTargetWillAccept<T> onWillAccept;
-
-        public readonly DragTargetAccept<T> onAccept;
-
-        public readonly DragTargetLeave<T> onLeave;
-
         public override State createState() {
             return new _DragTargetState<T>();
         }
     }
 
+    /**
+     * @description: Define drag target state. State change when draggable item enter, leave or drop on the drag target.
+     */
     public class _DragTargetState<T> : State<DragTarget<T>> {
         readonly List<_DragAvatar<T>> _candidateAvatars = new List<_DragAvatar<T>>();
         readonly List<_DragAvatar<T>> _rejectedAvatars = new List<_DragAvatar<T>>();
@@ -335,9 +356,7 @@ namespace Unity.UIWidgets.widgets {
                 return true;
             }
             else {
-                setState(() => {
-                    _rejectedAvatars.Add(avatar);
-                });
+                setState(() => { _rejectedAvatars.Add(avatar); });
                 return false;
             }
         }
@@ -357,7 +376,7 @@ namespace Unity.UIWidgets.widgets {
                 widget.onLeave(avatar.data);
             }
         }
-        
+
         //Triggered if avatar is dropped at drag target
         public void didDrop(_DragAvatar<T> avatar) {
             D.assert(_candidateAvatars.Contains(avatar));
@@ -390,8 +409,34 @@ namespace Unity.UIWidgets.widgets {
 
     public delegate void _OnDragEnd(Velocity velocity, Offset offset, bool wasAccepted);
 
-
+    /**
+     * @description: Define drag avatar. Is created in _DraggableState when start dragging
+     */
     public class _DragAvatar<T> : Drag {
+        readonly List<_DragTargetState<T>> _enteredTargets = new List<_DragTargetState<T>>();
+
+        readonly Axis? axis;
+
+        public readonly T data;
+
+        readonly Offset dragStartPoint;
+
+        readonly Widget feedback;
+
+        readonly Offset feedbackOffset;
+
+        readonly _OnDragEnd onDragEnd;
+
+        readonly OverlayState overlayState;
+
+        _DragTargetState<T> _activeTarget;
+
+        OverlayEntry _entry;
+
+        Offset _lastOffset;
+
+        Offset _position;
+
         public _DragAvatar(
             OverlayState overlayState,
             T data = default,
@@ -402,9 +447,6 @@ namespace Unity.UIWidgets.widgets {
             Offset feedbackOffset = null,
             _OnDragEnd onDragEnd = null
         ) {
-           
-
-           
             if (feedbackOffset == null) {
                 feedbackOffset = Offset.zero;
             }
@@ -423,30 +465,6 @@ namespace Unity.UIWidgets.widgets {
             _position = initialPosition ?? Offset.zero;
             updateDrag(initialPosition);
         }
-
-        public readonly T data;
-
-        readonly Axis? axis;
-
-        readonly Offset dragStartPoint;
-
-        readonly Widget feedback;
-
-        readonly Offset feedbackOffset;
-
-        readonly _OnDragEnd onDragEnd;
-
-        readonly OverlayState overlayState;
-
-        _DragTargetState<T> _activeTarget;
-
-        readonly List<_DragTargetState<T>> _enteredTargets = new List<_DragTargetState<T>>();
-
-        Offset _position;
-
-        Offset _lastOffset;
-
-        OverlayEntry _entry;
 
         public void update(DragUpdateDetails details) {
             _position += _restrictAxis(details.delta);
@@ -486,11 +504,10 @@ namespace Unity.UIWidgets.widgets {
             if (listsMatch) {
                 return;
             }
-
+            
             _leaveAllEntered();
 
             _DragTargetState<T> newTarget = null;
-            //Loop through every target and check if current avatar enter the target
             foreach (var target in targets) {
                 _enteredTargets.Add(target);
                 if (target.didEnter(this)) {
@@ -524,8 +541,10 @@ namespace Unity.UIWidgets.widgets {
 
             _enteredTargets.Clear();
         }
-
-        //Finish dragging the draggable
+        
+        /**
+         * @description: Finish dragging the draggable.
+         */
         void finishDrag(_DragEndKind endKind, Velocity velocity = null) {
             bool wasAccepted = false;
             //If finish drag by dropping the avatar, and avatar has entered any drag target, trigger didDrop
@@ -546,7 +565,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public Widget _build(BuildContext context) {
-            RenderBox box =  overlayState.context.findRenderObject() as RenderBox;
+            RenderBox box = overlayState.context.findRenderObject() as RenderBox;
             Offset overlayTopLeft = box.localToGlobal(Offset.zero);
             return new Positioned(
                 left: _lastOffset.dx - overlayTopLeft.dx,
