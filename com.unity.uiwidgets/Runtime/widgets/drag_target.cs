@@ -35,6 +35,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    // 拖动上下文context的封装
     public class Draggable<T> : StatefulWidget {
         public Draggable(
             Key key = null,
@@ -117,6 +118,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
 
+    // 针对长按的Draggable的子类
     public class LongPressDraggable<T> : Draggable<T> {
         public LongPressDraggable(
             Key key = null,
@@ -159,6 +161,8 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    // 动作的分发，_DragAvatar的创建
+    // depend: _DragAvatar, DraggableDetails
     public class _DraggableState<T> : State<Draggable<T>> {
         public override void initState() {
             base.initState();
@@ -272,6 +276,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
 
+    // 记录一些drag的细节信息：速度，偏移
     public class DraggableDetails {
         public DraggableDetails(
             bool wasAccepted = false,
@@ -293,6 +298,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
 
+    // 托管函数的封装
     public class DragTarget<T> : StatefulWidget {
         public DragTarget(
             Key key = null,
@@ -321,6 +327,8 @@ namespace Unity.UIWidgets.widgets {
         }
     }
 
+    // 管理被拖动的对象(_DragAvatar)
+    // 依赖于_DragAvatar, DragTarget
     public class _DragTargetState<T> : State<DragTarget<T>> {
         readonly List<_DragAvatar<T>> _candidateAvatars = new List<_DragAvatar<T>>();
         readonly List<_DragAvatar<T>> _rejectedAvatars = new List<_DragAvatar<T>>();
@@ -385,8 +393,9 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public delegate void _OnDragEnd(Velocity velocity, Offset offset, bool wasAccepted);
-
-
+    
+    // 被拖动的对象的封装
+    // 依赖于_DragTargetState
     public class _DragAvatar<T> : Drag {
         public _DragAvatar(
             OverlayState overlayState,
