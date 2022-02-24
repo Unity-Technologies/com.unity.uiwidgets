@@ -6,6 +6,21 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 
+// 1) drag process
+// dragged
+// _DraggableState::_startDrag
+// drag object _DragAvatar is created.
+// DragDropState is created
+// Draggable is created
+//
+// If dragged to target, the responding behavior code packaged in DragTarget built from DragTargetWidgetState willed invoked.
+//
+// 2) how do the currently dragged item changes its position accordingly ?
+// When mouse move, MultiDragPointerState::_move is triggered, the new posintion info will be updated into _DragAvatar through _DragAvatar::update.
+//
+// 3) which part of the codes are called when the dragged item is finally dropped into one drag target and what happens specifically ?
+// When the dragged item is finally dropped into one drag target, DragTarget's onAccept callback is called.
+
 namespace Unity.UIWidgets.widgets {
     public delegate bool DragTargetWillAccept<T>(T data);
 
