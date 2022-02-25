@@ -43,14 +43,6 @@ namespace uiwidgets
                                 const char *streaming_assets_path,
                                 const char *settings)
   {
-    surface_manager_ = std::make_unique<UnitySurfaceManager>(
-        UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
-
-    FML_DCHECK(fbo_ == 0);
-    surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
-    fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
-    surface_manager_->ClearCurrent();
-
     fml::AutoResetWaitableEvent latch;
     std::thread::id gfx_worker_thread_id;
     UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
@@ -59,6 +51,14 @@ namespace uiwidgets
           latch.Signal();
         });
     latch.Wait();
+    
+    surface_manager_ = std::make_unique<UnitySurfaceManager>(
+        UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
+
+    FML_DCHECK(fbo_ == 0);
+    surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
+    fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
+    surface_manager_->ClearCurrent();
 
     gfx_worker_task_runner_ = std::make_unique<GfxWorkerTaskRunner>(
         gfx_worker_thread_id, [this](const auto *task) {
