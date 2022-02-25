@@ -16,10 +16,6 @@
 
 namespace uiwidgets {
 
-	std::thread::id gfx_worker_thread_id;
-
-	int worker_set = 0;
-
 fml::RefPtr<UIWidgetsPanel> UIWidgetsPanel::Create(
     Mono_Handle handle, UIWidgetsWindowType window_type, EntrypointCallback entrypoint_callback) {
   return fml::MakeRefCounted<UIWidgetsPanel>(handle, window_type, entrypoint_callback);
@@ -45,12 +41,14 @@ void* UIWidgetsPanel::OnEnable(size_t width,
                               const char* streaming_assets_path,
                               const char* settings) {
 
-	fml::AutoResetWaitableEvent latch2;
-  // std::thread::id gfx_worker_thread_id;
-  UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker([&latch2]() -> void {
-    latch2.Signal();
-  });
-  latch2.Wait();
+	fml::AutoResetWaitableEvent latch;
+  std::thread::id gfx_worker_thread_id;
+  UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
+      [&latch, &gfx_worker_thread_id]() -> void {
+        gfx_worker_thread_id = std::this_thread::get_id();
+        latch.Signal();
+      });
+  latch.Wait();
 
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
@@ -61,21 +59,7 @@ void* UIWidgetsPanel::OnEnable(size_t width,
   void* d3dtexture = surface_manager_->GetD3DInnerTexture();
   
   surface_manager_->ClearCurrent();
-
-  if (worker_set == 0)
-  {
-	  fml::AutoResetWaitableEvent latch;
-	  //std::thread::id gfx_worker_thread_id;
-	  UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
-		  [&latch]() -> void {
-			gfx_worker_thread_id = std::this_thread::get_id();
-			latch.Signal();
-		  });
-	  latch.Wait();
-
-	  worker_set = 1;
-  }
-
+  
   gfx_worker_task_runner_ = std::make_unique<GfxWorkerTaskRunner>(
       gfx_worker_thread_id, [this](const auto* task) {
         if (UIWidgetsEngineRunTask(engine_, task) != kSuccess) {
