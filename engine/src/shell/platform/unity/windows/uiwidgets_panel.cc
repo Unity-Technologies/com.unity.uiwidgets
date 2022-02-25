@@ -40,6 +40,16 @@ void* UIWidgetsPanel::OnEnable(size_t width,
                               size_t height, float device_pixel_ratio,
                               const char* streaming_assets_path,
                               const char* settings) {
+
+	fml::AutoResetWaitableEvent latch;
+  std::thread::id gfx_worker_thread_id;
+  UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
+      [&latch, &gfx_worker_thread_id]() -> void {
+        gfx_worker_thread_id = std::this_thread::get_id();
+        latch.Signal();
+      });
+  latch.Wait();
+
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
 
@@ -49,16 +59,7 @@ void* UIWidgetsPanel::OnEnable(size_t width,
   void* d3dtexture = surface_manager_->GetD3DInnerTexture();
   
   surface_manager_->ClearCurrent();
-
-  fml::AutoResetWaitableEvent latch;
-  std::thread::id gfx_worker_thread_id;
-  UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
-      [&latch, &gfx_worker_thread_id]() -> void {
-        gfx_worker_thread_id = std::this_thread::get_id();
-        latch.Signal();
-      });
-  latch.Wait();
-
+  
   gfx_worker_task_runner_ = std::make_unique<GfxWorkerTaskRunner>(
       gfx_worker_thread_id, [this](const auto* task) {
         if (UIWidgetsEngineRunTask(engine_, task) != kSuccess) {
