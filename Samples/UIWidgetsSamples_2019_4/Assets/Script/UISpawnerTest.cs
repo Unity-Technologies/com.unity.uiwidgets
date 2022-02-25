@@ -3,7 +3,15 @@ using UnityEngine.UI;
 
 namespace UIWidgetsSample
 {
-    public class TestFei : MonoBehaviour
+    /*
+     * In this test we are testing a scenario that, spawning UIWidgetsPanels in the Update function of a
+     * Monobehaviour object.
+     *
+     * This scenario used to cause fatal crash on other Editor and Player. Therefore this test sample will
+     * be very useful when doing regression tests. Please refer to the corresponding PR
+     * description for the root cause of the crash and how we fix it.
+     */
+    public class UISpawnerTest : MonoBehaviour
     {
         private float curTime = 0.0f;
 
@@ -11,8 +19,6 @@ namespace UIWidgetsSample
 
         private bool isOk = false;
 
-        public static bool needwaiting = false;
-        
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.A))
@@ -25,11 +31,6 @@ namespace UIWidgetsSample
                 return;
             }
 
-            //if (needwaiting)
-            //{
-            //    return;
-            //}
-            
             if (this.totalNum <= 0)
             {
                 return;
@@ -43,9 +44,7 @@ namespace UIWidgetsSample
 
             this.curTime = 0;
             this.totalNum--;
-
-            //needwaiting = true;
-            //for (int i = 0; i < 10; i++)
+            
             {
                 GameObject gameobject = new GameObject();
                 GameObject newCanvas = new GameObject();
