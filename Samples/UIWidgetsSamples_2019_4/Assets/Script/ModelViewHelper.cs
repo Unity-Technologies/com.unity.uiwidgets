@@ -81,7 +81,7 @@ namespace UIWidgetsSample
             
             var gameObj = (GameObject) Instantiate(modelViewPrefab, Vector3.zero, Quaternion.identity);
             
-            var renderTexture = new RenderTexture(100, 100, 24);
+            var renderTexture = new RenderTexture(100, 100, 32);
 
             gameObj.transform.Find("Camera").GetComponent<Camera>().targetTexture = renderTexture;
             

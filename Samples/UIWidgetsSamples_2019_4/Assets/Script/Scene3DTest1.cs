@@ -63,7 +63,7 @@ namespace UIWidgetsSample
                         children: new List<Widget>
                         {
                             new Lottie("wine.json", size: new Size(100, 100)),
-                            new Container(width: 100, height: 100, child:new Texture(texture: text)),
+                            new Container(width: 200, height: 200, color: Colors.red, child: new Center(child: new Container(width: 100, height: 100, child:new Texture(texture: text)))),
                             new Container(
                                 width: 100,
                                 height: 100,
