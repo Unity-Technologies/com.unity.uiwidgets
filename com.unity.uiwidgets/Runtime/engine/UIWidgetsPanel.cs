@@ -446,6 +446,8 @@ namespace Unity.UIWidgets.engine {
 
         UIWidgetsInputMode _inputMode;
 
+        static UIWidgetsPanel _currentActivePanel = null;
+
         void _convertPointerData(PointerEventData evt, out Vector2? position, out int pointerId) {
             position = _inputMode == UIWidgetsInputMode.Mouse
                 ? _getPointerPosition(Input.mousePosition)
@@ -484,9 +486,11 @@ namespace Unity.UIWidgets.engine {
 
         void Input_OnEnable() {
             _inputMode = Input.mousePresent ? UIWidgetsInputMode.Mouse : UIWidgetsInputMode.Touch;
+            Focus();
         }
 
         void Input_OnDisable() {
+            UnFocus();
         }
 
         void Input_Update() {
@@ -519,7 +523,23 @@ namespace Unity.UIWidgets.engine {
 #endif
         }
 
+        private bool isActivePanel => _currentActivePanel == this;
+
+        public void Focus() {
+            _currentActivePanel = this;
+        }
+
+        public void UnFocus() {
+            if (_currentActivePanel == this) {
+                _currentActivePanel = null;
+            }
+        }
+
         void Input_OnGUI() {
+            if (!isActivePanel) {
+                return;
+            }
+            
             var e = Event.current;
             if (e.isKey) {
                 _wrapper.OnKeyDown(e: e);
@@ -561,6 +581,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         public void OnPointerDown(PointerEventData eventData) {
+            Focus();
             _convertPointerData(eventData, out var pos, out var pointerId);
             _wrapper.OnPointerDown(pos, pointerId);
         }
@@ -571,6 +592,7 @@ namespace Unity.UIWidgets.engine {
         }
 
         public void OnDrag(PointerEventData eventData) {
+            Focus();
             _convertPointerData(eventData, out var pos, out var pointerId);
             _wrapper.OnDrag(pos, pointerId);
         }
