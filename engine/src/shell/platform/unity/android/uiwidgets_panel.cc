@@ -268,14 +268,16 @@ namespace uiwidgets
   int UIWidgetsPanel::RegisterTexture(void *native_texture_ptr)
   {
     std::cerr << "registering external texture is not implemented for android" << std::endl;
-    int texture_identifier = 0;
+    //int texture_identifier = 0;
+    int texture_identifier = reinterpret_cast<int>(native_texture_ptr);
     // texture_identifier++;
 
-    // auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
+    auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
 
-    // engine->GetShell().GetPlatformView()->RegisterTexture(
-    //     std::make_unique<UnityExternalTextureGL>(
-    //         texture_identifier, native_texture_ptr, surface_manager_.get()));
+    engine->GetShell().GetPlatformView()->RegisterTexture(
+         std::make_unique<UnityExternalTextureGL>(
+             texture_identifier, native_texture_ptr, surface_manager_.get()));
+    
     return texture_identifier;
   }
 
