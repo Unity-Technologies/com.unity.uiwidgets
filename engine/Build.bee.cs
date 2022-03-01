@@ -601,6 +601,7 @@ class Build
             "src/shell/platform/unity/android/uiwidgets_system.cc",
             "src/shell/platform/unity/android/android_task_runner.cc",
             "src/shell/platform/unity/android/uiwidgets_panel.cc",
+            "src/shell/platform/unity/android/unity_external_texture_gl.cc"
         };
 
         var iosSources = new NPath[] {

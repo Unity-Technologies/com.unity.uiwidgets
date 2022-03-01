@@ -1,10 +1,7 @@
 #include "unity_external_texture_gl.h"
 
 #include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <EGL/eglext_angle.h>
 #include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
 
 #include "flutter/fml/logging.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -16,10 +13,8 @@
 namespace uiwidgets {
 
 UnityExternalTextureGL::UnityExternalTextureGL(
-    int64_t texture_identifier, void* native_texture_ptr,
-    UnitySurfaceManager* unity_surface_manager)
-    : Texture(texture_identifier),
-      unity_surface_manager_(unity_surface_manager) {
+    int64_t texture_identifier)
+    : Texture(texture_identifier){
   auto* graphics = UIWidgetsSystem::GetInstancePtr()
                        ->GetUnityInterfaces()
                        ->Get<IUnityGraphics>();
@@ -34,9 +29,6 @@ UnityExternalTextureGL::~UnityExternalTextureGL() {
     glDeleteTextures(1, &gl_texture_);
     gl_texture_ = 0;
   }
-
-  eglDestroyImageKHR(unity_surface_manager_->GetEGLDisplay(), egl_image_);
-  d3d11_texture_->Release();
 }
 
 // |flutter::Texture|

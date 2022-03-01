@@ -10,15 +10,11 @@ namespace uiwidgets {
 
 class UnityExternalTextureGL : public Texture {
  public:
-  UnityExternalTextureGL(int64_t texture_identifier, void* native_texture_ptr,
-                         UnitySurfaceManager* unity_surface_manager);
+  UnityExternalTextureGL(int64_t texture_identifier);
 
   ~UnityExternalTextureGL() override;
 
  private:
-  UnitySurfaceManager* unity_surface_manager_;
-  bool gr_context_created_ = false;
-
   GLuint gl_texture_;
   sk_sp<SkImage> last_image_;
 

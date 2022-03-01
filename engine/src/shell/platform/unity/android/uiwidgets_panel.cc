@@ -10,6 +10,7 @@
 #include "shell/common/switches.h"
 #include "shell/platform/embedder/embedder_engine.h"
 #include "uiwidgets_system.h"
+#include "unity_external_texture_gl.h"
 #include "third_party/Unity/IUnityGraphics.h"
 
 namespace uiwidgets
@@ -276,7 +277,7 @@ namespace uiwidgets
 
     engine->GetShell().GetPlatformView()->RegisterTexture(
          std::make_unique<UnityExternalTextureGL>(
-             texture_identifier, native_texture_ptr, surface_manager_.get()));
+             texture_identifier));
     
     return texture_identifier;
   }
