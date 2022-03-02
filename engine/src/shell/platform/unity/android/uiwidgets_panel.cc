@@ -147,14 +147,6 @@ namespace uiwidgets
     args.font_asset = settings;
 
     args.icu_mapper = GetICUStaticMapping;
-
-    // // Used for IOS build
-    // // std::string icu_symbol_prefix = "_binary_icudtl_dat_start";
-    // // std::string native_lib_path =
-    // // "pathtodll/Plugins/x86_64/libUIWidgets_d.dll"; args.icu_mapper =
-    // // [icu_symbol_prefix, native_lib_path] {
-    // //  return GetSymbolMapping(icu_symbol_prefix, native_lib_path);
-    // // };
     args.command_line_argc = 0;
     args.command_line_argv = nullptr;
 
@@ -264,28 +256,20 @@ namespace uiwidgets
     metrics.physical_height = static_cast<float>(height);
     metrics.device_pixel_ratio = device_pixel_ratio;
     reinterpret_cast<EmbedderEngine *>(engine_)->SetViewportMetrics(metrics);
-  }
+  } 
 
   int UIWidgetsPanel::RegisterTexture(void *native_texture_ptr)
   {
-    std::cerr << "registering external texture is not implemented for android" << std::endl;
-    //int texture_identifier = 0;
     int texture_identifier = reinterpret_cast<int>(native_texture_ptr);
-    // texture_identifier++;
-
     auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
-
     engine->GetShell().GetPlatformView()->RegisterTexture(
          std::make_unique<UnityExternalTextureGL>(
              texture_identifier));
-    
     return texture_identifier;
   }
 
   void UIWidgetsPanel::UnregisterTexture(int texture_id)
   {
-    std::cerr << "registering external texture is not implemented for android" << std::endl;
-
     auto *engine = reinterpret_cast<EmbedderEngine *>(engine_);
     engine->GetShell().GetPlatformView()->UnregisterTexture(texture_id);
   }
