@@ -260,7 +260,7 @@ namespace uiwidgets
 
   int UIWidgetsPanel::RegisterTexture(void *native_texture_ptr)
   {
-    int texture_identifier = reinterpret_cast<int>(native_texture_ptr);
+    int64_t texture_identifier = reinterpret_cast<int64_t>(native_texture_ptr);
     auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
     engine->GetShell().GetPlatformView()->RegisterTexture(
          std::make_unique<UnityExternalTextureGL>(
