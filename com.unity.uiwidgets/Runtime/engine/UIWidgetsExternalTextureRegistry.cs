@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using Unity.UIWidgets.foundation;
 
 namespace Unity.UIWidgets.engine {
     public partial class UIWidgetsPanelWrapper {
@@ -29,18 +29,17 @@ namespace Unity.UIWidgets.engine {
             foreach(var texturePair in externalTextures) {
                 var curInternalTextureId = texturePair.Value;
                 if (curInternalTextureId == internalTextureId) {
-                    if (externalTexturePtr != IntPtr.Zero) {
-                        Debug.LogError($"The internal texture id {internalTextureId} is shared by different external textures {externalTexturePtr} amd {curInternalTextureId}");
-                        return;
-                    }
+                    D.assert(externalTexturePtr == IntPtr.Zero, () => $"The internal texture id {internalTextureId} is shared by different external textures {externalTexturePtr} and {curInternalTextureId}");
                     externalTexturePtr = texturePair.Key;
                 }
             }
-
-            ReleaseExternalTexture(externalTexturePtr);
+            if (externalTexturePtr != IntPtr.Zero) {
+                ReleaseExternalTexture(externalTexturePtr);
+            }
         }
 
         public int RegisterExternalTexture(IntPtr externalTexturePtr) {
+            D.assert(externalTexturePtr != IntPtr.Zero, () => "Cannot register null external texture");
             if (!externalTextures.ContainsKey(externalTexturePtr)) {
                 var internalTextureId = registerTexture(externalTexturePtr);
                 externalTextures[externalTexturePtr] = internalTextureId;
