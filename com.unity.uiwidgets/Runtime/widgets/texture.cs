@@ -13,7 +13,7 @@ namespace Unity.UIWidgets.widgets {
             this.textureId = textureId;
             this.texture = texture;
             if (texture != null && texture.GetNativeTexturePtr() != IntPtr.Zero) {
-                this.textureId = UIWidgetsPanelWrapper.current.registerTexture(texture);
+                this.textureId = UIWidgetsPanelWrapper.current.RegisterExternalTexture(texture.GetNativeTexturePtr());
             }
         }
 

@@ -202,6 +202,8 @@ public partial class UIWidgetsPanelWrapper {
         }
         public void Destroy() {
             if (_ptr != IntPtr.Zero) {
+                ReleaseExternalTextures();
+
                 UIWidgetsPanel_onDisable(ptr: _ptr);
                 UIWidgetsPanel_dispose(ptr: _ptr);
                 _ptr = IntPtr.Zero;
@@ -209,7 +211,7 @@ public partial class UIWidgetsPanelWrapper {
 
             _handle.Free();
             _handle = default;
-
+            
             _disableUIWidgetsPanel();
             D.assert(result: !isolate.isValid);
         }
@@ -231,8 +233,8 @@ public partial class UIWidgetsPanelWrapper {
             return true;
         }
 
-        public int registerTexture(Texture texture) {
-            return UIWidgetsPanel_registerTexture(ptr: _ptr, texture.GetNativeTexturePtr());
+        public int registerTexture(IntPtr externalTexturePtr) {
+            return UIWidgetsPanel_registerTexture(ptr: _ptr, externalTexturePtr);
         }
 
         public void unregisterTexture(int textureId) {
