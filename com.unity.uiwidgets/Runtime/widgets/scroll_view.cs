@@ -571,6 +571,7 @@ namespace Unity.UIWidgets.widgets {
             cacheExtent: cacheExtent
         ) {
             D.assert(gridDelegate != null);
+            this.gridDelegate = gridDelegate;
             childrenDelegate = new SliverChildListDelegate(
                 children ?? new List<Widget>(),
                 addAutomaticKeepAlives: addAutomaticKeepAlives,
