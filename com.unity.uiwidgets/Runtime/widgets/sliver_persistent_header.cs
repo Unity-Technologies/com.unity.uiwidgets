@@ -219,31 +219,6 @@ namespace Unity.UIWidgets.widgets {
             child: child,
             stretchConfiguration: stretchConfiguration
         ) {
-            
-        }
-
-        public override _SliverPersistentHeaderElement _element {
-            get { return _ele; }
-            set { _ele = value; }
-        }
-
-        _SliverPersistentHeaderElement _ele;
-
-        public override float? minExtent {
-            get { return _element.widget.layoutDelegate.minExtent; }
-        }
-
-        public override float? maxExtent {
-            get { return _element.widget.layoutDelegate.maxExtent; }
-        }
-
-        protected override void updateChild(float shrinkOffset, bool overlapsContent) {
-            D.assert(_element != null);
-            _element._build(shrinkOffset, overlapsContent);
-        }
-
-        protected override void triggerRebuild() {
-            markNeedsLayout();
         }
     }
 
