@@ -159,6 +159,7 @@ sk_sp<SkData> PersistentCache::LoadFile(const fml::UniqueFD& dir,
 // |GrContextOptions::PersistentCache|
 sk_sp<SkData> PersistentCache::load(const SkData& key) {
   TRACE_EVENT0("uiwidgets", "PersistentCacheLoad");
+    return nullptr;
   if (!IsValid()) {
     return nullptr;
   }
