@@ -264,6 +264,21 @@ namespace Unity.UIWidgets.engine {
             return true;
         }
 #endif
+#if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+        bool OpenGLCoreInitialized = true;
+        
+        bool IsOpenGLCoreInitialized() {
+            if (OpenGLCoreInitialized) {
+                enabled = false;
+                OpenGLCoreInitialized = false;
+                OpenGLCoreUtil.Init();
+                startCoroutine(ReEnableUIWidgetsNextFrame());
+                return false;
+            }
+            return true;
+        }
+#endif
+        
         static bool UIWidgetsDisabled;
 
         void DisableUIWidgets() {
@@ -292,8 +307,9 @@ namespace Unity.UIWidgets.engine {
 #endif
 #if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
             if (type != GraphicsDeviceType.Metal) {
-                DisableUIWidgets();
-                return;
+                if (!IsOpenGLCoreInitialized()) {
+                    return;
+                }
             }
 #endif
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN

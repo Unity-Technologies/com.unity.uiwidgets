@@ -45,13 +45,20 @@ class UnitySurfaceManager {
   bool MakeCurrentResourceContext();
   
   uint32_t GetFbo();
+    
+  static void GetUnityContext();
 
  private:
-  static GLContextPair GetFreeOpenGLContext();
+  static GLContextPair GetFreeOpenGLContext(bool useOpenGLCore);
   void RecycleOpenGLContext(NSOpenGLContext* gl, NSOpenGLContext* gl_resource);
   //pixel buffer handles
   CVPixelBufferRef pixelbuffer_ref = nullptr;
+    
+  bool useOpenGLCore;
+    
   //openGL handlers
+  static NSOpenGLContext *unity_gl_context_;       //used for OpenGLCore only
+  
   NSOpenGLContext *gl_context_;
   NSOpenGLContext *gl_resource_context_;
   GLuint default_fbo_ = 0;

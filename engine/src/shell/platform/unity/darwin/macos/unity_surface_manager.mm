@@ -7,8 +7,9 @@
 namespace uiwidgets {
 
 std::vector<GLContextPair> UnitySurfaceManager::gl_context_pool_;
+NSOpenGLContext* UnitySurfaceManager::unity_gl_context_;
 
-GLContextPair UnitySurfaceManager::GetFreeOpenGLContext()
+GLContextPair UnitySurfaceManager::GetFreeOpenGLContext(bool useOpenGLCore)
 {
   if (gl_context_pool_.size() == 0)
   {
@@ -17,14 +18,23 @@ GLContextPair UnitySurfaceManager::GetFreeOpenGLContext()
       NSOpenGLPFAAccelerated,
       0
     };
-
+    
     NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+    if (useOpenGLCore)
+    {
+        pixelFormat = [unity_gl_context_ pixelFormat];
+    }
 
     NSOpenGLContext* gl_resource;
     NSOpenGLContext* gl;
 
+    NSOpenGLContext* base_gl_context = nil;
+    if (useOpenGLCore)
+    {
+      base_gl_context = unity_gl_context_;
+    }
     while(gl_resource == nil) {
-      gl = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+      gl = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:base_gl_context];
       gl_resource = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:gl];  
     
       if (gl_resource == nil) {
@@ -64,24 +74,33 @@ void UnitySurfaceManager::ReleaseResource()
 
 UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 {
-  FML_DCHECK(metal_device_ == nullptr);
-
-  //get main gfx device (metal)
+  //get main gfx device
   auto* graphics = unity_interfaces->Get<IUnityGraphics>();
+  UnityGfxRenderer renderer = graphics->GetRenderer();
+  
+  if (renderer == kUnityGfxRendererMetal)
+  {
+    FML_DCHECK(metal_device_ == nullptr);
     
-  FML_DCHECK(graphics->GetRenderer() == kUnityGfxRendererMetal);
+    auto* metalGraphics = unity_interfaces->Get<IUnityGraphicsMetalV1>();
 
-  auto* metalGraphics = unity_interfaces->Get<IUnityGraphicsMetalV1>();
-
-  metal_device_ = metalGraphics->MetalDevice();
-
+    metal_device_ = metalGraphics->MetalDevice();
+    
+    useOpenGLCore = false;
+  }
+  else if (renderer == kUnityGfxRendererOpenGLCore)
+  {
+    FML_DCHECK(unity_gl_context_ != nil);
+    
+    useOpenGLCore = true;
+  }
+  
   //create opengl context
   if (gl_context_ == nullptr && gl_resource_context_ == nullptr) {
-    auto new_context = GetFreeOpenGLContext();
+    auto new_context = GetFreeOpenGLContext(useOpenGLCore);
     gl_context_ = new_context.gl_context_;
     gl_resource_context_ = new_context.gl_resource_context_;
   }
-
   FML_DCHECK(gl_context_ != nullptr && gl_resource_context_ != nullptr);
 }
 
@@ -95,6 +114,71 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
   const GLuint ConstGLInternalFormat = GL_SRGB8_ALPHA8;
   const GLuint ConstGLFormat = GL_BGRA;
   const GLuint ConstGLType = GL_UNSIGNED_INT_8_8_8_8_REV;
+  if (useOpenGLCore)
+  {
+    [gl_context_ makeCurrentContext];
+    GLenum errorCode;
+    glGenTextures(1, &gl_tex_);
+    
+    errorCode = glGetError();
+    if (errorCode != GL_NO_ERROR)
+    {
+        int u = 10;
+    }
+      
+    glBindTexture(GL_TEXTURE_2D, gl_tex_);
+    
+      errorCode = glGetError();
+      if (errorCode != GL_NO_ERROR)
+      {
+          int u = 10;
+      }
+      
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      
+      errorCode = glGetError();
+      if (errorCode != GL_NO_ERROR)
+      {
+          int u = 10;
+      }
+      
+    glTexImage2D(GL_TEXTURE_2D, 0, ConstGLInternalFormat, width, height, 0, ConstGLFormat, ConstGLType, nil);
+      
+      errorCode = glGetError();
+      if (errorCode != GL_NO_ERROR)
+      {
+          int u = 10;
+      }
+      
+    //glBindTexture(GL_TEXTURE_2D, 0);
+    glGenFramebuffers(1, &default_fbo_);
+      
+      errorCode = glGetError();
+      if (errorCode != GL_NO_ERROR)
+      {
+          int u = 10;
+      }
+    glBindFramebuffer(GL_FRAMEBUFFER, default_fbo_);
+      
+      errorCode = glGetError();
+      if (errorCode != GL_NO_ERROR)
+      {
+          int u = 10;
+      }
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_tex_, 0);
+    
+      errorCode = glGetError();
+      if (errorCode != GL_NO_ERROR)
+      {
+          int u = 10;
+      }
+      
+      return (void*) gl_tex_;
+  }
 
   //render context must be available
   FML_DCHECK(metal_device_ != nullptr && gl_context_ != nullptr);
@@ -200,23 +284,32 @@ void UnitySurfaceManager::ReleaseNativeRenderContext()
   RecycleOpenGLContext(gl_context_, gl_resource_context_);
   gl_context_ = nullptr;
   gl_resource_context_ = nullptr;
-
-  FML_DCHECK(metal_device_ != nullptr);
-  metal_device_ = nullptr;
+  
+  if (!useOpenGLCore)
+  {
+    FML_DCHECK(metal_device_ != nullptr);
+    metal_device_ = nullptr;
+  }
 }
 
 bool UnitySurfaceManager::ReleaseNativeRenderTexture()
 {
-  //release gl resources
-  CVOpenGLTextureRelease(gl_tex_ref_);
-  CVOpenGLTextureCacheRelease(gl_tex_cache_ref_);
+  if (!useOpenGLCore) {
+    //release gl resources
+    CVOpenGLTextureRelease(gl_tex_ref_);
+    CVOpenGLTextureCacheRelease(gl_tex_cache_ref_);
 
-  //release metal resources
-  CFRelease(metal_tex_ref_);
-  CFRelease(metal_tex_cache_ref_);
+    //release metal resources
+    CFRelease(metal_tex_ref_);
+    CFRelease(metal_tex_cache_ref_);
 
-  //release pixel buffer
-  CVPixelBufferRelease(pixelbuffer_ref);
+    //release pixel buffer
+    CVPixelBufferRelease(pixelbuffer_ref);
+  }
+  else{
+    [gl_context_ makeCurrentContext];
+    glDeleteTextures(1, &gl_tex_);
+  }
 
   FML_DCHECK(default_fbo_ != 0);
   glDeleteFramebuffers(1, &default_fbo_);
@@ -234,5 +327,16 @@ bool UnitySurfaceManager::ReleaseNativeRenderTexture()
 
   pixelbuffer_ref = nullptr;
   return true;
+}
+
+void UnitySurfaceManager::GetUnityContext()
+{
+  if (unity_gl_context_ != nil)
+  {
+      return;
+  }
+  //get unity opengl core context
+  CGLContextObj glContext = CGLGetCurrentContext();
+  unity_gl_context_ = [[NSOpenGLContext alloc] initWithCGLContextObj:glContext];
 }
 }  // namespace uiwidgets

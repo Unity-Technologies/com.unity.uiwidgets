@@ -567,4 +567,18 @@ UIWidgetsPanel_onDragReleaseInEditor(UIWidgetsPanel* panel, float x, float y) {
   panel->OnDragReleaseInEditor(x, y);
 }
 
+static void UNITY_INTERFACE_API OnGetUnityContextEvent(int eventID)
+{
+  UnitySurfaceManager::GetUnityContext();
+}
+
+// --------------------------------------------------------------------------
+// GetRenderEventFunc, an example function we export which is used to get a rendering event callback function.
+
+UIWIDGETS_API(UnityRenderingEvent)
+GetUnityContextEventFunc()
+{
+  return OnGetUnityContextEvent;
+}
+
 }  // namespace uiwidgets
