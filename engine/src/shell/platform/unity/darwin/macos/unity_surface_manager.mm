@@ -177,6 +177,9 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
           int u = 10;
       }
       
+      glBindTexture(GL_TEXTURE_2D, 0);
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      
       return (void*) gl_tex_;
   }
 
