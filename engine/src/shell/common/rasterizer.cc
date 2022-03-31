@@ -320,6 +320,7 @@ RasterStatus Rasterizer::DrawToSurface(LayerTree& layer_tree) {
   if (compositor_frame) {
     RasterStatus raster_status = compositor_frame->Raster(layer_tree, false);
     if (raster_status == RasterStatus::kFailed) {
+        surface_->ClearContext();
       return raster_status;
     }
     if (external_view_embedder != nullptr) {
@@ -341,10 +342,10 @@ RasterStatus Rasterizer::DrawToSurface(LayerTree& layer_tree) {
       TRACE_EVENT0("uiwidgets", "PerformDeferredSkiaCleanup");
       surface_->GetContext()->performDeferredCleanup(kSkiaCleanupExpiration);
     }
-
+      surface_->ClearContext();
     return raster_status;
   }
-
+    surface_->ClearContext();
   return RasterStatus::kFailed;
 }
 

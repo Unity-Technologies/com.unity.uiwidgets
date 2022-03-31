@@ -25,6 +25,8 @@ class GPUSurfaceSoftware : public Surface {
 
   // |Surface|
   GrContext* GetContext() override;
+    
+  void ClearContext() override;
 
   // |Surface|
   ExternalViewEmbedder* GetExternalViewEmbedder() override;

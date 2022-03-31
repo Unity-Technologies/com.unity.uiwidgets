@@ -591,6 +591,8 @@ class Build
                 "src/shell/platform/unity/darwin/macos/cocoa_task_runner.h",
                 "src/shell/platform/unity/darwin/macos/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/macos/unity_surface_manager.h",
+                "src/shell/platform/unity/darwin/macos/unity_external_texture_gl.mm",
+                "src/shell/platform/unity/darwin/macos/unity_external_texture_gl.h"
         };
 
         var androidSource = new NPath[]

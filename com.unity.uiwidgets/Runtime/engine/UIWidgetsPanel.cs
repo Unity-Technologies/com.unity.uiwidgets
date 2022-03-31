@@ -292,6 +292,18 @@ namespace Unity.UIWidgets.engine {
 
 
         protected override void OnEnable() {
+            var desc = new RenderTextureDescriptor(
+                100, 100, RenderTextureFormat.ARGB32, 0) {
+                useMipMap = false,
+                autoGenerateMips = false,
+            };
+
+            var _renderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
+            _renderTexture.Create();
+            
+            var local_texture = _renderTexture.GetNativeTexturePtr();
+            Debug.Log("local texture = " + local_texture);
+            
             if (UIWidgetsDisabled) {
                 enabled = false;
                 return;

@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.rendering {
                     markNeedsLayout();
                     SchedulerBinding.instance.scheduleFrameCallback(_handleAppFrame);
                     if (_texture.GetNativeTexturePtr() != IntPtr.Zero) {
-                        //_textureId = UIWidgetsPanelWrapper.current.RegisterExternalTexture(_texture.GetNativeTexturePtr());
+                        _textureId = UIWidgetsPanelWrapper.current.RegisterExternalTexture(_texture.GetNativeTexturePtr());
                     }
                 }
                 return;

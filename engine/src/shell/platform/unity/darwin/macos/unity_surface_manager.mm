@@ -106,7 +106,7 @@ UnitySurfaceManager::UnitySurfaceManager(IUnityInterfaces* unity_interfaces)
 
 UnitySurfaceManager::~UnitySurfaceManager() { ReleaseNativeRenderContext(); }
 
-void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
+void* UnitySurfaceManager::CreateRenderTexture(void *native_texture_ptr, size_t width, size_t height)
 {
   //Constants
   const MTLPixelFormat ConstMetalViewPixelFormat = MTLPixelFormatBGRA8Unorm;
@@ -116,71 +116,51 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
   const GLuint ConstGLType = GL_UNSIGNED_INT_8_8_8_8_REV;
   if (useOpenGLCore)
   {
+      gl_tex_ = static_cast<int>(reinterpret_cast<intptr_t>(native_texture_ptr));
+      
+    NSOpenGLContext* _pre_context = [NSOpenGLContext currentContext];
+    GLint old_texture_binding_2d;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture_binding_2d);
+      
     [gl_context_ makeCurrentContext];
-    GLenum errorCode;
-    glGenTextures(1, &gl_tex_);
-    
-    errorCode = glGetError();
-    if (errorCode != GL_NO_ERROR)
-    {
-        int u = 10;
-    }
-      
+    //glGenTextures(1, &gl_tex_);
     glBindTexture(GL_TEXTURE_2D, gl_tex_);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
-      errorCode = glGetError();
-      if (errorCode != GL_NO_ERROR)
-      {
-          int u = 10;
-      }
-      
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      
-      errorCode = glGetError();
-      if (errorCode != GL_NO_ERROR)
-      {
-          int u = 10;
-      }
-      
-    glTexImage2D(GL_TEXTURE_2D, 0, ConstGLInternalFormat, width, height, 0, ConstGLFormat, ConstGLType, nil);
-      
-      errorCode = glGetError();
-      if (errorCode != GL_NO_ERROR)
-      {
-          int u = 10;
-      }
-      
-    //glBindTexture(GL_TEXTURE_2D, 0);
+    //test data
+    //  unsigned char* data = new unsigned char[4 * width * height * sizeof(unsigned char)];
+    //      for (unsigned int i = 0; i < (int)(width * height * sizeof(unsigned char)); i++) {
+    //          data[i * 4] = 255;
+    //          data[i * 4 + 1] = 255;
+    //          data[i * 4 + 2] = 0;
+    //          data[i * 4 + 3] = 255;
+    //      }
+
+    //glTexImage2D(GL_TEXTURE_2D, 0, ConstGLInternalFormat, width, height, 0, ConstGLFormat, ConstGLType, data);
     glGenFramebuffers(1, &default_fbo_);
       
-      errorCode = glGetError();
-      if (errorCode != GL_NO_ERROR)
-      {
-          int u = 10;
-      }
-    glBindFramebuffer(GL_FRAMEBUFFER, default_fbo_);
-      
-      errorCode = glGetError();
-      if (errorCode != GL_NO_ERROR)
-      {
-          int u = 10;
-      }
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_tex_, 0);
+    GLint old_framebuffer_binding;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &old_framebuffer_binding);
     
-      errorCode = glGetError();
-      if (errorCode != GL_NO_ERROR)
-      {
-          int u = 10;
-      }
+    glBindFramebuffer(GL_FRAMEBUFFER, default_fbo_);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gl_tex_, 0);
       
-      glBindTexture(GL_TEXTURE_2D, 0);
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-      
-      return (void*) gl_tex_;
+    FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
+                GL_FRAMEBUFFER_COMPLETE);
+    
+    //unbind stuffs
+    glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
+    glBindTexture(GL_TEXTURE_2D, old_texture_binding_2d);
+    
+    //recover current gl context
+    if (_pre_context != nil)
+    {
+      [_pre_context makeCurrentContext];
+    }
+    return (void*) gl_tex_;
   }
 
   //render context must be available
@@ -259,17 +239,44 @@ void* UnitySurfaceManager::CreateRenderTexture(size_t width, size_t height)
 bool UnitySurfaceManager::ClearCurrentContext()
 {
   [NSOpenGLContext clearCurrentContext];
+  if (unity_previous_gl_context_ != nil)
+  {
+    [unity_previous_gl_context_ makeCurrentContext];
+    unity_previous_gl_context_ = nil;
+  }
   return true;
 }
 
 bool UnitySurfaceManager::MakeCurrentContext()
 {
+  NSOpenGLContext* _pre_context = [NSOpenGLContext currentContext];
+  if (_pre_context != nil && _pre_context != gl_context_ &&
+      _pre_context != gl_resource_context_)
+  {
+      if(unity_previous_gl_context_ != nil)
+      {
+          int u = 100;
+      }
+      unity_previous_gl_context_ = _pre_context;
+  }
+
   [gl_context_ makeCurrentContext];
   return true;
 }
 
 bool UnitySurfaceManager::MakeCurrentResourceContext()
 {
+  NSOpenGLContext* _pre_context = [NSOpenGLContext currentContext];
+  if (_pre_context != nil && _pre_context != gl_context_ &&
+      _pre_context != gl_resource_context_)
+  {
+      if(unity_previous_gl_context_ != nil)
+      {
+          int u = 100;
+      }
+    unity_previous_gl_context_ = _pre_context;
+  }
+
   [gl_resource_context_ makeCurrentContext];
   return true;
 }
@@ -310,8 +317,13 @@ bool UnitySurfaceManager::ReleaseNativeRenderTexture()
     CVPixelBufferRelease(pixelbuffer_ref);
   }
   else{
+    NSOpenGLContext* _pre_context = [NSOpenGLContext currentContext];
     [gl_context_ makeCurrentContext];
     glDeleteTextures(1, &gl_tex_);
+    if (_pre_context != nil)
+    {
+      [_pre_context makeCurrentContext];
+    }
   }
 
   FML_DCHECK(default_fbo_ != 0);
