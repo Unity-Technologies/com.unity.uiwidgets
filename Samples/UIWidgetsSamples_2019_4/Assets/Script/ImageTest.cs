@@ -4,6 +4,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 
@@ -46,8 +48,24 @@ namespace UIWidgetsSample
 
         class ExampleState : State<ExampleApp>
         {
+
+            //user are responsible to get the right absolute image path for different platforms
+            private string getAbsoluteImagePathForApp(string simplePath)
+            {
+                var absolutePath = System.IO.Path.Combine(Application.streamingAssetsPath, simplePath);
+#if UNITY_ANDROID && !UNITY_EDITOR
+                //do nothing
+#else
+                absolutePath = "file://" + absolutePath;
+#endif
+                return absolutePath;
+            }
+            
             public override Widget build(BuildContext context)
             {
+                var imageSimplePath = "test.gif";
+                var absolutePath = getAbsoluteImagePathForApp(imageSimplePath);
+
                 return new Container(
                     child: new Column(
                         children: new List<Widget>
@@ -59,8 +77,9 @@ namespace UIWidgetsSample
                                 decoration: new BoxDecoration(
                                     borderRadius: BorderRadius.all(Radius.circular(8))
                                 ),
-                                child: Image.file("test.gif", gaplessPlayback: true)
+                                child: Image.file(absolutePath, gaplessPlayback: true, isAbsolutePath: true)
                             ),
+                            new Container(width: 50f, height: 50f, child: Image.file(imageSimplePath, gaplessPlayback: true)),
                             new Container(
                                 width: 200,
                                 height: 100,
