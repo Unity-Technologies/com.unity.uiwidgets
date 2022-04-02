@@ -64,7 +64,7 @@ namespace UIWidgetsSample
                         {
                             new Lottie("wine.json", size: new Size(100, 100)),
                             new Container(width: 200, height: 200, color: Colors.red, child: new Center(child: new Container(width: 100, height: 100, child:new Texture(texture: text)))),
-                            new Container(
+                            /*new Container(
                                 width: 100,
                                 height: 100,
                                 decoration: new BoxDecoration(
@@ -81,7 +81,7 @@ namespace UIWidgetsSample
                                 child: Image.network(
                                     "https://unity-cn-cms-prd-1254078910.cos.ap-shanghai.myqcloud.com/assetstore-cms-media/img-7dfe215f-0075-4f9c-9b5a-be5ee88b866b",
                                     gaplessPlayback: true)
-                            )
+                            )*/
                         }
                     )
                 );

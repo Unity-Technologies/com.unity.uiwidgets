@@ -145,6 +145,7 @@ sk_sp<SkImage> Rasterizer::DoMakeRasterSnapshot(
     surface = SkSurface::MakeRaster(image_info);
   } else {
     if (!surface_->MakeRenderContextCurrent()) {
+        surface_->ClearContext();
       return nullptr;
     }
 
@@ -157,6 +158,7 @@ sk_sp<SkImage> Rasterizer::DoMakeRasterSnapshot(
   }
 
   if (surface == nullptr || surface->getCanvas() == nullptr) {
+      surface_->ClearContext();
     return nullptr;
   }
 
@@ -170,16 +172,19 @@ sk_sp<SkImage> Rasterizer::DoMakeRasterSnapshot(
   }
 
   if (device_snapshot == nullptr) {
+      surface_->ClearContext();
     return nullptr;
   }
 
   {
     TRACE_EVENT0("uiwidgets", "DeviceHostTransfer");
     if (auto raster_image = device_snapshot->makeRasterImage()) {
+        surface_->ClearContext();
       return raster_image;
     }
   }
 
+    surface_->ClearContext();
   return nullptr;
 }
 
