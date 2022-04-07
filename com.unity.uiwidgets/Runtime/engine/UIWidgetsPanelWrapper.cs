@@ -260,8 +260,8 @@ namespace Unity.UIWidgets.engine {
         }
         public void Destroy() {
             if (_ptr != IntPtr.Zero) {
-                //ReleaseExternalTextures();
-
+                ReleaseExternalTextures();
+                
                 UIWidgetsPanel_onDisable(ptr: _ptr);
                 UIWidgetsPanel_dispose(ptr: _ptr);
                 _ptr = IntPtr.Zero;
