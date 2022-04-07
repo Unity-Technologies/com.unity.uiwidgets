@@ -13,10 +13,13 @@ class UnityExternalTextureGL : public Texture {
   UnityExternalTextureGL(int64_t texture_identifier);
 
   ~UnityExternalTextureGL() override;
+    
+  bool isValid() { return valid; };
 
  private:
   GLuint gl_texture_;
   sk_sp<SkImage> last_image_;
+  bool valid;
 
   // |flutter::Texture|
   void Paint(SkCanvas& canvas, const SkRect& bounds, bool freeze,

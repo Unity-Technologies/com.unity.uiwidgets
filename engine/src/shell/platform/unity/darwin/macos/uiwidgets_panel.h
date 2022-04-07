@@ -35,7 +35,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   ~UIWidgetsPanel();
 
-  void OnEnable(void *native_texture_ptr, size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings);
+  void* OnEnable(void *native_texture_ptr, size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings);
 
   void MonoEntrypoint();
 

@@ -18,7 +18,7 @@ UnityExternalTextureGL::UnityExternalTextureGL(
                        ->GetUnityInterfaces()
                        ->Get<IUnityGraphics>();
   UnityGfxRenderer renderer = graphics->GetRenderer();
-  FML_DCHECK(renderer == kUnityGfxRendererOpenGLCore);
+  valid = renderer == kUnityGfxRendererOpenGLCore;
   gl_texture_ = texture_identifier;
 }
 

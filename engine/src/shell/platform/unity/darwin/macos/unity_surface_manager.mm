@@ -116,30 +116,14 @@ void* UnitySurfaceManager::CreateRenderTexture(void *native_texture_ptr, size_t 
   const GLuint ConstGLType = GL_UNSIGNED_INT_8_8_8_8_REV;
   if (useOpenGLCore)
   {
-      gl_tex_ = static_cast<int>(reinterpret_cast<intptr_t>(native_texture_ptr));
-      
+    gl_tex_ = static_cast<int>(reinterpret_cast<intptr_t>(native_texture_ptr));
+    
     NSOpenGLContext* _pre_context = [NSOpenGLContext currentContext];
     GLint old_texture_binding_2d;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture_binding_2d);
       
     [gl_context_ makeCurrentContext];
-    //glGenTextures(1, &gl_tex_);
     glBindTexture(GL_TEXTURE_2D, gl_tex_);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    //test data
-    //  unsigned char* data = new unsigned char[4 * width * height * sizeof(unsigned char)];
-    //      for (unsigned int i = 0; i < (int)(width * height * sizeof(unsigned char)); i++) {
-    //          data[i * 4] = 255;
-    //          data[i * 4 + 1] = 255;
-    //          data[i * 4 + 2] = 0;
-    //          data[i * 4 + 3] = 255;
-    //      }
-
-    //glTexImage2D(GL_TEXTURE_2D, 0, ConstGLInternalFormat, width, height, 0, ConstGLFormat, ConstGLType, data);
     glGenFramebuffers(1, &default_fbo_);
       
     GLint old_framebuffer_binding;
@@ -151,48 +135,47 @@ void* UnitySurfaceManager::CreateRenderTexture(void *native_texture_ptr, size_t 
     FML_CHECK(glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
                 GL_FRAMEBUFFER_COMPLETE);
     
-    //unbind stuffs
+    //reset gl states
     glBindFramebuffer(GL_FRAMEBUFFER, old_framebuffer_binding);
     glBindTexture(GL_TEXTURE_2D, old_texture_binding_2d);
-    
-    //recover current gl context
     if (_pre_context != nil)
     {
       [_pre_context makeCurrentContext];
     }
     return (void*) gl_tex_;
   }
+  else
+  {
+    //render context must be available
+    FML_DCHECK(metal_device_ != nullptr && gl_context_ != nullptr);
+    
+    //render textures must be released already
+    FML_DCHECK(pixelbuffer_ref == nullptr && default_fbo_ == 0 && gl_tex_ == 0 && gl_tex_cache_ref_ == nullptr && gl_tex_ref_ == nullptr && metal_tex_ == nullptr && metal_tex_ref_ == nullptr && metal_tex_cache_ref_ == nullptr);
+    //create pixel buffer
+    auto gl_pixelformat_ = gl_context_.pixelFormat.CGLPixelFormatObj;
 
-  //render context must be available
-  FML_DCHECK(metal_device_ != nullptr && gl_context_ != nullptr);
+    NSDictionary* cvBufferProperties = @{
+      (__bridge NSString*)kCVPixelBufferOpenGLCompatibilityKey : @YES,
+      (__bridge NSString*)kCVPixelBufferMetalCompatibilityKey : @YES,
+    };
 
-  //render textures must be released already
-  FML_DCHECK(pixelbuffer_ref == nullptr && default_fbo_ == 0 && gl_tex_ == 0 && gl_tex_cache_ref_ == nullptr && gl_tex_ref_ == nullptr && metal_tex_ == nullptr && metal_tex_ref_ == nullptr && metal_tex_cache_ref_ == nullptr);
-  //create pixel buffer
-  auto gl_pixelformat_ = gl_context_.pixelFormat.CGLPixelFormatObj;
-
-  NSDictionary* cvBufferProperties = @{
-    (__bridge NSString*)kCVPixelBufferOpenGLCompatibilityKey : @YES,
-    (__bridge NSString*)kCVPixelBufferMetalCompatibilityKey : @YES,
-  };
-
-  CVReturn cvret = CVPixelBufferCreate(kCFAllocatorDefault,
+    CVReturn cvret = CVPixelBufferCreate(kCFAllocatorDefault,
             width, height,
             ConstCVPixelFormat,
             (__bridge CFDictionaryRef)cvBufferProperties,
             &pixelbuffer_ref);
-  FML_DCHECK(cvret == kCVReturnSuccess);
+    FML_DCHECK(cvret == kCVReturnSuccess);
 
-  //create metal texture
-  cvret = CVMetalTextureCacheCreate(
+    //create metal texture
+    cvret = CVMetalTextureCacheCreate(
             kCFAllocatorDefault,
             nil,
             metal_device_,
             nil,
             &metal_tex_cache_ref_);
-  FML_DCHECK(cvret == kCVReturnSuccess);
+    FML_DCHECK(cvret == kCVReturnSuccess);
 
-  cvret = CVMetalTextureCacheCreateTextureFromImage(
+    cvret = CVMetalTextureCacheCreateTextureFromImage(
             kCFAllocatorDefault,
             metal_tex_cache_ref_,
             pixelbuffer_ref, nil,
@@ -200,40 +183,41 @@ void* UnitySurfaceManager::CreateRenderTexture(void *native_texture_ptr, size_t 
             width, height,
             0,
             &metal_tex_ref_);
-  FML_DCHECK(cvret == kCVReturnSuccess);
+    FML_DCHECK(cvret == kCVReturnSuccess);
 
-  metal_tex_ = CVMetalTextureGetTexture(metal_tex_ref_);
-  FML_DCHECK(metal_tex_ != nullptr);
+    metal_tex_ = CVMetalTextureGetTexture(metal_tex_ref_);
+    FML_DCHECK(metal_tex_ != nullptr);
 
-  //create opengl texture
-  cvret  = CVOpenGLTextureCacheCreate(
+    //create opengl texture
+    cvret  = CVOpenGLTextureCacheCreate(
             kCFAllocatorDefault,
             nil,
             gl_context_.CGLContextObj,
             gl_pixelformat_,
             nil,
             &gl_tex_cache_ref_);
-  FML_DCHECK(cvret == kCVReturnSuccess);
+    FML_DCHECK(cvret == kCVReturnSuccess);
 
-  cvret = CVOpenGLTextureCacheCreateTextureFromImage(
+    cvret = CVOpenGLTextureCacheCreateTextureFromImage(
             kCFAllocatorDefault,
             gl_tex_cache_ref_,
             pixelbuffer_ref,
             nil,
             &gl_tex_ref_);
-  FML_DCHECK(cvret == kCVReturnSuccess);
+    FML_DCHECK(cvret == kCVReturnSuccess);
 
-  gl_tex_ = CVOpenGLTextureGetName(gl_tex_ref_);
+    gl_tex_ = CVOpenGLTextureGetName(gl_tex_ref_);
 
-  //initialize gl renderer
-  [gl_context_ makeCurrentContext];
-  glGenFramebuffers(1, &default_fbo_);
-  glBindFramebuffer(GL_FRAMEBUFFER, default_fbo_);
+    //initialize gl renderer
+    [gl_context_ makeCurrentContext];
+    glGenFramebuffers(1, &default_fbo_);
+    glBindFramebuffer(GL_FRAMEBUFFER, default_fbo_);
 
-  const GLenum texType = GL_TEXTURE_RECTANGLE;
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texType, gl_tex_, 0);
+    const GLenum texType = GL_TEXTURE_RECTANGLE;
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texType, gl_tex_, 0);
 
-  return (__bridge void*)metal_tex_;
+    return (__bridge void*)metal_tex_;
+  }
 }
 
 bool UnitySurfaceManager::ClearCurrentContext()
@@ -253,11 +237,7 @@ bool UnitySurfaceManager::MakeCurrentContext()
   if (_pre_context != nil && _pre_context != gl_context_ &&
       _pre_context != gl_resource_context_)
   {
-      if(unity_previous_gl_context_ != nil)
-      {
-          int u = 100;
-      }
-      unity_previous_gl_context_ = _pre_context;
+    unity_previous_gl_context_ = _pre_context;
   }
 
   [gl_context_ makeCurrentContext];
@@ -270,10 +250,6 @@ bool UnitySurfaceManager::MakeCurrentResourceContext()
   if (_pre_context != nil && _pre_context != gl_context_ &&
       _pre_context != gl_resource_context_)
   {
-      if(unity_previous_gl_context_ != nil)
-      {
-          int u = 100;
-      }
     unity_previous_gl_context_ = _pre_context;
   }
 

@@ -34,7 +34,7 @@ bool UIWidgetsPanel::NeedUpdateByEditorLoop() {
   return window_type_ == EditorWindowPanel;
 }
 
-void UIWidgetsPanel::OnEnable(void *native_texture_ptr, size_t width, size_t height, float device_pixel_ratio,
+void* UIWidgetsPanel::OnEnable(void *native_texture_ptr, size_t width, size_t height, float device_pixel_ratio,
                                const char* streaming_assets_path, const char* settings)
 {
   fml::AutoResetWaitableEvent latch;
@@ -48,11 +48,10 @@ void UIWidgetsPanel::OnEnable(void *native_texture_ptr, size_t width, size_t hei
 
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
-  void* metal_tex = surface_manager_->CreateRenderTexture(native_texture_ptr, width, height);
+  void* _tex_handler = surface_manager_->CreateRenderTexture(native_texture_ptr, width, height);
 
   CreateInternalUIWidgetsEngine(width, height, device_pixel_ratio, streaming_assets_path, settings, gfx_worker_thread_id);
-
-  //return metal_tex;
+  return _tex_handler;
 }
 
 void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, 
@@ -228,14 +227,24 @@ bool UIWidgetsPanel::ReleaseNativeRenderTexture() { return surface_manager_->Rel
 
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
   int64_t texture_identifier = reinterpret_cast<int64_t>(native_texture_ptr);
+    std::shared_ptr<UnityExternalTextureGL> externalTexture = std::make_unique<UnityExternalTextureGL>(texture_identifier);
+    
+    if (!externalTexture.get()->isValid())
+    {
+      externalTexture.reset();
+      return -1;
+    }
+    
     auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
-    engine->GetShell().GetPlatformView()->RegisterTexture(
-         std::make_unique<UnityExternalTextureGL>(
-             texture_identifier));
+    engine->GetShell().GetPlatformView()->RegisterTexture(externalTexture);
     return texture_identifier;
 }
 
 void UIWidgetsPanel::UnregisterTexture(int texture_id) {
+    if (texture_id == -1)
+    {
+      return;
+    }
     auto *engine = reinterpret_cast<EmbedderEngine *>(engine_);
     engine->GetShell().GetPlatformView()->UnregisterTexture(texture_id);
 }
@@ -473,12 +482,12 @@ UIWIDGETS_API(void) UIWidgetsPanel_dispose(UIWidgetsPanel* panel) {
   panel->Release();
 }
 
-UIWIDGETS_API(void)
+UIWIDGETS_API(void*)
 UIWidgetsPanel_onEnable(UIWidgetsPanel* panel, void *native_texture_ptr,
                         size_t width, size_t height, float device_pixel_ratio,
                         const char* streaming_assets_path, 
                         const char* settings) {
-    panel->OnEnable(native_texture_ptr, width, height, device_pixel_ratio,
+  return panel->OnEnable(native_texture_ptr, width, height, device_pixel_ratio,
                   streaming_assets_path, settings);
 }
 
@@ -490,10 +499,10 @@ UIWIDGETS_API(bool) UIWidgetsPanel_releaseNativeTexture(UIWidgetsPanel* panel) {
   return panel->ReleaseNativeRenderTexture();
 }
 
-UIWIDGETS_API(void)
+UIWIDGETS_API(void*)
 UIWidgetsPanel_onRenderTexture(UIWidgetsPanel* panel, void *native_texture_ptr,
                                int width, int height, float dpi) {
-  panel->OnRenderTexture(native_texture_ptr, width, height, dpi);
+  return panel->OnRenderTexture(native_texture_ptr, width, height, dpi);
 }
 
 UIWIDGETS_API(int)
