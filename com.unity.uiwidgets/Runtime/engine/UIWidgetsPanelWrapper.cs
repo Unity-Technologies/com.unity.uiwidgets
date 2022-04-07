@@ -12,10 +12,10 @@ using UnityEngine;
 using Path = Unity.UIWidgets.ui.Path;
 
 namespace Unity.UIWidgets.engine {
-    #region Platform: MacOs/iOS/Windows Specific Functionalities
 
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-/*public partial class UIWidgetsPanelWrapper {
+    #region Platform: Windows Specific Functionalities
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+public partial class UIWidgetsPanelWrapper {
     Texture _renderTexture;
 
     public Texture renderTexture {
@@ -72,7 +72,12 @@ namespace Unity.UIWidgets.engine {
     [DllImport(NativeBindings.dllName)]
     static extern IntPtr UIWidgetsPanel_onRenderTexture(
         IntPtr ptr, int width, int height, float dpi);
-}*/
+}
+#endif
+    #endregion
+    
+    #region Platform: MacOs/iOS Specific Functionalities
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS
     public partial class UIWidgetsPanelWrapper {
         RenderTexture _renderTexture;
         
@@ -131,13 +136,10 @@ namespace Unity.UIWidgets.engine {
         static extern void UIWidgetsPanel_onRenderTexture(
             IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
     }
-    
-
 #endif
+#endregion
 
-    #endregion
-
-#region Platform: Android Runtime Specific Functionalities
+    #region Platform: Android Runtime Specific Functionalities
 
 #if (!UNITY_EDITOR && UNITY_ANDROID )
     public partial class UIWidgetsPanelWrapper {
