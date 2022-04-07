@@ -42,7 +42,7 @@ namespace Unity.UIWidgets.engine {
             D.assert(externalTexturePtr != IntPtr.Zero, () => "Cannot register null external texture");
             if (!externalTextures.ContainsKey(externalTexturePtr)) {
                 var internalTextureId = registerTexture(externalTexturePtr);
-                D.assert(internalTextureId != -1, () => "Fail to register external texture. Possible cause is that you platform and graphics backend doesn't support external texture (e.g., Metal on Mac/iOS)");
+                D.assert(internalTextureId != -1, () => "Fail to register external texture. Possible cause is that your platform or graphics backend doesn't support external texture (e.g., Metal on Mac/iOS)");
                 externalTextures[externalTexturePtr] = internalTextureId;
             }
             

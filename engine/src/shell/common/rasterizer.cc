@@ -145,7 +145,7 @@ sk_sp<SkImage> Rasterizer::DoMakeRasterSnapshot(
     surface = SkSurface::MakeRaster(image_info);
   } else {
     if (!surface_->MakeRenderContextCurrent()) {
-        surface_->ClearContext();
+      surface_->ClearContext();
       return nullptr;
     }
 
@@ -158,7 +158,7 @@ sk_sp<SkImage> Rasterizer::DoMakeRasterSnapshot(
   }
 
   if (surface == nullptr || surface->getCanvas() == nullptr) {
-      surface_->ClearContext();
+    surface_->ClearContext();
     return nullptr;
   }
 
@@ -172,19 +172,19 @@ sk_sp<SkImage> Rasterizer::DoMakeRasterSnapshot(
   }
 
   if (device_snapshot == nullptr) {
-      surface_->ClearContext();
+    surface_->ClearContext();
     return nullptr;
   }
 
   {
     TRACE_EVENT0("uiwidgets", "DeviceHostTransfer");
     if (auto raster_image = device_snapshot->makeRasterImage()) {
-        surface_->ClearContext();
+      surface_->ClearContext();
       return raster_image;
     }
   }
 
-    surface_->ClearContext();
+  surface_->ClearContext();
   return nullptr;
 }
 
@@ -325,7 +325,7 @@ RasterStatus Rasterizer::DrawToSurface(LayerTree& layer_tree) {
   if (compositor_frame) {
     RasterStatus raster_status = compositor_frame->Raster(layer_tree, false);
     if (raster_status == RasterStatus::kFailed) {
-        surface_->ClearContext();
+      surface_->ClearContext();
       return raster_status;
     }
     if (external_view_embedder != nullptr) {
@@ -347,10 +347,11 @@ RasterStatus Rasterizer::DrawToSurface(LayerTree& layer_tree) {
       TRACE_EVENT0("uiwidgets", "PerformDeferredSkiaCleanup");
       surface_->GetContext()->performDeferredCleanup(kSkiaCleanupExpiration);
     }
-      surface_->ClearContext();
+    surface_->ClearContext();
     return raster_status;
   }
-    surface_->ClearContext();
+  
+  surface_->ClearContext();
   return RasterStatus::kFailed;
 }
 
