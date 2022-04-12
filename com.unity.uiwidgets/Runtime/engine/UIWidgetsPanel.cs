@@ -245,9 +245,15 @@ namespace Unity.UIWidgets.engine {
 #endif
         #endregion
 
+        //TODO: this API seems to be more potentially destructive than EnableUIWidgetsWrapperNextFrame, we should try to replace it with the latter
         IEnumerator ReEnableUIWidgetsNextFrame() {
             yield return null;
             enabled = true;
+        }
+        
+        IEnumerator EnableUIWidgetsWrapperNextFrame() {
+            yield return null;
+            EnableUIWidgetsWrapper();
         }
 
 #if !UNITY_EDITOR && UNITY_ANDROID
@@ -265,20 +271,10 @@ namespace Unity.UIWidgets.engine {
         }
 #endif
 #if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
-        bool OpenGLCoreInitialized = true;
-        
-        bool IsOpenGLCoreInitialized() {
-            
+        void InitializeOpenGLCore() {
             OpenGLCoreUtil.RenderTextureCreateFailureWorkaround();
-            
-            if (OpenGLCoreInitialized) {
-                enabled = false;
-                OpenGLCoreInitialized = false;
-                OpenGLCoreUtil.Init();
-                startCoroutine(ReEnableUIWidgetsNextFrame());
-                return false;
-            }
-            return true;
+            OpenGLCoreUtil.Init();
+            startCoroutine(EnableUIWidgetsWrapperNextFrame());
         }
 #endif
         
@@ -292,7 +288,6 @@ namespace Unity.UIWidgets.engine {
             UIWidgetsDisabled = true;
             enabled = false;
         }
-
 
         protected override void OnEnable() {
             if (UIWidgetsDisabled) {
@@ -309,10 +304,10 @@ namespace Unity.UIWidgets.engine {
             if (!IsAndroidInitialized()) {return ;}
 #endif
 #if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
-            if (type != GraphicsDeviceType.Metal) {
-                if (!IsOpenGLCoreInitialized()) {
-                    return;
-                }
+            if (type == GraphicsDeviceType.OpenGLCore) {
+                InitializeOpenGLCore();
+                base.OnEnable();
+                return;
             }
 #endif
 #if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
@@ -321,11 +316,11 @@ namespace Unity.UIWidgets.engine {
                 return;
             }
 #endif
-            // If user duplicates uiwidgets gameobject in scene, canvas could be null during OnEnable, which results in error. Skip to avoid error.
+            // If user duplicates UIWidgets panel in scene, canvas could be null during OnEnable, which results in error. Skip to avoid error.
             // More explanation: during duplication, editor wakes and enables behaviors in certain order. GameObject behaviors are enabled before canvas.
             if (canvas == null) {
-                enabled = false;
-                startCoroutine(ReEnableUIWidgetsNextFrame());
+                startCoroutine(EnableUIWidgetsWrapperNextFrame());
+                base.OnEnable();
                 return;
             }
 #if !UNITY_EDITOR && UNITY_IOS
@@ -343,7 +338,10 @@ namespace Unity.UIWidgets.engine {
 #endif
 
             base.OnEnable();
+            EnableUIWidgetsWrapper();
+        }
 
+        void EnableUIWidgetsWrapper() {
             D.assert(_wrapper == null);
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();

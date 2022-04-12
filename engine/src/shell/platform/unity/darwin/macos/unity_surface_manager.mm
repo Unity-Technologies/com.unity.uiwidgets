@@ -327,6 +327,21 @@ void UnitySurfaceManager::GetUnityContext()
       return;
   }
   //get unity opengl core context
+  //if we can get the current active NSOpenGLContext then use it directly
+  NSOpenGLContext* _cur_unity_gl_context = [NSOpenGLContext currentContext];
+  if (_cur_unity_gl_context != nullptr)
+  {
+      unity_gl_context_ = _cur_unity_gl_context;
+      return;
+  }
+  
+  //otherwise, we choose to fetch the CGLContextObj and create a new NSOpenGLContext for it
+  //HOWEVER, according to this doc: https://developer.apple.com/documentation/appkit/nsopenglcontext/1436180-initwithcglcontextobj?language=objc
+  //only one NSOpenGLContext object can wrap a specific context, which means that the lines below
+  //might cause problem if the fetched CGLContextObj is already bound to a NSOpenGLContext, which in fact happens on Mac StandalonePlayer (OpenGLCore backend).
+  //For now, this code path will be activated for Mac Editor (OpenGLCore backend) only, on which the
+  //_cur_unity_gl_context turns out to be nullptr.
+  //TODO: investigate a better solution for Mac Editor (OpenGLCore backend)
   CGLContextObj glContext = CGLGetCurrentContext();
   unity_gl_context_ = [[NSOpenGLContext alloc] initWithCGLContextObj:glContext];
 }
