@@ -323,19 +323,10 @@ bool UnitySurfaceManager::ReleaseNativeRenderTexture()
 
 void UnitySurfaceManager::GetUnityContext()
 {
-    printf("try get unity gl context");
   if (unity_gl_context_ != nil)
   {
     return;
   }
-
   unity_gl_context_ = [EAGLContext currentContext];
-    
-    if (unity_gl_context_ == nil)
-    {
-        printf("unity gl context is nil >>>>");
-    }
-    
-    
 }
 }  // namespace uiwidgets
