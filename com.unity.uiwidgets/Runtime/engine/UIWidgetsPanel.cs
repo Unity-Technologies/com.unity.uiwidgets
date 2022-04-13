@@ -303,8 +303,15 @@ namespace Unity.UIWidgets.engine {
             }
             if (!IsAndroidInitialized()) {return ;}
 #endif
-#if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+#if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
             if (type == GraphicsDeviceType.OpenGLCore) {
+                InitializeOpenGLCore();
+                base.OnEnable();
+                return;
+            }
+#endif
+#if UNITY_IOS
+            if (type == GraphicsDeviceType.OpenGLES2 || type == GraphicsDeviceType.OpenGLES3) {
                 InitializeOpenGLCore();
                 base.OnEnable();
                 return;

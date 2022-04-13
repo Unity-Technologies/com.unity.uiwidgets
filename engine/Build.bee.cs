@@ -615,6 +615,8 @@ class Build
                 "src/shell/platform/unity/darwin/ios/cocoa_task_runner.h",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.h",
+                "src/shell/platform/unity/darwin/ios/unity_external_texture_gl.mm",
+                "src/shell/platform/unity/darwin/ios/unity_external_texture_gl.h"
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);
