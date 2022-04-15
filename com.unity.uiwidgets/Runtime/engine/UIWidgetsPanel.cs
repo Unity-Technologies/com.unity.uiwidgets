@@ -271,7 +271,7 @@ namespace Unity.UIWidgets.engine {
         }
 #endif
 #if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
-        void InitializeOpenGLCore() {
+        void InitializeOpenGL() {
             OpenGLCoreUtil.RenderTextureCreateFailureWorkaround();
             OpenGLCoreUtil.Init();
             startCoroutine(EnableUIWidgetsWrapperNextFrame());
@@ -305,14 +305,14 @@ namespace Unity.UIWidgets.engine {
 #endif
 #if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
             if (type == GraphicsDeviceType.OpenGLCore) {
-                InitializeOpenGLCore();
+                InitializeOpenGL();
                 base.OnEnable();
                 return;
             }
 #endif
 #if UNITY_IOS
             if (type == GraphicsDeviceType.OpenGLES2 || type == GraphicsDeviceType.OpenGLES3) {
-                InitializeOpenGLCore();
+                InitializeOpenGL();
                 base.OnEnable();
                 return;
             }
