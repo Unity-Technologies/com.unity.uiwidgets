@@ -24,7 +24,7 @@ public partial class UIWidgetsPanelWrapper {
         get { return _renderTexture; }
     }
 
-    public bool useExternalNativeTexture => true;
+    public bool requireColorspaceShader => !useColorspaceGamma;
 
     void _createRenderTexture(int width, int height, float devicePixelRatio) {
         D.assert(_renderTexture == null);
@@ -93,15 +93,13 @@ public partial class UIWidgetsPanelWrapper {
         //each backend respectively
         bool isMetalBackend => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
 
-        public bool useExternalNativeTexture => isMetalBackend;
+        public bool requireColorspaceShader => isMetalBackend && !useColorspaceGamma;
 
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
             D.assert(_renderTexture == null);
 
             if (!isMetalBackend) {
-                var colorSpace = QualitySettings.activeColorSpace == ColorSpace.Gamma
-                    ? RenderTextureReadWrite.Linear
-                    : RenderTextureReadWrite.sRGB;
+                var colorSpace = useColorspaceGamma ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
                 var graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(RenderTextureFormat.ARGB32, colorSpace);
 
                 var desc = new RenderTextureDescriptor(
@@ -195,13 +193,12 @@ public partial class UIWidgetsPanelWrapper {
             get { return _renderTexture; }
         }
 
-        public bool useExternalNativeTexture => false;
+        public bool requireColorspaceShader => false;
 
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
             D.assert(_renderTexture == null);
 
-            var colorSpace = QualitySettings.activeColorSpace == ColorSpace.Gamma
-                    ? RenderTextureReadWrite.Linear
+            var colorSpace = useColorspaceGamma ? RenderTextureReadWrite.Linear
                     : RenderTextureReadWrite.sRGB;
             var graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(RenderTextureFormat.ARGB32, colorSpace);
 
@@ -272,7 +269,9 @@ public partial class UIWidgetsPanelWrapper {
 
         public float devicePixelRatio { get; private set; }
         
-        public DisplayMetrics displayMetrics = new DisplayMetrics();
+        public readonly DisplayMetrics displayMetrics = new DisplayMetrics();
+
+        bool useColorspaceGamma = QualitySettings.activeColorSpace == ColorSpace.Gamma;
 
         public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr, Configurations _configurations) {
             D.assert(renderTexture == null);

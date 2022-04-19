@@ -362,8 +362,11 @@ namespace Unity.UIWidgets.engine {
                 _configurations: _configurations);
             _configurations.Clear();
 
-            if (_wrapper.useExternalNativeTexture) {
+            if (_wrapper.requireColorspaceShader) {
                 material = Resources.Load<Material>("uiwidgets_runtime");
+            }
+            else {
+                material = null;
             }
             texture = _wrapper.renderTexture;
             Input_OnEnable();

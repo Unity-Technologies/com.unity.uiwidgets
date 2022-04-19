@@ -55,7 +55,7 @@ namespace Unity.UIWidgets.Editor {
                 _configurations: _configurations);
             _configurations.Clear();
 
-            if (_wrapper.useExternalNativeTexture) {
+            if (_wrapper.requireColorspaceShader) {
                 _uiMaterial = AssetDatabase.LoadAssetAtPath<Material>("Packages/com.unity.uiwidgets/Resources/uiwidgets_ui.mat");
             }
             
