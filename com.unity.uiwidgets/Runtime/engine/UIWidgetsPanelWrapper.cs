@@ -9,6 +9,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using Path = Unity.UIWidgets.ui.Path;
 
@@ -22,6 +23,8 @@ public partial class UIWidgetsPanelWrapper {
     public Texture renderTexture {
         get { return _renderTexture; }
     }
+
+    public bool useExternalNativeTexture => true;
 
     void _createRenderTexture(int width, int height, float devicePixelRatio) {
         D.assert(_renderTexture == null);
@@ -90,12 +93,19 @@ public partial class UIWidgetsPanelWrapper {
         //each backend respectively
         bool isMetalBackend => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
 
+        public bool useExternalNativeTexture => isMetalBackend;
+
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
             D.assert(_renderTexture == null);
 
             if (!isMetalBackend) {
+                var colorSpace = QualitySettings.activeColorSpace == ColorSpace.Gamma
+                    ? RenderTextureReadWrite.Linear
+                    : RenderTextureReadWrite.sRGB;
+                var graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(RenderTextureFormat.ARGB32, colorSpace);
+
                 var desc = new RenderTextureDescriptor(
-                    width, height, RenderTextureFormat.ARGB32, 0) {
+                    width, height, graphicsFormat, 0) {
                     useMipMap = false,
                     autoGenerateMips = false,
                 };
@@ -185,11 +195,18 @@ public partial class UIWidgetsPanelWrapper {
             get { return _renderTexture; }
         }
 
+        public bool useExternalNativeTexture => false;
+
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
             D.assert(_renderTexture == null);
 
+            var colorSpace = QualitySettings.activeColorSpace == ColorSpace.Gamma
+                    ? RenderTextureReadWrite.Linear
+                    : RenderTextureReadWrite.sRGB;
+            var graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(RenderTextureFormat.ARGB32, colorSpace);
+
             var desc = new RenderTextureDescriptor(
-                width, height, RenderTextureFormat.ARGB32, 0) {
+                width, height, graphicsFormat, 0) {
                 useMipMap = false,
                 autoGenerateMips = false,
             };

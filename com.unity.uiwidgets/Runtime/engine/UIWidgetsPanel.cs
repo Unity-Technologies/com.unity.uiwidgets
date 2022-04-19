@@ -361,6 +361,10 @@ namespace Unity.UIWidgets.engine {
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 _configurations: _configurations);
             _configurations.Clear();
+
+            if (_wrapper.useExternalNativeTexture) {
+                material = Resources.Load<Material>("uiwidgets_runtime");
+            }
             texture = _wrapper.renderTexture;
             Input_OnEnable();
             registerPanel(this);

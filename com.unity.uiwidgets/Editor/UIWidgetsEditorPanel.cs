@@ -14,6 +14,8 @@ namespace Unity.UIWidgets.Editor {
         Configurations _configurations;
         bool _ShowDebugLog;
         UIWidgetsPanelWrapper _wrapper;
+        
+        Material _uiMaterial = null;
 
         int _currentWidth {
             get { return Mathf.RoundToInt(f: position.size.x); }
@@ -52,6 +54,11 @@ namespace Unity.UIWidgets.Editor {
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 _configurations: _configurations);
             _configurations.Clear();
+
+            if (_wrapper.useExternalNativeTexture) {
+                _uiMaterial = AssetDatabase.LoadAssetAtPath<Material>("Packages/com.unity.uiwidgets/Resources/uiwidgets_ui.mat");
+            }
+            
             Input_OnEnable();
         }
 
@@ -61,7 +68,7 @@ namespace Unity.UIWidgets.Editor {
             _wrapper = null;
             Input_OnDisable();
         }
-
+        
         void OnGUI() {
             if (_wrapper != null) {
                 if (_wrapper.didDisplayMetricsChanged(width: _currentWidth, height: _currentHeight,
@@ -69,9 +76,9 @@ namespace Unity.UIWidgets.Editor {
                     _wrapper.OnDisplayMetricsChanged(width: _currentWidth, height: _currentHeight,
                         dpr: _currentDevicePixelRatio);
                 }
-
-                GUI.DrawTexture(new Rect(0.0f, 0.0f, width: position.width, height: position.height),
-                    image: _wrapper.renderTexture);
+                
+                EditorGUI.DrawPreviewTexture(new Rect(0.0f, 0.0f, width: position.width, height: position.height),
+                    image: _wrapper.renderTexture, mat: _uiMaterial);
                 Input_OnGUIEvent(evt: Event.current);
             }
         }
