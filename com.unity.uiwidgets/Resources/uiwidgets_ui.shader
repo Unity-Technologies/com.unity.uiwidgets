@@ -1,7 +1,6 @@
 ﻿Shader "UIWidgets/uiwidgets_ui"
 {
     Properties { _MainTex ("Texture", any) = "" {} 
-                 _Linear ("_Linear", float) = 0
     }
 
     CGINCLUDE
@@ -26,8 +25,6 @@
     };
 
     sampler2D _MainTex;
-    
-    float _Linear;
 
     uniform float4 _MainTex_ST;
 
@@ -45,7 +42,6 @@
     fixed4 frag (v2f i) : SV_Target
     {
         fixed4 colr = tex2D(_MainTex, i.texcoord);
-        //colr.rgb = pow(colr.rgb, 2.2);
         return colr;
     }
     ENDCG

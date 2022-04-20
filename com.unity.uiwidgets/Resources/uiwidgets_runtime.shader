@@ -1,7 +1,6 @@
 ﻿Shader "UIWidgets/uiwidgets_runtime"
 {
     Properties { _MainTex ("Texture", any) = "" {} 
-                 _Linear ("_Linear", float) = 0
     }
 
     CGINCLUDE
@@ -26,8 +25,6 @@
     };
 
     sampler2D _MainTex;
-    
-    float _Linear;
 
     uniform float4 _MainTex_ST;
 
