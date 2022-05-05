@@ -14,6 +14,15 @@ namespace Unity.UIWidgets.Editor {
         Configurations _configurations;
         bool _ShowDebugLog;
         UIWidgetsPanelWrapper _wrapper;
+
+        /*
+         * In order to wait for the Editor to starts properly before showing the UIWidgets panel,
+         * which is essential when we are using EditorMode (https://github.com/Unity-Technologies/unity-editor-core/wiki/EditorModes,
+         * available for Unity stuff only) to make an UIWidgets panel as an initial window of the Editor,
+         * we add this flag so that the UI will wait for one frame (which seems to be enough for Unity Editor to starts properly)
+         * before generating the UIWidgets panel
+         */
+        bool _needWaitToEnable = true;
         
         Material _uiMaterial = null;
 
@@ -37,11 +46,22 @@ namespace Unity.UIWidgets.Editor {
         }
 
         void Update() {
+            if (_needWaitToEnable) {
+                return;
+            }
+            
             OnUpdate();
             _wrapper.onEditorUpdate();
         }
 
-        void OnEnable() {
+        IEnumerator DoEnableAfterOneFrame() {
+            yield return null;
+
+            _needWaitToEnable = false;
+            DoOnEnable();
+        }
+
+        void DoOnEnable() {
             D.assert(_wrapper == null);
 
             //enable listener to MouseMoveEvents by default
@@ -62,10 +82,17 @@ namespace Unity.UIWidgets.Editor {
             Input_OnEnable();
         }
 
+        void OnEnable() {
+            _needWaitToEnable = true;
+            startCoroutine(DoEnableAfterOneFrame());
+        }
+
         void OnDestroy() {
             D.assert(_wrapper != null);
             _wrapper?.Destroy();
             _wrapper = null;
+
+            _needWaitToEnable = true;
             Input_OnDisable();
         }
         
@@ -75,6 +102,8 @@ namespace Unity.UIWidgets.Editor {
                     dpr: _currentDevicePixelRatio)) {
                     _wrapper.OnDisplayMetricsChanged(width: _currentWidth, height: _currentHeight,
                         dpr: _currentDevicePixelRatio);
+                    //don't show the UI when we are still resizing the window
+                    return;
                 }
                 
                 EditorGUI.DrawPreviewTexture(new Rect(0.0f, 0.0f, width: position.width, height: position.height),
