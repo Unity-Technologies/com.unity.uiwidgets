@@ -5,6 +5,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Font = Unity.UIWidgets.engine.Font;
 using Rect = UnityEngine.Rect;
 
@@ -81,9 +82,21 @@ namespace Unity.UIWidgets.Editor {
             
             Input_OnEnable();
         }
+        
+        void TryInitializeOpenGLCoreOnMacEditor() {
+            var type = SystemInfo.graphicsDeviceType;
+            if (type != GraphicsDeviceType.OpenGLCore) {
+                return;
+            }
+            OpenGLCoreUtil.RenderTextureCreateFailureWorkaround();
+            OpenGLCoreUtil.Init();
+        }
 
         void OnEnable() {
             _needWaitToEnable = true;
+#if UNITY_EDITOR_OSX
+            TryInitializeOpenGLCoreOnMacEditor();
+#endif
             startCoroutine(DoEnableAfterOneFrame());
         }
 
