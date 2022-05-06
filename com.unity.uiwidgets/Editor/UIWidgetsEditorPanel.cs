@@ -83,6 +83,7 @@ namespace Unity.UIWidgets.Editor {
             Input_OnEnable();
         }
         
+#if UNITY_EDITOR_OSX
         void TryInitializeOpenGLCoreOnMacEditor() {
             var type = SystemInfo.graphicsDeviceType;
             if (type != GraphicsDeviceType.OpenGLCore) {
@@ -91,7 +92,8 @@ namespace Unity.UIWidgets.Editor {
             OpenGLCoreUtil.RenderTextureCreateFailureWorkaround();
             OpenGLCoreUtil.Init();
         }
-
+#endif
+        
         void OnEnable() {
             _needWaitToEnable = true;
 #if UNITY_EDITOR_OSX

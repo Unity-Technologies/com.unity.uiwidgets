@@ -74,13 +74,14 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void paint(PaintingContext context, Offset offset) {
+            if (_textureId == null && _texture == null) {
+                return;
+            }
             if (_textureId == null) {
-                if (_texture != null) {
-                    markNeedsLayout();
-                    SchedulerBinding.instance.scheduleFrameCallback(_handleAppFrame);
-                    if (_texture.GetNativeTexturePtr() != IntPtr.Zero) {
-                        _textureId = UIWidgetsPanelWrapper.current.RegisterExternalTexture(_texture.GetNativeTexturePtr());
-                    }
+                markNeedsLayout();
+                SchedulerBinding.instance.scheduleFrameCallback(_handleAppFrame);
+                if (_texture.GetNativeTexturePtr() != IntPtr.Zero) {
+                    _textureId = UIWidgetsPanelWrapper.current.RegisterExternalTexture(_texture.GetNativeTexturePtr());
                 }
                 return;
             }

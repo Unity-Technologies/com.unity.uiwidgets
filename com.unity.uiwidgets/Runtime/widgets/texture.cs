@@ -23,10 +23,6 @@ namespace Unity.UIWidgets.widgets {
         public override RenderObject createRenderObject(BuildContext context) {
             return new TextureBox(textureId: textureId, texture: texture);
         }
-        
-        public override bool Equals(object obj) {
-            return false;
-        }
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             ((TextureBox) renderObject).textureId = textureId;
