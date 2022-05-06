@@ -282,7 +282,6 @@ namespace Unity.UIWidgets.engine {
 
         void DisableUIWidgets() {
             Debug.Log("Please change graphic api for UIWidgets.\n" +
-                      "Metal for iOS and MacOS.\n" +
                       "Direct3D11 for Windows\n" +
                       "Vulkan for Android\n");
             UIWidgetsDisabled = true;
