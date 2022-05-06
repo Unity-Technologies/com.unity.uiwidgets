@@ -14,6 +14,8 @@ GPUSurfaceSoftware::GPUSurfaceSoftware(GPUSurfaceSoftwareDelegate* delegate,
 
 GPUSurfaceSoftware::~GPUSurfaceSoftware() = default;
 
+void GPUSurfaceSoftware::ClearContext() { }
+
 // |Surface|
 bool GPUSurfaceSoftware::IsValid() { return delegate_ != nullptr; }
 

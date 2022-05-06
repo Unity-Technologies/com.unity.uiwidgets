@@ -32,7 +32,7 @@ class UnitySurfaceManager {
   static std::vector<GLContextPair> gl_context_pool_;
   static void ReleaseResource();
 
-  void* CreateRenderTexture(size_t width, size_t height);
+  void* CreateRenderTexture(void *native_texture_ptr, size_t width, size_t height);
 
   void ReleaseNativeRenderContext();
 
@@ -45,13 +45,21 @@ class UnitySurfaceManager {
   bool MakeCurrentResourceContext();
   
   uint32_t GetFbo();
+    
+  static void GetUnityContext();
 
  private:
-  static GLContextPair GetFreeOpenGLContext();
+  static GLContextPair GetFreeOpenGLContext(bool useOpenGLCore);
   void RecycleOpenGLContext(NSOpenGLContext* gl, NSOpenGLContext* gl_resource);
   //pixel buffer handles
   CVPixelBufferRef pixelbuffer_ref = nullptr;
+    
+  bool useOpenGLCore;
+    
   //openGL handlers
+  static NSOpenGLContext *unity_gl_context_;       //used for OpenGLCore only
+  NSOpenGLContext *unity_previous_gl_context_ = nil;
+  
   NSOpenGLContext *gl_context_;
   NSOpenGLContext *gl_resource_context_;
   GLuint default_fbo_ = 0;

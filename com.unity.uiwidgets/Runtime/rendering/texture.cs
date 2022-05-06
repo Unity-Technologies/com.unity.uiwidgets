@@ -84,7 +84,11 @@ namespace Unity.UIWidgets.rendering {
                 }
                 return;
             }
-            
+
+            //texture id == -1 means that the texture is not valid, we won't paint it at all
+            if (_textureId.Value == -1) {
+                return;
+            }
             _scheduleAppFrame();
             context.addLayer(new TextureLayer(
                 rect: Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height),
