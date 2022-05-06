@@ -245,9 +245,15 @@ namespace Unity.UIWidgets.engine {
 #endif
         #endregion
 
+        //TODO: this API seems to be more potentially destructive than EnableUIWidgetsWrapperNextFrame, we should try to replace it with the latter
         IEnumerator ReEnableUIWidgetsNextFrame() {
             yield return null;
             enabled = true;
+        }
+        
+        IEnumerator EnableUIWidgetsWrapperNextFrame() {
+            yield return null;
+            EnableUIWidgetsWrapper();
         }
 
 #if !UNITY_EDITOR && UNITY_ANDROID
@@ -264,17 +270,23 @@ namespace Unity.UIWidgets.engine {
             return true;
         }
 #endif
+#if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+        void InitializeOpenGL() {
+            OpenGLCoreUtil.RenderTextureCreateFailureWorkaround();
+            OpenGLCoreUtil.Init();
+            startCoroutine(EnableUIWidgetsWrapperNextFrame());
+        }
+#endif
+        
         static bool UIWidgetsDisabled;
 
         void DisableUIWidgets() {
             Debug.Log("Please change graphic api for UIWidgets.\n" +
-                      "Metal for iOS and MacOS.\n" +
                       "Direct3D11 for Windows\n" +
                       "Vulkan for Android\n");
             UIWidgetsDisabled = true;
             enabled = false;
         }
-
 
         protected override void OnEnable() {
             if (UIWidgetsDisabled) {
@@ -290,9 +302,17 @@ namespace Unity.UIWidgets.engine {
             }
             if (!IsAndroidInitialized()) {return ;}
 #endif
-#if UNITY_IOS || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
-            if (type != GraphicsDeviceType.Metal) {
-                DisableUIWidgets();
+#if UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX
+            if (type == GraphicsDeviceType.OpenGLCore) {
+                InitializeOpenGL();
+                base.OnEnable();
+                return;
+            }
+#endif
+#if UNITY_IOS
+            if (type == GraphicsDeviceType.OpenGLES2 || type == GraphicsDeviceType.OpenGLES3) {
+                InitializeOpenGL();
+                base.OnEnable();
                 return;
             }
 #endif
@@ -302,11 +322,11 @@ namespace Unity.UIWidgets.engine {
                 return;
             }
 #endif
-            // If user duplicates uiwidgets gameobject in scene, canvas could be null during OnEnable, which results in error. Skip to avoid error.
+            // If user duplicates UIWidgets panel in scene, canvas could be null during OnEnable, which results in error. Skip to avoid error.
             // More explanation: during duplication, editor wakes and enables behaviors in certain order. GameObject behaviors are enabled before canvas.
             if (canvas == null) {
-                enabled = false;
-                startCoroutine(ReEnableUIWidgetsNextFrame());
+                startCoroutine(EnableUIWidgetsWrapperNextFrame());
+                base.OnEnable();
                 return;
             }
 #if !UNITY_EDITOR && UNITY_IOS
@@ -324,7 +344,10 @@ namespace Unity.UIWidgets.engine {
 #endif
 
             base.OnEnable();
+            EnableUIWidgetsWrapper();
+        }
 
+        void EnableUIWidgetsWrapper() {
             D.assert(_wrapper == null);
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
@@ -337,6 +360,13 @@ namespace Unity.UIWidgets.engine {
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 _configurations: _configurations);
             _configurations.Clear();
+
+            if (_wrapper.requireColorspaceShader) {
+                material = Resources.Load<Material>("uiwidgets_runtime");
+            }
+            else {
+                material = null;
+            }
             texture = _wrapper.renderTexture;
             Input_OnEnable();
             registerPanel(this);

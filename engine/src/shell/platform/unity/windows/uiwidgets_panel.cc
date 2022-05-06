@@ -254,7 +254,7 @@ void* UIWidgetsPanel::OnRenderTexture(size_t width,
 bool UIWidgetsPanel::ReleaseNativeRenderTexture() { return surface_manager_->ReleaseNativeRenderTexture(); }
 
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
-  int texture_identifier = 0;
+  static int texture_identifier = 0;
   texture_identifier++;
 
   auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);

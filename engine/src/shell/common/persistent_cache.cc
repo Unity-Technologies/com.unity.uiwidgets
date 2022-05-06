@@ -140,7 +140,11 @@ PersistentCache::PersistentCache(bool read_only)
 PersistentCache::~PersistentCache() = default;
 
 bool PersistentCache::IsValid() const {
+#ifdef UIWIDGETS_FORCE_DISABLE_PERSISTENTCACHE
+  return false;
+#else
   return cache_directory_ && cache_directory_->is_valid();
+#endif
 }
 
 sk_sp<SkData> PersistentCache::LoadFile(const fml::UniqueFD& dir,

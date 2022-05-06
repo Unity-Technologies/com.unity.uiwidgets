@@ -217,6 +217,11 @@ SkMatrix GPUSurfaceGL::GetRootTransformation() const {
   return delegate_->GLContextSurfaceTransformation();
 }
 
+void GPUSurfaceGL::ClearContext()
+{
+  delegate_->GLContextClearCurrent();
+}
+
 // |Surface|
 std::unique_ptr<SurfaceFrame> GPUSurfaceGL::AcquireFrame(const SkISize& size) {
   if (delegate_ == nullptr) {

@@ -591,6 +591,8 @@ class Build
                 "src/shell/platform/unity/darwin/macos/cocoa_task_runner.h",
                 "src/shell/platform/unity/darwin/macos/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/macos/unity_surface_manager.h",
+                "src/shell/platform/unity/darwin/macos/unity_external_texture_gl.mm",
+                "src/shell/platform/unity/darwin/macos/unity_external_texture_gl.h"
         };
 
         var androidSource = new NPath[]
@@ -601,6 +603,7 @@ class Build
             "src/shell/platform/unity/android/uiwidgets_system.cc",
             "src/shell/platform/unity/android/android_task_runner.cc",
             "src/shell/platform/unity/android/uiwidgets_panel.cc",
+            "src/shell/platform/unity/android/unity_external_texture_gl.cc"
         };
 
         var iosSources = new NPath[] {
@@ -612,6 +615,8 @@ class Build
                 "src/shell/platform/unity/darwin/ios/cocoa_task_runner.h",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.mm",
                 "src/shell/platform/unity/darwin/ios/unity_surface_manager.h",
+                "src/shell/platform/unity/darwin/ios/unity_external_texture_gl.mm",
+                "src/shell/platform/unity/darwin/ios/unity_external_texture_gl.h"
         };
 
         np.Sources.Add(c => IsWindows(c), winSources);
@@ -785,6 +790,22 @@ class Build
 
         np.Defines.Add("UIWIDGETS_ENGINE_VERSION=\\\"0.0\\\"", "SKIA_VERSION=\\\"0.0\\\"");
         np.Defines.Add(c => IsMac(c) || IsIosOrTvos(c), "UIWIDGETS_FORCE_ALIGNAS_8=\\\"1\\\"");
+
+        //since we support both metal and opengl core backends on Mac, it will cause error in Mac Editor when enabling 
+        //the default persistent cache in the native UIWidgets engine. 
+        //
+        //specifically, if the user first set the graphics backend as metal and open an UIWidgets project, the underline
+        //native UIWidgets engine will cache the shader files generated for metal from some glsl codes with the cache key
+        //as md5 of the codes. 
+        //then if the user reopen the project using the same Editor with opengl core bankend, using the same md5 key, 
+        //the UIWidgets engine will mistakenly reuse the cached metal shader files for opengl core.
+        //
+        //since this scenario (i.e., switching between different graphics backends for the same App) rarely happens for
+        //flutter, we have to find out a solution for UIWidgets engine. For now, our solution is as follows:
+        //
+        //Disable the persistent cache (via force its IsValid() method to always return false) in UIWidget engine for Mac
+        //note that there might be some performance issue (mainly first frame delay) after this fix on Mac
+        np.Defines.Add(c => IsMac(c), "UIWIDGETS_FORCE_DISABLE_PERSISTENTCACHE=\\\"1\\\"");
 
         np.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });

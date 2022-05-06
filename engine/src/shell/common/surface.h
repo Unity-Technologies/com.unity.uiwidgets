@@ -52,6 +52,11 @@ class Surface {
 
   virtual std::unique_ptr<SurfaceFrame> AcquireFrame(const SkISize& size) = 0;
 
+  //In UIWidgets, we add this new API to Surface which will eventually call the method UnitySurfaceManager.ClearCurrentContext on the specific platform
+  //Since UIWidgets engine will always change the current OpenGL state before emitting its own OpenGL commands to the GPU by calling UnitySurfaceManager.MakeCurrentContext, we need to guarantee to restore the original OpenGL state after the job is done. Otherwise the OpenGL context outside will be permanentally changed and bad things would happen. Altough this situation won't exist for flutter (since it doesn't need to deal with any OpenGL contexts outside), it causes issues on UIWidgets engine. For instance, on Mac (OpenGLCore backend) the OpenGL context of Unity will be eventually lost and nothing can be rendered out properly.
+  //To address this issue, we add this API so that we can call this method to force restoring the original OpenGL state in each code path after it is changed by UIWidget engine
+  virtual void ClearContext() = 0;
+
   virtual SkMatrix GetRootTransformation() const = 0;
 
   virtual GrContext* GetContext() = 0;
