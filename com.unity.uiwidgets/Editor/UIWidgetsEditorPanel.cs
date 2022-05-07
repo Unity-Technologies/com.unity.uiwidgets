@@ -121,6 +121,10 @@ namespace Unity.UIWidgets.Editor {
                     return;
                 }
                 
+                if (_wrapper.renderTexture == null) {
+                    return;
+                }
+                
                 EditorGUI.DrawPreviewTexture(new Rect(0.0f, 0.0f, width: position.width, height: position.height),
                     image: _wrapper.renderTexture, mat: _uiMaterial);
                 Input_OnGUIEvent(evt: Event.current);
