@@ -1,0 +1,12 @@
+diff --git a/release/c/wuffs-v0.2.c b/release/c/wuffs-v0.2.c
+index cb20f77b..f28a91be 100644
+--- a/release/c/wuffs-v0.2.c
++++ b/release/c/wuffs-v0.2.c
+@@ -30,6 +30,7 @@
+ #ifdef __clang__
+ #pragma clang diagnostic push
+ #pragma clang diagnostic ignored "-Wunused-function"
++#pragma clang diagnostic ignored "-Wnon-c-typedef-for-linkage"
+ #endif
+ 
+ #ifdef __cplusplus

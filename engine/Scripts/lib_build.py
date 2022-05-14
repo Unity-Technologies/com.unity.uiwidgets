@@ -217,6 +217,12 @@ def compile_engine():
         os.chdir(Path(flutter_root_path + "/build/mac"))
         copy_file(Path(work_path + "/patches/find_sdk.patch"), Path(flutter_root_path + "/build/mac"))
         os.system("patch < find_sdk.patch -N")
+    
+    if platform == "ios":
+        os.chdir(Path(flutter_root_path + "/third_party/wuffs/release/c"))
+        copy_file(Path(work_path + "/patches/wuffs-v0.2.c.patch"), Path(flutter_root_path + "/third_party/wuffs/release/c"))
+        os.system("patch < wuffs-v0.2.c.patch -N")
+    
     elif platform == "android":
         os.chdir(Path(flutter_root_path + "/flutter/third_party/txt"))
         copy_file(Path(work_path + "/patches/android/BUILD.gn.patch"), Path(flutter_root_path + "/flutter/third_party/txt"))
@@ -385,6 +391,11 @@ def revert_patches():
             os.chdir(Path(work_path))
             if os.path.exists(Path(work_path + "/bitcode.conf")):
                 os.remove("bitcode.conf")
+    
+    if platform == "ios":
+        os.chdir(Path(flutter_root_path + "/third_party/wuffs/release/c"))
+        os.system("patch -R < wuffs-v0.2.c.patch")
+
     elif platform == "android":
         os.chdir(Path(flutter_root_path + "/build/mac"))
         os.system("patch -R < find_sdk.patch")

@@ -8,6 +8,7 @@
 #include "shell/platform/embedder/embedder.h"
 #include "shell/common/switches.h"
 
+#include "unity_external_texture_gl.h"
 #include "uiwidgets_system.h"
 #include "uiwidgets_panel.h"
 
@@ -33,8 +34,7 @@ bool UIWidgetsPanel::NeedUpdateByEditorLoop() {
   return window_type_ == EditorWindowPanel;
 }
 
-void* UIWidgetsPanel::OnEnable(size_t width, size_t height, float device_pixel_ratio, 
-                               const char* streaming_assets_path, const char* settings)
+void* UIWidgetsPanel::OnEnable(void *native_texture_ptr, size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings)
 {
   fml::AutoResetWaitableEvent latch;
   std::thread::id gfx_worker_thread_id;
@@ -47,11 +47,11 @@ void* UIWidgetsPanel::OnEnable(size_t width, size_t height, float device_pixel_r
 
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
-  void* metal_tex = surface_manager_->CreateRenderTexture(width, height);
+  void* _tex_handler = surface_manager_->CreateRenderTexture(native_texture_ptr, width, height);
 
   CreateInternalUIWidgetsEngine(width, height, device_pixel_ratio, streaming_assets_path, settings, gfx_worker_thread_id);
 
-  return metal_tex;
+  return _tex_handler;
 }
 
 void UIWidgetsPanel::CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, 
@@ -212,7 +212,7 @@ void UIWidgetsPanel::OnDisable() {
   }
 }
 
-void* UIWidgetsPanel::OnRenderTexture(size_t width,
+void* UIWidgetsPanel::OnRenderTexture(void *native_texture_ptr, size_t width,
                                      size_t height, float device_pixel_ratio) {
   ViewportMetrics metrics;
   metrics.physical_width = static_cast<float>(width);
@@ -220,20 +220,33 @@ void* UIWidgetsPanel::OnRenderTexture(size_t width,
   metrics.device_pixel_ratio = device_pixel_ratio;
   reinterpret_cast<EmbedderEngine*>(engine_)->SetViewportMetrics(metrics);
 
-  return surface_manager_->CreateRenderTexture(width, height);
+  return surface_manager_->CreateRenderTexture(native_texture_ptr, width, height);
 }
 
 bool UIWidgetsPanel::ReleaseNativeRenderTexture() { return surface_manager_->ReleaseNativeRenderTexture(); }
 
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
-  //TODO: add implementation
-  std::cerr << "registering external texture is not implemented for MacOS" << std::endl;
-  return 0;
+    int64_t texture_identifier = reinterpret_cast<int64_t>(native_texture_ptr);
+    std::shared_ptr<UnityExternalTextureGL> externalTexture = std::make_unique<UnityExternalTextureGL>(texture_identifier);
+
+    if (!externalTexture.get()->isValid())
+    {
+      externalTexture.reset();
+      return -1;
+    }
+
+    auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
+    engine->GetShell().GetPlatformView()->RegisterTexture(externalTexture);
+    return texture_identifier;
 }
 
 void UIWidgetsPanel::UnregisterTexture(int texture_id) {
-  //TODO: add implementation
-  std::cerr << "unregistering external texture is not implemented for MacOS" << std::endl;
+    if (texture_id == -1)
+    {
+      return;
+    }
+    auto *engine = reinterpret_cast<EmbedderEngine *>(engine_);
+    engine->GetShell().GetPlatformView()->UnregisterTexture(texture_id);
 }
 
 std::chrono::nanoseconds UIWidgetsPanel::ProcessMessages() {
@@ -369,11 +382,11 @@ UIWIDGETS_API(void) UIWidgetsPanel_dispose(UIWidgetsPanel* panel) {
 }
 
 UIWIDGETS_API(void*)
-UIWidgetsPanel_onEnable(UIWidgetsPanel* panel,
+UIWidgetsPanel_onEnable(UIWidgetsPanel* panel, void *native_texture_ptr,
                         size_t width, size_t height, float device_pixel_ratio,
                         const char* streaming_assets_path, 
                         const char* settings) {
-  return panel->OnEnable(width, height, device_pixel_ratio,
+  return panel->OnEnable(native_texture_ptr, width, height, device_pixel_ratio,
                   streaming_assets_path, settings);
 }
 
@@ -386,9 +399,9 @@ UIWIDGETS_API(bool) UIWidgetsPanel_releaseNativeTexture(UIWidgetsPanel* panel) {
 }
 
 UIWIDGETS_API(void*)
-UIWidgetsPanel_onRenderTexture(UIWidgetsPanel* panel,
+UIWidgetsPanel_onRenderTexture(UIWidgetsPanel* panel, void *native_texture_ptr,
                                int width, int height, float dpi) {
-  return panel->OnRenderTexture(width, height, dpi);
+  return panel->OnRenderTexture(native_texture_ptr, width, height, dpi);
 }
 
 UIWIDGETS_API(int)
@@ -448,5 +461,20 @@ UIWIDGETS_API(void)
 UIWidgetsPanel_onScroll(UIWidgetsPanel* panel, float x, float y, float px, float py) {
   panel->OnScroll(x, y, px, py);
 }
+
+static void UNITY_INTERFACE_API OnGetUnityContextEvent(int eventID)
+{
+  UnitySurfaceManager::GetUnityContext();
+}
+
+// --------------------------------------------------------------------------
+// GetRenderEventFunc, an example function we export which is used to get a rendering event callback function.
+
+UIWIDGETS_API(UnityRenderingEvent)
+GetUnityContextEventFunc()
+{
+  return OnGetUnityContextEvent;
+}
+
 
 }  // namespace uiwidgets
