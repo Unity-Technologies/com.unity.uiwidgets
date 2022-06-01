@@ -33,6 +33,7 @@ namespace Unity.UIWidgets.engine {
     public struct TextFont {
         public string family;
         [SerializeField] public Font[] fonts;
+        public string absPath;
     }
 
     public interface IUIWidgetsWindow {
@@ -75,7 +76,7 @@ namespace Unity.UIWidgets.engine {
 
                     if (setting.Value.fonts[j].asset.Length > 0) {
                         var assetPath = setting.Value.fonts[j].asset;
-                        var assetAbsolutePath = Path.Combine(Application.streamingAssetsPath, assetPath);
+                        var assetAbsolutePath = Path.Combine(setting.Value.absPath ?? Application.streamingAssetsPath, assetPath);
 #if !UNITY_EDITOR && UNITY_ANDROID
                         if (!AndroidPlatformUtil.FileExists(assetPath)) {
 #else
@@ -442,13 +443,13 @@ namespace Unity.UIWidgets.engine {
             _configurations.AddFont(family, font);
         }
 
-        protected void AddFont(string family, List<string> assets, List<int> weights) {
+        protected void AddFont(string family, List<string> assets, List<int> weights, string absPath = null) {
             if (assets.Count != weights.Count) {
                 Debug.LogError($"The size of {family}‘s assets should be equal to the weights'.");
                 return;
             }
 
-            var textFont = new TextFont {family = family};
+            var textFont = new TextFont {family = family, absPath = absPath};
             var fonts = new Font[assets.Count];
             for (var j = 0; j < assets.Count; j++) {
                 var font = new Font {asset = assets[index: j], weight = weights[index: j]};
