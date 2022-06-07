@@ -73,7 +73,7 @@ namespace UIWidgetsSample
                                 new GestureDetector(
                                     onDoubleTap: () => { setState(() => { counter++; }); },
                                     child: new Container(
-                                        margin: EdgeInsets.fromLTRB(200, 150, 200, 200),
+                                        margin: EdgeInsets.fromLTRB(200, 150, 200, 100),
                                         padding: EdgeInsets.symmetric(40, 60),
                                         color: counter % 2 == 0
                                             ? Color.fromARGB(255, 0, 255, 0)
