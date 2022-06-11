@@ -749,15 +749,19 @@ namespace Unity.UIWidgets.service {
             }
         }
 
-        internal static void OnGUI() {
+        internal static bool OnGUI() {
             if (_currentConnection != null && _currentConnection._window == Window.instance) {
                 (keyboardDelegate as TextInputOnGUIListener)?.OnGUI();
+
+                return true;
             }
             else {
                 //skip all the key events when no connection is attached
                 while (!PointerEventConverter.KeyEvent.isEmpty()) {
                     PointerEventConverter.KeyEvent.Dequeue();
                 }
+
+                return false;
             }
         }
 
