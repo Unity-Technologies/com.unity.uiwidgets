@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
@@ -751,6 +752,12 @@ namespace Unity.UIWidgets.service {
         internal static void OnGUI() {
             if (_currentConnection != null && _currentConnection._window == Window.instance) {
                 (keyboardDelegate as TextInputOnGUIListener)?.OnGUI();
+            }
+            else {
+                //skip all the key events when no connection is attached
+                while (!PointerEventConverter.KeyEvent.isEmpty()) {
+                    PointerEventConverter.KeyEvent.Dequeue();
+                }
             }
         }
 
