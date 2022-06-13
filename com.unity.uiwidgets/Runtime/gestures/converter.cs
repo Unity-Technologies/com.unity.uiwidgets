@@ -207,11 +207,8 @@ namespace Unity.UIWidgets.gestures {
                                 keyBoardEvent.command = (datum.modifier & (1 << (int) FunctionKey.command)) > 0;
                                 keyBoardEvent.control = (datum.modifier & (1 << (int) FunctionKey.control)) > 0;
 #endif
-                                //if there is a text input field attached then the input should be swallowed by it. Otherwise we pass the input to RawKeyboard
-                                if (!TextInput.OnGUI()) {
-                                    RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
-                                }
-
+                                TextInput.OnGUI();
+                                RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
                             }
                             break;
                     }
