@@ -207,8 +207,8 @@ namespace Unity.UIWidgets.gestures {
                                 keyBoardEvent.command = (datum.modifier & (1 << (int) FunctionKey.command)) > 0;
                                 keyBoardEvent.control = (datum.modifier & (1 << (int) FunctionKey.control)) > 0;
 #endif
-                                RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
                                 TextInput.OnGUI();
+                                RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
                             }
                             break;
                     }
