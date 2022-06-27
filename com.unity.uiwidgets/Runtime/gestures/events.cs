@@ -81,7 +81,7 @@ namespace Unity.UIWidgets.gestures {
             this.position = position ?? Offset.zero;
             this.localPosition = localPosition ?? this.position;
             this.delta = delta ?? Offset.zero;
-            this.localDelta = delta ?? this.delta;
+            this.localDelta = localDelta ?? this.delta;
             this.buttons = buttons;
             this.down = down;
             this.obscured = obscured;
