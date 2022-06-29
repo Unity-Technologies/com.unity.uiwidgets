@@ -5,7 +5,7 @@ using Unity.UIWidgets.ui;
 namespace Unity.UIWidgets.widgets {
     public class ImageFiltered : SingleChildRenderObjectWidget {
     
-        protected ImageFiltered(
+        public ImageFiltered(
             Key key = null,
             ImageFilter imageFilter = null,
             Widget child = null
