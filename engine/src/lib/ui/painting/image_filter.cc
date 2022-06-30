@@ -44,7 +44,7 @@ void ImageFilter::initPicture(Picture* picture) {
 
 void ImageFilter::initBlur(double sigma_x, double sigma_y) {
   filter_ = SkBlurImageFilter::Make(sigma_x, sigma_y, nullptr, nullptr,
-                                    SkBlurImageFilter::kClamp_TileMode);
+                                    SkBlurImageFilter::kClampToBlack_TileMode);
 }
 
 void ImageFilter::initMatrix(const float* matrix4, int filterQuality) {
