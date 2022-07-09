@@ -110,6 +110,10 @@ namespace Unity.UIWidgets.Editor {
             _needWaitToEnable = true;
             Input_OnDisable();
         }
+
+        protected virtual void onGUI() {
+            
+        }
         
         void OnGUI() {
             if (_wrapper != null) {
@@ -128,6 +132,9 @@ namespace Unity.UIWidgets.Editor {
                 EditorGUI.DrawPreviewTexture(new Rect(0.0f, 0.0f, width: position.width, height: position.height),
                     image: _wrapper.renderTexture, mat: _uiMaterial);
                 Input_OnGUIEvent(evt: Event.current);
+
+                //user customized onGUI logics goes here
+                onGUI();
             }
         }
 
