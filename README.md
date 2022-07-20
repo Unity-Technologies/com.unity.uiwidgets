@@ -301,6 +301,10 @@ this [section](#unity).
 4. I encountered with a link error with OpenGLES for iOS build using UIWidgets 2.0 with Unity 2020.3LTS.
 
       This is caused by Unity because it removed the dependency on OpenGLES library on Unity 2020.3. To fix this issue, please open the XCode project and manually add the OpenGLES library to the UnityFramework target.
+      
+## Contact Us
+
+QQ Group: UIWidgets (Group ID: **234207153**)
 
 ## How to Contribute
 
