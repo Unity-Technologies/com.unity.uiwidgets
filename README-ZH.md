@@ -278,6 +278,9 @@ using(Isolate.getScope(the isolate of your App)) {
 4. 使用Unity 2020.3LTS打包UIWidgets 2.0的项目到iOS平台后Build失败，提示无法链接到OpenGLES库函数。
 
       这是因为在Unity 2020.3版本中Unity导出的iOS项目默认不再包含对OpenGLES库的依赖，但UIWidgets 2.0需要依赖该库。为了解决这个问题，您需要手动用Xcode打开项目并为UnityFramework添加上对OpenGLES库的依赖。
+      
+## 联系我们
+官方QQ群: UIWidgets (群ID: 234207153)
 
 ## 如何贡献
 请查看[CONTRIBUTING.md](CONTRIBUTING.md)
