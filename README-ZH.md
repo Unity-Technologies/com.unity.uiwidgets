@@ -68,12 +68,12 @@ UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https
 
 访问我们的Github存储库 [https://github.com/Unity-Technologies/com.unity.uiwidgets](https://github.com/Unity-Technologies/com.unity.uiwidgets)下载最新的UIWidgets包。
 
-将下载的包文件夹移动到Unity项目的Package文件夹中。
+将下载的包文件夹移动到您Unity项目的根目录下。
 
 通常，你可以在控制台（或终端）应用程序中输入下面的代码来完成这个操作：
 
    ```none
-    cd <YourPackagePath>
+    cd <YourProjectPath>
     git clone https://github.com/Unity-Technologies/com.unity.uiwidgets.git com.unity.uiwidgets
    ```
 
@@ -84,7 +84,7 @@ UIWidgets的各个版本所需的Unity版本如下表所示。您可以从[https
 
 #### 运行环境
 
-**UIWidgets 2.0**目前暂时只支持MacOS（Intel64，Metal），iOS（Metal），Android（OpenGLes）以及 Windows（Direct3D11）。我们后续会针对更广泛的运行环境进行适配，敬请期待。与之相对的，UIWidgets 1.0目前支持所有Unity导出目标平台。
+**UIWidgets 2.0**目前暂时只支持MacOS（**Intel64**，Metal/OpenGLCore），iOS（Metal/OpenGLes），Android（**OpenGLes**）以及 Windows（Direct3D11）。我们后续会针对更广泛的运行环境进行适配，敬请期待。与之相对的，UIWidgets 1.0目前支持所有Unity导出目标平台。
 
 ## 入门指南（演示[视频](https://www.bilibili.com/video/BV1zR4y1s7HN/)）
 
