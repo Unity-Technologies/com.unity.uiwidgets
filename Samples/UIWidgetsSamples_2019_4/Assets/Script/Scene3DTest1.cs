@@ -8,6 +8,7 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using Texture = Unity.UIWidgets.widgets.Texture;
 using ui_ = Unity.UIWidgets.widgets.ui_;
 
@@ -62,8 +63,8 @@ namespace UIWidgetsSample
                     child: new Column(
                         children: new List<Widget>
                         {
-                            new Lottie("wine.json", size: new Size(100, 100)),
-                            new Container(width: 200, height: 200, color: Colors.red, child: new Center(child: new Container(width: 100, height: 100, child:new Texture(texture: text)))),
+                            new Text("External Texture is Only Available on OpenGLCore (Mac), OpenGLes(iOS and android) and D3d11(Windows)", style: new TextStyle(fontSize: 16f, decoration: TextDecoration.none, color: Colors.red)),
+                            new Container(width: 120, height: 120, color: Colors.red, child: new Center(child: new Container(width: 100, height: 100, child:new Texture(texture: text)))),
                             /*new Container(
                                 width: 100,
                                 height: 100,
