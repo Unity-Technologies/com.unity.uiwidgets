@@ -78,7 +78,7 @@ Specifically, the compatible Unity versions for each UIWidgets release are liste
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
  to download the latest UIWidgets package.
 
-Move the downloaded package folder into the **Package** folder of your Unity project.
+Move the downloaded package folder into the **root** folder of your Unity project.
 
 Generally, you can make it using a console (or terminal) application by just a few commands as below:
 
@@ -94,7 +94,7 @@ Finally, in PackageManger of unity, select add local file. select ```package.jso
 
 #### Runtime Environment
 
-:warning: Though UIWidgets 1.0 is compatible to all platforms, currently **UIWidgets 2.0** only supports MacOS(Intel64, Metal), iOS(Metal), Android(OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
+:warning: Though UIWidgets 1.0 is compatible to all platforms, currently **UIWidgets 2.0** only supports MacOS(Intel64, Metal/OpenGLCore), iOS(Metal/OpenGLes), Android(**OpenGLes**) and Windows(**Direct3D11**). More devices will be supported in the future.
 
 ## Getting Start
 
