@@ -83,7 +83,7 @@ Move the downloaded package folder into the **root** folder of your Unity projec
 Generally, you can make it using a console (or terminal) application by just a few commands as below:
 
    ```none
-    cd <YourPackagePath>
+    cd <YourProjectPath>
     git clone https://github.com/Unity-Technologies/com.unity.uiwidgets.git com.unity.uiwidgets
    ```
 
