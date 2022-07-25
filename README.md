@@ -94,7 +94,7 @@ Finally, in PackageManger of unity, select add local file. select ```package.jso
 
 #### Runtime Environment
 
-:warning: Though UIWidgets 1.0 is compatible to all platforms, currently **UIWidgets 2.0** only supports MacOS(Intel64, Metal/OpenGLCore), iOS(Metal/OpenGLes), Android(**OpenGLes**) and Windows(**Direct3D11**). More devices will be supported in the future.
+:warning: Though UIWidgets 1.0 is compatible to all platforms, currently **UIWidgets 2.0** only supports MacOS(**Intel64**, Metal/OpenGLCore), iOS(Metal/OpenGLes), Android(**OpenGLes**) and Windows(**Direct3D11**). More devices will be supported in the future.
 
 ## Getting Start
 
