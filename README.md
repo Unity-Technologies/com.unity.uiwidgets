@@ -221,6 +221,12 @@ want to show the status bar in your App, you can disable```Start in fullscreen``
 #### Image Import Setting
 Please put images under StreamingAssets folder, a and loading it using ```Image.file```.
 
+#### Show External Texture
+You can use the new builtin API ``UIWidgetsExternalTextureHelper.createCompatibleExternalTexture`` to create a compatible render texture in Unity and render it on a ``Texture`` widget in UIWidgets. With the feature, you can easily embed 3d models, videos, etc.
+in your App. 
+
+Note that currently this feature is only supported for **OpenGLCore** (Mac), **OpenGLes** (iOS&Android) and **D3D11** (Windows) with **Unity 2020.3.37f1c1** and newer. A simple example (i.e., ``3DTest1.unity``) can be found in our sample project.
+
 #### Performance Optimization on Mobile devices
 By setting ```UIWidgetsGlobalConfiguration.EnableAutoAdjustFramerate = true``` in your project, UIWidgets will drop the frame rate of your App to 0 if the UI contents of UIWidgetsPanel is not changed for some time. This will help to prevent battery drain on mobile devices significantly. Note that this feature is disabled by default.
 
