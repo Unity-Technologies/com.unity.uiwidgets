@@ -210,7 +210,12 @@ UIWidgets也支持Gif！
 #### 七、图片导入设置
 请将图片放入StreamingAssets下，而后用```Image.file```读取
 
-#### 八、移动设备优化
+#### 八、外接纹理显示
+利用我们新增的Unity内置API``UIWidgetsExternalTextureHelper.createCompatibleExternalTexture``以及UIWidgets中的``Texture``组件，开发者可以生成一个兼容UIWidgets底层的Unity纹理并将它绑定并渲染到UIWidgets页面上。从而可以将3D模型、视频等添加到App中作为一个UI组件。
+
+需要注意，本功能目前只支持**OpenGLCore** (Mac), **OpenGLes** (iOS&Android) 以及 **D3D11** (Windows)，且必须使用**Unity 2020.3.37f1c1**及以上版本。在我们的示例项目中有一个简单的例子 (例如``3DTest1.unity``)可供参考。
+
+#### 九、移动设备优化
 目前在默认情况下，为了保证流畅度，项目在各个平台上均会以最高的刷新频率运行。不过您可以通过在代码中设置```UIWidgetsGlobalConfiguration.EnableAutoAdjustFramerate = true```的方式来开启自动降帧的功能：该功能开启后，在UI内容不变的情况下我们将降低项目的刷新率来降低耗电。
 
 在移动设备上UI绘制的流畅度受到GC影响较大。如有卡顿，例如滑动掉帧。可开启OnDemandGC, UIWidgets将接管并优化整体GC效果，请在代码中设置```UIWidgetsGlobalConfiguration.EnableIncrementalGC = true```,并开启```Project Setting -> Player -> Other Settings -> Use incremental GC```。
