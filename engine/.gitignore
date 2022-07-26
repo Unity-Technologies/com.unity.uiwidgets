@@ -5,3 +5,4 @@ build
 obj
 *.gen.*
 third_party/skia
+libs

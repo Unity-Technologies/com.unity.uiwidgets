@@ -223,12 +223,22 @@ class Build
 
     static void Main()
     {
-        flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT_PATH");
-        if (string.IsNullOrEmpty(flutterRoot))
+        preBuildLibRoot = Environment.GetEnvironmentVariable("PREBUILD_LIB_ROOT_PATH");
+        if(preBuildLibRoot != null && preBuildLibRoot.Length > 0)
         {
-            flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
+            cachedHeader = Path.Combine(preBuildLibRoot, "windows");
+            flutterRoot = Path.Combine(preBuildLibRoot, "headerout");
+            skiaRoot = flutterRoot + "/third_party/skia";
+            useLocal = true;
         }
-        skiaRoot = flutterRoot + "/third_party/skia";
+        else {
+            flutterRoot = Environment.GetEnvironmentVariable("FLUTTER_ROOT_PATH");
+            if (string.IsNullOrEmpty(flutterRoot))
+            {
+                flutterRoot = Environment.GetEnvironmentVariable("USERPROFILE") + "/engine/src";
+            }
+            skiaRoot = flutterRoot + "/third_party/skia";
+        }
 
          try
         {
@@ -279,6 +289,9 @@ class Build
 
     private static string skiaRoot;
     private static string flutterRoot;
+    private static string preBuildLibRoot;
+    private static string cachedHeader;
+    private static bool useLocal;
     private static bool buildArm64;
 
     //this setting is disabled by default, don't change it unless you know what you are doing
@@ -625,9 +638,13 @@ class Build
         np.Sources.Add(c => IsAndroid(c), androidSource);
 
         np.Libraries.Add(c => IsWindows(c), new BagOfObjectFilesLibrary(
+            useLocal? new NPath[]{
+                Path.Combine(preBuildLibRoot, "windows/icudtl.o")
+            } :
             new NPath[]{
                 flutterRoot + "/third_party/icu/flutter/icudtl.o"
-        }));
+            }
+        ));
         np.CompilerSettings().Add(c => c.WithCppLanguageVersion(CppLanguageVersion.Cpp17));
         np.CompilerSettings().Add(c => IsMac(c) || IsIosOrTvos(c), c => c.WithCustomFlags(new []{"-Wno-c++11-narrowing"}));
 
@@ -1299,7 +1316,15 @@ class Build
             return IsWindows(c) && c.CodeGen == CodeGen.Debug;
         }, c =>
         {
-            return new PrecompiledLibrary[]
+            return useLocal ? new PrecompiledLibrary[]
+            {
+                new StaticLibrary(Path.Combine(preBuildLibRoot, "windows/debug/txt_lib.lib")),
+                new StaticLibrary(Path.Combine(preBuildLibRoot, "windows/debug/angle_lib.lib")),
+                new StaticLibrary(Path.Combine(preBuildLibRoot, "windows/debug/libEGL_static.lib")),
+                new StaticLibrary(Path.Combine(preBuildLibRoot, "windows/debug/libGLESv2_static.lib")),
+                new SystemLibrary("dxguid.lib"),
+            }
+            : new PrecompiledLibrary[]
             {
                 new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/flutter/third_party/txt/txt_lib.lib"),
                 new StaticLibrary(flutterRoot+"/out/host_debug_unopt/obj/third_party/angle/angle_lib.lib"),
@@ -1313,7 +1338,15 @@ class Build
             return IsWindows(c) && c.CodeGen == CodeGen.Release;
         }, c =>
         {
-            return new PrecompiledLibrary[]
+            return useLocal ? new PrecompiledLibrary[]
+            {
+                new StaticLibrary(Path.Combine(preBuildLibRoot, "windows/release/txt_lib.lib")),
+                new StaticLibrary(Path.Combine(preBuildLibRoot, "windows/release/angle_lib.lib")),
+                new StaticLibrary(Path.Combine(preBuildLibRoot, "windows/release/libEGL_static.lib")),
+                new StaticLibrary(Path.Combine(preBuildLibRoot, "windows/release/libGLESv2_static.lib")),
+                new SystemLibrary("dxguid.lib"),
+            }
+            : new PrecompiledLibrary[]
             {
                 new StaticLibrary(flutterRoot+"/out/host_release/obj/flutter/third_party/txt/txt_lib.lib"),
                 new StaticLibrary(flutterRoot+"/out/host_release/obj/third_party/angle/angle_lib.lib"),

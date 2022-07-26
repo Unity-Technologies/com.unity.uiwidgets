@@ -21,6 +21,7 @@ bitcode=""
 flutter_root_path=""
 visual_studio_path=""
 architecture=""
+localLibPath=False
 
 def get_opts():
     # get intput agrs
@@ -31,12 +32,15 @@ def get_opts():
     global visual_studio_path
     global platform
     global architecture
+    global localLibPath
 
     if len(sys.argv) < 2:
         show_help()
         sys.exit()
-    options, args = getopt.getopt(sys.argv[1:], 'r:p:m:v:eh',["arm64","help"])
+    options, args = getopt.getopt(sys.argv[1:], 'l:r:p:m:v:eh',["arm64","help"])
     for opt, arg in options:
+        if opt == '-l':
+            localLibPath = arg
         if opt == '-r':
             engine_path = arg # set engine_path, depot_tools and flutter engine folder will be put into this path
         elif opt == '-p':
@@ -137,6 +141,9 @@ def set_params():
 def set_env_verb():
     global platform
     global flutter_root_path
+    global localLibPath
+
+    os.environ["PREBUILD_LIB_ROOT_PATH"] = localLibPath
     flutter_root_path = os.getenv('FLUTTER_ROOT_PATH', 'null')
     if flutter_root_path == 'null':
         os.environ["FLUTTER_ROOT_PATH"] = os.path.join(engine_path, "engine","src")
@@ -505,6 +512,8 @@ DESCRIPTION
 
     required parameters:
 
+    -l                build use local prebuild lib
+
     -p                Target platform, available values: android, windows, mac, ios
 
     -m                Build mode, available values: debug, release
@@ -523,16 +532,23 @@ DESCRIPTION
 
 
 def main():
+    global localLibPath
+
     get_opts()
-    engine_path_check()
-    bitcode_conf()
-    set_params()
-    set_env_verb()   
-    get_depot_tools()
-    get_flutter_engine()
-    compile_engine()
-    build_engine()
-    revert_patches()
+    if localLibPath == False:
+        engine_path_check()
+        bitcode_conf()
+        set_params()
+        set_env_verb()
+        get_depot_tools()
+        get_flutter_engine()
+        compile_engine()
+        build_engine()
+        revert_patches()
+    else:
+        bitcode_conf()
+        set_env_verb()   
+        build_engine()
 
 if __name__=="__main__":
     main()
