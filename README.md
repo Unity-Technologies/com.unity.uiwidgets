@@ -78,12 +78,12 @@ Specifically, the compatible Unity versions for each UIWidgets release are liste
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
  to download the latest UIWidgets package.
 
-Move the downloaded package folder into the **Package** folder of your Unity project.
+Move the downloaded package folder into the **root** folder of your Unity project.
 
 Generally, you can make it using a console (or terminal) application by just a few commands as below:
 
    ```none
-    cd <YourPackagePath>
+    cd <YourProjectPath>
     git clone https://github.com/Unity-Technologies/com.unity.uiwidgets.git com.unity.uiwidgets
    ```
 
@@ -94,7 +94,7 @@ Finally, in PackageManger of unity, select add local file. select ```package.jso
 
 #### Runtime Environment
 
-:warning: Though UIWidgets 1.0 is compatible to all platforms, currently **UIWidgets 2.0** only supports MacOS(Intel64, Metal), iOS(Metal), Android(OpenGLes) and Windows(Direct3D11). More devices will be supported in the future.
+:warning: Though UIWidgets 1.0 is compatible to all platforms, currently **UIWidgets 2.0** only supports MacOS(**Intel64**, Metal/OpenGLCore), iOS(Metal/OpenGLes), Android(**OpenGLes**) and Windows(**Direct3D11**). More devices will be supported in the future.
 
 ## Getting Start
 
@@ -221,6 +221,12 @@ want to show the status bar in your App, you can disable```Start in fullscreen``
 #### Image Import Setting
 Please put images under StreamingAssets folder, a and loading it using ```Image.file```.
 
+#### Show External Texture
+You can use the new builtin API ``UIWidgetsExternalTextureHelper.createCompatibleExternalTexture`` to create a compatible render texture in Unity and render it on a ``Texture`` widget in UIWidgets. With the feature, you can easily embed 3d models, videos, etc.
+in your App. 
+
+Note that currently this feature is only supported for **OpenGLCore** (Mac), **OpenGLes** (iOS&Android) and **D3D11** (Windows) with **Unity 2020.3.37f1c1** and newer. A simple example (i.e., ``3DTest1.unity``) can be found in our sample project.
+
 #### Performance Optimization on Mobile devices
 By setting ```UIWidgetsGlobalConfiguration.EnableAutoAdjustFramerate = true``` in your project, UIWidgets will drop the frame rate of your App to 0 if the UI contents of UIWidgetsPanel is not changed for some time. This will help to prevent battery drain on mobile devices significantly. Note that this feature is disabled by default.
 
@@ -301,6 +307,10 @@ this [section](#unity).
 4. I encountered with a link error with OpenGLES for iOS build using UIWidgets 2.0 with Unity 2020.3LTS.
 
       This is caused by Unity because it removed the dependency on OpenGLES library on Unity 2020.3. To fix this issue, please open the XCode project and manually add the OpenGLES library to the UnityFramework target.
+      
+## Contact Us
+
+QQ Group: UIWidgets (Group ID: **234207153**)
 
 ## How to Contribute
 

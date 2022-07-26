@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.UIWidgets.engine;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
@@ -81,7 +82,12 @@ namespace UIWidgetsSample
             
             var gameObj = (GameObject) Instantiate(modelViewPrefab, Vector3.zero, Quaternion.identity);
             
-            var renderTexture = new RenderTexture(100, 100, 32);
+            var renderTexture = UIWidgetsExternalTextureHelper.createCompatibleExternalTexture(new RenderTextureDescriptor(
+                width: 100, height: 100
+                )
+            {
+                depthBufferBits = 32
+            });
 
             gameObj.transform.Find("Camera").GetComponent<Camera>().targetTexture = renderTexture;
             
