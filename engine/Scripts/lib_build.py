@@ -143,23 +143,25 @@ def set_env_verb():
     global flutter_root_path
     global localLibPath
 
-    os.environ["PREBUILD_LIB_ROOT_PATH"] = localLibPath
-    flutter_root_path = os.getenv('FLUTTER_ROOT_PATH', 'null')
-    if flutter_root_path == 'null':
-        os.environ["FLUTTER_ROOT_PATH"] = os.path.join(engine_path, "engine","src")
-        flutter_root_path = os.getenv('FLUTTER_ROOT_PATH')
-    else:
-        print("This environment variable has been set, skip")
-    env_path = os.getenv('PATH')
-    path_strings = re.split("[;:]", env_path)
-    for path in path_strings:
-        if path.endswith("depot_tools"):
+    if localLibPath == False:
+        flutter_root_path = os.getenv('FLUTTER_ROOT_PATH', 'null')
+        if flutter_root_path == 'null':
+            os.environ["FLUTTER_ROOT_PATH"] = os.path.join(engine_path, "engine","src")
+            flutter_root_path = os.getenv('FLUTTER_ROOT_PATH')
+        else:
             print("This environment variable has been set, skip")
-            return
-    if platform == "windows":
-        os.environ["PATH"] = engine_path + "/depot_tools;" + os.environ["PATH"]
+        env_path = os.getenv('PATH')
+        path_strings = re.split("[;:]", env_path)
+        for path in path_strings:
+            if path.endswith("depot_tools"):
+                print("This environment variable has been set, skip")
+                return
+        if platform == "windows":
+            os.environ["PATH"] = engine_path + "/depot_tools;" + os.environ["PATH"]
+        else:
+            os.environ["PATH"] = engine_path + "/depot_tools:" + os.environ["PATH"]
     else:
-        os.environ["PATH"] = engine_path + "/depot_tools:" + os.environ["PATH"]
+        os.environ["FLUTTER_ROOT_PATH"] = os.path.join(localLibPath, "headerout")
 
 def get_depot_tools():
     print("\nGetting Depot Tools...")
