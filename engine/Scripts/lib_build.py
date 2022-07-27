@@ -161,7 +161,7 @@ def set_env_verb():
         else:
             os.environ["PATH"] = engine_path + "/depot_tools:" + os.environ["PATH"]
     else:
-        os.environ["FLUTTER_ROOT_PATH"] = os.path.join(localLibPath, "headerout")
+        os.environ["FLUTTER_ROOT_PATH"] = os.path.join(localLibPath, "engine_dependencies\src")
 
 def get_depot_tools():
     print("\nGetting Depot Tools...")
