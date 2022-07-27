@@ -40,7 +40,7 @@ def get_opts():
     options, args = getopt.getopt(sys.argv[1:], 'l:r:p:m:v:eh',["arm64","help"])
     for opt, arg in options:
         if opt == '-l':
-            localLibPath = arg
+            localLibPath = True
         if opt == '-r':
             engine_path = arg # set engine_path, depot_tools and flutter engine folder will be put into this path
         elif opt == '-p':
@@ -161,7 +161,7 @@ def set_env_verb():
         else:
             os.environ["PATH"] = engine_path + "/depot_tools:" + os.environ["PATH"]
     else:
-        os.environ["FLUTTER_ROOT_PATH"] = os.path.join(localLibPath, "engine_dependencies\src")
+        os.environ["FLUTTER_ROOT_PATH"] = os.path.join(engine_path, "src")
 
 def get_depot_tools():
     print("\nGetting Depot Tools...")
