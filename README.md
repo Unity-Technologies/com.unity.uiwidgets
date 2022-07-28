@@ -74,7 +74,7 @@ Specifically, the compatible Unity versions for each UIWidgets release are liste
 | 2.0.3   | 2019.4.26f1c1 ~ 2019.4.29f1c1 | N\A |
 | 2.0.4 and above | 2019.4.26f1c1 ~ 2019.4.29f1c1 | 2020.3.24f1c2 and above |
 
-#### UIWidgets Package
+#### UIWidgets Package ([video tutorial](https://www.bilibili.com/video/BV1zR4y1s7HN?share_source=copy_web))
 Visit our Github repository https://github.com/Unity-Technologies/com.unity.uiwidgets
  to download the latest UIWidgets package.
 
