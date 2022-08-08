@@ -40,7 +40,7 @@ namespace Unity.UIWidgets.material {
             Color color = null,
             Color backgroundColor = null,
             ScrollNotificationPredicate notificationPredicate = null,
-            float strokenWidth = 2.0f
+            float strokeWidth = 2.0f
         ) : base(key: key) {
             D.assert(child != null);
             D.assert(onRefresh != null);
@@ -50,6 +50,7 @@ namespace Unity.UIWidgets.material {
             this.color = color;
             this.backgroundColor = backgroundColor;
             this.notificationPredicate = notificationPredicate ?? ScrollNotification.defaultScrollNotificationPredicate;
+            this.strokeWidth = strokeWidth;
         }
 
         public readonly Widget child;
