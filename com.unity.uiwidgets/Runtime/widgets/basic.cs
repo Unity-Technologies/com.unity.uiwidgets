@@ -2084,38 +2084,38 @@ namespace Unity.UIWidgets.widgets {
             throw new Exception("unknown axisDirection");
         }
     }
-
-
-    /*public class Flow : MultiChildRenderObjectWidget {
-      
+    
+    public class Flow : MultiChildRenderObjectWidget {
         public Flow(
             Key key = null,
             FlowDelegate _delegate = null,
             List<Widget> children = null
-            ) 
-            : base(key: key, children: RepaintBoundary.wrapAll(children ?? new List<Widget>())) {
-                D.assert(_delegate != null);
-            }
+            ) : base(key: key, children: children == null ? new List<Widget>() : new List<Widget>(RepaintBoundary.wrapAll(children))) 
+        {
+            D.assert(_delegate != null);
+            this._delegate = _delegate;
+        }
            
-        public static Flow unwrapped(
-                Key key = null,
-                FlowDelegate _delegate = null,
-                List<Widget> children = null
-            ) : base(key: key, children: children) {
-                    D.assert(_delegate != null);
-                }
+        public Flow(
+            bool unwrapped,
+            Key key = null,
+            FlowDelegate _delegate = null,
+            List<Widget> children = null
+            ) : base(key: key, children: children ?? new List<Widget>()) 
+        {
+            D.assert(_delegate != null);
+            this._delegate = _delegate;
+        }
+        
+        private readonly FlowDelegate _delegate;
 
-            /// The delegate that controls the transformation matrices of the children.
-            public readonly FlowDelegate _delegate;
-
-            
-            public override RenderFlow createRenderObject(BuildContext context) => RenderFlow(_delegate: _delegate);
+        public override RenderObject createRenderObject(BuildContext context) => new RenderFlow(del: _delegate);
                 
-            public override void updateRenderObject(BuildContext context, RenderFlow renderObject) {
-                renderObject._delegate = _delegate;
-            }
-    }*/
-
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            var renderFlow = renderObject as RenderFlow;
+            renderFlow.del = _delegate;
+        }
+    }
 
     public class RichText : MultiChildRenderObjectWidget {
         public RichText(
