@@ -805,7 +805,7 @@ class Build
         //
         //Disable the persistent cache (via force its IsValid() method to always return false) in UIWidget engine for Mac
         //note that there might be some performance issue (mainly first frame delay) after this fix on Mac
-        np.Defines.Add(c => IsMac(c), "UIWIDGETS_FORCE_DISABLE_PERSISTENTCACHE=\\\"1\\\"");
+        np.Defines.Add(c => IsMac(c) || IsIosOrTvos(c), "UIWIDGETS_FORCE_DISABLE_PERSISTENTCACHE=\\\"1\\\"");
 
         np.Defines.Add(c => c.CodeGen == CodeGen.Debug,
             new[] { "_ITERATOR_DEBUG_LEVEL=2", "_HAS_ITERATOR_DEBUGGING=1", "_SECURE_SCL=1" });
