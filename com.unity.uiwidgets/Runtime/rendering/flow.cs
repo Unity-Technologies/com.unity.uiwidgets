@@ -8,9 +8,9 @@ namespace Unity.UIWidgets.rendering {
 
         int childCount { get; }
 
-        public Size getChildSize(int i);
+        Size getChildSize(int i);
 
-        public void paintChild(int i, Matrix4 transform = null, float opacity = 1.0f);
+        void paintChild(int i, Matrix4 transform = null, float opacity = 1.0f);
     }
 
     public abstract class FlowDelegate {
@@ -161,7 +161,7 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public void paintChild(int i, Matrix4 transform = null, float opacity = 1.0f) {
-            transform ??= Matrix4.identity();
+            transform = transform ?? Matrix4.identity();
             RenderBox child = _randomAccessChildren[i];
             FlowParentData childParentData = child.parentData as FlowParentData;
             D.assert(() => {
@@ -233,8 +233,8 @@ namespace Unity.UIWidgets.rendering {
                 bool absorbed = result.addWithPaintTransform(
                     transform: transform,
                     position: position,
-                    hitTest: (BoxHitTestResult result, Offset position) => {
-                        return child.hitTest(result, position: position);
+                    hitTest: (BoxHitTestResult result2, Offset position2) => {
+                        return child.hitTest(result2, position: position2);
                     }
                 );
                 if (absorbed)
