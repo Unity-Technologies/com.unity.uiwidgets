@@ -88,6 +88,7 @@ void Rasterizer::DrawLastLayerTree() {
     return;
   }
   DrawToSurface(*last_layer_tree_);
+  surface_->ClearContext();
 }
 
 void Rasterizer::Draw(fml::RefPtr<Pipeline<LayerTree>> pipeline) {
@@ -232,6 +233,8 @@ RasterStatus Rasterizer::DoDraw(std::unique_ptr<LayerTree> layer_tree) {
   persistent_cache->ResetStoredNewShaders();
 
   RasterStatus raster_status = DrawToSurface(*layer_tree);
+  surface_->ClearContext();
+
   if (raster_status == RasterStatus::kSuccess) {
     last_layer_tree_ = std::move(layer_tree);
   } else if (raster_status == RasterStatus::kResubmit) {
@@ -325,7 +328,6 @@ RasterStatus Rasterizer::DrawToSurface(LayerTree& layer_tree) {
   if (compositor_frame) {
     RasterStatus raster_status = compositor_frame->Raster(layer_tree, false);
     if (raster_status == RasterStatus::kFailed) {
-      surface_->ClearContext();
       return raster_status;
     }
     if (external_view_embedder != nullptr) {
@@ -347,11 +349,9 @@ RasterStatus Rasterizer::DrawToSurface(LayerTree& layer_tree) {
       TRACE_EVENT0("uiwidgets", "PerformDeferredSkiaCleanup");
       surface_->GetContext()->performDeferredCleanup(kSkiaCleanupExpiration);
     }
-    surface_->ClearContext();
     return raster_status;
   }
   
-  surface_->ClearContext();
   return RasterStatus::kFailed;
 }
 

@@ -762,16 +762,18 @@ namespace Unity.UIWidgets.rendering {
         public override void paint(PaintingContext context, Offset offset) {
             if (child != null) {
                 if (_alpha == 0) {
+                    layer = null;
                     return;
                 }
 
                 if (_alpha == 255) {
+                    layer = null;
                     context.paintChild(child, offset);
                     return;
                 }
-
+                
                 D.assert(needsCompositing);
-                context.pushOpacity(offset, _alpha, base.paint);
+                layer = context.pushOpacity(offset, _alpha, base.paint, layer as OpacityLayer);
             }
         }
 
