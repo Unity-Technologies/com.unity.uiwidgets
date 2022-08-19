@@ -1,6 +1,10 @@
 # UIWidgets 2.0 (preview)
 [中文](README-ZH.md)
 
+## :rocket:  Join us  :rocket:
+The team is now providing several open positions for full-time software engineer based in Shanghai, Unity China :cn:. 
+
+If you are skilled in Unity or flutter and interested in UIWidgets, please join our QQ Group: UIWidgets (Group ID: **234207153**), WeChat Group: UIWidgets 二群 or contact me directly (QQ: **541252510**) for the oppotunity to **Come and Build UIWidgets with us in Unity China**! 
 
 ## Introduction
 

@@ -1,5 +1,9 @@
 # UIWidgets 2.0 （preview）
 
+## :rocket:  加入我们  :rocket:
+团队目前计划招募数位软件开发工程师（software engineer），工作地点为Unity中国 :cn: 的上海总部。
+
+竭诚欢迎有一定Unity或flutter开发经验并对UIWidgets感兴趣的工程师加入我们的官方QQ群 UIWidgets (Group ID: **234207153**)，微信群 UIWidgets 二群，或直接联系我们 (QQ: **541252510**) ，我们将帮助您成为Unity中国的UIWidgets开发团队的一员！
 
 ## 介绍
 
