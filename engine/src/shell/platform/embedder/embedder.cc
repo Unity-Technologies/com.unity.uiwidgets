@@ -874,6 +874,10 @@ inline PointerData::SignalKind ToPointerDataSignalKind(
       return PointerData::SignalKind::kNone;
     case kUIWidgetsPointerSignalKindScroll:
       return PointerData::SignalKind::kScroll;
+    case kUIWidgetsPointerSignalKindEditorDragUpdate:
+      return PointerData::SignalKind::kEditorDragUpdate;
+    case kUIWidgetsPointerSignalKindEditorDragRelease:
+      return PointerData::SignalKind::kEditorDragRelease;
   }
   return PointerData::SignalKind::kNone;
 }
@@ -934,6 +938,7 @@ UIWidgetsEngineResult UIWidgetsEngineSendPointerEvent(
     // For backwards compatibility with embedders written before the device kind
     // and buttons were exposed, if the device kind is not set treat it as a
     // mouse, with a synthesized primary button state based on the phase.
+    pointer_data.modifier = current->modifier;
     if (device_kind == 0) {
       pointer_data.kind = PointerData::DeviceKind::kMouse;
       pointer_data.buttons =

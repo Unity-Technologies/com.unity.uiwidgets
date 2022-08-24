@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using com.unity.uiwidgets.Runtime.rendering;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -46,11 +45,10 @@ namespace Unity.UIWidgets.material {
             D.assert(initialDate != null);
             D.assert(firstDate != null);
             D.assert(lastDate != null);
-            initialDate = utils.dateOnly(initialDate.Value);
-            firstDate = utils.dateOnly(firstDate.Value);
-            lastDate = utils.dateOnly(lastDate.Value);
+            this.initialDate = utils.dateOnly(initialDate.Value);
+            this.firstDate = utils.dateOnly(firstDate.Value);
+            this.lastDate = utils.dateOnly(lastDate.Value);
             D.assert(onDateChanged != null);
-            D.assert(initialCalendarMode != null);
 
             this.onDateChanged = onDateChanged;
             this.onDisplayedMonthChanged = onDisplayedMonthChanged;
@@ -187,7 +185,6 @@ namespace Unity.UIWidgets.material {
         }
 
         Widget _buildPicker() {
-            D.assert(_mode != null);
             switch (_mode) {
                 case DatePickerMode.day:
                     return new _MonthPicker(
@@ -637,11 +634,8 @@ namespace Unity.UIWidgets.material {
                             child: new Text(localizations.formatDecimal(day), style: dayStyle.apply(color: dayColor))
                         )
                     );
-
-                    if (isDisabled) {
-                        dayWidget = dayWidget;
-                    }
-                    else {
+                    
+                    if (!isDisabled) {
                         dayWidget = new GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => onChanged(dayToBuild),
@@ -703,7 +697,7 @@ namespace Unity.UIWidgets.material {
             for (int i = localizations.firstDayOfWeekIndex; true; i = (i + 1) % 7) {
                 string weekday = localizations.narrowWeekdays[i];
                 result.Add(new Center(child: new Text(weekday, style: headerStyle)));
-                if (i == (localizations.firstDayOfWeekIndex - 1) % 7)
+                if (i == (localizations.firstDayOfWeekIndex - 1 + 7) % 7)
                     break;
             }
 
@@ -852,11 +846,8 @@ namespace Unity.UIWidgets.material {
                     )
                 )
             );
-
-            if (isDisabled) {
-                yearItem = yearItem;
-            }
-            else {
+            
+            if (!isDisabled) {
                 yearItem = new InkWell(
                     key: new ValueKey<int>(year),
                     onTap: () => {

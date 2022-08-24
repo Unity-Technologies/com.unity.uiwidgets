@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.foundation {
         }
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
-            return string.Join("", value);
+            return string.Join("", valueT);
         }
     }
 
@@ -377,7 +377,7 @@ namespace Unity.UIWidgets.foundation {
                     details.toDiagnosticsNode(style: DiagnosticsTreeStyle.error)).TrimEnd(), details.exception);   
             }
             
-            D.logError($"Another exception was thrown: ${details.summary}", details.exception);
+            D.logError($"Another exception was thrown: {details.summary}", details.exception);
 
             _errorCount += 1;
         }

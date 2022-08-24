@@ -1086,7 +1086,7 @@ namespace Unity.UIWidgets.rendering {
 
         bool _needsCompositing;
 
-        public bool needsCompositing {
+        public virtual bool needsCompositing {
             get {
                 D.assert(!_needsCompositingBitsUpdate);
                 return _needsCompositing;
@@ -1471,7 +1471,7 @@ namespace Unity.UIWidgets.rendering {
     }
 
     public interface RenderObjectWithChildMixin<ChildType> : RenderObjectWithChildMixin where ChildType : RenderObject {
-        ChildType child { get; set; }
+        new ChildType child { get; set; }
     }
 
     public interface ContainerParentDataMixin<ChildType> : IParentData where ChildType : RenderObject {

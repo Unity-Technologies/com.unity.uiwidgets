@@ -276,22 +276,18 @@ namespace Unity.UIWidgets.ui {
             get { return _onLocaleChanged; }
             set {
                 _onLocaleChanged = value;
-                _onLocaleChangedZone = Zone.current;
             }
         }
 
         VoidCallback _onLocaleChanged;
-        Zone _onLocaleChangedZone = Zone.root;
 
         public string initialLifecycleState {
             get {
-                _initialLifecycleStateAccessed = true;
                 return _initialLifecycleState;
             }
         }
 
         string _initialLifecycleState = "AppLifecycleState.resumed";
-        bool _initialLifecycleStateAccessed = false;
         public float textScaleFactor { get; internal set; } = 1.0f;
 
         public VoidCallback onTextScaleFactorChanged { get; set; }

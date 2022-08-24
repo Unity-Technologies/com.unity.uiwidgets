@@ -85,7 +85,6 @@ namespace Unity.UIWidgets.material {
             RouteSettings routeSettings = null
         ) {
             D.assert(context != null);
-            D.assert(useRootNavigator != null);
             showDialog<object>(
                 context: context,
                 useRootNavigator: useRootNavigator,
@@ -113,7 +112,6 @@ namespace Unity.UIWidgets.material {
             bool useRootNavigator = false
         ) {
             D.assert(context != null);
-            D.assert(useRootNavigator != null);
             Navigator.of(context, rootNavigator: useRootNavigator).push(new MaterialPageRoute(
                 builder: (BuildContext buildContext) => new LicensePage(
                     applicationName: applicationName,
@@ -243,7 +241,7 @@ namespace Unity.UIWidgets.material {
         bool _loaded = false;
 
         Future _initLicenses() {
-            int debugFlowId = -1;
+            // int debugFlowId = -1;
             // D.assert(() => {
             //   Flow flow = Flow.begin();
             //   Timeline.timeSync("_initLicenses()", () { }, flow: flow);

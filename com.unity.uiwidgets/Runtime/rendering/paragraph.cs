@@ -23,8 +23,8 @@ namespace Unity.UIWidgets.rendering {
         public float scale;
         public override string ToString() {
             List<string> values = new List<string>();
-            if (offset != null) values.Add("offset=$offset");
-            if (scale != null) values.Add("scale=$scale");
+            if (offset != null) values.Add($"offset={offset}");
+            values.Add($"scale={scale}");
             values.Add(base.ToString());
             return string.Join("; ", values);
         }

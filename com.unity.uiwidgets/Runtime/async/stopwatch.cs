@@ -2,7 +2,7 @@ using System;
 
 namespace Unity.UIWidgets.core {
    public  class Stopwatch {
-        static int _frequency;
+        static int? _frequency;
 
         // The _start and _stop fields capture the time when [start] and [stop]
         // are called respectively.
@@ -14,7 +14,7 @@ namespace Unity.UIWidgets.core {
             if (_frequency == null) _initTicker();
         }
 
-        public int frequency {
+        public int? frequency {
             get { return _frequency; }
         }
 

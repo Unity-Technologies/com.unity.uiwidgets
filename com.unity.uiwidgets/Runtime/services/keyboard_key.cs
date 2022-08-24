@@ -46,7 +46,6 @@ namespace Unity.UIWidgets.services {
         }
 
         public LogicalKeyboardKey(long keyId, string debugName = null, string keyLabel = null) : base() {
-            D.assert(keyId != null);
             this.keyId = keyId;
             this.debugName = debugName;
             this.keyLabel = keyLabel;
@@ -1494,7 +1493,6 @@ namespace Unity.UIWidgets.services {
 
     public class PhysicalKeyboardKey : KeyboardKey, IEquatable<PhysicalKeyboardKey> {
         protected PhysicalKeyboardKey(int usbHidUsage, string debugName = null) {
-            D.assert(usbHidUsage != null);
             this.usbHidUsage = usbHidUsage;
             this.debugName = debugName;
         }

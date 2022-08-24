@@ -288,7 +288,7 @@ namespace Unity.UIWidgets.ui {
             }
         }
 
-        const int _kPointerDataFieldCount = 28;
+        const int _kPointerDataFieldCount = 29;
 
         static unsafe PointerDataPacket _unpackPointerDataPacket(byte* packet, int packetLength) {
             const int kStride = 8;
@@ -311,6 +311,7 @@ namespace Unity.UIWidgets.ui {
                     physicalDeltaX: (float) *(double*) (packet + kStride * offset++),
                     physicalDeltaY: (float) *(double*) (packet + kStride * offset++),
                     buttons: (int) *(long*) (packet + kStride * offset++),
+                    modifier: (int) *(long*) (packet + kStride * offset++),
                     obscured: *(long*) (packet + kStride * offset++) != 0,
                     synthesized: *(long*) (packet + kStride * offset++) != 0,
                     pressure: (float) *(double*) (packet + kStride * offset++),

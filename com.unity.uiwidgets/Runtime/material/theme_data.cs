@@ -1313,8 +1313,8 @@ namespace Unity.UIWidgets.material {
 
     public class VisualDensity : Diagnosticable, IEquatable<VisualDensity> {
         public VisualDensity(
-            float horizontal = 0.0f,
-            float vertical = 0.0f
+            float? horizontal = 0.0f,
+            float? vertical = 0.0f
         ) {
             D.assert(horizontal != null);
             D.assert(vertical != null);
@@ -1322,8 +1322,8 @@ namespace Unity.UIWidgets.material {
             D.assert(vertical >= minimumDensity);
             D.assert(horizontal <= maximumDensity);
             D.assert(horizontal >= minimumDensity);
-            this.horizontal = horizontal;
-            this.vertical = vertical;
+            this.horizontal = horizontal.Value;
+            this.vertical = vertical.Value;
         }
 
         public static readonly float minimumDensity = -4.0f;

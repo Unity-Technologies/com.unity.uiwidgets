@@ -19,7 +19,7 @@ namespace Unity.UIWidgets.widgets {
         public static readonly Intent doNothing = new Intent(DoNothingAction.key);
         public readonly LocalKey key;
 
-        public bool isEnabled(BuildContext context) => true;
+        public virtual bool isEnabled(BuildContext context) => true;
         public override void debugFillProperties(DiagnosticPropertiesBuilder properties) {
             base.debugFillProperties(properties);
             properties.add(new DiagnosticsProperty<LocalKey>("key", key));
@@ -229,9 +229,9 @@ namespace Unity.UIWidgets.widgets {
 
         public FocusableActionDetector(
             Key key = null,
-            bool enabled = true,
+            bool? enabled = true,
             FocusNode focusNode = null,
-            bool autofocus = false,
+            bool? autofocus = false,
             Dictionary<LogicalKeySet, Intent> shortcuts = null,
             Dictionary<LocalKey, ActionFactory> actions = null,
             ValueChanged<bool> onShowFocusHighlight = null,
@@ -242,9 +242,9 @@ namespace Unity.UIWidgets.widgets {
             D.assert(enabled != null);
             D.assert(autofocus != null);
             D.assert(child != null);
-            this.enabled = enabled;
+            this.enabled = enabled.Value;
             this.focusNode = focusNode;
-            this.autofocus = autofocus;
+            this.autofocus = autofocus.Value;
             this.shortcuts = shortcuts;
             this.actions = actions;
             this.onShowFocusHighlight = onShowFocusHighlight;

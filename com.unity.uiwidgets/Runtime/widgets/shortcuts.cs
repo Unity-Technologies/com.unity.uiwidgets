@@ -111,8 +111,8 @@ namespace Unity.UIWidgets.widgets {
                 if (length == 2) {
                     // No need to sort if there's two keys, just compare them.
                     return h1 < h2
-                        ? ((h1 != null ? h1.GetHashCode() : 0) * 397) ^ h2.GetHashCode()
-                        : ((h2 != null ? h2.GetHashCode() : 0) * 397) ^ h1.GetHashCode();
+                        ? ((h1.GetHashCode()) * 397) ^ h2.GetHashCode()
+                        : ((h2.GetHashCode()) * 397) ^ h1.GetHashCode();
                 }
 
                 // Sort key hash codes and feed to hashList to ensure the aggregate
@@ -216,8 +216,8 @@ namespace Unity.UIWidgets.widgets {
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
             var res = new List<string>();
-            foreach (var key in value.Keys) {
-                var temp = "{" + key.debugDescribeKeys() + "}:" + value[key: key];
+            foreach (var key in valueT.Keys) {
+                var temp = "{" + key.debugDescribeKeys() + "}:" + valueT[key: key];
                 res.Add(item: temp);
             }
 

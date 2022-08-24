@@ -14,16 +14,16 @@ namespace Unity.UIWidgets.rendering {
 
 
         protected internal override float computeMinIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicWidth(height);
+            if (child != null) {
+                return child.getMinIntrinsicWidth(height);
             }
             return 0.0f;
         }
 
 
         protected internal override float computeMaxIntrinsicWidth(float height) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicWidth(height);
+            if (child != null) {
+                return child.getMaxIntrinsicWidth(height);
 
             }
 
@@ -31,8 +31,8 @@ namespace Unity.UIWidgets.rendering {
         }
 
         protected internal override float computeMinIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMinIntrinsicHeight(width);
+            if (child != null) {
+                return child.getMinIntrinsicHeight(width);
 
             }
 
@@ -41,14 +41,14 @@ namespace Unity.UIWidgets.rendering {
 
 
         protected internal override float computeMaxIntrinsicHeight(float width) {
-            if (this.child != null) {
-                return this.child.getMaxIntrinsicHeight(width);
+            if (child != null) {
+                return child.getMaxIntrinsicHeight(width);
 
             }
             return 0.0f;
         }
 
-        protected override float? computeDistanceToActualBaseline(TextBaseline baseline) {
+        public override float? computeDistanceToActualBaseline(TextBaseline baseline) {
             if (child != null) {
                 return child.getDistanceToActualBaseline(baseline);
             }

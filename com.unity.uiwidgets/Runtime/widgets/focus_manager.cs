@@ -122,8 +122,6 @@ namespace Unity.UIWidgets.widgets {
             bool skipTraversal = false,
             bool canRequestFocus = true
         ) {
-            D.assert(skipTraversal != null);
-            D.assert(canRequestFocus != null);
             _skipTraversal = skipTraversal;
             _canRequestFocus = canRequestFocus;
             _onKey = onKey;
@@ -359,7 +357,6 @@ namespace Unity.UIWidgets.widgets {
         public void unfocus(
             UnfocusDisposition disposition = UnfocusDisposition.scope
         ) {
-            D.assert(disposition != null);
             if (!hasFocus && (_manager == null || _manager._markedForFocus != this)) {
                 return;
             }
@@ -536,7 +533,6 @@ namespace Unity.UIWidgets.widgets {
 
         // Note that this is overridden in FocusScopeNode.
         public virtual void _doRequestFocus(bool findFirstFocus = false) {
-            D.assert(findFirstFocus != null);
             if (!canRequestFocus) {
                 D.assert(FocusManagerUtils._focusDebug(
                     $"Node NOT requesting focus because canRequestFocus is false: {this}"));
@@ -675,9 +671,7 @@ namespace Unity.UIWidgets.widgets {
             }
         }
 
-        public override void _doRequestFocus( bool findFirstFocus = false) { 
-            D.assert(findFirstFocus != null);
-
+        public override void _doRequestFocus( bool findFirstFocus = false) {
             // It is possible that a previously focused child is no longer focusable.
             while (focusedChild != null && !focusedChild.canRequestFocus)
               _focusedChildren.removeLast();

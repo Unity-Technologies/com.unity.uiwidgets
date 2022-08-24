@@ -1,21 +1,19 @@
 using System;
-using JetBrains.Annotations;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using UnityEngine;
 using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace Unity.UIWidgets.painting {
     public abstract class EdgeInsetsGeometry {
-        internal float _bottom { get; }
-        internal float _end { get; }
-        internal float _left { get; }
-        internal float _right { get; }
-        internal float _start { get; }
-        internal float _top { get; }
+        internal virtual float _bottom { get; }
+        internal virtual float _end { get; }
+        internal virtual float _left { get; }
+        internal virtual float _right { get; }
+        internal virtual float _start { get; }
+        internal virtual float _top { get; }
 
 
-        public static EdgeInsetsGeometry infinity = _MixedEdgeInsets.fromLRSETB(
+        public static EdgeInsetsGeometry infinityEdgeInsetsGeometry = _MixedEdgeInsets.fromLRSETB(
             float.PositiveInfinity,
             float.PositiveInfinity,
             float.PositiveInfinity,
@@ -37,24 +35,22 @@ namespace Unity.UIWidgets.painting {
         }
 
 
-        public float horizontal {
+        public virtual float horizontal {
             get { return _left + _right + _start + _end; }
         }
 
-        public float vertical {
+        public virtual float vertical {
             get { return _top + _bottom; }
         }
 
 
         float? along(Axis axis) {
-            D.assert(axis != null);
             switch (axis) {
                 case Axis.horizontal:
                     return horizontal;
                 case Axis.vertical:
                     return vertical;
             }
-
             return null;
         }
 
@@ -168,7 +164,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static EdgeInsetsGeometry lerp(EdgeInsetsGeometry a, EdgeInsetsGeometry b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)
@@ -178,7 +173,7 @@ namespace Unity.UIWidgets.painting {
             if (a is EdgeInsets && b is EdgeInsets)
                 return EdgeInsets.lerp((EdgeInsets) a, (EdgeInsets) b, t);
             if (a is EdgeInsetsDirectional && b is EdgeInsetsDirectional)
-                return EdgeInsetsDirectional.lerp(a, b, t);
+                return EdgeInsetsDirectional.lerp((EdgeInsetsDirectional)a, (EdgeInsetsDirectional)b, t);
 
             return _MixedEdgeInsets.fromLRSETB(
                 MathUtils.lerpNullableFloat(a._left, b._left, t),
@@ -286,33 +281,33 @@ namespace Unity.UIWidgets.painting {
 
         public readonly float start;
 
-        float _start {
+        internal override float _start {
             get { return start; }
         }
 
         public readonly float end;
 
-        float _end {
+        internal override float _end {
             get { return end; }
         }
 
         public readonly float top;
 
-        float _top {
+        internal override float _top {
             get { return top; }
         }
 
         public readonly float bottom;
 
-        float _bottom {
+        internal override float _bottom {
             get { return bottom; }
         }
 
-        float _left {
+        internal override float _left {
             get { return 0f; }
         }
 
-        float _right {
+        internal override float _right {
             get { return 0f; }
         }
 
@@ -405,7 +400,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static EdgeInsetsDirectional lerp(EdgeInsetsDirectional a, EdgeInsetsDirectional b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)
@@ -448,17 +442,17 @@ namespace Unity.UIWidgets.painting {
             return new _MixedEdgeInsets(_left, _right, _start, _end, _top, _bottom);
         }
 
-        public readonly float _left;
+        internal override float _left { get; }
 
-        public readonly float _right;
+        internal override float _right { get; }
 
-        public readonly float _start;
+        internal override float _start { get; }
 
-        public readonly float _end;
+        internal override float _end { get; }
 
-        public readonly float _top;
+        internal override float _top { get; }
 
-        public readonly float _bottom;
+        internal override float _bottom { get; }
 
 
         public override bool isNonNegative {
@@ -578,14 +572,14 @@ namespace Unity.UIWidgets.painting {
         public readonly float top;
         public readonly float bottom;
 
-        public static EdgeInsets infinity = fromLTRB(
+        public static EdgeInsets infinityEdgeInsets = fromLTRB(
             float.PositiveInfinity,
             float.PositiveInfinity,
             float.PositiveInfinity,
             float.PositiveInfinity
         );
 
-        public bool isNonNegative {
+        public override bool isNonNegative {
             get {
                 return left >= 0.0
                        && right >= 0.0
@@ -594,22 +588,22 @@ namespace Unity.UIWidgets.painting {
             }
         }
 
-        public float horizontal {
+        public override float horizontal {
             get { return left + right; }
         }
 
-        public float vertical {
+        public override float vertical {
             get { return top + bottom; }
         }
 
-        public float along(Axis axis) {
+        public float along(Axis? axis) {
+            D.assert(axis != null);
             switch (axis) {
                 case Axis.horizontal:
                     return horizontal;
                 case Axis.vertical:
                     return vertical;
             }
-
             throw new Exception("unknown axis");
         }
 

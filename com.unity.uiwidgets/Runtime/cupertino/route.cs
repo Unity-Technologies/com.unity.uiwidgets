@@ -135,7 +135,7 @@ namespace Unity.UIWidgets.cupertino {
         public static Future<T> showCupertinoDialog<T>(
             BuildContext context = null,
             WidgetBuilder builder =null,
-            bool useRootNavigator = true,
+            bool? useRootNavigator = true,
             RouteSettings routeSettings = null
         ) {
             D.assert(builder != null);
@@ -150,7 +150,7 @@ namespace Unity.UIWidgets.cupertino {
                 return builder(context1);
             },
             transitionBuilder: _buildCupertinoDialogTransitions,
-            useRootNavigator: useRootNavigator,
+            useRootNavigator: useRootNavigator.Value,
             routeSettings: routeSettings
                 );
         }
@@ -158,11 +158,10 @@ namespace Unity.UIWidgets.cupertino {
             BuildContext context = null,
             WidgetBuilder builder =null,
                 ImageFilter filter = null,
-            bool useRootNavigator = true,
-            bool? semanticsDismissible =null
+            bool? useRootNavigator = true
         ) {
            D.assert(useRootNavigator != null);
-            return Navigator.of(context, rootNavigator: useRootNavigator).push(
+            return Navigator.of(context, rootNavigator: useRootNavigator.Value).push(
                new _CupertinoModalPopupRoute(
                     barrierColor: CupertinoDynamicColor.resolve(_kModalBarrierColor, context),
                     barrierLabel: "Dismiss",
@@ -283,7 +282,6 @@ namespace Unity.UIWidgets.cupertino {
                 return;
             }
             TextDirection textDirection = configuration.textDirection;
-            D.assert(textDirection != null);
             float deltaX = 0.0f;
             switch (textDirection) {
                 case TextDirection.rtl:

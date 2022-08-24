@@ -27,7 +27,7 @@ namespace Unity.UIWidgets.widgets {
                 }
             }
         }
-        public override FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection direction) {
+        public override FocusNode findFirstFocusInDirection(FocusNode currentNode, TraversalDirection? direction) {
             D.assert(direction != null);
             D.assert(currentNode != null);
             switch (direction) { 

@@ -118,7 +118,7 @@ namespace Unity.UIWidgets.gestures {
         _TapTracker _firstTap;
         readonly Dictionary<int, _TapTracker> _trackers = new Dictionary<int, _TapTracker>();
 
-        public override void addAllowedPointer(PointerDownEvent evt) {
+        public override void addAllowedPointer(PointerEvent evt) {
             if (_firstTap != null) {
                 if (!_firstTap.isWithinGlobalTolerance(evt, Constants.kDoubleTapSlop)) {
                     // Ignore out-of-bounds second taps.
@@ -261,7 +261,7 @@ namespace Unity.UIWidgets.gestures {
         void _checkUp(int buttons) {
             D.assert(buttons == gesture_.kPrimaryButton);
             if (onDoubleTap != null) {
-                invokeCallback("onDoubleTap",() => onDoubleTap);
+                invokeCallback("onDoubleTap",() => onDoubleTap());
             }
         }
 
@@ -374,7 +374,7 @@ namespace Unity.UIWidgets.gestures {
 
         readonly Dictionary<int, _TapGesture> _gestureMap = new Dictionary<int, _TapGesture>();
 
-        public override void addAllowedPointer(PointerDownEvent evt) {
+        public override void addAllowedPointer(PointerEvent evt) {
             D.assert(!_gestureMap.ContainsKey(evt.pointer));
             _gestureMap[evt.pointer] = new _TapGesture(
                 gestureRecognizer: this,

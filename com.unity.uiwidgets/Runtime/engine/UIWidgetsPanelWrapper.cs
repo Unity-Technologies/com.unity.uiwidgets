@@ -9,18 +9,22 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.services;
 using Unity.UIWidgets.ui;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering;
 using Path = Unity.UIWidgets.ui.Path;
 
 namespace Unity.UIWidgets.engine {
-    #region Platform: MacOs/iOS/Windows Specific Functionalities
 
-#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+    #region Platform: Windows Specific Functionalities
+#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 public partial class UIWidgetsPanelWrapper {
     Texture _renderTexture;
 
     public Texture renderTexture {
         get { return _renderTexture; }
     }
+
+    public bool requireColorspaceShader => !useColorspaceGamma;
 
     void _createRenderTexture(int width, int height, float devicePixelRatio) {
         D.assert(_renderTexture == null);
@@ -54,7 +58,6 @@ public partial class UIWidgetsPanelWrapper {
 
     void _resizeUIWidgetsPanel() {
         D.assert(_renderTexture == null);
-
         IntPtr native_tex_ptr = UIWidgetsPanel_onRenderTexture(_ptr, _width, _height, devicePixelRatio);
         D.assert(native_tex_ptr != IntPtr.Zero);
 
@@ -74,12 +77,112 @@ public partial class UIWidgetsPanelWrapper {
     static extern IntPtr UIWidgetsPanel_onRenderTexture(
         IntPtr ptr, int width, int height, float dpi);
 }
-
 #endif
-
     #endregion
+    
+    #region Platform: MacOs/iOS Specific Functionalities
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_IOS
+    public partial class UIWidgetsPanelWrapper {
+        Texture _renderTexture;
 
-#region Platform: Android Runtime Specific Functionalities
+        public Texture renderTexture {
+            get { return _renderTexture; }
+        }
+        
+        //since both Metal and OpenGLCore are supported on Mac/iOS, we use this flag to separate the code paths for
+        //each backend respectively
+        bool isMetalBackend => SystemInfo.graphicsDeviceType == GraphicsDeviceType.Metal;
+
+        public bool requireColorspaceShader => isMetalBackend && !useColorspaceGamma;
+
+        void _createRenderTexture(int width, int height, float devicePixelRatio) {
+            D.assert(_renderTexture == null);
+
+            if (!isMetalBackend) {
+                var colorSpace = useColorspaceGamma ? RenderTextureReadWrite.Linear : RenderTextureReadWrite.sRGB;
+                var graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(RenderTextureFormat.ARGB32, colorSpace);
+
+                var desc = new RenderTextureDescriptor(
+                    width, height, graphicsFormat, 0) {
+                    useMipMap = false,
+                    autoGenerateMips = false,
+                };
+
+                var _localRenderTexture = new RenderTexture(desc) {hideFlags = HideFlags.HideAndDontSave};
+                _localRenderTexture.Create();
+                _renderTexture = _localRenderTexture;
+            }
+
+            _width = width;
+            _height = height;
+            this.devicePixelRatio = devicePixelRatio;
+        }
+
+        void _destroyRenderTexture() {
+            D.assert(_renderTexture != null);
+
+            if (isMetalBackend) {
+                var releaseOK = UIWidgetsPanel_releaseNativeTexture(_ptr);
+                D.assert(releaseOK);
+            }
+            else {
+                ObjectUtils.SafeDestroy(_renderTexture);
+            }
+            _renderTexture = null;
+        }
+
+        void _enableUIWidgetsPanel(string font_settings) {
+            if (isMetalBackend) {
+                D.assert(_renderTexture == null);
+                var native_tex_ptr = UIWidgetsPanel_onEnable(_ptr, IntPtr.Zero, _width, _height, devicePixelRatio,
+                    Application.streamingAssetsPath, font_settings);
+                D.assert(native_tex_ptr != IntPtr.Zero);
+                _renderTexture =
+                    Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
+            }
+            else {
+                D.assert(_renderTexture != null && _renderTexture.GetNativeTexturePtr() != IntPtr.Zero);
+                UIWidgetsPanel_onEnable(_ptr, _renderTexture.GetNativeTexturePtr(),
+                    _width, _height, devicePixelRatio, Application.streamingAssetsPath, font_settings);
+            }
+        }
+
+        void _resizeUIWidgetsPanel() {
+            if (isMetalBackend) {
+                D.assert(_renderTexture == null);
+                var native_tex_ptr =
+                    UIWidgetsPanel_onRenderTexture(_ptr, IntPtr.Zero, _width, _height, devicePixelRatio);
+                D.assert(native_tex_ptr != IntPtr.Zero);
+                _renderTexture =
+                    Texture2D.CreateExternalTexture(_width, _height, TextureFormat.BGRA32, false, true, native_tex_ptr);
+            }
+            else {
+                D.assert(_renderTexture != null && _renderTexture.GetNativeTexturePtr() != IntPtr.Zero);
+                UIWidgetsPanel_onRenderTexture(_ptr, _renderTexture.GetNativeTexturePtr(), _width, _height, devicePixelRatio);
+            }
+        }
+
+        void _disableUIWidgetsPanel() {
+            _renderTexture = null;
+        }
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr UIWidgetsPanel_onEnable(IntPtr ptr,
+            IntPtr nativeTexturePtr, int width, int height, float dpi, string streamingAssetsPath,
+            string font_settings);
+        
+        [DllImport(NativeBindings.dllName)]
+        [return: MarshalAs(UnmanagedType.U1)]
+        static extern bool UIWidgetsPanel_releaseNativeTexture(IntPtr ptr);
+
+        [DllImport(NativeBindings.dllName)]
+        static extern IntPtr UIWidgetsPanel_onRenderTexture(
+            IntPtr ptr, IntPtr nativeTexturePtr, int width, int height, float dpi);
+    }
+#endif
+#endregion
+
+    #region Platform: Android Runtime Specific Functionalities
 
 #if (!UNITY_EDITOR && UNITY_ANDROID )
     public partial class UIWidgetsPanelWrapper {
@@ -90,11 +193,17 @@ public partial class UIWidgetsPanelWrapper {
             get { return _renderTexture; }
         }
 
+        public bool requireColorspaceShader => false;
+
         void _createRenderTexture(int width, int height, float devicePixelRatio) {
             D.assert(_renderTexture == null);
 
+            var colorSpace = useColorspaceGamma ? RenderTextureReadWrite.Linear
+                    : RenderTextureReadWrite.sRGB;
+            var graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(RenderTextureFormat.ARGB32, colorSpace);
+
             var desc = new RenderTextureDescriptor(
-                width, height, RenderTextureFormat.ARGB32, 0) {
+                width, height, graphicsFormat, 0) {
                 useMipMap = false,
                 autoGenerateMips = false,
             };
@@ -160,7 +269,9 @@ public partial class UIWidgetsPanelWrapper {
 
         public float devicePixelRatio { get; private set; }
         
-        public DisplayMetrics displayMetrics = new DisplayMetrics();
+        public readonly DisplayMetrics displayMetrics = new DisplayMetrics();
+
+        bool useColorspaceGamma = QualitySettings.activeColorSpace == ColorSpace.Gamma;
 
         public void Initiate(IUIWidgetsWindow host, int width, int height, float dpr, Configurations _configurations) {
             D.assert(renderTexture == null);
@@ -202,6 +313,8 @@ public partial class UIWidgetsPanelWrapper {
         }
         public void Destroy() {
             if (_ptr != IntPtr.Zero) {
+                ReleaseExternalTextures();
+                
                 UIWidgetsPanel_onDisable(ptr: _ptr);
                 UIWidgetsPanel_dispose(ptr: _ptr);
                 _ptr = IntPtr.Zero;
@@ -209,7 +322,7 @@ public partial class UIWidgetsPanelWrapper {
 
             _handle.Free();
             _handle = default;
-
+            
             _disableUIWidgetsPanel();
             D.assert(result: !isolate.isValid);
         }
@@ -231,8 +344,8 @@ public partial class UIWidgetsPanelWrapper {
             return true;
         }
 
-        public int registerTexture(Texture texture) {
-            return UIWidgetsPanel_registerTexture(ptr: _ptr, texture.GetNativeTexturePtr());
+        public int registerTexture(IntPtr externalTexturePtr) {
+            return UIWidgetsPanel_registerTexture(ptr: _ptr, externalTexturePtr);
         }
 
         public void unregisterTexture(int textureId) {
@@ -341,9 +454,32 @@ public partial class UIWidgetsPanelWrapper {
         public void OnPointerLeave() {
             UIWidgetsPanel_onMouseLeave(ptr: _ptr);
         }
+        
+        public void OnDragUpdateInEditor(Vector2? pos) {
+            if (pos == null) {
+                return;
+            }
+            
+            UIWidgetsPanel_onDragUpdateInEditor(ptr: _ptr, x: pos.Value.x, y: pos.Value.y);
+        }
+        
+        public void OnDragReleaseInEditor(Vector2? pos) {
+            if (pos == null) {
+                return;
+            }
+            
+            UIWidgetsPanel_onDragReleaseInEditor(ptr: _ptr, x: pos.Value.x, y: pos.Value.y);
+        }
 
         public void OnKeyDown(Event e) {
-            UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown);
+            int modifier = 0;
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            modifier |= e.shift ? (1 << (int) FunctionKey.shift) : 0;
+            modifier |= e.alt ? (1 << (int) FunctionKey.alt) : 0;
+            modifier |= e.command ? (1 << (int) FunctionKey.command) : 0;
+            modifier |= e.control ? (1 << (int) FunctionKey.control) : 0;
+#endif
+            UIWidgetsPanel_onKey(ptr: _ptr, keyCode: e.keyCode, e.type == EventType.KeyDown, modifier);
             if (e.character != 0 || e.keyCode == KeyCode.Backspace) {
                 PointerEventConverter.KeyEvent.Enqueue(new Event(other: e));
                 // TODO: add on char
@@ -355,7 +491,7 @@ public partial class UIWidgetsPanelWrapper {
         static extern void UIWidgetsPanel_onChar(IntPtr ptr, char c);
 
         [DllImport(dllName: NativeBindings.dllName)]
-        static extern void UIWidgetsPanel_onKey(IntPtr ptr, KeyCode keyCode, bool isKeyDown);
+        static extern void UIWidgetsPanel_onKey(IntPtr ptr, KeyCode keyCode, bool isKeyDown, int modifier);
 
         [DllImport(dllName: NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onMouseDown(IntPtr ptr, float x, float y, int button);
@@ -371,6 +507,17 @@ public partial class UIWidgetsPanelWrapper {
 
         [DllImport(dllName: NativeBindings.dllName)]
         static extern void UIWidgetsPanel_onScroll(IntPtr ptr, float x, float y, float px, float py);
+#if UNITY_EDITOR
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onDragUpdateInEditor(IntPtr ptr, float x ,float y);
+        
+        [DllImport(dllName: NativeBindings.dllName)]
+        static extern void UIWidgetsPanel_onDragReleaseInEditor(IntPtr ptr, float x ,float y);
+#else
+        static void UIWidgetsPanel_onDragUpdateInEditor(IntPtr ptr, float x, float y) { throw new NotImplementedException(); }
+        
+        static void UIWidgetsPanel_onDragReleaseInEditor(IntPtr ptr, float x ,float y) { throw new NotImplementedException(); }
+#endif
     }
 
     #endregion

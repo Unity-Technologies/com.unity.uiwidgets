@@ -96,7 +96,7 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
   public void paint(
     Canvas canvas,
     Rect rect, 
-    float gapStart,
+    float? gapStart = null,
     float gapExtent = 0.0f,
     float gapPercentage = 0.0f,
     TextDirection? textDirection = null
@@ -111,12 +111,12 @@ namespace UIWidgetsGallery.demo.shrine.supplemental
       float extent = lerpFloat(0.0f, gapExtent + gapPadding * 2.0f, gapPercentage)?? 0.0f;
       switch (textDirection) {
         case TextDirection.rtl: {
-          Path path = _notchedCornerPath(outer.middleRect, gapStart + gapPadding - extent, extent);
+          Path path = _notchedCornerPath(outer.middleRect, gapStart.Value + gapPadding - extent, extent);
           canvas.drawPath(path, paint);
           break;
         }
         case TextDirection.ltr: {
-          Path path = _notchedCornerPath(outer.middleRect, gapStart - gapPadding, extent);
+          Path path = _notchedCornerPath(outer.middleRect, gapStart.Value - gapPadding, extent);
           canvas.drawPath(path, paint);
           break;
         }

@@ -26,7 +26,17 @@ namespace Unity.UIWidgets.ui{
     public enum PointerSignalKind {
         none,
         scroll,
+        editorDragMove,
+        editorDragRelease,
         unknown,
+    }
+
+    public enum FunctionKey {
+        none = 0,
+        shift = 1,
+        alt = 2,
+        command = 3,
+        control = 4,
     }
 
     public readonly struct PointerData {
@@ -42,6 +52,7 @@ namespace Unity.UIWidgets.ui{
             float physicalDeltaX = 0.0f,
             float physicalDeltaY = 0.0f,
             int buttons = 0,
+            int modifier = 0,
             bool obscured = false,
             bool synthesized = false,
             float pressure = 0.0f,
@@ -70,6 +81,7 @@ namespace Unity.UIWidgets.ui{
             this.physicalDeltaX = physicalDeltaX;
             this.physicalDeltaY = physicalDeltaY;
             this.buttons = buttons;
+            this.modifier = modifier;
             this.obscured = obscured;
             this.synthesized = synthesized;
             this.pressure = pressure;
@@ -100,6 +112,7 @@ namespace Unity.UIWidgets.ui{
         public readonly float physicalDeltaX;
         public readonly float physicalDeltaY;
         public readonly int buttons;
+        public readonly int modifier;
         public readonly bool obscured;
         public readonly bool synthesized;
         public readonly float pressure;

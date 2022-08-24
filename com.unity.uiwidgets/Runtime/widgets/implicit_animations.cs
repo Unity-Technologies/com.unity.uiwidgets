@@ -470,7 +470,7 @@ namespace Unity.UIWidgets.widgets {
             return new Padding(
                 padding: _padding
                     .evaluate(animation)
-                    .clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity),
+                    .clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinityEdgeInsetsGeometry),
                 child: widget.child
             );
         }
@@ -905,8 +905,6 @@ namespace Unity.UIWidgets.widgets {
         public readonly TextOverflow overflow;
 
         public readonly int? maxLines;
-
-        public readonly VoidCallback onEnd;
 
         public override State createState() {
             return new _AnimatedDefaultTextStyleState();

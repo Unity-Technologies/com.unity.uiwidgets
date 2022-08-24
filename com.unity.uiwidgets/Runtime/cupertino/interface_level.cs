@@ -13,12 +13,12 @@ namespace Unity.UIWidgets.cupertino {
        
         public CupertinoUserInterfaceLevel(
             Key key = null,
-            CupertinoUserInterfaceLevelData data = default,
+            CupertinoUserInterfaceLevelData? data = null,
             Widget child = null
         ) : base(key: key, child: child) 
         {
             D.assert(data != null);
-            _data = data;
+            _data = data.Value;
         }
         public CupertinoUserInterfaceLevelData _data;
 

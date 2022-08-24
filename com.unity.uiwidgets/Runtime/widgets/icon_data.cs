@@ -101,7 +101,7 @@ namespace Unity.UIWidgets.widgets {
             Dictionary<string, object> json = base.toJsonMap(_delegate);
         if (value != null) {
             json["valueProperties"] = new Dictionary<string, object>(){
-                {"codePoint", value.codePoint},
+                {"codePoint", valueT.codePoint},
             };
         }
         return json;

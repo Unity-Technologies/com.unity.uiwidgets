@@ -7,11 +7,6 @@ namespace UIWidgetsSample
 {
     public class TextFieldTest : UIWidgetsPanel
     {
-        protected void OnEnable()
-        {
-            base.OnEnable();
-        }
-
         protected override void main()
         {
             ui_.runApp(new MyApp());

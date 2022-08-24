@@ -209,7 +209,7 @@ namespace Unity.UIWidgets.widgets {
         public float page {
             get {
                 D.assert(
-                    pixels == null || (minScrollExtent != null && maxScrollExtent != null),
+                    !havePixels || (hasMinScrollExtent && hasMaxScrollExtent),
                     () => "Page value is only available after content dimensions are established."
                 );
                 return getPageFromPixels(pixels.clamp(minScrollExtent, maxScrollExtent),
@@ -283,7 +283,6 @@ namespace Unity.UIWidgets.widgets {
             bool allowImplicitScrolling = false,
             ScrollPhysics parent = null
         ) : base(parent: parent) {
-            D.assert(allowImplicitScrolling != null);
             this.allowImplicitScrolling = allowImplicitScrolling;
         }
         
@@ -294,7 +293,7 @@ namespace Unity.UIWidgets.widgets {
             );
         }
         
-        public readonly bool allowImplicitScrolling;
+        public override bool allowImplicitScrolling { get; }
     }
 
     public class PageScrollPhysics : ScrollPhysics {
@@ -471,12 +470,12 @@ namespace Unity.UIWidgets.widgets {
             _lastReportedPage = widget.controller.initialPage;
         }
 
-        AxisDirection _getDirection(BuildContext context) {
+        AxisDirection? _getDirection(BuildContext context) {
             switch (widget.scrollDirection) {
                 case Axis.horizontal:
                     D.assert(WidgetsD.debugCheckHasDirectionality(context));
                     TextDirection textDirection = Directionality.of(context);
-                    AxisDirection axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
+                    AxisDirection? axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
                     return widget.reverse ? AxisUtils.flipAxisDirection(axisDirection) : axisDirection;
                 case Axis.vertical:
                     return widget.reverse ? AxisDirection.up : AxisDirection.down;
@@ -486,7 +485,7 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            AxisDirection axisDirection = _getDirection(context);
+            AxisDirection? axisDirection = _getDirection(context);
             ScrollPhysics physics = new _ForceImplicitScrollPhysics(
                 allowImplicitScrolling: widget.allowImplicitScrolling
             ).applyTo(widget.pageSnapping

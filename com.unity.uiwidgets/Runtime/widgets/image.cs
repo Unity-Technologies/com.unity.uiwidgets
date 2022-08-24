@@ -62,7 +62,7 @@ namespace Unity.UIWidgets.widgets {
     public delegate Widget ImageFrameBuilder(
         BuildContext context,
         Widget child,
-        int frame,
+        int? frame,
         bool wasSynchronouslyLoaded
     );
 
@@ -178,6 +178,7 @@ namespace Unity.UIWidgets.widgets {
 
         public static Image file(
             string file,
+            bool isAbsolutePath = false,
             Key key = null,
             float scale = 1.0f,
             ImageFrameBuilder frameBuilder = null,
@@ -197,7 +198,7 @@ namespace Unity.UIWidgets.widgets {
             int? cacheHeight = null
         ) {
             var fileImage = ResizeImage.resizeIfNeeded(cacheWidth: cacheWidth, cacheHeight: cacheHeight,
-                new FileImage(file: file, scale: scale));
+                new FileImage(file: file, scale: scale, isAbsolutePath: isAbsolutePath));
             return new Image(
                 key: key,
                 image: fileImage,
@@ -488,7 +489,7 @@ namespace Unity.UIWidgets.widgets {
             setState(() => {
                 _imageInfo = imageInfo;
                 _loadingProgress = null;
-                _frameNumber = _frameNumber == null ? 0 : _frameNumber + 1;
+                _frameNumber += 1;
                 _wasSynchronouslyLoaded |= synchronousCall;
             });
         }

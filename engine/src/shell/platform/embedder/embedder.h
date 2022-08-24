@@ -150,6 +150,8 @@ typedef enum {
 typedef enum {
   kUIWidgetsPointerSignalKindNone,
   kUIWidgetsPointerSignalKindScroll,
+  kUIWidgetsPointerSignalKindEditorDragUpdate,
+  kUIWidgetsPointerSignalKindEditorDragRelease
 } UIWidgetsPointerSignalKind;
 
 typedef struct {
@@ -164,6 +166,7 @@ typedef struct {
   float scroll_delta_y;
   UIWidgetsPointerDeviceKind device_kind;
   int64_t buttons;
+  int64_t modifier;
 } UIWidgetsPointerEvent;
 
 struct _UIWidgetsPlatformMessageResponseHandle;

@@ -57,7 +57,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   
   void SetEventLocationFromCursorPosition(UIWidgetsPointerEvent* event_data);
   
-  void OnKeyDown(int keyCode, bool isKeyDown);
+  void OnKeyDown(int keyCode, bool isKeyDown, int64_t modifier);
 
   void OnMouseMove(float x, float y);
 
@@ -68,6 +68,11 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
   void OnMouseUp(float x, float y, int button);
 
   void OnMouseLeave();
+
+  void OnDragUpdateInEditor(float x, float y);
+
+  void OnDragReleaseInEditor(float x, float y);
+
 
   bool NeedUpdateByPlayerLoop();
 

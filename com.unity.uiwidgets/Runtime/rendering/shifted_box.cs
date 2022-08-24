@@ -242,7 +242,7 @@ namespace Unity.UIWidgets.rendering {
                 }
 
                 _alignment = value;
-                markNeedsLayout();
+                _markNeedResolution();
             }
         }
 

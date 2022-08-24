@@ -425,7 +425,6 @@ namespace Unity.UIWidgets.foundation {
             }
 
             int startForLengthCalculations = -startOffset;
-            bool addPrefix = false;
             int index = 0;
             _WordWrapParseMode mode = _WordWrapParseMode.inSpace;
             int? lastWordStart = null;
@@ -476,10 +475,9 @@ namespace Unity.UIWidgets.foundation {
                             if ((index - startForLengthCalculations <= width) || (lastWordEnd == null)) {
                                 lastWordEnd = index;
                             }
+                            string line = message.Substring(start, lastWordEnd.Value - start);
 
-                            string line = message.Substring(start, lastWordEnd.Value);
                             yield return line;
-                            addPrefix = true;
                             if (lastWordEnd.Value >= message.Length) {
                                 yield break;
                             }
@@ -627,8 +625,8 @@ namespace Unity.UIWidgets.foundation {
             return style == DiagnosticsTreeStyle.singleLine;
         }
 
-        public static bool FloatEqual(float left, float right) {
-            return Mathf.Abs(left - right) < precisionErrorTolerance;
+        public static bool FloatEqual(float left, float right, float precisionTolerance = precisionErrorTolerance) {
+            return Mathf.Abs(left - right) < precisionTolerance;
         }
     }
 
@@ -1036,7 +1034,7 @@ namespace Unity.UIWidgets.foundation {
 
         public readonly bool showSeparator;
 
-        public object value { get; }
+        public virtual object value { get; }
 
         public bool isFiltered(DiagnosticLevel minLevel) {
             return foundation_.kReleaseMode || level < minLevel;
@@ -1067,15 +1065,15 @@ namespace Unity.UIWidgets.foundation {
 
         readonly DiagnosticsTreeStyle? _style;
 
-        public bool allowWrap {
+        public virtual bool allowWrap {
             get { return false; }
         }
 
-        public bool allowNameWrap {
+        public virtual bool allowNameWrap {
             get { return false; }
         }
 
-        public bool allowTruncate {
+        public virtual bool allowTruncate {
             get { return false; }
         }
 
@@ -1321,7 +1319,7 @@ namespace Unity.UIWidgets.foundation {
         }
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
-            string text = _description ?? value;
+            string text = _description ?? valueT;
             if (parentConfiguration != null &&
                 !parentConfiguration.lineBreakProperties &&
                 text != null) {
@@ -1475,7 +1473,7 @@ namespace Unity.UIWidgets.foundation {
 
         protected override string numberToString() {
             if (value != null) {
-                return value.Value.ToString("F1");
+                return valueT.Value.ToString("F1");
             }
 
             return "null";
@@ -1508,7 +1506,7 @@ namespace Unity.UIWidgets.foundation {
                 return "null";
             }
 
-            return value.Value.ToString();
+            return valueT.Value.ToString();
         }
     }
 
@@ -1543,7 +1541,7 @@ namespace Unity.UIWidgets.foundation {
                 return "null";
             }
 
-            return (value.Value.clamp(0.0f, 1.0f) * 100).ToString("F1") + "%";
+            return (valueT.Value.clamp(0.0f, 1.0f) * 100).ToString("F1") + "%";
         }
     }
 
@@ -1582,12 +1580,12 @@ namespace Unity.UIWidgets.foundation {
         public readonly string ifFalse;
 
         protected override string valueToString(TextTreeConfiguration parentConfiguration = null) {
-            if (value == true) {
+            if (valueT == true) {
                 if (ifTrue != null) {
                     return ifTrue;
                 }
             }
-            else if (value == false) {
+            else if (valueT == false) {
                 if (ifFalse != null) {
                     return ifFalse;
                 }
@@ -1598,8 +1596,8 @@ namespace Unity.UIWidgets.foundation {
 
         public override bool showName {
             get {
-                if (value == null || value == true && ifTrue == null ||
-                    value == false && ifFalse == null) {
+                if (value == null || valueT == true && ifTrue == null ||
+                    valueT == false && ifFalse == null) {
                     return true;
                 }
 
@@ -1609,13 +1607,13 @@ namespace Unity.UIWidgets.foundation {
 
         public override DiagnosticLevel level {
             get {
-                if (value == true) {
+                if (valueT == true) {
                     if (ifTrue == null) {
                         return DiagnosticLevel.hidden;
                     }
                 }
 
-                if (value == false) {
+                if (valueT == false) {
                     if (ifFalse == null) {
                         return DiagnosticLevel.hidden;
                     }
@@ -1655,21 +1653,21 @@ namespace Unity.UIWidgets.foundation {
                 return "null";
             }
 
-            if (!value.Any()) {
+            if (!valueT.Any()) {
                 return ifEmpty ?? "[]";
             }
 
             if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
-               return string.Join(", ", LinqUtils<string, T>.SelectList(value, (v => v.ToString())));
+               return string.Join(", ", LinqUtils<string, T>.SelectList(valueT, (v => v.ToString())));
             }
             return string.Join(style == DiagnosticsTreeStyle.singleLine ? ", " : "\n", 
-                LinqUtils<string, T>.SelectList(value,  (v => v.ToString())));
+                LinqUtils<string, T>.SelectList(valueT,  (v => v.ToString())));
         }
 
         public override DiagnosticLevel level {
             get {
                 if (ifEmpty == null &&
-                    value != null && !value.Any()
+                    value != null && !valueT.Any()
                     && base.level != DiagnosticLevel.hidden) {
                     return DiagnosticLevel.fine;
                 }
@@ -1681,7 +1679,7 @@ namespace Unity.UIWidgets.foundation {
         public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
             var json = base.toJsonMap(Delegate);
             if (value != null) {
-                json["values"] = LinqUtils<string, T>.SelectList(value, (v => v.ToString()));
+                json["values"] = LinqUtils<string, T>.SelectList(valueT, (v => v.ToString()));
             }
 
             return json;
@@ -1838,7 +1836,7 @@ namespace Unity.UIWidgets.foundation {
         }
 
 
-        DiagnosticLevel level {
+        public override DiagnosticLevel level {
             get {
                 if (!_hasNonNullEntry() && ifEmpty == null) {
                     return DiagnosticLevel.hidden;
@@ -1849,7 +1847,7 @@ namespace Unity.UIWidgets.foundation {
 
         public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
             Dictionary<string, object> json = base.toJsonMap(Delegate);
-            if (value.isNotEmpty()) {
+            if (valueT.isNotEmpty()) {
                 json["values"] = _formattedValues().ToList();
             }
 
@@ -1857,13 +1855,13 @@ namespace Unity.UIWidgets.foundation {
         }
 
         bool _hasNonNullEntry() {
-            return value.Values.ToList().Any((T o) => o != null);
+            return valueT.Values.ToList().Any((T o) => o != null);
         }
 
         IEnumerable<string> _formattedValues() {
             List<string> results = new List<string>();
-            foreach (string entry in value.Keys) {
-                if (value[entry] != null) {
+            foreach (string entry in valueT.Keys) {
+                if (valueT[entry] != null) {
                     results.Add(entry);
                 }
             }
@@ -2001,12 +1999,12 @@ namespace Unity.UIWidgets.foundation {
 
         public readonly bool expandableValue;
 
-        public readonly bool allowWrap;
+        public override bool allowWrap { get; }
 
-        public readonly bool allowNameWrap;
+        public override bool allowNameWrap { get; }
 
         public override Dictionary<string, object> toJsonMap(DiagnosticsSerializationDelegate Delegate) {
-            T v = value;
+            T v = valueT;
             List<Dictionary<string, object>> properties = new List<Dictionary<string, object>>();
             if (Delegate.expandPropertyValues && Delegate.includeProperties && v is Diagnosticable vDiagnosticable &&
                 getProperties().isEmpty()) {
@@ -2115,10 +2113,16 @@ namespace Unity.UIWidgets.foundation {
             get { return value; }
         }
 
-        public T value {
+        public override object value {
             get {
                 _maybeCacheValue();
                 return _value;
+            }
+        }
+
+        public T valueT {
+            get {
+                return (T) value;
             }
         }
 
@@ -2178,7 +2182,7 @@ namespace Unity.UIWidgets.foundation {
 
         public override List<DiagnosticsNode> getProperties() {
             if (expandableValue) {
-                T obj = value;
+                T obj = valueT;
                 if (obj is DiagnosticsNode) {
                     return (obj as DiagnosticsNode).getProperties();
                 }
@@ -2192,7 +2196,7 @@ namespace Unity.UIWidgets.foundation {
 
         public override List<DiagnosticsNode> getChildren() {
             if (expandableValue) {
-                T obj = value;
+                T obj = valueT;
                 if (obj is DiagnosticsNode) {
                     return (obj as DiagnosticsNode).getChildren();
                 }
@@ -2219,8 +2223,12 @@ namespace Unity.UIWidgets.foundation {
             get { return value; }
         }
 
-        public T value {
+        public override object value {
             get { return _value; }
+        }
+
+        public T valueT {
+            get { return (T) value; }
         }
 
         readonly T _value;
@@ -2289,7 +2297,7 @@ namespace Unity.UIWidgets.foundation {
 
         public override List<DiagnosticsNode> getChildren() {
             if (value != null) {
-                return value.debugDescribeChildren();
+                return valueT.debugDescribeChildren();
             }
 
             return new List<DiagnosticsNode>();
@@ -2348,8 +2356,8 @@ namespace Unity.UIWidgets.foundation {
     public interface IDiagnosticable {
         string toStringShort();
 
-        string toString(DiagnosticLevel minLevel = DiagnosticLevel.debug);
-
+        string toString(DiagnosticLevel minLevel = DiagnosticLevel.info);
+        
         DiagnosticsNode toDiagnosticsNode(
             string name = null,
             DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
@@ -2393,8 +2401,7 @@ namespace Unity.UIWidgets.foundation {
     }
 
 
-    public interface DiagnosticableTreeMixin : IDiagnosticable{
-        string toString(DiagnosticLevel minLevel = DiagnosticLevel.info);
+    public interface DiagnosticableTreeMixin : IDiagnosticable {
         string toStringShallow(
             string joiner = ", ",
             DiagnosticLevel minLevel = DiagnosticLevel.debug
@@ -2404,13 +2411,8 @@ namespace Unity.UIWidgets.foundation {
             string prefixLineOne = "",
             string prefixOtherLines = null,
             DiagnosticLevel minLevel = DiagnosticLevel.debug);
-
-        string toStringShort();
-
-        DiagnosticsNode toDiagnosticsNode(string name = null, DiagnosticsTreeStyle style = DiagnosticsTreeStyle.sparse);
+        
         List<DiagnosticsNode> debugDescribeChildren();
-        void debugFillProperties(DiagnosticPropertiesBuilder properties);
-
     }
 
     public abstract class DiagnosticableTree : Diagnosticable,DiagnosticableTreeMixin {
@@ -2511,7 +2513,7 @@ namespace Unity.UIWidgets.foundation {
 
         public override object valueObject { get; }
 
-        public readonly bool allowTruncate;
+        public override bool allowTruncate { get; }
 
         public override List<DiagnosticsNode> getChildren() {
             return _children;
@@ -2543,11 +2545,11 @@ namespace Unity.UIWidgets.foundation {
 
         public abstract DiagnosticsSerializationDelegate delegateForNode(DiagnosticsNode node);
 
-        public int subtreeDepth { get; }
+        public virtual int subtreeDepth { get; }
 
-        public bool includeProperties { get; }
+        public virtual bool includeProperties { get; }
 
-        public bool expandPropertyValues { get; }
+        public virtual bool expandPropertyValues { get; }
 
         public abstract DiagnosticsSerializationDelegate copyWith(
             int? subtreeDepth = null,
@@ -2572,7 +2574,7 @@ namespace Unity.UIWidgets.foundation {
             return subtreeDepth > 0 ? copyWith(subtreeDepth: subtreeDepth - 1) : this;
         }
 
-        new bool expandPropertyValues {
+        public override bool expandPropertyValues {
             get { return false; }
         }
 
@@ -2584,9 +2586,9 @@ namespace Unity.UIWidgets.foundation {
             return nodes;
         }
 
-        public new readonly bool includeProperties;
+        public override bool includeProperties { get; }
 
-        public new readonly int subtreeDepth;
+        public override int subtreeDepth { get; }
 
         public override List<DiagnosticsNode> truncateNodesList(List<DiagnosticsNode> nodes, DiagnosticsNode owner) {
             return nodes;

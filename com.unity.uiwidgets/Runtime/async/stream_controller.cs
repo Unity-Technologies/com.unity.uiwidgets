@@ -520,7 +520,6 @@ namespace Unity.UIWidgets.async {
 //
     abstract class _SyncStreamControllerDispatch<T>
         : _StreamController<T>, SynchronousStreamController<T> {
-        internal virtual int _state { get; set; }
 
         public override void _sendData(T data) {
             _subscription._add(data);

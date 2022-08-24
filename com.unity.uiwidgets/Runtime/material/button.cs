@@ -227,8 +227,8 @@ namespace Unity.UIWidgets.material {
         }
 
         public override Widget build(BuildContext context) {
-            Color effectiveTextColor = MaterialStateProperty<Color>.resolveAs<Color>(widget.textStyle?.color, _states);
-            ShapeBorder effectiveShape = MaterialStateProperty<Color>.resolveAs<ShapeBorder>(widget.shape, _states);
+            Color effectiveTextColor = MaterialStateProperty<Color>.resolveAsMaterialStateProperty<Color>(widget.textStyle?.color, _states);
+            ShapeBorder effectiveShape = MaterialStateProperty<Color>.resolveAsMaterialStateProperty<ShapeBorder>(widget.shape, _states);
             Offset densityAdjustment = widget.visualDensity.baseSizeAdjustment;
             BoxConstraints effectiveConstraints = widget.visualDensity.effectiveConstraints(widget.constraints);
             EdgeInsetsGeometry padding = widget.padding.add(
@@ -238,7 +238,7 @@ namespace Unity.UIWidgets.material {
                     right: densityAdjustment.dx,
                     bottom: densityAdjustment.dy
                 )
-            ).clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinity) as EdgeInsets;
+            ).clamp(EdgeInsets.zero, EdgeInsetsGeometry.infinityEdgeInsetsGeometry) as EdgeInsets;
 
             Widget result = new ConstrainedBox(
                 constraints: effectiveConstraints,

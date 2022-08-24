@@ -4,7 +4,7 @@
 
 namespace uiwidgets {
 
-static constexpr int kPointerDataFieldCount = 28;
+static constexpr int kPointerDataFieldCount = 29;
 static constexpr int kBytesPerField = sizeof(int64_t);
 
 enum PointerButtonMouse : int64_t {
@@ -53,6 +53,8 @@ struct alignas(4) PointerData {
   enum class SignalKind : int64_t {
     kNone,
     kScroll,
+    kEditorDragUpdate,
+    kEditorDragRelease
   };
 
   int64_t time_stamp;
@@ -66,6 +68,7 @@ struct alignas(4) PointerData {
   double physical_delta_x;
   double physical_delta_y;
   int64_t buttons;
+  int64_t modifier;
   int64_t obscured;
   int64_t synthesized;
   double pressure;

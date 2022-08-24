@@ -17,16 +17,17 @@ namespace Unity.UIWidgets.widgets {
     public class Scrollable : StatefulWidget {
         public Scrollable(
             Key key = null,
-            AxisDirection axisDirection = AxisDirection.down,
+            AxisDirection? axisDirection = AxisDirection.down,
             ScrollController controller = null,
             ScrollPhysics physics = null,
             ViewportBuilder viewportBuilder = null,
             ScrollIncrementCalculator incrementCalculator = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start
         ) : base(key: key) {
+            D.assert(axisDirection != null);
             D.assert(viewportBuilder != null);
 
-            this.axisDirection = axisDirection;
+            this.axisDirection = axisDirection.Value;
             this.controller = controller;
             this.physics = physics;
             this.viewportBuilder = viewportBuilder;
@@ -46,7 +47,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly DragStartBehavior dragStartBehavior;
 
-        public Axis axis {
+        public Axis? axis {
             get { return AxisUtils.axisDirectionToAxis(axisDirection); }
         }
 
@@ -248,7 +249,7 @@ namespace Unity.UIWidgets.widgets {
         bool _shouldIgnorePointer = false;
 
         bool _lastCanDrag;
-        Axis _lastAxisDirection;
+        Axis? _lastAxisDirection;
 
         public void setCanDrag(bool canDrag) {
             if (canDrag == _lastCanDrag && (!canDrag || widget.axis == _lastAxisDirection)) {
@@ -502,7 +503,7 @@ namespace Unity.UIWidgets.widgets {
 
         public readonly ScrollIncrementType type;
 
-        protected bool isEnabled(BuildContext context) {
+        public override bool isEnabled(BuildContext context) {
             return Scrollable.of(context) != null;
         }
     }
@@ -515,7 +516,7 @@ namespace Unity.UIWidgets.widgets {
 
         float _calculateScrollIncrement(ScrollableState state, ScrollIncrementType type = ScrollIncrementType.line) {
             D.assert(state.position != null);
-            D.assert(state.position.pixels != null);
+            D.assert(state.position.havePixels);
             D.assert(state.widget.physics == null || state.widget.physics.shouldAcceptUserOffset(state.position));
 
             if (state.widget.incrementCalculator != null) {
@@ -544,10 +545,8 @@ namespace Unity.UIWidgets.widgets {
                     switch (state.axisDirection) {
                         case AxisDirection.up:
                             return -increment;
-                            break;
                         case AxisDirection.down:
                             return increment;
-                            break;
                         case AxisDirection.right:
                         case AxisDirection.left:
                             return 0.0f;
@@ -557,10 +556,8 @@ namespace Unity.UIWidgets.widgets {
                     switch (state.axisDirection) {
                         case AxisDirection.up:
                             return increment;
-                            break;
                         case AxisDirection.down:
                             return -increment;
-                            break;
                         case AxisDirection.right:
                         case AxisDirection.left:
                             return 0.0f;
@@ -570,10 +567,8 @@ namespace Unity.UIWidgets.widgets {
                     switch (state.axisDirection) {
                         case AxisDirection.right:
                             return -increment;
-                            break;
                         case AxisDirection.left:
                             return increment;
-                            break;
                         case AxisDirection.up:
                         case AxisDirection.down:
                             return 0.0f;
@@ -583,10 +578,8 @@ namespace Unity.UIWidgets.widgets {
                     switch (state.axisDirection) {
                         case AxisDirection.right:
                             return increment;
-                            break;
                         case AxisDirection.left:
                             return -increment;
-                            break;
                         case AxisDirection.up:
                         case AxisDirection.down:
                             return 0.0f;
@@ -599,7 +592,7 @@ namespace Unity.UIWidgets.widgets {
         public override void invoke(FocusNode node, Intent intent) {
             ScrollableState state = Scrollable.of(node.context);
             D.assert(state != null, () => "ScrollAction was invoked on a context that has no scrollable parent");
-            D.assert(state.position.pixels != null, () => "Scrollable must be laid out before it can be scrolled via a ScrollAction");
+            D.assert(state.position.havePixels, () => "Scrollable must be laid out before it can be scrolled via a ScrollAction");
             if (state.widget.physics != null && !state.widget.physics.shouldAcceptUserOffset(state.position)) {
                 return;
             }

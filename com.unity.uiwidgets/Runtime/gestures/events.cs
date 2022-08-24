@@ -81,7 +81,7 @@ namespace Unity.UIWidgets.gestures {
             this.position = position ?? Offset.zero;
             this.localPosition = localPosition ?? this.position;
             this.delta = delta ?? Offset.zero;
-            this.localDelta = delta ?? this.delta;
+            this.localDelta = localDelta ?? this.delta;
             this.buttons = buttons;
             this.down = down;
             this.obscured = obscured;
@@ -1128,6 +1128,8 @@ namespace Unity.UIWidgets.gestures {
             Offset position = null,
             Offset localPosition = null,
             Matrix4 transform = null,
+            Object[] objectReferences = null,
+            string[] paths = null,
             PointerDragFromEditorEnterEvent original = null
         ) : base(
             timeStamp,
@@ -1139,9 +1141,15 @@ namespace Unity.UIWidgets.gestures {
             transform: transform,
             original: original
         ) {
+            this.objectReferences = objectReferences;
+            this.paths = paths;
         }
+        
+        public Object[] objectReferences;
+        public string[] paths;
 
-        public static PointerDragFromEditorEnterEvent fromDragFromEditorEvent(PointerEvent evt) {
+        public static PointerDragFromEditorEnterEvent fromDragFromEditorEvent(PointerEvent evt,
+            Object[] objectReferences, string[] paths) {
             return new PointerDragFromEditorEnterEvent(
                 timeStamp: evt.timeStamp,
                 pointer: evt.pointer,
@@ -1150,6 +1158,8 @@ namespace Unity.UIWidgets.gestures {
                 position: evt.position,
                 localPosition: evt.localPosition,
                 transform: evt.transform,
+                objectReferences: objectReferences,
+                paths: paths,
                 original: evt.original as PointerDragFromEditorEnterEvent
             );
         }
@@ -1166,6 +1176,8 @@ namespace Unity.UIWidgets.gestures {
                 position: position,
                 localPosition: transformPosition(transform, position),
                 transform: transform,
+                objectReferences: objectReferences,
+                paths: paths,
                 original: original as PointerDragFromEditorEnterEvent ?? this
             );
         }
@@ -1284,6 +1296,7 @@ namespace Unity.UIWidgets.gestures {
             Offset position = null,
             Offset localPosition = null,
             Object[] objectReferences = null,
+            string[] paths = null,
             Matrix4 transform = null,
             PointerDragFromEditorReleaseEvent original = null
         ) : base(
@@ -1297,12 +1310,14 @@ namespace Unity.UIWidgets.gestures {
             original: original
         ) {
             this.objectReferences = objectReferences;
+            this.paths = paths;
         }
 
         public Object[] objectReferences;
+        public string[] paths;
 
         public static PointerDragFromEditorReleaseEvent fromDragFromEditorEvent(PointerEvent evt,
-            Object[] objectReferences) {
+            Object[] objectReferences, string[] paths) {
             return new PointerDragFromEditorReleaseEvent(
                 timeStamp: evt.timeStamp,
                 pointer: evt.pointer,
@@ -1311,6 +1326,7 @@ namespace Unity.UIWidgets.gestures {
                 position: evt.position,
                 localPosition: evt.localPosition,
                 objectReferences: objectReferences,
+                paths: paths,
                 transform: evt.transform,
                 original: evt.original as PointerDragFromEditorReleaseEvent
             );

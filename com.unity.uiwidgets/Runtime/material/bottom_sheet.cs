@@ -76,13 +76,11 @@ namespace Unity.UIWidgets.material {
             D.assert(builder != null);
             D.assert(debugCheckHasScaffold(context));
             return Scaffold.of(context).showBottomSheet(
-                builder
-                //TODO: update showBottomSheet
-                // ,
-                // backgroundColor: backgroundColor,
-                // elevation: elevation,
-                // shape: shape,
-                // clipBehavior: clipBehavior
+                builder,
+                backgroundColor: backgroundColor,
+                elevation: elevation,
+                shape: shape,
+                clipBehavior: clipBehavior
             );
         }
     }
@@ -111,6 +109,11 @@ namespace Unity.UIWidgets.material {
             this.elevation = elevation;
             this.onClosing = onClosing;
             this.builder = builder;
+            this.onDragStart = onDragStart;
+            this.onDragEnd = onDragEnd;
+            this.backgroundColor = backgroundColor;
+            this.shape = shape;
+            this.clipBehavior = clipBehavior;
         }
 
         public readonly AnimationController animationController;
@@ -442,7 +445,7 @@ namespace Unity.UIWidgets.material {
         }
 
 
-        public readonly string barrierLabel;
+        public override string barrierLabel { get; }
 
         public override Color barrierColor {
             get { return modalBarrierColor ?? Colors.black54; }

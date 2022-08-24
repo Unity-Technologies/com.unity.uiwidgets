@@ -2954,14 +2954,6 @@ namespace Unity.UIWidgets.widgets {
             };
             visitChildren(applyParentDataToChild);
         }
-        
-
-        public new void applyWidgetOutOfTurn(ParentDataWidget<T> newWidget) {
-            D.assert(newWidget != null);
-            D.assert(newWidget.debugCanApplyOutOfTurn());
-            D.assert(newWidget.child == widget.child);
-            _applyParentData(newWidget);
-        }
 
         public override void notifyClients(ProxyWidget oldWidget) {
             _applyParentData((ParentDataWidget<T>) widget);
@@ -3053,8 +3045,8 @@ namespace Unity.UIWidgets.widgets {
     public abstract class RenderObjectElement : Element {
         protected RenderObjectElement(RenderObjectWidget widget) : base(widget) {
         }
-
-        public new virtual RenderObjectWidget widget {
+        
+        public new RenderObjectWidget widget {
             get { return (RenderObjectWidget) base.widget; }
         }
 

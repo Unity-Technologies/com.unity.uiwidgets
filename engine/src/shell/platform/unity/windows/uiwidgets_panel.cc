@@ -40,6 +40,16 @@ void* UIWidgetsPanel::OnEnable(size_t width,
                               size_t height, float device_pixel_ratio,
                               const char* streaming_assets_path,
                               const char* settings) {
+
+	fml::AutoResetWaitableEvent latch;
+  std::thread::id gfx_worker_thread_id;
+  UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
+      [&latch, &gfx_worker_thread_id]() -> void {
+        gfx_worker_thread_id = std::this_thread::get_id();
+        latch.Signal();
+      });
+  latch.Wait();
+
   surface_manager_ = std::make_unique<UnitySurfaceManager>(
       UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
 
@@ -49,16 +59,7 @@ void* UIWidgetsPanel::OnEnable(size_t width,
   void* d3dtexture = surface_manager_->GetD3DInnerTexture();
   
   surface_manager_->ClearCurrent();
-
-  fml::AutoResetWaitableEvent latch;
-  std::thread::id gfx_worker_thread_id;
-  UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
-      [&latch, &gfx_worker_thread_id]() -> void {
-        gfx_worker_thread_id = std::this_thread::get_id();
-        latch.Signal();
-      });
-  latch.Wait();
-
+  
   gfx_worker_task_runner_ = std::make_unique<GfxWorkerTaskRunner>(
       gfx_worker_thread_id, [this](const auto* task) {
         if (UIWidgetsEngineRunTask(engine_, task) != kSuccess) {
@@ -253,7 +254,7 @@ void* UIWidgetsPanel::OnRenderTexture(size_t width,
 bool UIWidgetsPanel::ReleaseNativeRenderTexture() { return surface_manager_->ReleaseNativeRenderTexture(); }
 
 int UIWidgetsPanel::RegisterTexture(void* native_texture_ptr) {
-  int texture_identifier = 0;
+  static int texture_identifier = 0;
   texture_identifier++;
 
   auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
@@ -403,7 +404,7 @@ void UIWidgetsPanel::SendPointerEventWithData(
   }
 }
 
-void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown) {
+void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown, int64_t modifier) {
   if (process_events_) {
     UIWidgetsPointerEvent event = {};
     event.phase = isKeyDown ? UIWidgetsPointerPhase::kMouseDown : UIWidgetsPointerPhase::kMouseUp;
@@ -415,6 +416,7 @@ void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown) {
         std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::high_resolution_clock::now().time_since_epoch())
             .count();
+    event.modifier = modifier;
 
     UIWidgetsEngineSendPointerEvent(engine_, &event, 1);
   }
@@ -429,6 +431,32 @@ void UIWidgetsPanel::OnMouseMove(float x, float y) {
 void UIWidgetsPanel::OnScroll(float x, float y, float px, float py) {
   if (process_events_) {
     SendScroll(x, y, px, py);
+  }
+}
+
+void UIWidgetsPanel::OnDragUpdateInEditor(float x, float y)
+{
+  if (process_events_) {
+    UIWidgetsPointerEvent event = {};
+    event.x = x;
+    event.y = y;
+    SetEventPhaseFromCursorButtonState(&event);
+    event.signal_kind = UIWidgetsPointerSignalKind::kUIWidgetsPointerSignalKindEditorDragUpdate;
+
+    SendPointerEventWithData(event);
+  }
+}
+
+void UIWidgetsPanel::OnDragReleaseInEditor(float x, float y)
+{
+  if (process_events_) {
+    UIWidgetsPointerEvent event = {};
+    event.x = x;
+    event.y = y;
+    SetEventPhaseFromCursorButtonState(&event);
+    event.signal_kind = UIWidgetsPointerSignalKind::kUIWidgetsPointerSignalKindEditorDragRelease;
+
+    SendPointerEventWithData(event);
   }
 }
 
@@ -523,8 +551,8 @@ UIWidgetsPanel_unregisterTexture(UIWidgetsPanel* panel, int texture_id) {
 
 
 UIWIDGETS_API(void)
-UIWidgetsPanel_onKey(UIWidgetsPanel* panel, int keyCode, bool isKeyDown) {
-  panel->OnKeyDown(keyCode, isKeyDown);
+UIWidgetsPanel_onKey(UIWidgetsPanel* panel, int keyCode, bool isKeyDown, int64_t modifier) {
+  panel->OnKeyDown(keyCode, isKeyDown, modifier);
 }
 
 UIWIDGETS_API(void)
@@ -568,4 +596,21 @@ UIWIDGETS_API(void)
 UIWidgetsPanel_onScroll(UIWidgetsPanel* panel, float x, float y, float px, float py) {
   panel->OnScroll(x, y, px, py);
 }
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onDragUpdateInEditor(UIWidgetsPanel* panel, float x, float y) {
+  if (!panel->NeedUpdateByEditorLoop()) {
+    return;
+  }
+  panel->OnDragUpdateInEditor(x, y);
+}
+
+UIWIDGETS_API(void)
+UIWidgetsPanel_onDragReleaseInEditor(UIWidgetsPanel* panel, float x, float y) {
+  if (!panel->NeedUpdateByEditorLoop()) {
+    return;
+  }
+  panel->OnDragReleaseInEditor(x, y);
+}
+
 }  // namespace uiwidgets

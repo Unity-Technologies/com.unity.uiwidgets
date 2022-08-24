@@ -9,7 +9,7 @@ namespace Unity.UIWidgets.rendering {
         
            
         public int _alpha { get; set;}
-        public new bool alwaysNeedsCompositing {
+        protected override bool alwaysNeedsCompositing {
             get { return child != null && _currentlyNeedsCompositing;}
         }
          public bool _currentlyNeedsCompositing { get;set; }
@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.rendering {
             properties.add(new FlagProperty("alwaysIncludeSemantics", value: alwaysIncludeSemantics, ifTrue: "alwaysIncludeSemantics"));
         }
         
-        public bool debugValidateChild(RenderObject child) {
+        public override bool debugValidateChild(RenderObject child) {
             D.assert(() => {
                 if (!(child is ChildType)) {
                     throw new UIWidgetsError(new List<DiagnosticsNode>{
@@ -128,7 +128,7 @@ namespace Unity.UIWidgets.rendering {
             return true;
         }
         
-        public ChildType child { get; set; }
+        public new ChildType child { get; set; }
         
         RenderObject RenderObjectWithChildMixin.child {
             get { return child; }

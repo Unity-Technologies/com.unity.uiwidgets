@@ -28,18 +28,22 @@ namespace Unity.UIWidgets.widgets {
             return  new _InheritedNotifierElement<T>(this);
         }
     }
-    public class _InheritedNotifierElement<T> : InheritedElement where T : Listenable{ 
+    public class _InheritedNotifierElement<T> : InheritedElement where T : Listenable
+    { 
         public _InheritedNotifierElement(InheritedNotifier<T> widget) : base(widget) {
             widget.notifier?.addListener(_handleUpdate);
         }
-
+        
         public new InheritedNotifier<T> widget {
             get {
                 return base.widget as InheritedNotifier<T>;
             }
         }
 
-        public bool _dirty = false;
+        //In flutter this variable is named as _dirty and hides the property of its parent with the name variable name
+        //We give it a new name, i.e., _notifier_dirty in UIWidgets so that the code looks more clear
+        bool _notifier_dirty = false;
+
         public override void update( Widget newWidget) {
             newWidget = (InheritedNotifier<T>) newWidget;
             T oldNotifier = widget.notifier;
@@ -52,19 +56,19 @@ namespace Unity.UIWidgets.widgets {
         }
 
         protected override Widget build() {
-            if (_dirty)
+            if (_notifier_dirty)
               notifyClients(widget);
             return base.build();
         }
         void _handleUpdate() {
-            _dirty = true;
+            _notifier_dirty = true;
             markNeedsBuild();
         }
 
         public override void notifyClients(ProxyWidget oldWidget) {
             oldWidget = (InheritedNotifier<T>) oldWidget; 
             base.notifyClients(oldWidget);
-            _dirty = false;
+            _notifier_dirty = false;
         }
         public override void unmount() {
             widget.notifier?.removeListener(_handleUpdate);

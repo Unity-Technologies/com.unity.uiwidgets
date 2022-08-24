@@ -61,7 +61,7 @@ namespace Unity.UIWidgets.widgets {
         public readonly DragStartBehavior dragStartBehavior;
         public readonly ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
 
-        protected AxisDirection getDirection(BuildContext context) {
+        protected AxisDirection? getDirection(BuildContext context) {
             return LayoutUtils.getAxisDirectionFromAxisReverseAndDirectionality(
                 context, scrollDirection, reverse);
         }
@@ -71,7 +71,7 @@ namespace Unity.UIWidgets.widgets {
         protected virtual Widget buildViewport(
             BuildContext context,
             ViewportOffset offset,
-            AxisDirection axisDirection,
+            AxisDirection? axisDirection,
             List<Widget> slivers
         ) {
             if (shrinkWrap) {
@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override Widget build(BuildContext context) {
             List<Widget> slivers = buildSlivers(context);
-            AxisDirection axisDirection = getDirection(context);
+            AxisDirection? axisDirection = getDirection(context);
 
             ScrollController scrollController = primary ? PrimaryScrollController.of(context) : controller;
 
@@ -571,6 +571,7 @@ namespace Unity.UIWidgets.widgets {
             cacheExtent: cacheExtent
         ) {
             D.assert(gridDelegate != null);
+            this.gridDelegate = gridDelegate;
             childrenDelegate = new SliverChildListDelegate(
                 children ?? new List<Widget>(),
                 addAutomaticKeepAlives: addAutomaticKeepAlives,

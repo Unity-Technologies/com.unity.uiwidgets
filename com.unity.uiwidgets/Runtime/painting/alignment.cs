@@ -49,7 +49,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static AlignmentGeometry lerp(AlignmentGeometry a, AlignmentGeometry b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)
@@ -391,7 +390,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public static AlignmentDirectional lerpAlignmentDirectional(AlignmentDirectional a, AlignmentDirectional b, float t) {
-            D.assert(t != null);
             if (a == null && b == null)
                 return null;
             if (a == null)
@@ -513,7 +511,6 @@ namespace Unity.UIWidgets.painting {
 
     public class TextAlignVertical {
         public TextAlignVertical(float y) {
-            D.assert(y != null);
             D.assert(y >= -1.0 && y <= 1.0);
             this.y = y;
         }

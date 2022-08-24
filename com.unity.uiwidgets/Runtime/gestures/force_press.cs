@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.gestures {
@@ -30,8 +27,7 @@ namespace Unity.UIWidgets.gestures {
             Offset localPosition = null
         ) {
             D.assert(globalPosition != null);
-            D.assert(pressure != null);
-            localPosition = localPosition ?? globalPosition;
+            this.localPosition = localPosition ?? globalPosition;
             this.globalPosition = globalPosition;
             this.pressure = pressure;
         }
@@ -50,9 +46,6 @@ namespace Unity.UIWidgets.gestures {
             GestureForceInterpolation interpolation = null )
             : base(debugOwner: debugOwner, kind: kind) {
             interpolation = interpolation ?? _inverseLerp;
-            D.assert(startPressure != null);
-            D.assert(peakPressure != null);
-            D.assert(interpolation != null);
             D.assert(peakPressure > startPressure);
             this.startPressure = startPressure;
             this.peakPressure = peakPressure;
@@ -71,7 +64,7 @@ namespace Unity.UIWidgets.gestures {
         float _lastPressure;
         _ForceState _state = _ForceState.ready;
 
-        public override void addAllowedPointer(PointerDownEvent Event) {
+        public override void addAllowedPointer(PointerEvent Event) {
             if (!(Event is PointerUpEvent) && Event.pressureMax <= 1.0f) {
                 resolve(GestureDisposition.rejected);
             }

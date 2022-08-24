@@ -46,7 +46,7 @@ namespace UIWidgetsGallery.gallery {
                                     context: context,
                                     del: this._delegate
                                 ).then_((selected) => {
-                                    if (selected != null && (int) selected != this._lastIntegerSelected) {
+                                    if (selected != this._lastIntegerSelected) {
                                         this.setState(() => { this._lastIntegerSelected = (int) selected; });
                                     }
                                 });

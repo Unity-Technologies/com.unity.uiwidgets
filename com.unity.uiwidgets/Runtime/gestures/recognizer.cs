@@ -37,7 +37,7 @@ namespace Unity.UIWidgets.gestures {
             }
         }
 
-        public abstract void addAllowedPointer(PointerDownEvent evt);
+        public abstract void addAllowedPointer(PointerEvent evt);
 
         protected virtual void handleNonAllowedPointer(PointerDownEvent evt) {
         }
@@ -109,7 +109,7 @@ namespace Unity.UIWidgets.gestures {
                     return true;
                 });
 
-                
+                callback();
             }
             catch (Exception ex) {
                 IEnumerable<DiagnosticsNode> infoCollector() {
@@ -283,14 +283,16 @@ namespace Unity.UIWidgets.gestures {
 
         Timer _timer;
 
-        public override void addAllowedPointer(PointerDownEvent evt) {
-            startTrackingPointer(evt.pointer, evt.transform);
+        public override void addAllowedPointer(PointerEvent evt) {
+            var _evt = (PointerDownEvent) evt;
+            D.assert(_evt != null);
+            startTrackingPointer(_evt.pointer, _evt.transform);
             if (state == GestureRecognizerState.ready) {
                 state = GestureRecognizerState.possible;
-                primaryPointer = evt.pointer;
-                initialPosition = new OffsetPair(local: evt.localPosition, global: evt.position);
+                primaryPointer = _evt.pointer;
+                initialPosition = new OffsetPair(local: _evt.localPosition, global: _evt.position);
                 if (deadline != null) {
-                    _timer = Timer.create(deadline.Value, () => didExceedDeadlineWithEvent(evt));
+                    _timer = Timer.create(deadline.Value, () => didExceedDeadlineWithEvent(_evt));
                 }
             }
         }

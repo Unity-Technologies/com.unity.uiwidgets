@@ -25,7 +25,7 @@ namespace Unity.UIWidgets.cupertino {
             EdgeInsetsGeometry padding = null,
             Color color = null,
             Color disabledColor = null,
-            float minSize = 44.0f,
+            float? minSize = 44.0f,
             float pressedOpacity = 0.4f,
             BorderRadius borderRadius = null,
             VoidCallback onPressed = null
@@ -47,7 +47,7 @@ namespace Unity.UIWidgets.cupertino {
             Widget child = null,
             EdgeInsetsGeometry padding = null,
             Color disabledColor = null,
-            float minSize = 44.0f,
+            float? minSize = 44.0f,
             float pressedOpacity = 0.4f,
             BorderRadius borderRadius = null,
             VoidCallback onPressed = null
@@ -79,7 +79,7 @@ namespace Unity.UIWidgets.cupertino {
 
         public readonly VoidCallback onPressed;
 
-        public readonly float minSize;
+        public readonly float? minSize;
 
         public readonly float pressedOpacity;
 
@@ -214,8 +214,8 @@ namespace Unity.UIWidgets.cupertino {
                     constraints: widget.minSize == null
                     ? new BoxConstraints() : 
                     new BoxConstraints(
-                        minWidth: widget.minSize,
-                        minHeight: widget.minSize
+                        minWidth: widget.minSize.Value,
+                        minHeight: widget.minSize.Value
                     ),
                     child: new FadeTransition(
                         opacity: _opacityAnimation,

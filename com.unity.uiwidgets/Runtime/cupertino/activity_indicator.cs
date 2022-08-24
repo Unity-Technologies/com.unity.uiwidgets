@@ -32,14 +32,14 @@ namespace Unity.UIWidgets.cupertino {
     public class CupertinoActivityIndicator : StatefulWidget {
         public CupertinoActivityIndicator(
             Key key = null,
-            bool animating = true,
-            float radius = CupertinoActivityIndicatorUtils._kDefaultIndicatorRadius
+            bool? animating = true,
+            float? radius = CupertinoActivityIndicatorUtils._kDefaultIndicatorRadius
         ) : base(key: key) {
             D.assert(animating != null);
             D.assert(radius != null);
             D.assert(radius > 0);
-            this.animating = animating;
-            this.radius = radius;
+            this.animating = animating.Value;
+            this.radius = radius.Value;
         }
 
         public readonly bool animating;

@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.widgets {
         }
     }
     class _FocusScopeState : _FocusState {
-        public FocusScopeNode _createNode() {
+        protected override FocusNode _createNode() {
             return new FocusScopeNode(
                 debugLabel: widget.debugLabel,
                 canRequestFocus: widget.canRequestFocus ?? true,
@@ -174,7 +174,7 @@ namespace Unity.UIWidgets.widgets {
             _focusAttachment = focusNode.attach(context, onKey: widget.onKey);
             focusNode.addListener(_handleFocusChanged);
          }
-        public FocusNode _createNode() { 
+        protected virtual FocusNode _createNode() { 
             return new FocusNode(
             debugLabel: widget.debugLabel,
             canRequestFocus: widget.canRequestFocus ?? true,

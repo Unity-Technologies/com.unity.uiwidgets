@@ -5,6 +5,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using Font = Unity.UIWidgets.engine.Font;
 using Rect = UnityEngine.Rect;
 
@@ -14,6 +15,17 @@ namespace Unity.UIWidgets.Editor {
         Configurations _configurations;
         bool _ShowDebugLog;
         UIWidgetsPanelWrapper _wrapper;
+
+        /*
+         * In order to wait for the Editor to starts properly before showing the UIWidgets panel,
+         * which is essential when we are using EditorMode (https://github.com/Unity-Technologies/unity-editor-core/wiki/EditorModes,
+         * available for Unity stuff only) to make an UIWidgets panel as an initial window of the Editor,
+         * we add this flag so that the UI will wait for one frame (which seems to be enough for Unity Editor to starts properly)
+         * before generating the UIWidgets panel
+         */
+        bool _needWaitToEnable = true;
+        
+        Material _uiMaterial = null;
 
         int _currentWidth {
             get { return Mathf.RoundToInt(f: position.size.x); }
@@ -30,39 +42,99 @@ namespace Unity.UIWidgets.Editor {
                 return devicePixelRatioEditorOnlyOverride ?? EditorGUIUtility.pixelsPerPoint; }
         }
 
+        protected virtual void OnUpdate() {
+            
+        }
+
         void Update() {
+            if (_needWaitToEnable) {
+                return;
+            }
+            
+            OnUpdate();
             _wrapper.onEditorUpdate();
         }
 
-        void OnEnable() {
+        IEnumerator DoEnableAfterOneFrame() {
+            yield return null;
+
+            _needWaitToEnable = false;
+            DoOnEnable();
+        }
+
+        void DoOnEnable() {
             D.assert(_wrapper == null);
+
+            //enable listener to MouseMoveEvents by default
+            //user can disable it in onEnable() if needed
+            wantsMouseMove = true;
+            
             _configurations = new Configurations();
             _wrapper = new UIWidgetsPanelWrapper();
             onEnable();
             _wrapper.Initiate(this, width: _currentWidth, height: _currentHeight, dpr: _currentDevicePixelRatio,
                 _configurations: _configurations);
             _configurations.Clear();
+
+            if (_wrapper.requireColorspaceShader) {
+                _uiMaterial = AssetDatabase.LoadAssetAtPath<Material>("Packages/com.unity.uiwidgets/Resources/uiwidgets_ui.mat");
+            }
+            
             Input_OnEnable();
+        }
+        
+#if UNITY_EDITOR_OSX
+        void TryInitializeOpenGLCoreOnMacEditor() {
+            var type = SystemInfo.graphicsDeviceType;
+            if (type != GraphicsDeviceType.OpenGLCore) {
+                return;
+            }
+            OpenGLCoreUtil.RenderTextureCreateFailureWorkaround();
+            OpenGLCoreUtil.Init();
+        }
+#endif
+        
+        void OnEnable() {
+            _needWaitToEnable = true;
+#if UNITY_EDITOR_OSX
+            TryInitializeOpenGLCoreOnMacEditor();
+#endif
+            startCoroutine(DoEnableAfterOneFrame());
         }
 
         void OnDestroy() {
             D.assert(_wrapper != null);
             _wrapper?.Destroy();
             _wrapper = null;
+
+            _needWaitToEnable = true;
             Input_OnDisable();
         }
 
+        protected virtual void onGUI() {
+            
+        }
+        
         void OnGUI() {
             if (_wrapper != null) {
                 if (_wrapper.didDisplayMetricsChanged(width: _currentWidth, height: _currentHeight,
                     dpr: _currentDevicePixelRatio)) {
                     _wrapper.OnDisplayMetricsChanged(width: _currentWidth, height: _currentHeight,
                         dpr: _currentDevicePixelRatio);
+                    //don't show the UI when we are still resizing the window
+                    return;
                 }
-
-                GUI.DrawTexture(new Rect(0.0f, 0.0f, width: position.width, height: position.height),
-                    image: _wrapper.renderTexture);
+                
+                if (_wrapper.renderTexture == null) {
+                    return;
+                }
+                
+                EditorGUI.DrawPreviewTexture(new Rect(0.0f, 0.0f, width: position.width, height: position.height),
+                    image: _wrapper.renderTexture, mat: _uiMaterial);
                 Input_OnGUIEvent(evt: Event.current);
+
+                //user customized onGUI logics goes here
+                onGUI();
             }
         }
 
@@ -147,6 +219,14 @@ namespace Unity.UIWidgets.Editor {
                 delta.y /= 3f;
                 var pos = _getPointerPosition(position: evt.mousePosition);
                 _wrapper.OnMouseScroll(delta: delta, pos: pos);
+            }
+            else if (evt.type == EventType.DragUpdated) {
+                var pos = _getPointerPosition(position: evt.mousePosition);
+                _wrapper.OnDragUpdateInEditor(pos: pos);
+            }
+            else if (evt.type == EventType.DragPerform || evt.type == EventType.DragExited) {
+                var pos = _getPointerPosition(position: evt.mousePosition);
+                _wrapper.OnDragReleaseInEditor(pos: pos);
             }
             else if (evt.isKey) {
                 _wrapper.OnKeyDown(e: evt);

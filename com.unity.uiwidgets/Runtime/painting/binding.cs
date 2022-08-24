@@ -15,7 +15,7 @@ namespace Unity.UIWidgets.painting {
                 shaderWarmUp.execute();
             }
         }
-
+        
         public new static PaintingBinding instance {
             get { return (PaintingBinding) ServicesBinding.instance; }
             set { Window.instance._binding = value; }

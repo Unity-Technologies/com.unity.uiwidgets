@@ -90,7 +90,6 @@ namespace Unity.UIWidgets.rendering {
 
     public interface RenderAnimatedOpacityMixin<T> : RenderObjectWithChildMixin<T> where T : RenderObject {
         int _alpha { get; set; }
-        bool alwaysNeedsCompositing { get; }
         bool _currentlyNeedsCompositing { get; set; }
         Animation<float> _opacity { get; set; }
 
@@ -763,16 +762,18 @@ namespace Unity.UIWidgets.rendering {
         public override void paint(PaintingContext context, Offset offset) {
             if (child != null) {
                 if (_alpha == 0) {
+                    layer = null;
                     return;
                 }
 
                 if (_alpha == 255) {
+                    layer = null;
                     context.paintChild(child, offset);
                     return;
                 }
-
+                
                 D.assert(needsCompositing);
-                context.pushOpacity(offset, _alpha, base.paint);
+                layer = context.pushOpacity(offset, _alpha, base.paint, layer as OpacityLayer);
             }
         }
 
@@ -2385,17 +2386,17 @@ namespace Unity.UIWidgets.rendering {
 
         public bool _annotationIsActive;
 
-        public bool needsCompositing {
+        public override bool needsCompositing {
             get { return base.needsCompositing || _annotationIsActive; }
         }
-
+        
         public override void paint(PaintingContext context, Offset offset) {
             if (_annotationIsActive) {
-                AnnotatedRegionLayer<MouseTrackerAnnotation> layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
+                var layer = new AnnotatedRegionLayer<MouseTrackerAnnotation>(
                     _hoverAnnotation,
                     size: size,
                     offset: offset,
-                    opaque: opaque // TODO
+                    opaque: opaque
                 );
                 context.pushLayer(layer, base.paint, offset);
             }

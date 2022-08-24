@@ -71,7 +71,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) : base(key: key, child: child) {
             D.assert(shaderCallback != null);
-            D.assert(blendMode != null);
             this.shaderCallback = shaderCallback;
             this.blendMode = blendMode;
         }
@@ -172,7 +171,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.hardEdge,
             Widget child = null
         ) : base(key: key, child: child) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -255,7 +253,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null) : base(key: key, child: child
         ) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -294,7 +291,6 @@ namespace Unity.UIWidgets.widgets {
             Clip clipBehavior = Clip.antiAlias,
             Widget child = null
         ) : base(key: key, child: child) {
-            D.assert(clipBehavior != null);
             this.clipper = clipper;
             this.clipBehavior = clipBehavior;
         }
@@ -306,7 +302,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null
         ) {
             D.assert(shape != null);
-            D.assert(clipBehavior != null);
             D.assert(clipBehavior != Clip.none);
             return new Builder(
                 key: key,
@@ -366,7 +361,6 @@ namespace Unity.UIWidgets.widgets {
             Widget child = null) : base(key: key, child: child) {
             D.assert(color != null);
             D.assert(elevation >= 0.0f);
-            D.assert(clipBehavior != null);
             this.shape = shape;
             this.clipBehavior = clipBehavior;
             this.borderRadius = borderRadius;
@@ -1402,7 +1396,6 @@ namespace Unity.UIWidgets.widgets {
             bool opaque = true,
             Widget child = null
         ) : base(key: key) {
-            D.assert(opaque != null);
             this.onEnter = onEnter;
             this.onExit = onExit;
             this.onHover = onHover;
@@ -1475,7 +1468,7 @@ namespace Unity.UIWidgets.widgets {
 
         public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
             RenderMouseRegion _renderObject = (RenderMouseRegion) renderObject;
-            MouseRegion widget = owner.widget;
+            MouseRegion widget = owner.widget; 
             _renderObject.onEnter = widget.onEnter;
             _renderObject.onHover = widget.onHover;
             _renderObject.onExit = owner.getHandleExit();
@@ -2073,7 +2066,7 @@ namespace Unity.UIWidgets.widgets {
 
 
     public static class LayoutUtils {
-        public static AxisDirection getAxisDirectionFromAxisReverseAndDirectionality(
+        public static AxisDirection? getAxisDirectionFromAxisReverseAndDirectionality(
             BuildContext context,
             Axis axis,
             bool reverse
@@ -2082,7 +2075,7 @@ namespace Unity.UIWidgets.widgets {
                 case Axis.horizontal:
                     D.assert(WidgetsD.debugCheckHasDirectionality(context));
                     TextDirection textDirection = Directionality.of(context);
-                    AxisDirection axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
+                    AxisDirection? axisDirection = AxisUtils.textDirectionToAxisDirection(textDirection);
                     return reverse ? AxisUtils.flipAxisDirection(axisDirection) : axisDirection;
                 case Axis.vertical:
                     return reverse ? AxisDirection.up : AxisDirection.down;
@@ -2091,38 +2084,38 @@ namespace Unity.UIWidgets.widgets {
             throw new Exception("unknown axisDirection");
         }
     }
-
-
-    /*public class Flow : MultiChildRenderObjectWidget {
-      
+    
+    public class Flow : MultiChildRenderObjectWidget {
         public Flow(
             Key key = null,
             FlowDelegate _delegate = null,
             List<Widget> children = null
-            ) 
-            : base(key: key, children: RepaintBoundary.wrapAll(children ?? new List<Widget>())) {
-                D.assert(_delegate != null);
-            }
+            ) : base(key: key, children: children == null ? new List<Widget>() : new List<Widget>(RepaintBoundary.wrapAll(children))) 
+        {
+            D.assert(_delegate != null);
+            this._delegate = _delegate;
+        }
            
-        public static Flow unwrapped(
-                Key key = null,
-                FlowDelegate _delegate = null,
-                List<Widget> children = null
-            ) : base(key: key, children: children) {
-                    D.assert(_delegate != null);
-                }
+        public Flow(
+            bool unwrapped,
+            Key key = null,
+            FlowDelegate _delegate = null,
+            List<Widget> children = null
+            ) : base(key: key, children: children ?? new List<Widget>()) 
+        {
+            D.assert(_delegate != null);
+            this._delegate = _delegate;
+        }
+        
+        private readonly FlowDelegate _delegate;
 
-            /// The delegate that controls the transformation matrices of the children.
-            public readonly FlowDelegate _delegate;
-
-            
-            public override RenderFlow createRenderObject(BuildContext context) => RenderFlow(_delegate: _delegate);
+        public override RenderObject createRenderObject(BuildContext context) => new RenderFlow(del: _delegate);
                 
-            public override void updateRenderObject(BuildContext context, RenderFlow renderObject) {
-                renderObject._delegate = _delegate;
-            }
-    }*/
-
+        public override void updateRenderObject(BuildContext context, RenderObject renderObject) {
+            var renderFlow = renderObject as RenderFlow;
+            renderFlow.del = _delegate;
+        }
+    }
 
     public class RichText : MultiChildRenderObjectWidget {
         public RichText(
@@ -2485,7 +2478,7 @@ namespace Unity.UIWidgets.widgets {
             PointerUpEventListener onPointerUp = null,
             PointerCancelEventListener onPointerCancel = null,
             PointerSignalEventListener onPointerSignal = null,
-            HitTestBehavior behavior = HitTestBehavior.deferToChild,
+            HitTestBehavior? behavior = HitTestBehavior.deferToChild,
             Widget child = null
         ) :
             base(key: key, child: child) {
@@ -2495,7 +2488,7 @@ namespace Unity.UIWidgets.widgets {
             this.onPointerUp = onPointerUp;
             this.onPointerCancel = onPointerCancel;
             this.onPointerSignal = onPointerSignal;
-            this.behavior = behavior;
+            this.behavior = behavior.Value;
         }
 
         public readonly PointerDownEventListener onPointerDown;

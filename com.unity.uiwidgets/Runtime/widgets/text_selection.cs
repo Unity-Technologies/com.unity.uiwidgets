@@ -9,7 +9,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Object = System.Object;
 using Rect = Unity.UIWidgets.ui.Rect;
@@ -139,14 +138,14 @@ namespace Unity.UIWidgets.widgets {
             LayerLink endHandleLayerLink = null,
             RenderEditable renderObject = null,
             TextSelectionControls selectionControls = null,
-            bool handlesVisible = false,
+            bool? handlesVisible = false,
             TextSelectionDelegate selectionDelegate = null,
             DragStartBehavior dragStartBehavior = DragStartBehavior.start, 
             VoidCallback onSelectionHandleTapped = null) {
             D.assert(value != null);
             D.assert(context != null);
             D.assert(handlesVisible != null);
-            _handlesVisible = handlesVisible;
+            _handlesVisible = handlesVisible.Value;
             this.context = context;
             this.debugRequiredFor = debugRequiredFor;
             this.toolbarLayerLink = toolbarLayerLink;
@@ -203,7 +202,6 @@ namespace Unity.UIWidgets.widgets {
                 return _handlesVisible;
             }
             set {
-                D.assert(value != null);
                 if (_handlesVisible == value)
                     return;
                 _handlesVisible = value;
@@ -523,10 +521,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public override Widget build(BuildContext context) {
-            List<TextSelectionPoint> endpoints =
-                widget.renderObject.getEndpointsForSelection(widget.selection);
-            Offset point = null;
-            
             LayerLink layerLink = null;
             TextSelectionHandleType type = TextSelectionHandleType.left;
 
@@ -581,25 +575,31 @@ namespace Unity.UIWidgets.widgets {
                 showWhenUnlinked: false,
                 child: new FadeTransition(
                     opacity: _opacity,
-                    child: new GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        dragStartBehavior: widget.dragStartBehavior,
-                        onPanStart: _handleDragStart,
-                        onPanUpdate: _handleDragUpdate,
-                        onTap: _handleTap,
-                        child: new Padding(
-                            padding: EdgeInsets.only(
-                                left: padding.left,
-                                top: padding.top,
-                                right: padding.right,
-                                bottom: padding.bottom
-                                ), 
-                            child: widget.selectionControls.buildHandle(context, type,
-                                widget.renderObject.preferredLineHeight)
+                    child: new Container(
+                        alignment: Alignment.topLeft,
+                        width: interactiveRect.width,
+                        height: interactiveRect.height,
+                        child: new GestureDetector(
+                            behavior: HitTestBehavior.translucent,
+                            dragStartBehavior: widget.dragStartBehavior,
+                            onPanStart: _handleDragStart,
+                            onPanUpdate: _handleDragUpdate,
+                            onTap: _handleTap,
+                            child: new Padding(
+                                padding: EdgeInsets.only(
+                                    left: padding.left,
+                                    top: padding.top,
+                                    right: padding.right,
+                                    bottom: padding.bottom
+                                ),
+                                child: widget.selectionControls.buildHandle(context, type,
+                                    widget.renderObject.preferredLineHeight)
+                            )
                         )
                     )
                 )
             );
+
         }
 
         TextSelectionHandleType _chooseType(
@@ -644,7 +644,7 @@ namespace Unity.UIWidgets.widgets {
         }
         protected void onTapDown(TapDownDetails details) {
             renderEditable.handleTapDown(details);
-            PointerDeviceKind kind = details.kind;
+            PointerDeviceKind? kind = details.kind;
             _shouldShowSelectionToolbar = kind == null
                               || kind == PointerDeviceKind.touch
                               || kind == PointerDeviceKind.stylus;

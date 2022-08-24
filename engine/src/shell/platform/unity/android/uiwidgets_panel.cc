@@ -10,6 +10,7 @@
 #include "shell/common/switches.h"
 #include "shell/platform/embedder/embedder_engine.h"
 #include "uiwidgets_system.h"
+#include "unity_external_texture_gl.h"
 #include "third_party/Unity/IUnityGraphics.h"
 
 namespace uiwidgets
@@ -43,14 +44,6 @@ namespace uiwidgets
                                 const char *streaming_assets_path,
                                 const char *settings)
   {
-    surface_manager_ = std::make_unique<UnitySurfaceManager>(
-        UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
-
-    FML_DCHECK(fbo_ == 0);
-    surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
-    fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
-    surface_manager_->ClearCurrent();
-
     fml::AutoResetWaitableEvent latch;
     std::thread::id gfx_worker_thread_id;
     UIWidgetsSystem::GetInstancePtr()->PostTaskToGfxWorker(
@@ -59,6 +52,14 @@ namespace uiwidgets
           latch.Signal();
         });
     latch.Wait();
+    
+    surface_manager_ = std::make_unique<UnitySurfaceManager>(
+        UIWidgetsSystem::GetInstancePtr()->GetUnityInterfaces());
+
+    FML_DCHECK(fbo_ == 0);
+    surface_manager_->MakeCurrent(EGL_NO_DISPLAY);
+    fbo_ = surface_manager_->CreateRenderSurface(native_texture_ptr);
+    surface_manager_->ClearCurrent();
 
     gfx_worker_task_runner_ = std::make_unique<GfxWorkerTaskRunner>(
         gfx_worker_thread_id, [this](const auto *task) {
@@ -146,14 +147,6 @@ namespace uiwidgets
     args.font_asset = settings;
 
     args.icu_mapper = GetICUStaticMapping;
-
-    // // Used for IOS build
-    // // std::string icu_symbol_prefix = "_binary_icudtl_dat_start";
-    // // std::string native_lib_path =
-    // // "pathtodll/Plugins/x86_64/libUIWidgets_d.dll"; args.icu_mapper =
-    // // [icu_symbol_prefix, native_lib_path] {
-    // //  return GetSymbolMapping(icu_symbol_prefix, native_lib_path);
-    // // };
     args.command_line_argc = 0;
     args.command_line_argv = nullptr;
 
@@ -263,26 +256,20 @@ namespace uiwidgets
     metrics.physical_height = static_cast<float>(height);
     metrics.device_pixel_ratio = device_pixel_ratio;
     reinterpret_cast<EmbedderEngine *>(engine_)->SetViewportMetrics(metrics);
-  }
+  } 
 
   int UIWidgetsPanel::RegisterTexture(void *native_texture_ptr)
   {
-    std::cerr << "registering external texture is not implemented for android" << std::endl;
-    int texture_identifier = 0;
-    // texture_identifier++;
-
-    // auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
-
-    // engine->GetShell().GetPlatformView()->RegisterTexture(
-    //     std::make_unique<UnityExternalTextureGL>(
-    //         texture_identifier, native_texture_ptr, surface_manager_.get()));
+    int64_t texture_identifier = reinterpret_cast<int64_t>(native_texture_ptr);
+    auto* engine = reinterpret_cast<EmbedderEngine*>(engine_);
+    engine->GetShell().GetPlatformView()->RegisterTexture(
+         std::make_unique<UnityExternalTextureGL>(
+             texture_identifier));
     return texture_identifier;
   }
 
   void UIWidgetsPanel::UnregisterTexture(int texture_id)
   {
-    std::cerr << "registering external texture is not implemented for android" << std::endl;
-
     auto *engine = reinterpret_cast<EmbedderEngine *>(engine_);
     engine->GetShell().GetPlatformView()->UnregisterTexture(texture_id);
   }
@@ -363,7 +350,7 @@ PointerData::DeviceKind UIWidgetsPanel::DeviceKindFromTouchType()
   return PointerData::DeviceKind::kTouch;
 }
 
-  void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown)
+  void UIWidgetsPanel::OnKeyDown(int keyCode, bool isKeyDown, int64_t modifier) 
   {
     if (process_events_)
     {
@@ -377,6 +364,7 @@ PointerData::DeviceKind UIWidgetsPanel::DeviceKindFromTouchType()
           std::chrono::duration_cast<std::chrono::microseconds>(
               std::chrono::high_resolution_clock::now().time_since_epoch())
               .count();
+      event.modifier = modifier;
 
       UIWidgetsEngineSendPointerEvent(engine_, &event, 1);
     }
@@ -467,9 +455,8 @@ PointerData::DeviceKind UIWidgetsPanel::DeviceKindFromTouchType()
   }
 
   UIWIDGETS_API(void)
-  UIWidgetsPanel_onKey(UIWidgetsPanel *panel, int keyCode, bool isKeyDown)
-  {
-    panel->OnKeyDown(keyCode, isKeyDown);
+  UIWidgetsPanel_onKey(UIWidgetsPanel* panel, int keyCode, bool isKeyDown, int64_t modifier) {
+    panel->OnKeyDown(keyCode, isKeyDown, modifier);
   }
 
   UIWIDGETS_API(void)

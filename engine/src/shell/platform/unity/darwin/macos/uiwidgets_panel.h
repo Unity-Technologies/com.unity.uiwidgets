@@ -35,13 +35,13 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   ~UIWidgetsPanel();
 
-  void* OnEnable(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings);
+  void* OnEnable(void *native_texture_ptr, size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings);
 
   void MonoEntrypoint();
 
   void OnDisable();
 
-  void* OnRenderTexture(size_t width, size_t height,
+  void* OnRenderTexture(void *native_texture_ptr, size_t width, size_t height,
                        float dpi);
   
   bool ReleaseNativeRenderTexture();
@@ -58,7 +58,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void SetEventLocationFromCursorPosition(UIWidgetsPointerEvent* event_data);
 
-  void OnKeyDown(int keyCode, bool isKeyDown);
+  void OnKeyDown(int keyCode, bool isKeyDown, int64_t modifier);
 
   void OnMouseMove(float x, float y);
 
@@ -70,6 +70,10 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
 
   void OnMouseLeave();
 
+  void OnDragUpdateInEditor(float x, float y);
+
+  void OnDragReleaseInEditor(float x, float y);
+
   bool NeedUpdateByPlayerLoop();
 
   bool NeedUpdateByEditorLoop();
@@ -77,7 +81,7 @@ class UIWidgetsPanel : public fml::RefCountedThreadSafe<UIWidgetsPanel> {
  private:
   UIWidgetsPanel(Mono_Handle handle, UIWidgetsWindowType window_type, EntrypointCallback entrypoint_callback);
 
-  void CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings);
+  void CreateInternalUIWidgetsEngine(size_t width, size_t height, float device_pixel_ratio, const char* streaming_assets_path, const char* settings, std::thread::id gfx_worker_thread_id);
 
   MouseState GetMouseState() { return mouse_state_; }
 

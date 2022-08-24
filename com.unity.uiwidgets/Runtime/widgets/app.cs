@@ -315,9 +315,11 @@ namespace Unity.UIWidgets.widgets {
 
         public static Dictionary<LogicalKeySet, Intent> defaultShortcuts {
             get {
+#pragma warning disable CS0162
                 if (foundation_.kIsWeb) {
                     return _defaultWebShortcuts;
                 }
+#pragma warning restore CS0162
 
                 switch (Application.platform) {
                     case RuntimePlatform.Android:

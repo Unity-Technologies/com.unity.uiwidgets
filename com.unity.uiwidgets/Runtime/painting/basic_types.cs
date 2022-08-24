@@ -47,7 +47,6 @@ namespace Unity.UIWidgets.painting {
             return null;
         }
         public static AxisDirection? textDirectionToAxisDirection(TextDirection textDirection) {
-            D.assert(textDirection != null);
             switch (textDirection) {
                 case TextDirection.rtl:
                     return AxisDirection.left;
@@ -57,7 +56,6 @@ namespace Unity.UIWidgets.painting {
             return null;
         }
         public static AxisDirection? flipAxisDirection(AxisDirection axisDirection) {
-            D.assert(axisDirection != null);
             switch (axisDirection) {
                 case AxisDirection.up:
                     return AxisDirection.down;
@@ -84,7 +82,8 @@ namespace Unity.UIWidgets.painting {
             throw new Exception("unknown axis");
         }
 
-        public static Axis axisDirectionToAxis(AxisDirection axisDirection) {
+        public static Axis? axisDirectionToAxis(AxisDirection? axisDirection) {
+            D.assert(axisDirection != null);
             switch (axisDirection) {
                 case AxisDirection.up:
                 case AxisDirection.down:
@@ -94,10 +93,10 @@ namespace Unity.UIWidgets.painting {
                     return Axis.horizontal;
             }
 
-            throw new Exception("unknown axisDirection");
+            return null;
         }
 
-        public static AxisDirection textDirectionToAxisDirection(TextDirection textDirection) {
+        public static AxisDirection? textDirectionToAxisDirection(TextDirection textDirection) {
             switch (textDirection) {
                 case TextDirection.rtl:
                     return AxisDirection.left;
@@ -105,11 +104,12 @@ namespace Unity.UIWidgets.painting {
                     return AxisDirection.right;
             }
 
-            throw new Exception("unknown textDirection");
+            return null;
         }
 
-        public static AxisDirection flipAxisDirection(AxisDirection axisDirection) {
-            switch (axisDirection) {
+        public static AxisDirection? flipAxisDirection(AxisDirection? axisDirection) {
+            D.assert(axisDirection != null);
+            switch (axisDirection.Value) {
                 case AxisDirection.up:
                     return AxisDirection.down;
                 case AxisDirection.right:
@@ -120,10 +120,11 @@ namespace Unity.UIWidgets.painting {
                     return AxisDirection.right;
             }
 
-            throw new Exception("unknown axisDirection");
+            return null;
         }
 
-        public static bool axisDirectionIsReversed(AxisDirection axisDirection) {
+        public static bool axisDirectionIsReversed(AxisDirection? axisDirection) {
+            D.assert(axisDirection != null);
             switch (axisDirection) {
                 case AxisDirection.up:
                 case AxisDirection.left:

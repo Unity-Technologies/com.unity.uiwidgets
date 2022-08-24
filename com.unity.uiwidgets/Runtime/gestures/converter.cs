@@ -36,7 +36,7 @@ namespace Unity.UIWidgets.gestures {
                 var timeStamp = datum.timeStamp;
                 var kind = datum.kind;
                 // TODO: datum.signalKind is not nullable, "else" could not be reached
-                if (datum.signalKind == null || datum.signalKind == ui.PointerSignalKind.none) {
+                if (datum.signalKind == ui.PointerSignalKind.none) {
                     switch (datum.change) {
                         case PointerChange.add: {
                             yield return new PointerAddedEvent(
@@ -200,11 +200,15 @@ namespace Unity.UIWidgets.gestures {
                                 }else if (datum.change == PointerChange.kMouseUp) {
                                     keyBoardEvent.type = EventType.KeyUp;
                                 }
-
                                 keyBoardEvent.keyCode = (KeyCode)datum.buttons;
-
-                                RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
+#if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+                                keyBoardEvent.shift = (datum.modifier & (1 << (int) FunctionKey.shift)) > 0;
+                                keyBoardEvent.alt = (datum.modifier & (1 << (int) FunctionKey.alt)) > 0;
+                                keyBoardEvent.command = (datum.modifier & (1 << (int) FunctionKey.command)) > 0;
+                                keyBoardEvent.control = (datum.modifier & (1 << (int) FunctionKey.control)) > 0;
+#endif
                                 TextInput.OnGUI();
+                                RawKeyboard.instance._handleKeyEvent(keyBoardEvent);
                             }
                             break;
                     }
@@ -225,6 +229,26 @@ namespace Unity.UIWidgets.gestures {
                         case ui.PointerSignalKind.none:
                             D.assert(false); // This branch should already have 'none' filtered out.
                             break;
+                        case ui.PointerSignalKind.editorDragMove: {
+                            yield return new PointerDragFromEditorHoverEvent(
+                                timeStamp: timeStamp,
+                                pointer: datum.pointerIdentifier,
+                                kind: kind,
+                                device: datum.device,
+                                position: position
+                            );
+                            break;
+                        }
+                        case ui.PointerSignalKind.editorDragRelease: {
+                            yield return new PointerDragFromEditorReleaseEvent(
+                                timeStamp: timeStamp,
+                                pointer: datum.pointerIdentifier,
+                                kind: kind,
+                                device: datum.device,
+                                position: position
+                            );
+                            break;
+                        }
                         case ui.PointerSignalKind.unknown:
                             // Ignore unknown signals.
                             break;

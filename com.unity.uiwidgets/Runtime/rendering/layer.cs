@@ -301,13 +301,13 @@ namespace Unity.UIWidgets.rendering {
     public class TextureLayer : Layer {
         public TextureLayer(
             Rect rect,
-            int textureId,
+            int? textureId,
             bool freeze = false
         ) {
             D.assert(rect != null);
             D.assert(textureId != null);
             this.rect = rect;
-            this.textureId = textureId;
+            this.textureId = textureId.Value;
             this.freeze = freeze;
         }
 
@@ -732,7 +732,6 @@ namespace Unity.UIWidgets.rendering {
             layerOffset = layerOffset ?? Offset.zero;
             D.assert(shader != null);
             D.assert(maskRect != null);
-            D.assert(blendMode != null);
             D.assert(layerOffset != null);
             Rect shiftedMaskRect = layerOffset == Offset.zero ? maskRect : maskRect.shift(layerOffset);
             engineLayer = builder.pushShaderMask(
@@ -848,7 +847,6 @@ namespace Unity.UIWidgets.rendering {
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
-                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -924,7 +922,6 @@ namespace Unity.UIWidgets.rendering {
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
-                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -979,7 +976,6 @@ namespace Unity.UIWidgets.rendering {
             Path clipPath = null,
             Clip clipBehavior = Clip.antiAlias
         ) {
-            D.assert(clipPath != null);
             D.assert(clipBehavior != Clip.none);
             _clipPath = clipPath;
             _clipBehavior = clipBehavior;
@@ -1002,7 +998,6 @@ namespace Unity.UIWidgets.rendering {
         public Clip clipBehavior {
             get { return _clipBehavior; }
             set {
-                D.assert(value != null);
                 D.assert(value != Clip.none);
                 if (value != _clipBehavior) {
                     _clipBehavior = value;
@@ -1226,7 +1221,6 @@ namespace Unity.UIWidgets.rendering {
         public int alpha {
             get { return _alpha; }
             set {
-                D.assert(value != null);
                 if (value != _alpha) {
                     _alpha = value;
                     markNeedsAddToScene();
@@ -1253,7 +1247,6 @@ namespace Unity.UIWidgets.rendering {
 
         public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
             layerOffset = layerOffset ?? Offset.zero;
-            D.assert(alpha != null);
             bool enabled = firstChild != null;
             D.assert(() => {
                 enabled = enabled && !D.debugDisableOpacityLayers;
@@ -1662,8 +1655,6 @@ namespace Unity.UIWidgets.rendering {
         }
 
         public override void addToScene(SceneBuilder builder, Offset layerOffset = null) {
-            D.assert(optionsMask != null);
-
             layerOffset = layerOffset ?? Offset.zero;
             
             var shiftedOverlayRect = layerOffset == Offset.zero ? overlayRect : overlayRect.shift(layerOffset);

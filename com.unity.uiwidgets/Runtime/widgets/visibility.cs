@@ -112,11 +112,6 @@ namespace Unity.UIWidgets.widgets {
             bool maintainInteractivity = false) : base (key: key) {
             replacementSliver = replacementSliver ?? new SliverToBoxAdapter();
             D.assert(sliver != null);
-            D.assert(visible != null);
-            D.assert(maintainState != null);
-            D.assert(maintainAnimation != null);
-            D.assert(maintainSize != null);
-            D.assert(maintainInteractivity != null);
             D.assert(
                 maintainState == true || maintainAnimation == false,
                 ()=>"Cannot maintain animations if the state is not also maintained."

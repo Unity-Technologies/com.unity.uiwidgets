@@ -7,11 +7,11 @@ namespace Unity.UIWidgets.widgets {
     public class TickerMode : StatelessWidget {
         public TickerMode(
             Key key = null,
-            bool enabled = true,
+            bool? enabled = true,
             Widget child = null)
             : base(key:key) {
             D.assert(enabled != null);
-            this.enabled = enabled;
+            this.enabled = enabled.Value;
             this.child = child;
         }
 

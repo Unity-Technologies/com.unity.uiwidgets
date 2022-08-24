@@ -173,6 +173,26 @@ namespace Unity.UIWidgets.painting {
 
     public abstract class ImageProvider {
         public abstract ImageStream resolve(ImageConfiguration configuration);
+        
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+
+            if (obj.GetType() != GetType()) {
+                return false;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode() {
+            return base.GetHashCode();
+        }
 
         public static bool operator ==(ImageProvider left, ImageProvider right) {
             return Equals(left, right);
@@ -770,15 +790,32 @@ namespace Unity.UIWidgets.painting {
     }
 
     public class FileImage : ImageProvider<FileImage>, IEquatable<FileImage> {
-        public FileImage(string file, float scale = 1.0f) {
+        public FileImage(string file, float scale = 1.0f, bool isAbsolutePath = false) {
             D.assert(file != null);
             this.file = file;
             this.scale = scale;
+            this.isAbsolutePath = isAbsolutePath;
         }
 
         public readonly string file;
 
         public readonly float scale;
+        
+        //This is a Unity specific parameter we added to FileImage, if you want to change this file (for example, when 
+        //you are going to upgrade UIWidgets to match a new flutter version), please remain this parameter and its 
+        //relevant logics here, which is indeed very simple!
+        //
+        //This parameter represents whether the input parameter "file" is a absolute path or not.
+        //In our original design, we require developers to put all their local image files inside the streamingAssets
+        //folder because Unity won't process them while packing (Instead if an image is put inside the Resources
+        //folder, it will be encoded into platform specific formats by Unity).
+        //This requirement is not always reasonable since developers can also put local files inside other Unity
+        //builtin paths like persistent path, etc.. For this scenario this parameter "isAbsolutePath" is introduced
+        //so that developers are able to set it true to determine the absolute file path themselves.
+        //
+        //But one issue is, if developers decide to use the absolute file path, they have to be responsible to deal with
+        //the platform relevant issues
+        private readonly bool isAbsolutePath;
 
         public override Future<FileImage> obtainKey(ImageConfiguration configuration) {
             return new SynchronousFuture<FileImage>(this);
@@ -795,11 +832,16 @@ namespace Unity.UIWidgets.painting {
         }
 
         Future<Codec> _loadAsync(FileImage key, DecoderCallback decode) {
+            var path = key.file;
+
+            if (!isAbsolutePath) {
 #if UNITY_ANDROID && !UNITY_EDITOR
-            var path = Path.Combine(Application.streamingAssetsPath, key.file);
+                path = Path.Combine(Application.streamingAssetsPath, key.file);
 #else
-            var path = "file://" + Path.Combine(Application.streamingAssetsPath, key.file);
+                path = "file://" + Path.Combine(Application.streamingAssetsPath, key.file);
 #endif
+            }
+
             using(var unpackerWWW = UnityWebRequest.Get(path)) {
                 unpackerWWW.SendWebRequest();
                 while (!unpackerWWW.isDone) {
@@ -1072,7 +1114,6 @@ namespace Unity.UIWidgets.painting {
     public class NetworkImageLoadException : Exception {
         NetworkImageLoadException(int statusCode, Uri uri) {
             D.assert(uri != null);
-            D.assert(statusCode != null);
             this.statusCode = statusCode;
             this.uri = uri;
             _message = $"HTTP request failed, statusCode: {statusCode}, {uri}";

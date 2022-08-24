@@ -191,23 +191,13 @@ namespace Unity.UIWidgets.widgets {
                 paste: true,
                 selectAll: true
             );
-            inputFormatters = inputFormatters ?? new List<TextInputFormatter>();
             keyboardType = keyboardType ?? (maxLines == 1 ? TextInputType.text : TextInputType.multiline);
-            List<TextInputFormatter> formatters = new List<TextInputFormatter>();
-            if (inputFormatters == null) {
-                formatters = inputFormatters;
-            }
 
-            inputFormatters = maxLines == 1
-                ? new List<TextInputFormatter>() {
-                    BlacklistingTextInputFormatter.singleLineFormatter,
-                }
-                : inputFormatters;
+            this.inputFormatters = inputFormatters?? new List<TextInputFormatter>();
             if (maxLines == 1) {
-                foreach (var formatter in formatters) {
-                    inputFormatters.Add(formatter);
-                }
+                this.inputFormatters.Add(BlacklistingTextInputFormatter.singleLineFormatter);
             }
+            
             showCursor = showCursor ?? !readOnly;
 
             this.readOnly = readOnly;
@@ -1161,9 +1151,11 @@ namespace Unity.UIWidgets.widgets {
             }
         }
         public bool showToolbar() {
+#pragma warning disable CS0162
             if (foundation_.kIsWeb) {
                 return false;
             }
+#pragma warning restore CS0162
 
             if (_selectionOverlay == null || _selectionOverlay.toolbarIsVisible) {
                 return false;

@@ -33,7 +33,7 @@ namespace Unity.UIWidgets.painting {
         public readonly float? height;
         public readonly bool inherit;
         public readonly float? letterSpacing;
-        public readonly List<BoxShadow> shadows;
+        public readonly List<Shadow> shadows;
         public readonly TextBaseline? textBaseline;
         public readonly float? wordSpacing;
 
@@ -55,7 +55,7 @@ namespace Unity.UIWidgets.painting {
             float? decorationThickness = null,
             string fontFamily = null,
             List<string> fontFamilyFallback = null,
-            List<BoxShadow> shadows = null,
+            List<Shadow> shadows = null,
             List<FontFeature> fontFeatures = null,
             string debugLabel = null) {
             D.assert(color == null || foreground == null, () => _kColorForegroundWarning);
@@ -204,7 +204,7 @@ namespace Unity.UIWidgets.painting {
             float decorationThicknessDelta = 0.0f,
             string fontFamily = null,
             List<string> fontFamilyFallback = null,
-            List<BoxShadow> shadows = null,
+            List<Shadow> shadows = null,
             float fontSizeFactor = 1.0f,
             float fontSizeDelta = 0.0f,
             int fontWeightDelta = 0,
@@ -323,7 +323,7 @@ namespace Unity.UIWidgets.painting {
             Color decorationColor = null,
             TextDecorationStyle? decorationStyle = null,
             float? decorationThickness = null,
-            List<BoxShadow> shadows = null,
+            List<Shadow> shadows = null,
             List<FontFeature> fontFeatures = null,
             string debugLabel = null) {
             D.assert(color == null || foreground == null, () => _kColorForegroundWarning);
@@ -510,12 +510,6 @@ namespace Unity.UIWidgets.painting {
         }
 
         public ui.TextStyle getTextStyle(float textScaleFactor = 1.0f) {
-            var backgroundPaint = new Paint();
-            if (background != null) {
-                backgroundPaint = new Paint();
-                backgroundPaint.color = backgroundColor;
-            }
-
             return new ui.TextStyle(
                 color: color,
                 decoration: decoration,
@@ -534,10 +528,10 @@ namespace Unity.UIWidgets.painting {
                 // locale: locale,
                 foreground: foreground,
                 background: background ?? (backgroundColor != null
-                    ? backgroundPaint
+                    ? new Paint {color = backgroundColor}
                     : null
                 ),
-                shadows: shadows?.Cast<Shadow>().ToList(),
+                shadows: shadows?.ToList(),
                 fontFeatures: fontFeatures
             );
         }

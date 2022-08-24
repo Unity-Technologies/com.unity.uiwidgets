@@ -456,7 +456,7 @@ namespace Unity.UIWidgets.material {
             get { return null; }
         }
 
-        public string barrierLabel;
+        public override string barrierLabel { get; }
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {

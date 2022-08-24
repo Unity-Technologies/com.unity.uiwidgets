@@ -6,6 +6,7 @@ using Unity.UIWidgets.ui;
 
 namespace Unity.UIWidgets.rendering {
     public class RendererBinding : SchedulerBinding {
+        
         public new static RendererBinding instance {
             get { return (RendererBinding) SchedulerBinding.instance; }
             set { Window.instance._binding = value; }

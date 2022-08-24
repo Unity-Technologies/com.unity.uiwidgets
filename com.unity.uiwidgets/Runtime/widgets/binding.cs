@@ -207,8 +207,6 @@ namespace Unity.UIWidgets.widgets {
                 });
             }
         }
-
-        bool _readyToProduceFrames = false;
         
         public RenderObjectToWidgetElement<RenderBox> renderViewElement {
             get { return _renderViewElement; }
@@ -233,7 +231,7 @@ namespace Unity.UIWidgets.widgets {
             _renderViewElement = null;
         }
 
-        internal void scheduleAttachRootWidget(Widget rootWidget) {
+        public void scheduleAttachRootWidget(Widget rootWidget) {
             Timer.run(() => {
                 attachRootWidget(rootWidget);
                 return null;
@@ -241,8 +239,6 @@ namespace Unity.UIWidgets.widgets {
         }
 
         public void attachRootWidget(Widget rootWidget) {
-            _readyToProduceFrames = true;
-
             _renderViewElement = new RenderObjectToWidgetAdapter<RenderBox>(
                 container: renderView,
                 debugShortDescription: "[root]",

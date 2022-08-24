@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.rendering
             childParentData.applyPaintTransform(transform);
         }
 
-        public bool debugValidateChild(RenderObject child)
+        public virtual bool debugValidateChild(RenderObject child)
         {
             D.assert(() =>
             {
@@ -138,7 +138,7 @@ namespace Unity.UIWidgets.rendering
         }
 
 
-        bool alwaysNeedsCompositing
+        protected override bool alwaysNeedsCompositing
         {
             get { return child != null && (_alpha != 0 && _alpha != 255); }
         }
@@ -153,7 +153,6 @@ namespace Unity.UIWidgets.rendering
                 if (_opacity == value)
                     return;
                 bool didNeedCompositing = alwaysNeedsCompositing;
-                bool wasVisible = _alpha != 0;
                 _opacity = value;
                 _alpha = ui.Color.getAlphaFromOpacity(_opacity);
                 if (didNeedCompositing != alwaysNeedsCompositing)

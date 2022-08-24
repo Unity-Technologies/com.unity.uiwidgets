@@ -104,7 +104,7 @@ namespace Unity.UIWidgets.rendering {
                     context.canvas.drawParagraph(_paragraph, offset + new Offset(left, top));
                 }
             }
-            catch (Exception e) {
+            catch (Exception) {
                 // Intentionally left empty.
             }
         }

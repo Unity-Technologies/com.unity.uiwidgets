@@ -153,7 +153,7 @@ namespace Unity.UIWidgets.painting {
                 D.assert(() => {
                     // We check this first so that the assert will fire immediately, not just
                     // when the image is ready.
-                    if (configuration.textDirection == null) {
+                    if (configuration?.textDirection == null) {
                         throw new UIWidgetsError(new List<DiagnosticsNode>() {
                             new ErrorSummary(
                                 "DecorationImage.matchTextDirection can only be used when a TextDirection is available."),
