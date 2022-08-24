@@ -170,7 +170,7 @@ namespace Unity.UIWidgets.engine {
 
         bool _viewMetricsCallbackRegistered;
 
-        void _handleViewMetricsChanged(string method, List<JSONNode> args) {
+        protected void _handleViewMetricsChanged(string method, List<JSONNode> args) {
             using (Isolate.getScope(anyIsolate)) {
                 if (_wrapper == null) {
                     return;
