@@ -48,7 +48,7 @@ UIWidgets主要来自[Flutter](https://github.com/flutter/flutter)。但UIWidget
 
 #### Unity Connect App
 Unity Connect App是使用**UIWidgets 2.0**开发的一个移动App产品，您随时可以在Android (https://unity.cn/connectApp/download)
-以及iOS (Searching for "Unity Connect" in App Store)端下载到它最新的版本. 本项目的所有代码均开源@https://github.com/UnityTech/ConnectAppCN.
+以及iOS (Searching for "Unity Connect" in App Store)端下载到它最新的版本. 本项目的所有代码均开源@https://github.com/UIWidgets/ConnectAppCN2.
 
 #### Unity中文官方文档
 Unity的线上中文官方文档由UIWidgets 1.0开发，您可以点击以下网址 https://connect.unity.com/doc 来访问它的全部内容。该项目目前已开源，所有代码可以在
@@ -250,10 +250,10 @@ using(Isolate.getScope(the isolate of your App)) {
 - UIWidgets官方示例。目前所有官方使用的示例项目均维护在一个独立的Github仓库（ https://github.com/Unity-Technologies/com.unity.uiwidgets ）中。
 具体的，你可以在Sample项目的**Scene**子文件夹中浏览所有示例UI场景。
 此外，你还可以点击主菜单上的新增的UIWidgetsTests选项卡，并在下拉菜单中选择一个EditorWindow UI示例来运行。
-- UIWidgets凉鞋系列教程。你可以在凉鞋老师整理的Github仓库（ https://github.com/liangxiegame/awesome-uiwidgets ）中学习UIWidgets的基本用法
-以及许多有趣的小Demo。
+- awesome UIWidgets项目。你可以在Github仓库（ https://plastichub.unity.cn/unity-tech-cn/awesome-uiwidgets ）中找到一些UIWidgets有趣的小Demo。
+- UIWidgets Templates项目。你可以在Github仓库（ https://github.com/UIWidgets/uiwidgets-template ）中找到一些开箱即用的UIWidgets常用组件。
 - ConnectApp开源项目。这是一个完整的线上、开源、完全基于UIWidgets的第一方App项目。其中包含了大量产品级的UIWidgets工程实践细节，
-如果你想深入了解UIWidgets并且使用它构建线上项目，请访问项目Github仓库了解更多（ https://github.com/UnityTech/ConnectAppCN ）。
+如果你想深入了解UIWidgets并且使用它构建线上项目，请访问项目Github仓库了解更多（ https://github.com/UIWidgets/ConnectAppCN2 ）。
 
 #### Wiki
 

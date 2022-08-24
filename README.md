@@ -57,7 +57,7 @@ CPU/GPU Profiling, FPS Profiling.
 
 #### Unity Connect App
 The Unity Connect App is created using **UIWidgets 2.0** and available for both Android (https://unity.cn/connectApp/download)
-and iOS (Searching for "Unity Connect" in App Store). This project is open-sourced @https://github.com/UnityTech/ConnectAppCN.
+and iOS (Searching for "Unity Connect" in App Store). This project is open-sourced @https://github.com/UIWidgets/ConnectAppCN2.
 
 #### Unity Chinese Doc
 The official website of Unity Chinese Documentation (https://connect.unity.com/doc) is powered by UIWidgets 1.0 and
@@ -270,9 +270,10 @@ UIWidgets.
 you can find all the sample scenes under the **Scene** folder.
 You can also try UIWidgets-based Editor windows by clicking the new **UIWidgetsTests** tab on the main menu
 and open one of the dropdown samples.
-* awesome-UIWidgets by Liangxie (https://github.com/liangxiegame/awesome-uiwidgets). This Repo contains 
-lots of UIWidget demo apps and third-party applications. 
-* ConnectApp (https://github.com/UnityTech/ConnectAppCN). This is an online, open-source UIWidget-based App developed 
+* awesome-UIWidgets (https://plastichub.unity.cn/unity-tech-cn/awesome-uiwidgets). This Repo contains 
+some UIWidget demo apps.
+* UIWidgets-Templates (https://github.com/UIWidgets/uiwidgets-template). This Repo contains some useful out-of-box UIWidgets widgets.
+* ConnectApp (https://github.com/UIWidgets/ConnectAppCN2). This is an online, open-source UIWidget-based App developed 
 by the dev team. If you are making your own App with UIWidgets, this project will provides you with 
 many best practice cases.
 
