@@ -339,7 +339,7 @@ namespace Unity.UIWidgets.widgets {
     }
 
     public class _ImageState : State<Image>, WidgetsBindingObserver {
-        int _frameNumber;
+        int? _frameNumber = null;
 
         ImageInfo _imageInfo;
         ImageStream _imageStream;
@@ -584,7 +584,7 @@ namespace Unity.UIWidgets.widgets {
             description.add(new DiagnosticsProperty<ImageStream>("stream", value: _imageStream));
             description.add(new DiagnosticsProperty<ImageInfo>("pixels", value: _imageInfo));
             description.add(new DiagnosticsProperty<ImageChunkEvent>("loadingProgress", value: _loadingProgress));
-            description.add(new DiagnosticsProperty<int>("frameNumber", value: _frameNumber));
+            description.add(new DiagnosticsProperty<int?>("frameNumber", value: _frameNumber));
             description.add(new DiagnosticsProperty<bool>("wasSynchronouslyLoaded", value: _wasSynchronouslyLoaded));
         }
     }
