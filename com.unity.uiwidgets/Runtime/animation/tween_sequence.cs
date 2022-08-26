@@ -1,17 +1,5 @@
 using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.animation;
-using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.scheduler;
-using System;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.painting;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
-using Rect = Unity.UIWidgets.ui.Rect;
-using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace Unity.UIWidgets.animation {
     public class TweenSequence<T> : Animatable<T> {
