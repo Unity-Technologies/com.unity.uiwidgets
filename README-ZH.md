@@ -1,3 +1,5 @@
+:warning: 为了便于项目的持续维护，很抱歉UIWidgets代码仓库即日起将迁往 https://github.com/UIWidgets/com.unity.uiwidgets ，并改为在该新仓库进行日常维护。您虽然仍然可以在这里提交您的issue报告，但请前往我们的新仓库来获取最新的UIWidgets项目。谢谢！
+
 # UIWidgets 2.0 （preview）
 
 ## :rocket:  加入我们  :rocket:
