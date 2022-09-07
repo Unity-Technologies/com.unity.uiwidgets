@@ -1,3 +1,6 @@
+:warning: The main repository of UIWidgets is migrated to https://github.com/UIWidgets/com.unity.uiwidgets and developed at the new place. Although you can still report issues here, please try visit the new site to obtain the latest UIWidgets. Thanks!
+
+
 # UIWidgets 2.0 (preview)
 [中文](README-ZH.md)
 
