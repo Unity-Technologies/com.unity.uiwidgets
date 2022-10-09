@@ -60,7 +60,7 @@ namespace Unity.UIWidgets.widgets {
             spans.Add(new TextSpan(text: value.composing.textAfter(value.text)));
             return new TextSpan(
                 style: style,
-                children: spans 
+                children: spans
                 );
         }
         public TextSelection selection {
@@ -82,13 +82,13 @@ namespace Unity.UIWidgets.widgets {
         public void clearComposing() {
             value = value.copyWith(composing: TextRange.empty);
         }
-        
+
         public bool isSelectionWithinTextBounds(TextSelection selection) {
             return selection.start <= text.Length && selection.end <= text.Length;
         }
     }
     public class ToolbarOptions {
-        
+
         public ToolbarOptions(
             bool copy = false,
             bool cut = false,
@@ -103,11 +103,11 @@ namespace Unity.UIWidgets.widgets {
         }
         public readonly  bool copy;
         public readonly  bool cut;
-        public readonly  bool paste; 
+        public readonly  bool paste;
         public readonly  bool selectAll;
     }
 
-    
+
     public class EditableText : StatefulWidget {
         public EditableText(
             Key key = null,
@@ -182,7 +182,7 @@ namespace Unity.UIWidgets.widgets {
                 "minLines and maxLines must be null when expands is true."
             );
             D.assert(!obscureText || maxLines == 1, () => "Obscured fields cannot be multiline.");
-            
+
             scrollPadding = scrollPadding ?? EdgeInsets.all(20.0f);
             D.assert(scrollPadding != null);
             toolbarOptions = toolbarOptions ?? new ToolbarOptions(
@@ -197,7 +197,7 @@ namespace Unity.UIWidgets.widgets {
             if (maxLines == 1) {
                 this.inputFormatters.Add(BlacklistingTextInputFormatter.singleLineFormatter);
             }
-            
+
             showCursor = showCursor ?? !readOnly;
 
             this.readOnly = readOnly;
@@ -260,7 +260,7 @@ namespace Unity.UIWidgets.widgets {
             this.keyboardAppearance = keyboardAppearance;
             this.enableInteractiveSelection = enableInteractiveSelection;
             this.dragStartBehavior = dragStartBehavior;
-            this.scrollPhysics = scrollPhysics; 
+            this.scrollPhysics = scrollPhysics;
         }
 
         public readonly bool readOnly;
@@ -364,7 +364,7 @@ namespace Unity.UIWidgets.widgets {
 
     public class EditableTextState : AutomaticKeepAliveClientWithTickerProviderStateMixin<EditableText>,
         WidgetsBindingObserver, TextInputClient,
-        TextSelectionDelegate 
+        TextSelectionDelegate
     {
         const int _kObscureShowLatestCharCursorTicks = 3;
         static TimeSpan _kCursorBlinkHalfPeriod = TimeSpan.FromMilliseconds(500);
@@ -383,10 +383,10 @@ namespace Unity.UIWidgets.widgets {
 
         public ScrollController _scrollController = new ScrollController();
         AnimationController _cursorBlinkOpacityController;
-        
+
         bool _didAutoFocus = false;
         FocusAttachment _focusAttachment;
-        
+
         TextEditingValue _lastFormattedUnmodifiedTextEditingValue;
         TextEditingValue _lastFormattedValue;
         TextEditingValue _receivedRemoteTextEditingValue;
@@ -655,7 +655,7 @@ namespace Unity.UIWidgets.widgets {
             if (localValue == _receivedRemoteTextEditingValue) {
                 return;
             }
-            
+
             _textInputConnection.setEditingState(localValue);
         }
 
@@ -663,7 +663,7 @@ namespace Unity.UIWidgets.widgets {
             get { return widget.controller.value; }
             set { widget.controller.value = value; }
         }
-        
+
 
         bool _hasFocus {
             get { return widget.focusNode.hasFocus; }
@@ -761,7 +761,7 @@ namespace Unity.UIWidgets.widgets {
                     .addPostFrameCallback((TimeSpan _) => _updateSizeAndTransform());
             }
         }
-        
+
         void _closeInputConnectionIfNeeded() {
             if (_hasInputConnection) {
                 _textInputConnection.close();
@@ -945,12 +945,11 @@ namespace Unity.UIWidgets.widgets {
         void _formatAndSetValue(TextEditingValue value, bool isIMEInput = false) {
             //whitespaceFormatter ??= new _WhitespaceDirectionalityFormatter(textDirection: _textDirection);
 
-            bool textChanged = _value?.text != value?.text;
             bool isRepeatText = value?.text == _lastFormattedUnmodifiedTextEditingValue?.text;
-            bool isRepeatSelection = value?.selection == _lastFormattedUnmodifiedTextEditingValue?.selection; 
+            bool isRepeatSelection = value?.selection == _lastFormattedUnmodifiedTextEditingValue?.selection;
             bool isRepeatComposing = value?.composing == _lastFormattedUnmodifiedTextEditingValue?.composing;
-           
-            if (!isRepeatText && textChanged && widget.inputFormatters != null && widget.inputFormatters.isNotEmpty()) {
+
+            if (!isRepeatText && widget.inputFormatters != null && widget.inputFormatters.isNotEmpty()) {
                 foreach (TextInputFormatter formatter in widget.inputFormatters) {
                     value = formatter.formatEditUpdate(_value, value);
                 }
@@ -958,19 +957,20 @@ namespace Unity.UIWidgets.widgets {
                 _lastFormattedValue = value;
             }
 
-            _value = value;
-           
-            if (isRepeatText && isRepeatSelection && isRepeatComposing && textChanged && _lastFormattedValue != null) {
-                _value = _lastFormattedValue;
+            if (isRepeatText && isRepeatSelection && isRepeatComposing && _lastFormattedValue != null) {
+                value = _lastFormattedValue;
             }
 
-          
+            bool textChanged = _value?.text != value?.text;
+            _value = value;
+
+
             _updateRemoteEditingValueIfNeeded();
 
             if (textChanged && widget.onChanged != null)
                 widget.onChanged(value.text);
             _lastFormattedUnmodifiedTextEditingValue = _receivedRemoteTextEditingValue;
-            
+
         }
 
         void _onCursorColorTick() {
@@ -1242,14 +1242,14 @@ namespace Unity.UIWidgets.widgets {
                 }
                 return new TextSpan(style: widget.style, text: text);
             }
-            
+
             return widget.controller.buildTextSpan(
                 style: widget.style,
                 withComposing: !widget.readOnly
             );
         }
 
-       
+
         bool _unityKeyboard() {
             return TouchScreenKeyboard.isSupported && widget.unityTouchKeyboard;
         }
@@ -1284,9 +1284,9 @@ namespace Unity.UIWidgets.widgets {
                 _textInputConnection.setIMEPos(_getImePos());
             });
         }
-        
+
     }
-    
+
 
     class _Editable : LeafRenderObjectWidget {
         public readonly TextSpan textSpan;
